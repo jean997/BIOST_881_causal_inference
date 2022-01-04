@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L0: Course Orientation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# L0: Course Orientation
+### Jean Morrison
+### University of Michigan
+### 2021-01-05 (updated: 2022-01-04)
+
+---
+
+
+# Welcome + Course Basics
+
++ We will meet twice a week in person:
+  - Monday's 1-2:30 in M1152 SPH II
+  - Wednesday's 1-2:30 in M3755 SPH I
+
++ Textbook: 
+  - ["What If?" By Miguel Hernán and James Robins](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/) 
+  - Other readings will be provided as pdfs
+
+---
+
+# Course Structure
+
+&lt; Tour of Canvas Site &gt;
+
+---
+
+# What is Causal Inference?
+
+--
+
++ Causal inference is the art and science of using statistical tools to answer causal questions. 
+
+--
+
+
++ Interpreting statistical parameters as causal parameters requires:
+
+  - A language and philosophy of causality.
+  - A model of the system you are studying.
+
+
+---
+
+# What We Will Learn in this Class
+
+--
+
++ Languages of causality:
+
+  - Counterfactuals and Potential Outcomes
+  - Graphical models
+  - Structural Equation Models
+
+--
+
++ Identifiability conditions 
+
+--
+
++ Estimation strategies:
+  - Weighting, standardization, G-estimation
+  - Propensity scores and matching
+  - Instrumental variable analysis
+  - Methods for time-varying treatment
+  -...
+
+
+---
+
+# About Me
+
+- Jean Morrison. You can call me Jean (or Dr. Morrison if you prefer).
+
+- My pronouns are they/them. 
+
+- Research:
+  + Statistical genetics
+  + Instrumental variable analysis with genetic instruments
+  + High dimensional biological data
+  + Data integration (combining multiple sources of Hi-D data)
+
+
+---
+
+# About This Class
+
+- This is the first teaching of this variation of this class!
+
+- Please tell me what you like and what you don't like.
+
+- Plans may change as the semester progresses.
+
+- I will teach it again next year: If you are auditing because you don't have 
+time this year, consider taking the class next year. 
+
+
+---
+
+# About This Class
+
+- The goal is to create an active, collaborative, learning environment. 
+
+- Ground rules: 
+  + Be engaged, ask questions, and contribute to discussions.
+  + Complete assignments on schedule. 
+  + Be respectful of me and your classmates. 
+
+
+---
+
+# Covid Contingency Plans
+
+- The class is in-person unless the University changes course.
+--
+
+
+  + I do not control this.
+
+--
+
+
+- There will always be a Zoom option:
+
+  + Let me know ahead of time if you are planning to Zoom. 
+  + Use the Zoom option for circumstances when you really can't be here
+  (i.e. you or your family are sick, an emergency has kept you home, travel disruptions).
+  + You don't have to tell me why you are zooming in.
+  
+---
+
+# Covid Contingency Plans
+
+- If you are sick or test positive: 
+  + Don't come to class, zoom in if you feel well enough.
+  + Watch lectures asynchronously if needed. 
+  + Let me know.
+  
+- If I am sick or test positive:
+  + If I test positive but am not symptomatic, class will be held by zoom. 
+  + We may have to do asynchronous lectures, or I will ask someone to fill in. 
+
+- Hopefully we all stay healthy.
+ 
+ 
+ 
+---
+
+# Intro Survey
+
+Please fill out [the introductory survey](https://forms.gle/EfComH5FDyTovbf79) by Friday. 
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
