@@ -7,4 +7,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-Describe your project.
+This is a teaching website for
+
+BIOSTAT 881: Advanced Topics in Causal Inference
+
+
+A class taught Winter 2022 by Jean Morrison at the University of Michigan. 
