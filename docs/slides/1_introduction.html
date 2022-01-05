@@ -4,7 +4,7 @@
     <title>L1: Getting Started</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
@@ -17,7 +17,7 @@ class: center, middle, inverse, title-slide
 # L1: Getting Started
 ### Jean Morrison
 ### University of Michigan
-### 2021-01-05 (updated: 2022-01-04)
+### 2022-01-05 (updated: 2022-01-05)
 
 ---
 
@@ -72,7 +72,7 @@ class: center, middle, inverse, title-slide
 
   + Earliest studies used a case/control design. 
   + Followed by prospective studies matching healthy smokers and non-smokers by age, sex, and occupation and following them over time. 
-  + All studies observe a large and robust association between smoking and lung cancer (Doll and Hill estimate an OR of 40 in 1954).
+  + All studies observed a large and robust association between smoking and lung cancer (Doll and Hill estimate an OR of 40 in 1954).
 
 --
 
@@ -119,7 +119,7 @@ class: center, middle, inverse, title-slide
 
 --
 
-- Causal inference cannot be achieved through only statistical procedures. It requires a model and interpretation provided by the practitioner. 
+- Causal inference cannot be achieved through only statistical procedures. It requires a model, assumptions, and information external to the study.
 
 --
 
@@ -148,22 +148,22 @@ class: center, middle, inverse, title-slide
 
 --
 
-+ Causality described using potential outcomes/counterfactuals:
++ Potential Outcomes/counterfactuals:
   - Proposes the existence of unobserved outcomes for each unit under different possible exposures or treatments.
-  - First formalized by Neyman in 1923 and further developed by Donald Rubin (1974 and onward) and others.
+  - First formalized by Neyman (1923), further developed by Donald Rubin (1974 and onward) and others.
   - "Rubin causal model". 
 
 --
-+ Causality described using graphs:
++ Graphs:
   - Represents causal relationships between observed and unobserved variables as directed edges in a graph. 
   - Causal interventions are represented as modifications of the graph. 
-  - Introduced by Wright (geneticist) in 1921, further developed by Judea Pearl (1988 and onward) and others.
+  - Introduced by Wright (1921), further developed by Judea Pearl (1988 and onward) and others.
 
 --
-+ Causality described using structural equations:
++ Structural Equations:
    - Represents causal relationships as a series of equations describing conditional probability distributions.
    - Also introduced by Wright in 1921.
-   - More work by Pearl, Haavelmo (econometrics), Duncan (social sciences), and many more.
+   - More work by Pearl, Haavelmo, Duncan, and many more.
 
 --
 + Under some conditions, all three languages are equivalent/mutually compatible.
@@ -202,9 +202,9 @@ class: center, middle, inverse, title-slide
 --
 
 + Many equivalent notations:
-  - `\(Y(A = a)\)`, `\(Y(a)\)`: I will primarily use these notations 
+  - `\(Y(A = a)\)`, `\(Y(a)\)`: I will primarily use these notations. 
   - `\(Y^a\)`: This is the main notation in Hernán and Robins.
-  - `\(Y\vert \ do(A = a)\)`: This notation explicitly emphasizes the action of setting `\(A\)` equal to `\(a\)` and is favored by Judea Pearl. 
+  - `\(Y\vert \ do(A = a)\)`: This notation emphasizes the intervention of setting `\(A\)` equal to `\(a\)` and is favored by Judea Pearl. There are some subtle differences between the "do operator" and counterfactuals. 
 
 --
 
@@ -218,8 +218,8 @@ class: center, middle, inverse, title-slide
 
 &lt;!-- + We can only observe `\(Y_i\)` under a single value of `\(A_i\)`, so `\(Y_i(A_i = a)\)` is missing for all but one value of `\(a\)`. --&gt;
 
-
 ---
+
 # Example
 
 For each person we observe:
@@ -836,12 +836,12 @@ Corrolary: If consistency, SUTVA, and exchangeability hold then `\(E[Y(a)] = E[Y
 
 # Example
 
-+ We are doing an experiment of a new treatment for a disease. Some patients will receive the new treatment ($A = 1$), 
-while the rest will receive standard of care ($A = 0$).
-
-+ We decide on a randomization scheme in which sicker patients are more likely to receive the new treatment. We set `\(P(A = 1 \vert L = 0) = 0.5\)` and `\(P(A = 1 \vert L = 1) = 0.75\)`.
++ We are doing an experiment of a new treatment for a disease. Some patients will receive the new treatment ( `\(A = 1\)` ), 
+while the rest will receive standard of care ( `\(A = 0\)` ).
 
 + Let `\(L = 0\)` indicate that a patient is less sick and `\(L = 1\)` indicate that they are more sick.
+
++ We decide on a randomization scheme in which sicker patients are more likely to receive the new treatment. We set `\(P(A = 1 \vert L = 0) = 0.5\)` and `\(P(A = 1 \vert L = 1) = 0.75\)`.
 
 + We observe if each patient dies before a set time point ( `\(Y = 1\)` for death, `\(Y = 0\)` for survival).
 
@@ -870,7 +870,7 @@ while the rest will receive standard of care ($A = 0$).
 ---
 # Stratum Specific Causal Effects and Standardization
 
-+ Within values of `\(L\)`, `\(P[Y(a) \vert L = l]\)` are identified because exchangeability holds within levels of `\(L\)`. 
++ Exchangeability holds within levels of `\(L\)`, so `\(E[Y(a) \vert L = l]\)` is identifiable.
 
 --
 
@@ -901,10 +901,16 @@ $$
 
 # Identification Theorem (Conditional)
 
-Theorem: If consistency, SUTVA, conditional exchangeability, *and positivity* hold, then `$$Y(a) \vert X =x \overset{d}{=} Y | X = x, A = a.$$` 
+Theorem: If consistency, SUTVA, conditional exchangeability, *and positivity* hold, then `$$Y(a) \vert\ L =l \overset{d}{=} Y |\ L = l, A = a.$$` 
 
-We can use exactly the same proof conditioning on `\(X\)` in each step.
+--
 
+We can use exactly the same proof as the non-conditional theorem, conditioning on `\(L\)` in each step.
+
+Proof: 
+
+`$$P[Y(a) \leq y \vert L = l] = P[Y(a) \leq y \vert L=l, A = a] \ \ \ \text{(conditional exchangeability)}$$`
+`$$= P[Y \leq y \vert L=l, A = a] \ \ \  \text{(consistency)}$$`
 
 ---
 
@@ -912,7 +918,7 @@ We can use exactly the same proof conditioning on `\(X\)` in each step.
 
 + Rather than using the standardization method, we can think of our trial as a weighted sampling from a larger, fully randomized trial with `\(2N\)` participants.
 
-+ This **pseudo-population** contains two member for every member in our trial, one receiving each treatment. 
++ This *pseudo-population* contains two members for every member in our trial, one receiving each treatment. 
 
 + In the pseudo-population, `\(Y(a) \ci A\)` so the conditional mean, `\(E[Y \vert A = a]\)` estimates the counterfactual mean `\(E[Y(a)]\)`.
 

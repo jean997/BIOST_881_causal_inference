@@ -2,7 +2,7 @@
 title: "L1: Getting Started"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2021-01-05 (updated: `r Sys.Date()`)"
+date: "2022-01-05 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -62,7 +62,7 @@ $\newcommand{\ci}{\perp\!\!\!\perp}$
 
   + Earliest studies used a case/control design. 
   + Followed by prospective studies matching healthy smokers and non-smokers by age, sex, and occupation and following them over time. 
-  + All studies observe a large and robust association between smoking and lung cancer (Doll and Hill estimate an OR of 40 in 1954).
+  + All studies observed a large and robust association between smoking and lung cancer (Doll and Hill estimate an OR of 40 in 1954).
 
 --
 
@@ -109,7 +109,7 @@ $\newcommand{\ci}{\perp\!\!\!\perp}$
 
 --
 
-- Causal inference cannot be achieved through only statistical procedures. It requires a model and interpretation provided by the practitioner. 
+- Causal inference cannot be achieved through only statistical procedures. It requires a model, assumptions, and information external to the study.
 
 --
 
@@ -138,22 +138,22 @@ $\newcommand{\ci}{\perp\!\!\!\perp}$
 
 --
 
-+ Causality described using potential outcomes/counterfactuals:
++ Potential Outcomes/counterfactuals:
   - Proposes the existence of unobserved outcomes for each unit under different possible exposures or treatments.
-  - First formalized by Neyman in 1923 and further developed by Donald Rubin (1974 and onward) and others.
+  - First formalized by Neyman (1923), further developed by Donald Rubin (1974 and onward) and others.
   - "Rubin causal model". 
 
 --
-+ Causality described using graphs:
++ Graphs:
   - Represents causal relationships between observed and unobserved variables as directed edges in a graph. 
   - Causal interventions are represented as modifications of the graph. 
-  - Introduced by Wright (geneticist) in 1921, further developed by Judea Pearl (1988 and onward) and others.
+  - Introduced by Wright (1921), further developed by Judea Pearl (1988 and onward) and others.
 
 --
-+ Causality described using structural equations:
++ Structural Equations:
    - Represents causal relationships as a series of equations describing conditional probability distributions.
    - Also introduced by Wright in 1921.
-   - More work by Pearl, Haavelmo (econometrics), Duncan (social sciences), and many more.
+   - More work by Pearl, Haavelmo, Duncan, and many more.
 
 --
 + Under some conditions, all three languages are equivalent/mutually compatible.
@@ -192,9 +192,9 @@ $\newcommand{\ci}{\perp\!\!\!\perp}$
 --
 
 + Many equivalent notations:
-  - $Y(A = a)$, $Y(a)$: I will primarily use these notations 
+  - $Y(A = a)$, $Y(a)$: I will primarily use these notations. 
   - $Y^a$: This is the main notation in Hernán and Robins.
-  - $Y\vert \ do(A = a)$: This notation explicitly emphasizes the action of setting $A$ equal to $a$ and is favored by Judea Pearl. 
+  - $Y\vert \ do(A = a)$: This notation emphasizes the intervention of setting $A$ equal to $a$ and is favored by Judea Pearl. There are some subtle differences between the "do operator" and counterfactuals. 
 
 --
 
@@ -208,8 +208,8 @@ $\newcommand{\ci}{\perp\!\!\!\perp}$
 
 <!-- + We can only observe $Y_i$ under a single value of $A_i$, so $Y_i(A_i = a)$ is missing for all but one value of $a$. -->
 
-
 ---
+
 # Example
 
 For each person we observe:
@@ -534,12 +534,12 @@ $$\frac{1}{n_{1}}\sum_{i: A_i = 1}Y_i - \frac{1}{n_2}\sum_{i:A_i = 0}Y_i = \bar{
 
 # Example
 
-+ We are doing an experiment of a new treatment for a disease. Some patients will receive the new treatment ($A = 1$), 
-while the rest will receive standard of care ($A = 0$).
-
-+ We decide on a randomization scheme in which sicker patients are more likely to receive the new treatment. We set $P(A = 1 \vert L = 0) = 0.5$ and $P(A = 1 \vert L = 1) = 0.75$.
++ We are doing an experiment of a new treatment for a disease. Some patients will receive the new treatment ( $A = 1$ ), 
+while the rest will receive standard of care ( $A = 0$ ).
 
 + Let $L = 0$ indicate that a patient is less sick and $L = 1$ indicate that they are more sick.
+
++ We decide on a randomization scheme in which sicker patients are more likely to receive the new treatment. We set $P(A = 1 \vert L = 0) = 0.5$ and $P(A = 1 \vert L = 1) = 0.75$.
 
 + We observe if each patient dies before a set time point ( $Y = 1$ for death, $Y = 0$ for survival).
 
@@ -568,7 +568,7 @@ $$Y(a) \ci A\ \vert\ L$$
 ---
 # Stratum Specific Causal Effects and Standardization
 
-+ Within values of $L$, $P[Y(a) \vert L = l]$ are identified because exchangeability holds within levels of $L$. 
++ Exchangeability holds within levels of $L$, so $E[Y(a) \vert L = l]$ is identifiable.
 
 --
 
@@ -599,10 +599,16 @@ $$P[A = a \vert L = l] > 0 \ \ \forall a, l$$
 
 # Identification Theorem (Conditional)
 
-Theorem: If consistency, SUTVA, conditional exchangeability, *and positivity* hold, then $$Y(a) \vert X =x \overset{d}{=} Y | X = x, A = a.$$ 
+Theorem: If consistency, SUTVA, conditional exchangeability, *and positivity* hold, then $$Y(a) \vert\ L =l \overset{d}{=} Y |\ L = l, A = a.$$ 
 
-We can use exactly the same proof conditioning on $X$ in each step.
+--
 
+We can use exactly the same proof as the non-conditional theorem, conditioning on $L$ in each step.
+
+Proof: 
+
+$$P[Y(a) \leq y \vert L = l] = P[Y(a) \leq y \vert L=l, A = a] \ \ \ \text{(conditional exchangeability)}$$
+$$= P[Y \leq y \vert L=l, A = a] \ \ \  \text{(consistency)}$$
 
 ---
 
@@ -610,7 +616,7 @@ We can use exactly the same proof conditioning on $X$ in each step.
 
 + Rather than using the standardization method, we can think of our trial as a weighted sampling from a larger, fully randomized trial with $2N$ participants.
 
-+ This **pseudo-population** contains two member for every member in our trial, one receiving each treatment. 
++ This *pseudo-population* contains two members for every member in our trial, one receiving each treatment. 
 
 + In the pseudo-population, $Y(a) \ci A$ so the conditional mean, $E[Y \vert A = a]$ estimates the counterfactual mean $E[Y(a)]$.
 
