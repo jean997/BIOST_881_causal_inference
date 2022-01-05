@@ -4,7 +4,7 @@
     <title>L1: Getting Started</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
@@ -38,6 +38,8 @@ class: center, middle, inverse, title-slide
 
 # Example: Smoking and Lung Cancer
 
+--
+
 + In 1900 only 140 cases of lung cancer were known in published medical literature. 
 
 --
@@ -63,6 +65,8 @@ class: center, middle, inverse, title-slide
 ---
 
 # The Case Against Smoking
+
+--
 
 - Observational studies showed a strong association between smoking and lung cancer. 
 
@@ -123,40 +127,69 @@ class: center, middle, inverse, title-slide
 
 --
 
-- Many interesting and important questions cannot be answered in a randomized trial: We need theory and language that allows us to test causal hypotheses in observational data. 
+- Many interesting and important questions cannot be answered in a randomized trial.
+
+  + We need theory and language that allows us to test causal hypotheses in observational data. 
 
 ---
 
-# Languages of Causality
+# Early Foundations of Causal Theory
 
-Early work:
 
 - Neyman 1923: Notation and formalization of potential outcomes introduced.
 
 - Fisher 1925: Physical randomization of units as the "reasoned basis" for inference.
 
+- Wright 1921: Introduced graphical models and path analysis.
+
 ---
 
 # Languages of Causality
 
-+ Causality described using potential outcomes:
-  - Neyman, 1923 (statistics)
-  - Lewis, 1973 (philosophy)
-  - Rubin 1974 (statistics)
-  - Robins, 1986 (epidemiology)
+--
 
++ Causality described using potential outcomes/counterfactuals:
+  - Proposes the existence of unobserved outcomes for each unit under different possible exposures or treatments.
+  - First formalized by Neyman in 1923 and further developed by Donald Rubin (1974 and onward) and others.
+  - "Rubin causal model". 
+
+--
 + Causality described using graphs:
-  + Wright, 1921 (genetics)
-  + Pearl, 1988 (CS, statistics)
-  + Sprites, Glymour, Scheines, 1993 (philosophy)
+  - Represents causal relationships between observed and unobserved variables as directed edges in a graph. 
+  - Causal interventions are represented as modifications of the graph. 
+  - Introduced by Wright (geneticist) in 1921, further developed by Judea Pearl (1988 and onward) and others.
 
+--
 + Causality described using structural equations:
-   - Wright, 1921 (genetics)
-   - Haavelmo, 1943 (econometrics)
-   - Duncan, 1975 (social sciences)
-   - Pearl, 2000 (CS, statistics)
+   - Represents causal relationships as a series of equations describing conditional probability distributions.
+   - Also introduced by Wright in 1921.
+   - More work by Pearl, Haavelmo (econometrics), Duncan (social sciences), and many more.
+
+--
++ Under some conditions, all three languages are equivalent/mutually compatible.
 
 ---
+
+&lt;!-- # Languages of Causality --&gt;
+
+&lt;!-- + Causality described using potential outcomes: --&gt;
+&lt;!--   - Neyman, 1923 (statistics) --&gt;
+&lt;!--   - Lewis, 1973 (philosophy) --&gt;
+&lt;!--   - Rubin 1974 (statistics) --&gt;
+&lt;!--   - Robins, 1986 (epidemiology) --&gt;
+
+&lt;!-- + Causality described using graphs: --&gt;
+&lt;!--   + Wright, 1921 (genetics) --&gt;
+&lt;!--   + Pearl, 1988 (CS, statistics) --&gt;
+&lt;!--   + Sprites, Glymour, Scheines, 1993 (philosophy) --&gt;
+
+&lt;!-- + Causality described using structural equations: --&gt;
+&lt;!--    - Wright, 1921 (genetics) --&gt;
+&lt;!--    - Haavelmo, 1943 (econometrics) --&gt;
+&lt;!--    - Duncan, 1975 (social sciences) --&gt;
+&lt;!--    - Pearl, 2000 (CS, statistics) --&gt;
+
+&lt;!-- --- --&gt;
 
 # Counterfactuals/Potential Outcomes
 
@@ -384,7 +417,7 @@ with the inside expectation taken over the distribution of `\(Y_i(A_i = a)\)` an
 # Causation vs Association
 
 
-![](1_fig1.png)
+![](img/1_fig1.png)
 
 Fig 1.1 from HR
 
@@ -543,11 +576,9 @@ $$ E[Y(a)] = E[Y \vert A = a]$$
 ---
 # Consistency
 
-+ Let `\(y_i\)` and `\(a_i\)` be the observed values of `\(Y_i\)` and `\(A_i\)`. 
++ The observed value of `\(Y_i\)` is the same as the counterfactual value of `\(Y_i\)` under the treatment `\(a_i\)`, where `\(a_i\)` is the treatment individual `\(i\)` actually recieved. 
 
-+ Consistency states that `\(y_i = Y_i(A_i = a_i)\)`.
-
-+ The observed value of `\(Y_i\)` is the same as the counterfactual value of `\(Y_i\)` under the treatment `\(a_i\)`. 
+`$$Y_i = Y_i(A_i = a_i)$$`
 
 --
 
@@ -577,7 +608,7 @@ $$
 
 --
 
-5 minute pair discussion:
+Pair discussion:
 
 + What do these assumptions look like in the bike helmet example?
 
@@ -783,10 +814,12 @@ Corrolary: If consistency, SUTVA, and exchangeability hold then `\(E[Y(a)] = E[Y
 
 + For now, we assume full compliance (everyone assigned treatment `\(a\)` receives treatment `\(a\)`).
 
-+ Full exchangeability holds by design. 
++ Exchangeability holds by design. 
 
 + So, we can estimate the ATE as long as consistency and SUTVA hold.
 
++ One estimator is just the difference in average outcomes (more on estimators in HW1):
+`$$\frac{1}{n_{1}}\sum_{i: A_i = 1}Y_i - \frac{1}{n_2}\sum_{i:A_i = 0}Y_i = \bar{Y}_1 - \bar{Y}_0$$`
 
 ---
 
@@ -801,20 +834,67 @@ Corrolary: If consistency, SUTVA, and exchangeability hold then `\(E[Y(a)] = E[Y
 
 ---
 
+# Example
+
++ We are doing an experiment of a new treatment for a disease. Some patients will receive the new treatment ($A = 1$), 
+while the rest will receive standard of care ($A = 0$).
+
++ We decide on a randomization scheme in which sicker patients are more likely to receive the new treatment. We set `\(P(A = 1 \vert L = 0) = 0.5\)` and `\(P(A = 1 \vert L = 1) = 0.75\)`.
+
++ Let `\(L = 0\)` indicate that a patient is less sick and `\(L = 1\)` indicate that they are more sick.
+
++ We observe if each patient dies before a set time point ( `\(Y = 1\)` for death, `\(Y = 0\)` for survival).
+
+
+
+
+---
+
 # Conditional Exchangeability
 
-+ Conditional exchangeability allows us to recover identification of ATE with additional measured features. 
++ Notice that our trial looks like two fully randomized trials combined. 
+  
+    - In one trial, the target population is patients with `\(L = 0\)` and the treatment probability is 0.5.
+    - In the other, the target population is patients with `\(L = 1\)` and the treatment probability is 0.75.
 
-+ Conditional exchangeability holds with respect to a set of variables `\(X\)`, if
+--
 
-`$$Y(a) \ci A \vert X$$`
++ Conditional exchangeability captures the idea that data are randomized *within* levels of `\(L\)`.
+
+--
+
+
++ Conditional exchangeability holds with respect to a set of variables `\(L\)`, if
+
+`$$Y(a) \ci A\ \vert\ L$$`
 ---
+# Stratum Specific Causal Effects and Standardization
+
++ Within values of `\(L\)`, `\(P[Y(a) \vert L = l]\)` are identified because exchangeability holds within levels of `\(L\)`. 
+
+--
+
++ If we want to estimate the population level marginal counterfactual value of `\(Y\)` under treatment `\(A = a\)`, we can simply weight our estimates
+by the population frequency of `\(L\)`:
+$$
+E[Y(a)] = \sum_{l}E[Y(a) \vert L = l]P[L = l]
+$$
+--
+
++ This is called the standardized mean (standardized by whatevery population frequencies of `\(L\)` you choose).
+
+---
+
 
 # Positivity
 
-+ The positivity condition states that at all individuals have some chance of recieving any treatment: 
++ Of course, the standardization trick doesn't work if, within one level of `\(L\)`, patients never (or always) receive treatment.
 
-`$$P[A = a \vert X = x] &gt; 0 \ \ \forall a, x$$`
+--
+
++ The positivity condition states that at all individuals have some chance of receiving any treatment: 
+
+`$$P[A = a \vert L = l] &gt; 0 \ \ \forall a, l$$`
 
 
 ---
@@ -828,25 +908,80 @@ We can use exactly the same proof conditioning on `\(X\)` in each step.
 
 ---
 
-# Estimation
+# Inverse Probability Weighting 
 
++ Rather than using the standardization method, we can think of our trial as a weighted sampling from a larger, fully randomized trial with `\(2N\)` participants.
 
----
++ This **pseudo-population** contains two member for every member in our trial, one receiving each treatment. 
 
-
-# Stratum Specific Causal Effects
-
----
-
-# Standardization
++ In the pseudo-population, `\(Y(a) \ci A\)` so the conditional mean, `\(E[Y \vert A = a]\)` estimates the counterfactual mean `\(E[Y(a)]\)`.
 
 ---
 
 # Inverse Probability Weighting 
 
++ We can imagine that each individual in our trial was sampled from the larger population with probability conditional on `\(L\)` and `\(A\)`.
+ 
+ - In our study we selected half of participants with `\(A_i = 0\)` and `\(L_i = 0\)`
+ - Half of participants with `\(A_i = 1\)` and `\(L = 0\)`
+ - One quarter of participants with `\(A_i = 0\)` and `\(L = 1\)` 
+ - Three quarters of participants with `\(A_i = 1\)` and `\(L = 1\)`
+
+--
+
++ We can recover the estimate from the pseudo-population by weighting each participant by the number of units in the larger study that they represent:
+  
+  - `\(A_i=0\)`, `\(L_i=0\)`: `\(1/0.5 = 2\)`
+  - `\(A_i = 1\)`, `\(L_i = 0\)`: `\(1/0.5 = 2\)`
+  - `\(A_i = 0\)`, `\(L_i = 1\)`: `\(1/0.25 = 4\)`
+  - `\(A_i = 1\)`, `\(L_i = 0\)`: `\(1/0.75 = 1.33\)`
+
+
 ---
 
-# Identifying a Causal Effect in an Observational Study
+# Inverse Probability Weighting 
+
++ Formally, let `\(f_{A \vert L}(a\vert l)\)` be the conditional pdf of `\(A\)` given `\(L\)`. 
+
++ We assume that `\(f_{A \vert L}(a\vert l) &gt; 0\)` for all `\(a\)` and `\(l\)` s.t `\(P[L = l] &gt; 0\)`. 
+
++ The IP weighting for individual `\(i\)` is `\(W^A_i = 1/f_{A\vert L}(a_i \vert l_i)\)`.
+
++ The IP weighted mean for treatment level `\(a\)` is `\(E\left[\frac{I(A=a)Y}{f(A\vert L)}\right]\)`
+
+---
+
+# Equivalence of IP Weighting and Standardization
+
++ We will assume that `\(A\)` and `\(L\)` are discrete and `\(f(a \vert l) = P[A = a \vert L = l] &gt; 0\)` for all `\(l\)` with `\(P[L = l] &gt; 0\)`.
+
++ Use the iterated expectation formula:
+
+
+`$$E\left[\frac{I(A=a)Y}{f(A\vert L)}\right] = E_L \left \lbrace E_{A} \left\lbrace E_{Y}\left[\frac{I(A=a)Y}{f(A\vert L)} \vert A, L \right]\right\rbrace \right\rbrace$$`
+`$$=\sum_l \frac{E[Y\vert A = a, L = l]}{f(a\vert l)} f(a \vert l) P[L = l]$$`
+`$$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$`
+
++ This proof extends to continuous `\(L\)` but not to continuous `\(A\)` (see HW 1).
+
++ If conditional exchangeability holds, then both the IP weighted mean and the standardized mean estimate `\(Y(a)\)`.
+
+
+---
+
+# Causal Effects from in an Observational Data
+
++ None of our four identification conditions consistency, SUTVA, conditional exchangeability, and positivity require that our data is from a randomized trial.
+
++ However, these are much stronger assumptions in observational data. 
+
++ We must also consider whether the causal question is well-defined:
+
+  - Is the counterfactual outcome well defined? (Ex. what does it mean to say that obesity is a cause of heart disease)?
+  - Are all levels of the treatment observed in the data?
+  
++ The target trial: Hernán and Robins suggest that researchers using observational data should imagine a hypothetical 
+trial they are trying to emulate. 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
