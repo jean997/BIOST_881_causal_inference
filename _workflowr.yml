@@ -9,4 +9,4 @@ knit_root_dir: "."
 
 sessioninfo: ""
 
-supress_report: TRUE
+suppress_report: TRUE
