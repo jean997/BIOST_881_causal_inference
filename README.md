@@ -1,5 +1,3 @@
-# BIOST881_winter2022
+# Course Website for BIOST 881: Advanced Topics in Causal Inference 
 
-A [workflowr][] project.
-
-[workflowr]: https://github.com/jdblischak/workflowr
+Taught Winter 2022 by Jean Morrison
