@@ -1,0 +1,135 @@
+---
+title: "Topic and Lecture Outline"
+author: "Jean Morrison"
+date: "2021-11-30"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## 1. Introduction/motivation:
+  - Motivation:
+    + Motivating examples of non-causal associations.
+    + A little history -- Fisher's randomized trials, formalization in 80's/90's
+  - What does "causal" mean? (HR Ch. 1)
+    + Counterfactuals
+    + Potential outcomes notation: $Y(x)$, $Y(X = x)$, $Y^x$, $Y\vert do(X = x)$
+    + Counterfactuals when $X$ can be intervened on.
+    + Counterfactuals when $X$ cannot be intervened on.
+    + Non-deterministic counterfactuals.
+    + Introduce a running example
+    + Average treatment effect, risk difference, risk ratio, odds ratio
+    + (Non-collapsibility of odds-ratio)(this might go somewhere else)[HR fine point 4.3 page 54]
+    + Individual vs population average treatment effect. 
+    + Causation vs association
+  - Simple randomized trial of a point intervention: (HR Ch 2)
+    + Exchangeability (exogeneity): 
+      - Full exchangeability ($Y(x)$ is independent of $X$) vs mean exchangeability ($E[Y(X = 1) \vert X =1] = E[Y(X = 1) \vert X = 0]$)
+    + Consistency : $y_i = Y_i(X = x_i)$
+    + Stable Unit Treatment Value Assumption (SUTVA)
+    + Examples when SUTVA does not hold. Examples when it plausibly does hold.
+  - Conditionally randomized trial of a point intervention (HR Ch. 2)
+    + Conditional randomization
+    + Stratum specific causal effects
+    + Standardization
+    + Inverse probability weighting
+    + Positivity: $P[X = x | Z = z] > 0 \ \ \forall x, z$ (briefly)
+    + (Propensity scores)
+  - Simple observational study of point intervention (HR Ch. 3)
+    + Conditions for identifiability of a causal effect in observational data:
+      - Consistency 
+      - Conditional Exchangeability
+      - Positivity
+    + Consistency
+    + Conditional Exchangeability
+    + Positivity
+    
+## 2. Causal Graphs and Confounding
+  - Introduction to DAGs (HR 6 + Pearl)
+  - Conditional independence statements based on DAGs (Pearl)
+  - Creating DAGs as an imaginitive exercise
+  - (Aside) Representing race in DAGs
+  - Confounding, selecting an adjustment set
+    + d-separation (Fine Point 6.1, Pearl)
+    + Backdoor criterion
+  - Definition of a confounder
+  - Interventions and counterfactuals in DAGs: (Pearl, HR 7.5)
+    + Twin causal diagrams (Balke and Pearl 1994)
+    + Single World Intervention Graph (SWIG) (Robins and Richardson 2013)
+  - G-Methods (intro):
+    + standardization
+    + IP weighting
+    + Parametric g-formula (brief mention, will cover in detail later)
+  - Stratification  
+    
+## HW 1:
+  - Applying identifiability criteria
+  - Applying backdoor criterion
+  - Difference between individual and average treatment effects 
+  - Simulation demonstrations of selection bias
+  - Simulations in which two DAGs create the same data distribution with different causal effects.
+  
+## 3. Interactions and Effect Modification (HR 4 and 5)
+
+
+## 4. Selection Bias and Colliding (HR 8)
+  - Examples
+  - Selection bias represented in a DAG
+  - Collider definition
+  - More examples
+  - Adjusting for selection bias (HR 8.5)
+    + IP weighting
+ 
+## Model Based Inference Strategies
+
+## 5.  Intro + Treatment Modeling Approaches (HR 11, 12, 13) 
+  - Probably 2 days of lecture
+  - IP Weighting (12)
+  - Standardization (13)
+  - Doubly robust estimators
+  
+## 6. G Estimation and Structural nested models (HR 14)
+
+## 7. Outcome regression and propensity scores (HR 15)
+
+## 8. Instrumental variable analysis 
+
+
+## Longitudinal studies
+
+## 9. Time varying treatments (HR 19, 20)
+  - Sequentially randomized experiments
+  - Sequential Exchangeability 
+  - Time varying confouding 
+  - Treatment confounder feedback
+  
+## 10. G-methods for time-varying treatment (HR 21)
+
+## ST1: Causal Inference in Survival Analysis
+
+## ST2: Variable Selection for Causal Inference
+
+## ST3: ML and Causal Inference (related to ST2)
+
+## ST 4: Adaptive Trial Design
+
+
+## Unplaced topics    
+  - Crossover randomized trials 
+  - Non-Compliance in simple randomized trial (HR Ch 8)
+    + Compliers/non-compliers, always-takers, never-takers. Let $D_i$ denote treatment received and $W_i$ denote treatment assigned.
+      - Compliers: $D_i(W = 0) = 0$, $D_i(W = 1)= 1$
+      - Always takers: $D_i(W = 0) = 1$, $D_i(W = 1) = 1$
+      - Never takers $D_i(W = 0) = 0$, $D_i(W = 1) = 0$
+      - Defiers: $D_i(W = 0) = 1$, $D_i(W = 1) = 0$
+    + One sided non-compliance: We either only have compliers and never takers or compliers and always takers. 
+    + Two sided non-compliance: We have a mix of compliers, never-takers, and always-takers. There are no defiers. 
+    + Excludability: $Y_i(W =w, D = d) = Y_i(D = d)$
+    + Montonicity: $D_i(W = 1) \geq D_i(W = 0)$ (no defiers).
+    + Intent to treat effect: $E[Y(W = 1)] - E[Y(W = 0)]$. Full compliance $\Rightarrow$ ITT = ATE.
+    + Local average treatement effect (LATE)/Complier average causal effect(CACE): $E[Y_i(D = 1) - Y_i(D = 0) \vert D_i(W = 1) = 1, D_i(W = 0) = 0]$ (causal effect among compliers)
+    + Identification of LATE
+    + ** Maybe move compliance and LATE stuff to later.
+  - Frontdoor formula
+  - Difference in differences
+  - IVA
