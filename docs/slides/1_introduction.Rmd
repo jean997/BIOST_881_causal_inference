@@ -678,11 +678,48 @@ $$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$
 + None of our four identification conditions consistency, SUTVA, conditional exchangeability, and positivity require that our data is from a randomized trial.
 
 + However, these are much stronger assumptions in observational data. 
+---
 
-+ We must also consider whether the causal question is well-defined:
+# The Target Trial
 
-  - Is the counterfactual outcome well defined? (Ex. what does it mean to say that obesity is a cause of heart disease)?
-  - Are all levels of the treatment observed in the data?
+- Hernán and Robins argue that in order to identify a causal effect in observational data, we must have in mind a target trial that would identify the same parameter if it were feasible. 
+
+- This includes clearly and specifically defining a hypothetical intervention. 
+
+- This is often tricky (but not necessarily impossible): What is the target intervention in the statements
   
-+ The target trial: Hernán and Robins suggest that researchers using observational data should imagine a hypothetical 
-trial they are trying to emulate. 
+  + "Earning a college degree will increase your earnings."
+  + "He was pulled over because he is Black."
+  + "Obesity causes heart disease".
+
+---
+
+# Consistencey
+  
+- Consistency says: The outcome we observed for unit $i$ ( $Y_i$ ), who received treatment $a$ is the same as the outcome we *would have observed* if we had intervened and set $A_i$ to $a$.
+
+- In a trial with an intervention, consistency is almost tautological. 
+    
+    + We *did* intervene and set $A_i$ to $a$. 
+
+- In an observational study we should think about if consistency is justified. 
+
+  + People may change their behavior if they receive an intervention vs. choosing a behavior independently.
+  
+---
+# Conditional Exchangeability
+
++ In a trial, exchangeability is guaranteed by the study design. 
+  - The researchers control the assignment mechanism and therefore know all of the features which contribute to treatment probabilities.
+  
++ In observational studies, treatment assignment occurs "naturally".
+  - Identifying a set of variables to give conditional exchangeability requires assumptions and external information.
+  - It may not be possible to measure all necessary variables.
+
+---
+
+# Positivity
+
++ In a trial, positivity is guaranteed by design. 
+
++ In observational data, even if we know a set $L$ of variables such that $Y(a) \ci A\ \vert \ L$, there may be levels $L$ for which $P(A = a \vert L = l)$ is close to or exactly zero. 
