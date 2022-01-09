@@ -680,20 +680,6 @@ $$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$
 + However, these are much stronger assumptions in observational data. 
 ---
 
-# The Target Trial
-
-- Hernán and Robins argue that in order to identify a causal effect in observational data, we must have in mind a target trial that would identify the same parameter if it were feasible. 
-
-- This includes clearly and specifically defining a hypothetical intervention. 
-
-- This is often tricky (but not necessarily impossible): What is the target intervention in the statements
-  
-  + "Earning a college degree will increase your earnings."
-  + "He was pulled over because he is Black."
-  + "Obesity causes heart disease".
-
----
-
 # Consistencey
   
 - Consistency says: The outcome we observed for unit $i$ ( $Y_i$ ), who received treatment $a$ is the same as the outcome we *would have observed* if we had intervened and set $A_i$ to $a$.
@@ -723,3 +709,18 @@ $$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$
 + In a trial, positivity is guaranteed by design. 
 
 + In observational data, even if we know a set $L$ of variables such that $Y(a) \ci A\ \vert \ L$, there may be levels $L$ for which $P(A = a \vert L = l)$ is close to or exactly zero. 
+
+---
+
+# The Target Trial
+
+- Hernán and Robins argue that in order to identify a causal effect in observational data, we must have in mind a target trial that would identify the same parameter if it were feasible. 
+
+- This includes clearly and specifically defining a hypothetical intervention. 
+
+- This is often tricky (but not necessarily impossible): What is the target intervention in the statements
+  
+  + "Earning a college degree will increase your earnings."
+  + "He was pulled over because he is Black."
+  + "Obesity causes heart disease".
+
