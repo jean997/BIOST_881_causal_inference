@@ -50,52 +50,6 @@ render_graph(ay_graph)
 
 ---
 
-# Example: Different Treatments for Different Patients
-
-+ Consider this story:
-
-  - There are two possible treatments for a disease. Treatment $A$ is more effective than $B$, but has more side effects.
-  - Doctors prefer treatment $B$ for patients who are older or who have more mild disease.
-  - Patient outcome (remission or not) is affected by initial severity, treatment, and treatment adherence, but not by age.
-  - There is also no effect of age on disease severity.
-
---
-
-+ Work with your neighbor to arrange the following variables in a DAG:
-
-  - Patient outcome
-  - Initial disease severity
-  - Treatment
-  - Treatment Adherence
-  - Age
-
----
-# Disease Treatment Example 
-
-<center>
-```{r, echo = FALSE, out.width='90%',  fig.align='center'}
-
-di <- create_node_df(n =5, label = c("Age", "Severity", "Treatment", "Outcome", "Adherence"), 
-                     fontname = "Helvetica", 
-                     fontsize = 12, 
-                     fillcolor = "white", 
-                     color = "black", 
-                     fontcolor = "black",
-                     fixedsize = TRUE,
-                     width = 1,
-                     x = c(0.2, 0.2, 2, 4, 3), 
-                     y = c(1.2, -1.2, 0, 0, 1.2))
-di_edge <- create_edge_df(from = c(1, 2, 2,3, 5), to = c(3,  3, 4,  4, 4), 
-                          minlen = 1, 
-                          color = "black", 
-                          )
-di_graph <- create_graph(nodes_df = di, edges_df = di_edge)
-
-render_graph(di_graph)
-```
-
-</center>
----
 
 # Graph Definitions 
 
@@ -154,17 +108,90 @@ there are two paths from $A$ to $Y$ but only one directed path.
 - If a graph contains no directed cycles, it is *acyclic*
   + We will require all of our graphs to be acyclic.
 
+- DAG = Directed Acyclic Graph
 ---
 
+# Example: Different Treatments for Different Patients
+
++ Consider this story:
+
+  - There are two possible treatments for a disease. Treatment $A$ is more effective than $B$, but has more side effects.
+  - Doctors prefer treatment $B$ for patients who are older or who have more mild disease.
+  - Patient outcome (remission or not) is affected by initial severity, treatment, and treatment adherence.
+  - Conditional on everything else, age has no effect on patient outcome or disease severity.
+
+--
+
++ Work with your neighbor to arrange the following variables in a DAG:
+
+  - Patient outcome
+  - Initial disease severity
+  - Treatment
+  - Treatment Adherence
+  - Age
+
+(The DAG is not uniquely determined from the information given.)
+
+---
+# Disease Treatment Example 
+
+<center>
+```{r, echo = FALSE, out.width='90%',  fig.align='center'}
+
+di <- create_node_df(n =5, label = c("Age", "Severity", "Treatment", "Outcome", "Adherence"), 
+                     fontname = "Helvetica", 
+                     fontsize = 12, 
+                     fillcolor = "white", 
+                     color = "black", 
+                     fontcolor = "black",
+                     fixedsize = TRUE,
+                     width = 1,
+                     x = c(0.2, 0.2, 2, 4, 3), 
+                     y = c(1.2, -1.2, 0, 0, 1.2))
+di_edge <- create_edge_df(from = c(1, 2, 2,3, 5), to = c(3,  3, 4,  4, 4), 
+                          minlen = 1, 
+                          color = "black", 
+                          )
+di_graph <- create_graph(nodes_df = di, edges_df = di_edge)
+
+render_graph(di_graph)
+```
+
+</center>
+
+---
+# Temporality
+
+- Our definition of causality requires that the exposure occur before the outcome in time. 
+
+- Under this restriction, a causal DAG must be consistent with at least one strict ordering of nodes.
+  + This requirement rules out the possibility of cycles. 
+  
+--
+
+- How do we represent a feedback loop?
+
+--
+  + We can create multiple nodes representing unique time points (e.g. $A_1, A_2, \dots$), with each node only permitted to have causal effects on future nodes.
+  + More on this later. 
+
+<!-- - What if measurements are taken at the same time? -->
+
+<!-- -- -->
+<!--   + We are generally forced to assume a temporal ordering even if our observations are taken at the same time.  -->
+<!--   + For example, if we measure height and blood pressure, we can assume that height is stable over a long period of time while blood pressure is more variable. -->
+
+---
 # Causal Markov Property
 
+- The causal Markov property translates graph structure into probability statements.
 
-+ The causal Markov property states that, conditional on it's parents, each node is independent of all nodes that are not not it's descendants. 
++ It states that, conditional on it's parents, each node is independent of all nodes that are not not it's descendants. 
 
 + This implies that the joint probability distribution of all nodes can be factored as
 
 $$
-P(V) = \prod_{j = 1}^{J} P(V_j \vert pa_j)
+P(V) = \prod_{j = 1}^{J} P(V_j \vert pa_j).
 $$
 
 
@@ -206,7 +233,7 @@ render_graph(di_graph)
 
 # Exchangeability
 
-- Question: Is the outcome O exchangeable with respect to the treatment? $O(t) \ci T$?
+- Is the outcome O exchangeable with respect to the treatment? $O(t) \ci T$?
 
 <center>
 
@@ -337,7 +364,7 @@ render_graph(ayl_graph_collider)
 
 # Collider Example: Routes to Stardom
 
-+ Tables below show the proportions of talent and beauty in the general population and among stars. 
++ Tables below show the proportions of talent and beauty in the general population and among stars: 
 
 <center>
 ```{r, echo = FALSE}
@@ -358,12 +385,15 @@ rownames(pop ) <- rownames(stars) <-  c("\\(T = 0\\)", "\\(T = 1\\)")
 
 </center>
 
+--
 
 - In the population $P[T=1] = P[ T = 1 \vert B = 1] = 0.1$
 
 - Among stars $P[T=1] = 0.1/0.19 = 0.53$, and $P[T = 1 \vert B = 1] = \frac{0.01/0.19}{0.1/0.19} = 0.1$
-- Among stars, talent and beauty are negatively correlated. 
-  - Talent is more rare among beautiful stars than among stars as a whole. 
+
+--
+
+- Among stars, talent and beauty are negatively correlated. Talent is more rare among beautiful stars than among stars as a whole. 
   
 - This is because we have conditioned on the collider "Becoming a star". 
 
@@ -526,7 +556,7 @@ Theorem: If a set of variables, $L$,
 then $Y(a) \ci A \vert L$. 
 
 --
-- The two conditions in the theorem are referred to as the *backdoor criterion* 
+- The two conditions in the theorem are referred to as the *backdoor criterion*. 
 
 --
 
@@ -600,7 +630,7 @@ knitr::include_graphics("img/2_swig2.png")
 
 # Descendents of $A$ in the Backdoor Criterion
 
-+ Using SWIGs makes clear why the backdoor criterion specifically excludes descendants of $Y$. 
++ Using SWIGs helps show why the backdoor criterion excludes descendants of $A$. 
 
 <center>
 ```{r, echo=FALSE, out.width="50%"}
@@ -609,9 +639,9 @@ knitr::include_graphics("img/2_swig3.png")
 
 </center>
 
-+ The SWIG on the right shows that, $Y(x) \ci A \vert L_2(x)$.
++ The SWIG on the right shows that, $Y(x) \ci X \vert L_2(x)$.
 
-+ However, we cannot conclude that $Y(x) \ci A \vert L_2$ because $L_2$ is not on the graph. 
++ However, we cannot conclude that $Y(x) \ci X \vert L_2$ because $L_2$ is not on the graph. 
 
 + If there is a causal effect of $X$ on $Y$, then conditioning on $L_2$ introduces a type of selection bias (more on this in the future).
 
