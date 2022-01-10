@@ -684,6 +684,8 @@ $$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$
   
 - Consistency says: The outcome we observed for unit $i$ ( $Y_i$ ), who received treatment $a$ is the same as the outcome we *would have observed* if we had intervened and set $A_i$ to $a$.
 
+$$A_i = a \Rightarrow Y_i = Y_i(a)$$
+
 - In a trial with an intervention, consistency is almost tautological. 
     
     + We *did* intervene and set $A_i$ to $a$. 
@@ -718,7 +720,7 @@ $$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$
 
 - This includes clearly and specifically defining a hypothetical intervention. 
 
-- This is often tricky (but not necessarily impossible): What is the target intervention in the statements
+- This is often tricky (but not necessarily impossible): Consider the statements
   
   + "Earning a college degree will increase your earnings."
   + "He was pulled over because he is Black."
