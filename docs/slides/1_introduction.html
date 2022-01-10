@@ -4,7 +4,7 @@
     <title>L1: Getting Started</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
@@ -17,7 +17,7 @@ class: center, middle, inverse, title-slide
 # L1: Getting Started
 ### Jean Morrison
 ### University of Michigan
-### 2022-01-05 (updated: 2022-01-09)
+### 2022-01-05 (updated: 2022-01-10)
 
 ---
 
@@ -826,11 +826,11 @@ Corrolary: If consistency, SUTVA, and exchangeability hold then `\(E[Y(a)] = E[Y
 # Conditionally Randomized Experiments
 
 
-+ Units are assigned a treatment with probability depending on a set of features, `\(X\)`.
++ Units are assigned a treatment with probability depending on a set of features, `\(L\)`.
 
-+ If `\(X\)` and `\(Y(a)\)` are not independent, then exchangeability does not (generally) hold.
++ If `\(L\)` and `\(Y(a)\)` are not independent, then exchangeability does not (generally) hold.
 
-+ However, we can still identify the ATE if we have access to the randomization features `\(X\)`. 
++ However, we can still identify the ATE if we have access to the randomization features `\(L\)`. 
 
 ---
 
@@ -871,6 +871,8 @@ while the rest will receive standard of care ( `\(A = 0\)` ).
 # Stratum Specific Causal Effects and Standardization
 
 + Exchangeability holds within levels of `\(L\)`, so `\(E[Y(a) \vert L = l]\)` is identifiable.
+
+`$$E[Y(a) \vert L = l] = E[Y \vert A = a, L = l]$$`
 
 --
 
@@ -982,27 +984,16 @@ Proof:
 + However, these are much stronger assumptions in observational data. 
 ---
 
-# The Target Trial
-
-- Hernán and Robins argue that in order to identify a causal effect in observational data, we must have in mind a target trial that would identify the same parameter if it were feasible. 
-
-- This includes clearly and specifically defining a hypothetical intervention. 
-
-- This is often tricky (but not necessarily impossible): What is the target intervention in the statements
-  
-  + "Earning a college degree will increase your earnings."
-  + "He was pulled over because he is Black."
-  + "Obesity causes heart disease".
-
----
-
 # Consistencey
   
 - Consistency says: The outcome we observed for unit `\(i\)` ( `\(Y_i\)` ), who received treatment `\(a\)` is the same as the outcome we *would have observed* if we had intervened and set `\(A_i\)` to `\(a\)`.
 
+`$$A_i = a \Rightarrow Y_i = Y_i(a)$$`
+
 - In a trial with an intervention, consistency is almost tautological. 
     
     + We *did* intervene and set `\(A_i\)` to `\(a\)`. 
+
 
 - In an observational study we should think about if consistency is justified. 
 
@@ -1025,6 +1016,21 @@ Proof:
 + In a trial, positivity is guaranteed by design. 
 
 + In observational data, even if we know a set `\(L\)` of variables such that `\(Y(a) \ci A\ \vert \ L\)`, there may be levels `\(L\)` for which `\(P(A = a \vert L = l)\)` is close to or exactly zero. 
+
+---
+
+# The Target Trial
+
+- Hernán and Robins argue that in order to identify a causal effect in observational data, we must have in mind a target trial that would identify the same parameter if it were feasible. 
+
+- This includes clearly and specifically defining a hypothetical intervention. 
+
+- This is often tricky (but not necessarily impossible): Consider the statements
+  
+  + "Earning a college degree will increase your earnings."
+  + "He was pulled over because he is Black."
+  + "Obesity causes heart disease".
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
