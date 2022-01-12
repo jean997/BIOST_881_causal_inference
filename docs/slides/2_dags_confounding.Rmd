@@ -972,9 +972,9 @@ knitr::include_graphics("img/2_swig3.png")
 
 </center>
 
-+ The SWIG on the right shows that, $Y(x) \ci X \vert L_2(x)$.
++ The SWIG on the right shows that, $Y(x) \ci X \vert L_1, L_2(x)$.
 
-+ However, we cannot conclude that $Y(x) \ci X \vert L_2$ because $L_2$ is not on the graph. 
++ However, we cannot conclude that $Y(x) \ci X \vert L_1, L_2$ because $L_2$ is not on the graph. 
 
 + If there is a causal effect of $X$ on $Y$, then conditioning on $L_2$ introduces a type of selection bias (more on this in the future).
 
