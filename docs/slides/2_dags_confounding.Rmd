@@ -454,7 +454,7 @@ render_graph(ayll_graph)
   
 --
 
-- Note that $L_1$ satisfies all of these criteria but is not a confounder.
+- Note that $L_2$ satisfies all of these criteria but is not a confounder.
 
 <center>
 
@@ -823,11 +823,14 @@ knitr::include_graphics("img/2_fig16.png")
 # Linking $\mathcal{G}$ and $\mathcal{G}(a)$
 
 
-- Suppose that $P(\mathbf{V})$ is a probability distribution over nodes $\mathbf{V}$ that factorizes according to the DAG $\mathcal{G}$. 
+- Let $P(\mathbf{V})$ be a probability distribution over nodes $\mathbf{V}$ that factorizes according to the DAG $\mathcal{G}$. 
 
-- In order to get to our result, we need to know that $P(\mathbf{V}(\mathbf{a}))$, the probability distribution over counterfactuals subject to the intervention $\mathbf{a},$ factorizes according to the SWIG $\mathcal{G}(\mathbf{a})$.
+- Goal: conditional d-separation in SWIG $\Rightarrow$ conditional exchangeability
 
-- To get this, we need to be more specific about our model assumptions. 
+
+- To get there, we need to know that $P(\mathbf{V}(\mathbf{a}))$, the probability distribution over counterfactuals subject to the intervention $\mathbf{a},$ factorizes according to the SWIG $\mathcal{G}(\mathbf{a})$.
+
+- To get this, we need to be more specific about defining a model to go with our DAGs. 
 
 
 ---
@@ -854,7 +857,7 @@ The previous definition is equivalent to:
 
 - Assume the existence of unmeasured errors $\epsilon_V$. 
 
-- Let $\widetilde{\mathbf{pa}}_V $ be an intervention on the parents of $V$. Then we assume the existence of deterministic functions 
+- Let $\widetilde{\mathbf{pa}}_V$ be an intervention on the parents of $V$. Then we assume the existence of deterministic functions 
 $$V(\widetilde{\mathbf{pa}}_V) = f_V(\widetilde{\mathbf{pa}}_V, \epsilon_V).$$
 - With consistancy, this also implies that 
 $$ V = f_V(PA_V, \epsilon_V)$$
@@ -866,7 +869,7 @@ This graph
 
 <center> 
 
-```{r, echo=FALSE, out.width="40%", fig.height=2}
+```{r, echo=FALSE, out.width="40%", fig.height=1.7}
 knitr::include_graphics("img/2_swig6_fig9.png")
 ```
 
@@ -916,15 +919,35 @@ knitr::include_graphics("img/2_swig6_fig9.png")
 
 ---
 
-# Linking $\mathcal{G}$ and $\mathcal{G}(a)$
+# Factorization Proof Sketch
 
-- The result that 
+- The result that $P(\mathbf{V})$ factorizes according to $\mathcal{G} \Rightarrow P(\mathbf{V}(\mathbf{a}))$ factorizes according to the SWIG $\mathcal{G}$ follows from the FFRCISTG independence assumption. 
 
-$P(\mathbf{V})$ factorizes according to $\mathcal{G} \Rightarrow P(\mathbf{V}(\mathbf{a}))$ factorizes according to the SWIG $\mathcal{G}$ 
 
-follows from the FFRCISTG independence assumption. 
+Proof idea: Work by reverse induction
+- FFRCISTG tells us that the property holds for interventions on all variables. 
+  - This follows trivially (in a mathematical sense)
+  - CI properties for of the SWIG for an intervention on all variables say that $P(\mathbf{V}(\mathbf{a})) = \prod_j P(V_j(\mathbf{a}))$.
+  - This is exactly the FFRCISTG independence assumption. 
+  
+  
+---
+# Factorization Proof Sketch 
 
-- Seep appendix B1 of Richardson and Robins (2013).
+
+- Suppose we have an intervention on a set of variables $A \subset \mathbf{V}$ and that the property holds for all (strict) supersets of $A$. 
+
+- We can find a single variable $C$ to add to $A$ and prove the factorization result only for terms involving $C$.
+
+<center> 
+
+```{r, echo=FALSE, out.width="75%", fig.height=3}
+knitr::include_graphics("img/2_factorization.png")
+```
+
+</center>
+
+- See appendix B1 of Richardson and Robins (2013).
 
 ---
 
