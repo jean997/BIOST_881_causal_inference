@@ -1089,19 +1089,9 @@ E[Y(A = 1, L= L(1))] - E[Y(A = 1, L = L(0))]
 $$
 - So TE = NDE + NIE 
 
-- Note that both of these involove "cross-world" counterfactuals.
+- Note that both of these involve "cross-world" counterfactuals.
 
 
----
-# Usual Aproach to Estimating NIE and NDE
-
-- The NIE and NDE are usually estimated by controlling for $L$. One strategy is the addition method: 
-
-- The NDE is computed as $P\sum_l[Y \vert A = 1, L=l] - P[Y \vert A = 0, L=l]$.
-
-- The total effect is computed as $P[Y \vert A = 1] - P[Y \vert A = 0]$.
-
-- The total indirected effect is computed as TE - NDE.
 
 
 
@@ -1111,17 +1101,78 @@ $$
 
 - The FFRCISTG independence assumption does not allow identification of the NIE and NDE. 
 
-- Robins and Greenland (1992) demonstrate this with an example where the difference method fails and demonstrate that NIE and NDE are not identifiable. 
+- See Robins and Greenland (1992) for a good example. 
 
 - If we further assume the NPSEM-IE model, NIE and NDE are identifiable.
 
-<!-- Idenifying the NIE and NDE require that -->
+---
 
-<!-- $$E[Y \vert A = 1, L = 0] =  E[Y(A = 1, L = L(0)) \vert A = 1, L = 1 ]$$ -->
-<!-- and -->
+# Identifying the NDE under NPSEM-IE Assumptions
 
-<!-- $$ E[Y \vert A = 0, L = 0] = E[Y(A = 0, L = L(0)) \vert A = 0, L = 1].$$ -->
+- Under NPSEM-IE assumptions, cross-world independcies hold. 
 
+- Specifically, we have 
+
+$$ Y(A = 1, l) \ci L(A = 0) \qquad \forall\ l $$
+- We want to estimate $E[Y(A = 1, L(A = 0))]$. 
+
+$$
+E[Y(A = 1, L(A = 0))] = \sum_l E[Y(A = 1, L = l)\vert L(0) = l]P[L(0) = l]
+$$
+$$
+=\sum_l E[Y(A = 1, L=l)]P[L(0) = l]
+$$
+- The second equality comes from the independence assumption above. 
+
+---
+
+# Identifying the NDE under NPSEM-IE Assumptions
+
+- We now only need to estimate $E[Y(A = 1, L = l)]$ and $P[L(0) = l]$ which can be estimated as
+$$
+E[Y(A = 1, L = l)] = E[Y \vert A = 1, L = l]
+$$
+$$
+P[L(0) = l ] = P[L=l \vert A = 0]
+$$
+- Both equalities come from exchangeability
+
+- So
+
+$$
+E[Y(A = 1, L(A = 0))] = \sum_l E[Y \vert A = 1, L = l]P[L =l \vert A = 0]
+$$
+
+---
+# Non-Identifiability of NDE under FFRCISTG Intuition
+
+- Consider two types of units:
+  + Both have $L(0) = 0$ and $L(1) = 1$
+  
+- In both cases $Y(1, 1) = 1$ and $Y(0, 0) = 0$.
+
+- For type 1, $Y(1, 0) = 0$ and for type 2 $Y(1, 0) = 1$.
+  - For type 1, if $A$ had not caused $L$, they would not have experienced $Y$.
+  - For type 2, $L$ did not matter. 
+  
+- Even if we could observe both types under both treatments of $L$, we could not tell them apart. 
+
+- But type 1 individuals represent indirect effects while type 2 individuals represent direct effects.
+
+<!-- --- -->
+<!-- # Non-Identifiability of NDE under FFRCISTG Intuition -->
+
+<!-- - Type 1: $L(0) = 0$, $L(1) = 1$, $Y(1, 1) = 1$, $Y(0, 0) = 0$, $Y(1, 0) = 0$ -->
+
+<!-- - Type 2: $L(0) = 0$, $L(1) = 1$, $Y(1, 1) = 1$, $Y(0, 0) = 0$, $Y(1, 0) = 1$ -->
+
+<!-- - NPSEM-IE assumes that the proportion of type 1 individuals is equal to the proportion of  -->
+
+<!-- - Type 3: $L(0) = 1$, $L(1) = 1$, $Y(1, 1) = 1$, $Y(0, 0) = 0$, $Y(1, 0) = 0$ -->
+
+<!-- - And that the proportion of type 2 individuals is equal to the proportion  -->
+
+<!-- - Type 4: $L(0) = 1$,  $L(1) = 1$, $Y(1, 1) = 1$, $Y(0, 0) = 0$, $Y(1, 0) = 1$ -->
 
 ---
 # Controlled Direct and Indirect Effects
