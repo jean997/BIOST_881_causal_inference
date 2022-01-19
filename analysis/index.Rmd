@@ -16,6 +16,8 @@ editor_options:
 
 [2. DAGs and Confounding](slides/2_dags_confounding.html)
 
+[3. Effect Modification and Interaction](slides/3_effect_modification_interaction.html)
+
 
 ## Coming Soon
 
