@@ -156,7 +156,7 @@ full <- data.frame(matrix(c(0.1, 0.2, 0.2, 0.4, 0.15, 0.3), nrow = 1))
 
   + If this type of effect modification is present on one scale, it will be present on the other. 
 
-1. The causal effect has different signs in different starat of $V$ (*qualitative modification*). 
+1. The causal effect has different signs in different strata of $V$ (*qualitative modification*). 
 
   + If this type of effect modification is present on one scale, it will be present on the other. 
 
@@ -248,7 +248,7 @@ render_graph(mo)
   + there is a non-zero ATE of $A$ on $Y$ and 
   + $V$ is associated with $Y$,
   
-  then there is <u>always</u> a modification on either the additive or multiplicative scale (or both).
+  then $V$ <u>always</u> modifies the effect of $A$ on $Y$ on either the additive or multiplicative scale (or both).
   
 - Hernán and Robins argue that the additive scale is usually preferable.
 
@@ -379,6 +379,125 @@ $$
 - We simply compute the IPW mean within strata defined by $V$.
 
 ---
+# Example
+
+I simulated 1000 units from the model
+
+<center>
+
+```{r, echo = FALSE, fig.height = 3, fig.width = 8}
+ex_node <- create_node_df(n = 4, label = c("V", "A", "Y", "L"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     x = c(1, 0, 1, 0.5), 
+                     y = c(1, 0, 0, 0.8))
+ex_edge <- create_edge_df(from = c(1, 2, 4, 4),
+                          to = c(3, 3, 2, 3),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+ex_graph <- create_graph(nodes_df = ex_node, edges_df = ex_edge)
+
+render_graph(ex_graph)
+```
+</center>
+
+$$
+V \sim Bern(0.5)\qquad L \sim Bern(0.35)\\\
+Y(0) \sim Bern(0.5 + 0.2L)\\\
+Z \sim Bern(0.2 + 0.3V)\\\
+Y(1) = \begin{cases} Y(0) = 0 & \ \ 0 \\\ 
+Y(1) =1 & \ 1 - Z
+\end{cases}\\\
+A \sim Bern(0.6-0.3L)
+$$
+---
+# Example
+
+```{r, echo = FALSE, message = FALSE}
+
+set.seed(1)
+n <- 1000
+V <- rbinom(n = n, size = 1, prob = 0.5)
+L <- rbinom(n = n, size= 1, prob = 0.35)
+Y0 <- rbinom(n =n, size = 1, prob = 0.5 + 0.2*L)
+Y1 <- (Y0 - rbinom(n = n, size = 1, prob = 0.2 + 0.3*V)) %>% pmax(., 0) %>% as.integer
+A <- rbinom(n = n, size = 1, prob = 0.6 -0.3*L)
+X <- data.frame(Y0 = Y0, Y1=Y1,A = A, L=L, V=V) 
+
+Xd <- X[1:20,] %>% arrange(A, L, V)
+
+
+kable(Xd[1:10,], col.names = c("\\(Y(0)\\)", "\\(Y(1)\\)", "\\(A\\)", "\\(L\\)", "\\(V\\)"), format = 'html', row.names = TRUE) %>%
+  kable_styling(position = "float_left", full_width = FALSE) %>%
+   column_spec(2, bold = ifelse(Xd$A[1:10] == 0, TRUE, FALSE), 
+              color = ifelse(Xd$A[1:10] == 0, "black", "grey")) %>% 
+   column_spec(3, bold = ifelse(Xd$A[1:10] == 1, TRUE, FALSE), 
+              color = ifelse(Xd$A[1:10] == 1, "black", "grey"))
+
+kable(Xd[11:20,], col.names = c( "\\(Y(0)\\)", "\\(Y(1)\\)", "\\(A\\)", "\\(L\\)", "\\(V\\)"), format = 'html') %>%
+  kable_styling(position = "right", full_width = FALSE) %>%
+   column_spec(2, bold = ifelse(Xd$A[11:20] == 0, TRUE, FALSE), 
+              color = ifelse(Xd$A[11:20] == 0, "black", "grey")) %>% 
+   column_spec(3, bold = ifelse(Xd$A[11:20] == 1, TRUE, FALSE), 
+              color = ifelse(Xd$A[11:20] == 1, "black", "grey"))
+
+```
+
+---
+
+# Example
+
+If we know the full counterfactuals, we can compute the conditional effects directly
+
+```{r, echo = FALSE}
+
+ XX <- X %>% group_by( V) %>% summarize(N = n(), Y_0 =round( mean(Y0), digits =2), Y_1 =round(mean(Y1), digits = 2), N = n(), diff = round(mean(Y1-Y0), digits = 2))
+ 
+kable(XX, col.names = c("\\(V\\)", "\\(N\\)","\\(\\bar{Y}(0)\\)", "\\(\\bar{Y}(1)\\)", "\\(\\bar{Y}(1)-\\bar{Y}(0)\\)"), format = 'html', row.names =FALSE) 
+```
+
+
+$$E[Y(1) \vert V = 0]- E[Y(0) \vert V = 0] = `r round(mean((X$Y1-X$Y0)[X$V ==0]), digits = 2)`$$
+$$E[Y(1) \vert V = 1]- E[Y(0) \vert V = 1] = `r round(mean((X$Y1-X$Y0)[X$V ==1]), digits = 2)`$$
+
+---
+
+# Example 
+
+To estimate conditional causal effects in the observed data, we make use of the fact that $Y(a) \ci A \vert L$ to compute the standardized means.
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+X <- X %>% mutate(Y = case_when(A == 0 ~ Y0, TRUE ~ Y1))
+Ta <- X %>% group_by(L, V, A) %>% summarize(N = n(), Y = round(mean(Y), digits = 2)) 
+
+T0 <- X %>% group_by(L, V, A) %>% summarize(N = n(), Y = mean(Y)) 
+
+ S <- X %>% group_by(L, V) %>% summarize(N = n(), Y0 = mean(Y0), Y1 = mean(Y1), N = n(), diff = mean(Y1-Y0))
+ plgivenv = S[, 1:3] %>% mutate(Vtot = case_when(V == 0~ sum(S$N[S$V == 0]), 
+                                                 TRUE ~  sum(S$N[S$V == 1])), p = N/Vtot, 
+                                pr = round(p, digits = 2))
+ 
+kable(Ta[Ta$A==0,], col.names = c("\\(L\\)", "\\(V\\)","\\(A\\)", "\\(N\\)", "\\(\\bar{Y}\\)"), format = 'html', row.names =FALSE) %>%
+  kable_styling(position = "float_left", full_width = FALSE)
+
+kable(Ta[Ta$A==1,], col.names = c("\\(L\\)", "\\(V\\)","\\(A\\)", "\\(N\\)", "\\(\\bar{Y}\\)"), format = 'html', row.names =FALSE)%>%
+  kable_styling(position = "center", full_width = FALSE)
+```
+
+$$ P[L = 0 \vert V = 0] = \frac{`r S$N[1]`}{`r S$N[1] + S$N[3]`} = `r round(S$N[1]/( S$N[1] + S$N[3]), digits = 2)` \qquad P[L = 0 \vert V = 1] = \frac{`r S$N[2]`}{`r S$N[2] + S$N[4]`} = `r round(S$N[2]/( S$N[2] + S$N[4]), digits = 2)`$$ 
+
+$$E[Y(1) \vert V = 0] = `r Ta$Y[2]`\cdot `r plgivenv$pr[1]` + `r Ta$Y[6]`\cdot `r plgivenv$pr[3]` = `r round(Ta$Y[2]* plgivenv$p[1] + Ta$Y[6]*plgivenv$p[3], digits = 2)`$$
+
+$$E[Y(0) \vert V = 0] = `r Ta$Y[1]`\cdot `r plgivenv$pr[1]` + `r Ta$Y[5]`\cdot `r plgivenv$pr[3]` = `r round(Ta$Y[1]* plgivenv$p[1] + Ta$Y[5]*plgivenv$p[3], digits = 2)`$$
+
+$$E[Y(1) \vert V = 0]-E[Y(0) \vert V = 0] = `r round((Ta$Y[2]* plgivenv$p[1] + Ta$Y[6]*plgivenv$p[3])-(Ta$Y[1]* plgivenv$p[1] + Ta$Y[5]*plgivenv$p[3]), digits = 2)`$$
+
+---
 
 # Special Case: V = L
 
@@ -387,6 +506,17 @@ $$
 - Instead, we simply stratify by $L$ and compute $E[Y(a) \vert L = l] = E[Y \vert A = a, L = l]$. 
 
 - These are the *stratified* means. 
+
+
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+Ta <- X %>% group_by(L,  A) %>% summarize(N = n(), Y = round(mean(Y), digits = 2)) 
+
+
+kable(Ta, col.names = c("\\(L\\)", "\\(A\\)", "\\(N\\)", "\\(\\bar{Y}\\)"), format = 'html', row.names =FALSE) %>%
+  kable_styling(position = "center", full_width = FALSE)
+
+```
 ---
 
 # Special Case: V = A
@@ -459,7 +589,44 @@ E[Y(a) \vert A = 1] = \sum_l E[ Y \vert L=l, A = a ]P[L = l \vert A = 1]
 $$
 
 ---
+# ATT Example
 
+In the simulated data example, the average effect among the treated is
+
+$$
+E[Y(1) \vert A = 1] = `r round(with(X, mean(Y1[A == 1])), digits = 2)`\\\
+E[Y(0) \vert A = 1] = `r round(with(X, mean(Y0[A == 1])), digits = 2)`\\\
+E[Y(1)-Y(0) \vert A = 1] = `r round(with(X, mean((Y1-Y0)[A == 1])), digits = 2)`
+$$
+To estimate these values using standardization we compute
+
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+Ta <- X %>% group_by(L,  A) %>% summarize(N = n(), Y = round(mean(Y), digits = 2)) 
+
+plgivena = Ta[, 1:3] %>% mutate(Atot = case_when(A == 0~ sum(Ta$N[Ta$A == 0]), 
+                                                 TRUE ~  sum(Ta$N[Ta$A == 1])), 
+                                p = N/Atot, 
+                                pr = round(p, digits = 2))
+kable(Ta, col.names = c("\\(L\\)", "\\(A\\)", "\\(N\\)", "\\(\\bar{Y}\\)"), format = 'html', row.names =FALSE) %>%
+  kable_styling(position = "float_left", full_width = FALSE)
+
+```
+
+$$
+P[L = 0 \vert A = 1] = `r round(plgivena$p[2], digits = 2)`\\\
+P[L = 1 \vert A = 1] = `r round(plgivena$p[4], digits = 2)`
+$$
+
+
+$$
+E[Y(1) \vert A = 1] = `r round(Ta$Y[2], digits = 2)`\cdot `r plgivena$pr[2] ` + 
+`r round(Ta$Y[4], digits = 2)`\cdot `r plgivena$pr[4] ` = `r round((Ta$Y[2]*plgivena$p[2]) +(Ta$Y[4]*plgivena$p[4])  , digits = 2)`\\\
+E[Y(0) \vert A = 1] = `r round(Ta$Y[1], digits = 2)`\cdot `r plgivena$pr[2] ` + 
+`r round(Ta$Y[3], digits = 2)`\cdot `r plgivena$pr[4] ` = `r round((Ta$Y[1]*plgivena$p[2]) +(Ta$Y[3]*plgivena$p[4])  , digits = 2)`
+$$
+
+---
 
 # Matching
 
@@ -537,6 +704,8 @@ knitr::include_graphics("img/3_swig_ix.png")
 
 - Exchangeability: $Y(a, e) \ci A, E \vert L$
 
+
+- If these hold, we can estimate $E[Y(a, e)]$ using the same standardization or IPW strategy we used for single interventions. 
 ---
 
 # Effect Modification vs Interaction
