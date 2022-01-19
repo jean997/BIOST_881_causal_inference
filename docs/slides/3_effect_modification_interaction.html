@@ -569,6 +569,21 @@ $$
 ---
 
 
+# Matching
+
+- Matching is an alternative method to adjust for confounders `\(L\)`. 
+
+- For each person receiving `\(A = 1\)`, we identify a "match" with the same value of `\(L\)` who received `\(A = 0\)`. 
+  + We leave aside the rest of the data. 
+  
+- In the resulting matched population, the distribution of `\(L\)` is the same in the `\(A=1\)` and `\(A =0\)` cohorts. 
+
+- Since we matched to the `\(A = 1\)` cohort, we are now able to estimate the ATT as `\(E_m[Y \vert A = 1] - E_m[Y \vert A = 0]\)` where the expectation is with respect to the matched population. 
+
+- Alternatively, we could have matched to the `\(A = 0\)` cohort, or to a different distribution of `\(L\)`. 
+
+---
+
 # Interactions Describe Joint Interventions
 
 - An *interaction* between variables refers to relationships between joint counterfactuals.
@@ -787,24 +802,6 @@ $$
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-
-
-
-
----
-
-# Matching
-
-- Matching is an alternative method to adjust for confounders `\(L\)`. 
-
-- For each person receiving `\(A = 1\)`, we identify a "match" with the same value of `\(L\)` who received `\(A = 0\)`. 
-  + We leave aside the rest of the data. 
-  
-- In the resulting matched population, the distribution of `\(L\)` is the same in the `\(A=1\)` and `\(A =0\)` cohorts. 
-
-- Since we matched to the `\(A = 1\)` cohort, we are now able to estimate the ATT as `\(E_m[Y \vert A = 1] - E_m[Y \vert A = 0]\)` where the expectation is with respect to the matched population. 
-
-- Alternatively, we could have matched to the `\(A = 0\)` cohort, or to a different distribution of `\(L\)`. 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
