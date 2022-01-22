@@ -88,14 +88,14 @@ $$E[Y(1) \vert V = 10] - E[Y(0) \vert V = 1] = `r round(mean(Y1[V ==1]), digits 
 - Additive effect modification:
 
 $$
-E[Y(1) \vert V = 1] - E[Y(0) \vert V = 1)] \neq \\
-E[Y(1) \vert V = 0] - E[Y(0) \vert V = 0)] 
+E[Y(1) \vert V = 1] - E[Y(0) \vert V = 1] \neq \\
+E[Y(1) \vert V = 0] - E[Y(0) \vert V = 0] 
 $$
 
 - Multiplicative effect modification:
 
 $$
-\frac{E[Y(1) \vert V = 1]}{E[Y(0) \vert V = 1)]} \neq \frac{E[Y(1) \vert V = 0]}{ E[Y(0) \vert V = 0)]}
+\frac{E[Y(1) \vert V = 1]}{E[Y(0) \vert V = 1]} \neq \frac{E[Y(1) \vert V = 0]}{ E[Y(0) \vert V = 0]}
 $$
 --
 
@@ -340,7 +340,7 @@ mechanism of the causal effect.
 
   + Consistency
   + No interference
-  + Positivity
+  + Positivity - must hold within strata of $V$
   + Conditional exchangeablity, conditional on observed variables $L$
 
 
@@ -700,7 +700,7 @@ knitr::include_graphics("img/3_swig_ix.png")
 
 - Consistency: $A_i = a$ and $E_i = e$ $\Rightarrow$ $Y_i = Y_i(a, e)$.
 
-- Positivity: $P[A = a, E=a \vert L = l] > 0$ for all $a$, $e$, $l$.
+- Positivity: $P[A = a, E=e \vert L = l] > 0$ for all $a$, $e$, $l$.
 
 - Exchangeability: $Y(a, e) \ci A, E \vert L$
 

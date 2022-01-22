@@ -21,7 +21,7 @@ class: center, middle, inverse, title-slide
 # L3: Effect Modification and Interaction
 ### Jean Morrison
 ### University of Michigan
-### 2022-01-19 (updated: 2022-01-19)
+### 2022-01-19 (updated: 2022-01-22)
 
 ---
 
@@ -209,14 +209,14 @@ class: center, middle, inverse, title-slide
 - Additive effect modification:
 
 $$
-E[Y(1) \vert V = 1] - E[Y(0) \vert V = 1)] \neq \\
-E[Y(1) \vert V = 0] - E[Y(0) \vert V = 0)] 
+E[Y(1) \vert V = 1] - E[Y(0) \vert V = 1] \neq \\
+E[Y(1) \vert V = 0] - E[Y(0) \vert V = 0] 
 $$
 
 - Multiplicative effect modification:
 
 $$
-\frac{E[Y(1) \vert V = 1]}{E[Y(0) \vert V = 1)]} \neq \frac{E[Y(1) \vert V = 0]}{ E[Y(0) \vert V = 0)]}
+\frac{E[Y(1) \vert V = 1]}{E[Y(0) \vert V = 1]} \neq \frac{E[Y(1) \vert V = 0]}{ E[Y(0) \vert V = 0]}
 $$
 --
 
@@ -450,7 +450,7 @@ mechanism of the causal effect.
 
   + Consistency
   + No interference
-  + Positivity
+  + Positivity - must hold within strata of `\(V\)`
   + Conditional exchangeablity, conditional on observed variables `\(L\)`
 
 
@@ -1087,7 +1087,7 @@ a descendant of both `\(A\)` and `\(E\)`.
 
 - Consistency: `\(A_i = a\)` and `\(E_i = e\)` `\(\Rightarrow\)` `\(Y_i = Y_i(a, e)\)`.
 
-- Positivity: `\(P[A = a, E=a \vert L = l] &gt; 0\)` for all `\(a\)`, `\(e\)`, `\(l\)`.
+- Positivity: `\(P[A = a, E=e \vert L = l] &gt; 0\)` for all `\(a\)`, `\(e\)`, `\(l\)`.
 
 - Exchangeability: `\(Y(a, e) \ci A, E \vert L\)`
 
