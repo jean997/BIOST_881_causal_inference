@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L4: Selection Bias</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+    <script src="libs/viz-1.8.2/viz.js"></script>
+    <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding-1.0.6.1/grViz.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# L4: Selection Bias
+### Jean Morrison
+### University of Michigan
+### 2022-24-10 (updated: 2022-01-23)
+
+---
+
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+# HIV Treatment Example
+
+
+- We are interested in the effect of a drug for treating HIV ( `\(A\)` ) on the risk that CD4 count is below a particular threshold at three months after treatment ( `\(Y\)` ). 
+
+- We cannot observe outcomes for patients who do not make it to their three month follow-up appointment. 
+
+- Patients may miss their appointments if they are in poor health. This could occur if 
+their disease has progressed (low CD4 count) or they are experiencing side effects from their treatment. 
+
+- Use a variable `\(C\)` (for censoring) to represent whether or not a patient's CD4 count is measured at three months.
+  + `\(C = 0\)` if the measurement was taken.
+  + `\(C = 1\)` if the measurement is missing.
+
+- With a partner, draw a DAG representing this scenario.
+
+---
+
+# HIV Treatment Example
+
+&lt;center&gt;
+<div id="htmlwidget-4c4f216941c2da15c88f" style="width:90%;height:504px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4c4f216941c2da15c88f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+---
+
+# HIV Treatment Example
+
+- In this study, if we had been able to measure `\(Y\)` for all patients (there was no conditioning on `\(C\)`), could we identify the effect of `\(A\)` on `\(Y\)` -- i.e. would we have `\(Y(a) \ci A\)`?
+
+- With some data unobserved, can we identify the effect of `\(A\)` on `\(Y\)`?
+&lt;center&gt;
+<div id="htmlwidget-09434dfcc8673979e699" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-09434dfcc8673979e699">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+--
+
+- No. We have *selection bias*. 
+
+- `\(C\)` is a collider on a path between `\(Y\)` and `\(L\)`. Conditioning on `\(C\)` induces a correlation between `\(Y\)` and `\(L\)` and therefore a non-causal association between `\(Y\)` and `\(A\)`. 
+
+
+
+
+---
+
+# HIV Treatment Example
+
+- Suppose now that treatment has no side effects. Treatment can only influence selection *through* its effect on `\(Y\)`.
+
+&lt;center&gt;
+<div id="htmlwidget-7c2fae8d926f3cf647b2" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-7c2fae8d926f3cf647b2">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- Do we still have selection bias?
+
+---
+
+# Example Continued
+
+- Suppose that `\(A\)` is effective. Patients receiving `\(A = 1\)` have lower CD4 count at three months and also fee better and are more likely to make it to their follow-up appointments. 
+
+- To be concrete, suppose that 
+  + `\(P[Y = 1 \vert A = 1] = 0.2\)` and `\(P[Y = 1 \vert A = 0] = 0.7\)`.
+  + `\(P[C = 0 \vert Y = 0] = 1\)` and `\(P[C = 0 \vert Y = 1] = 0.5\)`.
+
+- With your partner, compute the average causal effect of `\(A\)` on `\(Y\)` and compute
+`\(E[Y \vert A = 1] - E[Y \vert A = 0]\)` in the sub-population with `\(C =0\)`.
+
+- Repeat your calculations assuming that there is no effect of `\(A\)` on `\(Y\)` and `\(P[Y = 1 \vert A =0 ] = P[Y = 1 \vert A =1] = p\)`.
+
+&lt;center&gt;
+<div id="htmlwidget-622f21b9ec8b5636d995" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-622f21b9ec8b5636d995">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+
+---
+
+# Selection Bias Under the Null
+
+- In both examples we have selection bias because `\(C\)` is a common cause of both `\(A\)` and `\(Y\)`.
+
+- In the first case, this condition is true whether or not `\(A\)` has a non-zero effect on `\(Y\)`.
+  + "Selection bias under the null"
+
+- In the second case (all of the effect of `\(A\)` on `\(C\)` is mediated by `\(Y\)`), this condition *only* occurs when there is a non-zero causal effect of `\(A\)` on `\(Y\)`. 
+
+- Selection bias under the null always implies selection bias in non-null settings.
+
+- There are some circumstances when we can have selection bias only under the non-null.
+
+---
+# Colliding Creates Selection Bias Under the Null
+
+- Conditioning on a variable that is a child of both the outcome and the exposure creates selection bias.
+
+
+---
+
+# Childern of Colliders are Colliders
+
+- Recall that conditioning on the child of a collider will open a path.
+
+---
+
+# Selection Bias without Colliding
+
+- In our previous HIV treatment example, suppose that low CD4 count does not directly cause censoring.
+
+- Instead there is a variable `\(U\)` representing disease progression which is a common cause of both `\(Y\)` and `\(S\)`. 
+
+- We still have selection bias in this case, but `\(C\)` is not a descendant of `\(Y\)`.
+
+&lt;center&gt;
+<div id="htmlwidget-6615ff1f74a7deccee42" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6615ff1f74a7deccee42">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.5!\"] \n  \"3\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+---
+# Selection Bias Definition
+
+
+- Selection bias occurs when we condition on a variable which is a common effect of two variables.
+
+- One must be either the treatment or *associated* with the treatment.
+
+- The other must be the exposure or *associated* with the exposure. 
+
+
+&lt;!-- --- --&gt;
+
+&lt;!-- # Extended Backdoor Criterion --&gt;
+
+---
+# Augmenting DAGs
+
+- We want to estimate `\(E[Y(a, c = 0)]\)`, the expected counterfactual value of `\(Y\)` if everyone had been treated
+witht `\(A = a\)` and nobody had been censored. 
+
+- `\(Y(c =0)\)` is the uncensored value of `\(Y\)`. So we could re-write our DAGs 
+  + replacing `\(Y\)` with `\(Y(c = 0)\)` and 
+  + Adding a node `\(Y^{obs}\)`, the observed (censored) value of `\(Y\)`. 
+
+
+---
+# Identifiability Under Seletion
+
+- We can estimate `\(E[Y(a, c = 0)]\)` if  `\(Y(a, c = 0) \ci (A, C) \vert L\)` for some set of variables `\(L\)`. 
+
+
+---
+
+# Adjusting for Selection
+
+- If we have a set of variables `\(L\)` such that `\(Y(a, c = 0) \ci (A, C) \vert L\)`, we can estimate 
+`\(E[Y(a, c = 0)]\)` by IP weighting. 
+
+- Think of `\((a, c = 0)\)` as a joint intervention. Using our previous IP weighting strategy, we need to 
+compute `\(W^{A,C} = \frac{1}{P[A = a, C = 0 \vert L]}\)`. (or `\(f(A, C = 0 \vert L)\)` for general `\(A\)`).
+
+- We can factor `\(P[A = a, C = 0 \vert L]\)` as 
+
+`$$P[A = a, C = 0 \vert L ] = P[C = 0 \vert A=a, L] \cdot P[A = a \vert L]$$` 
+-Our total weights are a product of the weights we used previously, `\(W^A = \frac{1}{P[A = a \vert L]}\)` and `$$W^c = \frac{1}{P[C = 0 \vert A, L]}$$`.
+
+---
+# IP Weighting Example 1
+
+- Using the example from HR (modified fig 8.3), data follow the DAG below:
+
+
+&lt;center&gt;
+<div id="htmlwidget-262c1e78c09eb5692fc7" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-262c1e78c09eb5692fc7">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y(C = 0)\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"1.04,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.4,0.5!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.5!\"] \n\"1\"->\"2\" [color = \"blue\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- `\(L\)` represents pre-existing heart disease. 
+
+- `\(A\)` is random assignment to a diet containing wasabi. 
+
+- `\(Y\)` indicates death by the end of the trial. 
+
+- Some participants are lost to follow-up ( `\(C = 1\)` ) due either to heart disease or the treatment assignment.
+
+- There is no effect of `\(A\)` on `\(Y\)`, though this is unknown to investigators (blue arrow).
+
+---
+# IP Weighting Example 1
+
+&lt;center&gt; 
+
+&lt;img src="img/4_comb_ipw1.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+- There is no confounding between `\(A\)` and `\(Y\)`. 
+
+- However, in order for `\(Y(a, c = 0)\)` to be independent of `\(C\)`, we must condition on `\(L\)`. 
+
+- We only need to compute `\(P[C = 0 \vert L, A]\)` for all levels of `\(L\)` and `\(A\)`. 
+
+- `\(P[A \vert L] = P[A]\)` is constant over levels of `\(L\)`. 
+
+---
+# IP Weighting Example 1
+
+&lt;center&gt; 
+
+&lt;img src="img/4_fig8_10.png" width="67%" /&gt;
+
+`$$P[C = 0 \vert L = 0, A = 0] = 1 \qquad P[C = 0 \vert L =0, A =1] = 0.5\\\
+
+P[C = 0 \vert L  =1, A = 0] = 0.6 \qquad P[C = 0 \vert L  = 1, A = 1] = 0.2$$`
+&lt;/center&gt;
+
+---
+
+# Positivity and Consistency 
+
+- In order to use IP weighting, we need `\(P[C = 0 \vert A, L] &gt; 0\)` in all strata of `\(A\)` and `\(L\)`.
+
+- We do not need `\(P[C = 1 \vert A, L] &gt; 0\)`.
+
+- We also need the the counterfactual outcome `\(Y(a, c = 0)\)` to be well defined. 
+  + If `\(C\)` is loss to follow-up, it makes sense to suppose that all patients were followed. 
+
+- Suppose that `\(C\)` is censoring due to death due to causes other than `\(A\)`. 
+  + HR argue that it doesn't make sense to propose an intervention that that eliminates all other causes of death.
+  
+---
+# IP Weighting Example 2
+
+- In the previous example, we also could have stratified on `\(L\)`. 
+
+- This doesn't always work. 
+
+&lt;center&gt;
+<div id="htmlwidget-2f3a4a0422d11a317a76" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2f3a4a0422d11a317a76">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y(C = 0)\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"5\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.8!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+
+- In this case, stratifying by `\(L\)` induces confounding through the backdoor path `\(A \rightarrow L \leftarrow U \rightarrow Y\)`.
+
+- But weighting by `\(1/P[C = 0 \vert A, L]\)` works.
+---
+
+# Sources of Selection Bias
+
+- Differential loss to follow-up: Participants may drop out of the study for reasons related to the treatment or outcome.
+
+- Non-response: Social stigmas may make people more likely to omit some kinds of information than others.
+  
+- Self-selection/volunteer bias: Some individuals may be more likely to volunteer for a study than others. 
+  &lt;!-- + For example, healthy people with a family history of cancer may be more likely to participate in a cancer study.  --&gt;
+  &lt;!-- + If the study is advertised in particular places (e.g. on public transport), some people will be more likely to know about the study than others.  --&gt;
+  
+- Healthy worker bias: Participants for a study of an occupational exposure on an outcome are recruited from among those who are at work on the day the exposure is measured.
+  + People may be more likely to miss work for reasons directly related to the outcome or for 
+  reasons that are associated with both outcome and exposure (e.g. SES).
+
+---
+
+# Case-Control Studies
+
+- The graph from our first example could have described a case-control study. 
+
+&lt;center&gt;
+<div id="htmlwidget-a6d21df47f312c203cd1" style="width:504px;height:108px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a6d21df47f312c203cd1">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- Individuals are selected into the study based on their value of `\(Y\)`. 
+
+- In this case, we are no longer able estimate the average causal effect or the causal risk ratio. 
+- However, in this DAG, we can estimate the causal odds ratio due to cancellation. 
+---
+# Case-Control Studies
+
+&lt;center&gt;
+<div id="htmlwidget-bafb668ee7b7ffd6adf3" style="width:504px;height:108px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-bafb668ee7b7ffd6adf3">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- In uncensored data `\(Y(a)\)` and `\(A\)` are exchangeable so `\(E[Y(a)]= E[Y \vert A]\)`. We only get to observe `\(E[Y \vert A, C = 0]\)`
+
+$$
+\text{OR} = \frac{P[Y = 1 \vert A ]}{P[Y = 0 \vert A ]}
+= \frac{P[Y = 1\vert A, C = 0]P[C = 0 \vert A]}{P[Y = 0\vert A, C = 0]P[C = 0 \vert A]} 
+= \frac{P[Y = 1\vert A, C = 0]}{P[Y = 0\vert A, C = 0]}
+$$
+- So the association odds ratio is equal to the causal odds ratio. 
+
+- If selection was performed based only on `\(Y\)` then for each person, we know their probability of inclusion `\((C = 0)\)`: `\(P[C = 0 \vert A] = P[C = 0 \vert Y]\)` (from the causal Markov property).
+
+- With a population estimate `\(P[Y]\)` we can estimate `\(P[C = 0 \vert Y ] \propto \frac{\pi_Y}{P[Y]}\)` where `\(\pi_Y\)` is the proportion of study participants with outcome `\(Y\)`.  
+
+
+---
+
+# Selection Bias and Hazard Ratios
+
+
+
+&lt;!-- --- --&gt;
+
+&lt;!-- # When Collider Stratification Does Not Cause Bias --&gt;
+
+
+---
+
+# Measurement Bias
+
+---
+
+# (Non)Compliance
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

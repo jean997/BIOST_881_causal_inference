@@ -1,0 +1,15 @@
+---
+title: "L5: Modeling Part 1"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "2022-24-10 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+$\newcommand{\ci}{\perp\!\!\!\perp}$
