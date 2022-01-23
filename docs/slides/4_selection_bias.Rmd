@@ -41,7 +41,7 @@ library(dplyr)
 library(knitr)
 library(kableExtra)
 
-hiv_node <- create_node_df(n = 4, label = c("A", "Y", "L", "C"), 
+hiv_node0 <- create_node_df(n = 4, label = c("A", "Y", "L", "C"), 
                      fontname = "Helvetica", 
                      fontsize = 10, 
                      width = 0.3, 
@@ -51,13 +51,13 @@ hiv_node <- create_node_df(n = 4, label = c("A", "Y", "L", "C"),
                      shape = rep(c("circle", "square"), c(3, 1)),
                      x = c(0, 1, 1, 2)*0.8, 
                      y = c(0, 0, 1, 0)*0.8)
-hiv_edge <- create_edge_df(from = c(1, 1, 2, 3 ), to = c(2, 3, 4, 4),
+hiv_edge0 <- create_edge_df(from = c(1, 1, 2, 3 ), to = c(2, 3, 4, 4),
                           minlen = 1, 
                           color = "black", 
                           )
-hiv_graph <- create_graph(nodes_df = hiv_node, edges_df = hiv_edge)
+hiv_graph0 <- create_graph(nodes_df = hiv_node0, edges_df = hiv_edge0)
 
-render_graph(hiv_graph)
+render_graph(hiv_graph0)
 ```
 </center>
 
@@ -65,12 +65,12 @@ render_graph(hiv_graph)
 
 # HIV Treatment Example
 
-- In this study, if we had been able to measure $Y$ for all patients (there was no conditioning on $C$), could we identify the effect of $A$ on $Y$ -- i.e. would we have $Y(a) \ci A$?
+- In this study, if we had been able to measure $Y$ for all patients, could we identify the effect of $A$ on $Y$ -- i.e. would we have $Y(a) \ci A$?
 
 - With some data unobserved, can we identify the effect of $A$ on $Y$?
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
-render_graph(hiv_graph)
+render_graph(hiv_graph0)
 ```
 </center>
 --
@@ -129,22 +129,6 @@ $E[Y \vert A = 1] - E[Y \vert A = 0]$ in the sub-population with $C =0$.
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
-hiv_node <- create_node_df(n =3 , label = c("A", "Y", "C"), 
-                     fontname = "Helvetica", 
-                     fontsize = 10, 
-                     width = 0.3, 
-                     fillcolor = "white", 
-                     fontcolor = "black",
-                     color = "black", 
-                     shape = rep(c("circle", "square"), c(2, 1)),
-                     x = c(0, 1, 2)*0.8, 
-                     y = c(0, 0, 0)*0.8)
-hiv_edge <- create_edge_df(from = c(1, 2), to = c(2, 3),
-                          minlen = 1, 
-                          color = "black", 
-                          )
-hiv_graph <- create_graph(nodes_df = hiv_node, edges_df = hiv_edge)
-
 render_graph(hiv_graph)
 ```
 </center>
@@ -166,16 +150,49 @@ render_graph(hiv_graph)
 - There are some circumstances when we can have selection bias only under the non-null.
 
 ---
-# Colliding Creates Selection Bias Under the Null
+# Colliding Creates Selection Bias 
 
 - Conditioning on a variable that is a child of both the outcome and the exposure creates selection bias.
 
+- Recall that conditioning on the child of a collider will also open a path.
 
----
+<center>
+```{r, echo = FALSE, fig.height = 5}
+#render_graph(hiv_graph)
+ndf6 <- create_node_df(n =3 , label = c("A", "Y", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(2, 1)),
+                     x = c(0, 1, 0.5)*0.8 + 2.8, 
+                     y = c(1, 1, 0)*0.8)
+edf6 <- create_edge_df(from = c(1, 2, 1)+4, to = c(3, 3, 2)+4,
+                          minlen = 1, 
+                          color = "black", 
+                          )
+ndf7 <- create_node_df(n = 5, label = c("A", "Y", "L", "U", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(4, 1)),
+                     x = c(0, 1, 1, 2, 3)*0.8 + 1.5, 
+                     y = c(0, 0, 1, 0, 0)*0.8 - 2)
+edf7<- create_edge_df(from = c(1, 1, 2, 3, 4 ) + 7, to = c(2, 3, 4, 4, 5) + 7,
+                          minlen = 1, 
+                          color = "black", 
+                          )
+g6 <- create_graph(nodes_df = combine_ndfs(hiv_node0, ndf6, ndf7), edges_df = combine_edfs(hiv_edge0, edf6, edf7))
+render_graph(g6)
+```
+</center>
 
-# Childern of Colliders are Colliders
 
-- Recall that conditioning on the child of a collider will open a path.
 
 ---
 
@@ -189,7 +206,7 @@ render_graph(hiv_graph)
 
 <center>
 ```{r, echo = FALSE, fig.height = 3.5}
-hiv_node2 <- create_node_df(n =4 , label = c("A", "Y", "U", "C"), 
+hiv_node2 <- create_node_df(n =4 , label = c("A", "Y", "L", "C"), 
                      fontname = "Helvetica", 
                      fontsize = 10, 
                      width = 0.3, 
@@ -218,6 +235,61 @@ render_graph(hiv_graph2)
 - One must be either the treatment or *associated* with the treatment.
 
 - The other must be the exposure or *associated* with the exposure. 
+
+---
+
+# Selection Could Happen Before the Outcome 
+
+
+<center>
+```{r, echo = FALSE, fig.height = 5}
+ndf8 <- create_node_df(n =5 , label = c("A", "L", "C", "Y", "U"),
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square", "circle"), c(2, 1, 2)),
+                     x = c(0, 1, 2, 3, 2)*0.8, 
+                     y = c(0, 0, 0,0,1)*0.5)
+edf8 <- create_edge_df(from = c(1, 2, 5, 5), to = c(2, 3, 2, 4),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr8 <- create_graph(nodes_df = ndf8, edges_df = edf8)
+
+render_graph(gr8)
+```
+</center>
+
+
+---
+
+# Selection Could Happen Before the Exposure 
+
+
+<center>
+```{r, echo = FALSE, fig.height = 5}
+ndf9 <- create_node_df(n =5 , label = c("L", "U", "C", "A", "Y"),
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square", "circle"), c(2, 1, 2)),
+                     x = c(0, 1,1,2,  3)*0.8, 
+                     y = c(0, 1, -2, 0, 0)*0.5)
+edf9 <- create_edge_df(from = c(1, 1, 2, 2), to = c(3, 4, 1, 5),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr9 <- create_graph(nodes_df = ndf9, edges_df = edf9)
+
+render_graph(gr9)
+```
+</center>
 
 
 <!-- --- -->
@@ -435,18 +507,211 @@ $$
 
 # Selection Bias and Hazard Ratios
 
+- Suppose we have a single treatment $A$ and then individuals are followed over time. 
 
+- We are interested in estimating the counterfactual risk of death under treatment $a$ (or the RR comparing treatment $a$ and $a^\prime$ ). 
 
-<!-- --- -->
+- For simplicity, assume we have two discrete time points and know 
+  + $Y_1$: death  by time point 1
+  + $Y_2$: death by time point 2
+  
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+ndf3 <- create_node_df(n =4 , label = c("A", "Y@_{2}", "Y@_{1}", "U"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     
+                     shape = "circle",
+                     x = c(0, 2, 1, 1.5)*0.8, 
+                     y = c(0, 0, 0, 1)*0.5)
+edf3 <- create_edge_df(from = c(1, 4, 4, 3), to = c(3, 3, 2, 2),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+gr3 <- create_graph(nodes_df = ndf3, edges_df = edf3)
 
-<!-- # When Collider Stratification Does Not Cause Bias -->
-
+render_graph(gr3)
+```
+</center>
+  
 
 ---
 
-# Measurement Bias
+# Hazard Ratios
+
+- In this DAG, we can estimate the total causal effect of $A$ on both $Y_1$ and $Y_2$ since we have exchangeability for both. 
+
+- In both cases, the causal risk ratio is equal to the association risk ratio
+$$
+\frac{P[Y_j(1)]}{P[Y_j(0)]} = \frac{E[Y_j \vert A = 1]}{E[Y_j \vert A = 0]}
+$$
+
+- The *hazard* at time 2 is the probability of dying by time 2 conditional no being alive at time 1. 
+
+- Conditioning on $Y_1$ induces a non-causal association between $Y_2$ and $A$ through $U$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+ndf4 <- ndf3
+ndf3$shape[3] <- "square"
+gr3 <- create_graph(nodes_df = ndf3, edges_df = edf3)
+render_graph(gr3)
+```
+</center>
+  
 
 ---
 
-# (Non)Compliance
+# Non-Compliance
 
+- Suppose we do a randomized trial of smoking cessation. 
+
+- A population of current smokers with no immediate plans to quit are recruited. 
+
+- Half the participants are assigned to quit smoking for six weeks, the other half are assigned to continue smoking as usual ($Z$).
+
+- We measure cardiovascular endurance at the beginning and end of the study. 
+  + $Y$ represents the change in endurance over 6 weeks. 
+
+
+---
+# Non-Compliance
+
+- Suppose that both treatment groups have some rate of non-adherence to the treatment plan. 
+
+  + There are some people who are assigned to quit and don't. 
+  + Some people assigned to continue are inspired by their study particpation and decide to quit anyway. 
+
+- Let $A$ represent the actual treatment each person receives (quitting or not). 
+
+- Let $U$ be a confounder that affects both adherence and change in endurance. 
+
+- Draw a DAG of this scenario. 
+
+---
+# Non-Compliance
+
+<center>
+```{r, echo = FALSE, fig.height = 4}
+ndf4$label[1:3] <- c("Z", "Y", "A")
+ndf4$y[4] <- -0.5
+ndf4$y[1] <- 0.5
+ndf4$x[1] <- 0.2
+ndf4$x <- ndf4$x*1.5
+edf4 <- create_edge_df(from = c(1, 4, 4, 3,1), to = c(3, 3, 2, 2, 2),
+                          minlen = 1, 
+                          color = rep(c("black", "blue"), c(4, 5)) 
+                          )
+gr4 <- create_graph(nodes_df = ndf4, edges_df = edf4)
+render_graph(gr4)
+```
+</center>
+
+- The blue arrow may exist if knowledge of the treatment assignment alters participants behavior. 
+  + For example, people who are assigned to quit and don't may exercise more to "make up" for not quitting. 
+---
+
+# Non-Compliance
+
+- We would like to estimate $E[Y(a)]$ and 
+   + $E[Y(A=1)] - E[Y(A = 0)]$, the *per-protocol effect (PP)*.
+   + In this graph, the presence of $U$ means that $E[Y(a)]$ is not identifiable.
+
+- We can identify $E[Y(z)]$. 
+  + $E[Y(z =1)] - E[Y(z = 0)]$ is the *intention-to-treat effect (ITT)*. 
+<center>
+```{r, echo = FALSE, fig.height = 3.5}
+render_graph(gr4)
+```
+</center>
+---
+
+# Pros of the ITT
+
+- The ITT can be measured from the data without confounding and is therefore often preferred. 
+
+- If we further assume that the blue arrow does not exist, then the following arguments are in favor of the ITT.
+
+- The ITT preserves the null: If there is no effect of $A$ on $Y$ then there is no effect of $Z$ on $Y$. 
+
+- If we further assume *monotonicity* ($Y_i(1) \geq Y_i(0)$ for all individuals $i$ ), then the ITT effect is closer to zero than the PP effect, making the estimate conservative.
+
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr4)
+```
+</center>
+
+
+# Cons of the ITT
+
+- Conservativeness is not always good. 
+
+  + For example, if we are looking for adverse effects of a medication, a conservative estimate is dangerous. 
+  
+- If montonicity does not hold, the ITT may be anti-conservative:
+
+  + Suppose individuals who benefit from the treatment are more likely to comply than individuals who would be harmed by it.
+  
+- In some cases, assuming the blue arrow is not present is unreasonable. 
+  + If the blue arrow is present the ITT may differ from the PP in any direction. 
+
+---
+# "As-Treated" Analysis to Estimate the PP Effect
+
+- If we can measure confounding factors between $A$ and $Y$, we can estimate the PP effect using IP weighting or standardization. 
+
+- In this case we are treating our trial data like observational data. 
+  
+- This is the "as-treated" analysis. 
+
+
+---
+# "Per-Protocol" Analysis to Estimate the PP Effect
+
+- Another commonly used alternative is to exclude all non-compliers from the analysis.  
+
+- This approach introduces selection bias unless the the confounders $U$ are measured.
+
+- So either way, we need to measure $U$. 
+
+- Later we will see an alternative method, instrumental variable analysis, which requires some additional assumptions.
+
+<center>
+```{r, echo = FALSE, fig.height = 3.5}
+ndf5 <- create_node_df(n =5 , label = c("Z", "Y", "A", "U", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(4, 1)),
+                     x = c(0.25, 2, 1, 1.5, 1.5)*0.8, 
+                     y = c(0, 0, 0, -1, 1)*0.5)
+edf5 <- create_edge_df(from = c(1, 4, 4, 3, 1, 3), to = c(3, 3, 2, 2, 5, 5),
+                          minlen = 1, 
+                          color = "black"
+                          )
+gr5 <- create_graph(nodes_df = ndf5, edges_df = edf5)
+
+render_graph(gr5)
+```
+</center>
+
+---
+
+# Measurement Error
+
+- The non-compliance problem is similar to a measurement error problem. 
+
+  + $Z$ is like a mis-measured version of $A$. 
+
+- More generally, measurements of $A$, $Y$, or other variables inaccurate. 
+
+- We won't cover methods for accounting for measurment error, but it is important to be aware of. 
