@@ -4,13 +4,15 @@
     <title>L4: Selection Bias</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
     <script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
     <script src="libs/viz-1.8.2/viz.js"></script>
     <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
-    <script src="libs/grViz-binding-1.0.6.1/grViz.js"></script>
+    <script src="libs/grViz-binding-1.0.7/grViz.js"></script>
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
   </head>
   <body>
     <textarea id="source">
@@ -26,19 +28,18 @@ class: center, middle, inverse, title-slide
 
 `\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
 
-# HIV Treatment Example
+# Example
 
 
-- We are interested in the effect of a drug for treating HIV ( `\(A\)` ) on the risk that CD4 count is below a particular threshold at three months after treatment ( `\(Y\)` ). 
+- We are interested in the effect of drug `\(A\)`, an HIV treatment on preventing disease progression.
 
-- We cannot observe outcomes for patients who do not make it to their three month follow-up appointment. 
+- We will use CD4 count as a measurement of disease progression. Our outcome `\(Y\)` is 1 if CD4 count falls below a threshold within one year of starting treatment.  
 
-- Patients may miss their appointments if they are in poor health. This could occur if 
-their disease has progressed (low CD4 count) or they are experiencing side effects from their treatment. 
+- Some patients drop out of the study before the one year mark and we cannot observe their outcome.
 
-- Use a variable `\(C\)` (for censoring) to represent whether or not a patient's CD4 count is measured at three months.
-  + `\(C = 0\)` if the measurement was taken.
-  + `\(C = 1\)` if the measurement is missing.
+- Patients may drop out if they are in poor health. This could occur if their disease progresses and their CD4 count drops or if they are experiencing side effects ( `\(L\)` ) from the treatment.
+
+- Use a variable `\(C\)` (for censoring) to represent if a patient drops out of the study before one year ( `\(C = 1\)` ) or not ( `\(C = 0\)`).
 
 - With a partner, draw a DAG representing this scenario.
 
@@ -47,8 +48,8 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 # HIV Treatment Example
 
 &lt;center&gt;
-<div id="htmlwidget-cb00924b187b5f5a8ddb" style="width:90%;height:504px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-cb00924b187b5f5a8ddb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-e6392bc4147d5fb092ff" style="width:90%;height:504px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e6392bc4147d5fb092ff">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 ---
@@ -59,8 +60,8 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 
 - With some data unobserved, can we identify the effect of `\(A\)` on `\(Y\)`?
 &lt;center&gt;
-<div id="htmlwidget-918a32a2d8ace9b1c4f8" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-918a32a2d8ace9b1c4f8">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-220469d84511759dd548" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-220469d84511759dd548">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 --
 
@@ -75,11 +76,13 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 
 # HIV Treatment Example
 
-- Suppose now that treatment has no side effects. Treatment can only influence selection *through* its effect on `\(Y\)`.
+- Suppose now that treatment has no side effects. 
+
+- Treatment can only influence selection *through* its effect on `\(Y\)`.
 
 &lt;center&gt;
-<div id="htmlwidget-8b980da8507042b1e8ae" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-8b980da8507042b1e8ae">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-5390065c450aa8477268" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5390065c450aa8477268">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 - Do we still have selection bias?
@@ -88,11 +91,12 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 
 # Example Continued
 
-- Suppose that `\(A\)` is effective. Patients receiving `\(A = 1\)` have lower CD4 count at three months and also fee better and are more likely to make it to their follow-up appointments. 
+- Suppose that `\(A\)` is effective and 
+- Patients with `\(Y = 0\)` are more likely to remain in the study than patients with `\(Y = 1\)`.
 
-- To be concrete, suppose that 
-  + `\(P[Y = 1 \vert A = 1] = 0.2\)` and `\(P[Y = 1 \vert A = 0] = 0.7\)`.
-  + `\(P[C = 0 \vert Y = 0] = 1\)` and `\(P[C = 0 \vert Y = 1] = 0.5\)`.
+
+`$$P[Y = 1 \vert A = 0] = 0.8 \qquad P[Y = 1 \vert A = 1] = 0.1\\\
+  P[C = 0 \vert Y = 0] = 1 \qquad P[C = 0 \vert Y = 1] = 0.5$$`
 
 - With your partner, compute the average causal effect of `\(A\)` on `\(Y\)` and compute
 `\(E[Y \vert A = 1] - E[Y \vert A = 0]\)` in the sub-population with `\(C =0\)`.
@@ -100,36 +104,130 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 - Repeat your calculations assuming that there is no effect of `\(A\)` on `\(Y\)` and `\(P[Y = 1 \vert A =0 ] = P[Y = 1 \vert A =1] = p\)`.
 
 &lt;center&gt;
-<div id="htmlwidget-8f86c8071762e23f137b" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-8f86c8071762e23f137b">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-d43f92d909b04b63e05b" style="width:504px;height:144px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d43f92d909b04b63e05b">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
+---
 
+# Example Continued
+
+- In the scenario with a treatment effect: 
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="empty-cells: hide;border-bottom:hidden;" colspan="1"&gt;&lt;/th&gt;
+&lt;th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2"&gt;&lt;div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; "&gt;Full Data&lt;/div&gt;&lt;/th&gt;
+&lt;th style="empty-cells: hide;border-bottom:hidden;" colspan="1"&gt;&lt;/th&gt;
+&lt;th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2"&gt;&lt;div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; "&gt;\(C = 0\)&lt;/div&gt;&lt;/th&gt;
+&lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A=0\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A=1\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A=0\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A=1\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(Y=0\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.33 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.89 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(Y=1\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.67 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.11 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- The causal risk difference is -0.4.
+
+- The associational risk difference among those with `\(C = 0\)` is -0.56
+---
+
+# Example Continued
+
+- In the scenario with no effect: 
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="empty-cells: hide;border-bottom:hidden;" colspan="1"&gt;&lt;/th&gt;
+&lt;th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2"&gt;&lt;div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; "&gt;Full Data&lt;/div&gt;&lt;/th&gt;
+&lt;th style="empty-cells: hide;border-bottom:hidden;" colspan="1"&gt;&lt;/th&gt;
+&lt;th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2"&gt;&lt;div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; "&gt;\(C = 0\)&lt;/div&gt;&lt;/th&gt;
+&lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A=0\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A=1\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A=0\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A=1\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(Y=0\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(1-p\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(1-p\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\frac{2-2p}{2-p}\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\frac{2-2p}{2-p}\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(Y=1\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(p\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(p\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\frac{p}{2-p}\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\frac{p}{2-p}\) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- The causal risk difference is 0. 
+
+- The associational risk difernce in the observed data is also 0. So there is no selection bias for the measure of association.
+
+- However, in the observed data, `\(E[Y \vert A= a, C = 0] \neq E[Y(a)]\)`.
 ---
 
 # Selection Bias Under the Null
 
-- In both examples we have selection bias because `\(C\)` is a common cause of both `\(A\)` and `\(Y\)`.
+- In both examples we have selection bias because `\(C\)` is a common effect of both `\(A\)` and `\(Y\)`.
 
-- In the first case, this condition is true whether or not `\(A\)` has a non-zero effect on `\(Y\)`.
-  + "Selection bias under the null"
+- In the first case, this condition is true whether or not `\(A\)` has a non-zero effect on `\(Y\)` (*selection bias under the null*).
 
 - In the second case (all of the effect of `\(A\)` on `\(C\)` is mediated by `\(Y\)`), this condition *only* occurs when there is a non-zero causal effect of `\(A\)` on `\(Y\)`. 
 
 - Selection bias under the null always implies selection bias in non-null settings.
 
-- There are some circumstances when we can have selection bias only under the non-null.
+- The reverse is not true (as we have seen).
 
 ---
-# Colliding Creates Selection Bias 
+# Colliding Creates Selection Bias
 
 - Conditioning on a variable that is a child of both the outcome and the exposure creates selection bias.
+
+- If the effect of the exposure on the selection variable is not entirely mediated by the outcome, we will have selection bias under the null.
 
 - Recall that conditioning on the child of a collider will also open a path.
 
 &lt;center&gt;
-<div id="htmlwidget-9f9f9236bcddf9123a09" style="width:504px;height:360px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-9f9f9236bcddf9123a09">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"5\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.8,0.8!\"] \n  \"6\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.6,0.8!\"] \n  \"7\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"3.2,0!\"] \n  \"8\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.5,-2!\"] \n  \"9\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.3,-2!\"] \n  \"10\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.3,-1.2!\"] \n  \"11\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.1,-2!\"] \n  \"12\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"3.9,-2!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"7\" [color = \"black\"] \n\"6\"->\"7\" [color = \"black\"] \n\"5\"->\"6\" [color = \"black\"] \n\"8\"->\"9\" [color = \"black\"] \n\"8\"->\"10\" [color = \"black\"] \n\"9\"->\"11\" [color = \"black\"] \n\"10\"->\"11\" [color = \"black\"] \n\"11\"->\"12\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-167c61b2375364ef8445" style="width:504px;height:360px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-167c61b2375364ef8445">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"5\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.8,0.8!\"] \n  \"6\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.6,0.8!\"] \n  \"7\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"3.2,0!\"] \n  \"8\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.5,-1.5!\"] \n  \"9\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.3,-1.5!\"] \n  \"10\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.3,-0.7!\"] \n  \"11\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.1,-1.5!\"] \n  \"12\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"3.9,-1.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"7\" [color = \"black\"] \n\"6\"->\"7\" [color = \"black\"] \n\"5\"->\"6\" [color = \"black\"] \n\"8\"->\"9\" [color = \"black\"] \n\"8\"->\"10\" [color = \"black\"] \n\"9\"->\"11\" [color = \"black\"] \n\"10\"->\"11\" [color = \"black\"] \n\"11\"->\"12\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -140,13 +238,13 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 
 - In our previous HIV treatment example, suppose that low CD4 count does not directly cause censoring.
 
-- Instead there is a variable `\(U\)` representing disease progression which is a common cause of both `\(Y\)` and `\(S\)`. 
+- Instead there is a variable `\(U\)` representing health which is a common cause of both `\(Y\)` and `\(S\)`. 
 
 - We still have selection bias in this case, but `\(C\)` is not a descendant of `\(Y\)`.
 
 &lt;center&gt;
-<div id="htmlwidget-6dc39d76b2e47cbd40f0" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6dc39d76b2e47cbd40f0">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.5!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-9d936aff71a5ba754c63" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9d936aff71a5ba754c63">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.5!\"] \n  \"3\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 ---
@@ -165,8 +263,8 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 
 
 &lt;center&gt;
-<div id="htmlwidget-6d2cc313de33e11157c0" style="width:504px;height:360px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6d2cc313de33e11157c0">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"4\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"5\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-9cff84481ce6e3335c66" style="width:504px;height:360px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9cff84481ce6e3335c66">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"4\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"5\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -176,8 +274,8 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 
 
 &lt;center&gt;
-<div id="htmlwidget-97245bad27505d1e67c4" style="width:504px;height:360px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-97245bad27505d1e67c4">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.5!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"0.8,-1!\"] \n  \"4\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-a027045b3ff84dc4eb06" style="width:504px;height:360px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a027045b3ff84dc4eb06">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.5!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"0.8,-1!\"] \n  \"4\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -185,47 +283,66 @@ their disease has progressed (low CD4 count) or they are experiencing side effec
 
 &lt;!-- # Extended Backdoor Criterion --&gt;
 
+
 ---
 # Augmenting DAGs
 
-- We want to estimate `\(E[Y(a, c = 0)]\)`, the expected counterfactual value of `\(Y\)` if everyone had been treated
-witht `\(A = a\)` and nobody had been censored. 
+- The DAGs we have been drawing are harboring a hidden counterfactual. 
 
-- `\(Y(c =0)\)` is the uncensored value of `\(Y\)`. So we could re-write our DAGs 
-  + replacing `\(Y\)` with `\(Y(c = 0)\)` and 
-  + Adding a node `\(Y^{obs}\)`, the observed (censored) value of `\(Y\)`. 
+- The node `\(Y\)` could be written as `\(Y(C = 0)\)` -- the value of `\(Y\)` that we would observe if nobody was censored.
+
+- Our DAGs are missing the value of `\(Y\)` that we actually observe, `\(Y^{obs}\)` which is determined by `\(Y(C = 0)\)` and `\(C\)`.
+
+&lt;center&gt; 
+
+<div id="htmlwidget-30ce6326b8da4bb5b2ba" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-30ce6326b8da4bb5b2ba">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"4\" [label = \"Y(C=0)\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"5\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.5!\"] \n  \"6\" [label = <Y<FONT POINT-SIZE=\"8\"><SUP>obs<\/SUP><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"2,-0.75!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n\"4\"->\"6\" [color = \"black\"] \n\"3\"->\"6\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
 
 
 ---
-# Identifiability Under Seletion
-
-- We can estimate `\(E[Y(a, c = 0)]\)` if  `\(Y(a, c = 0) \ci (A, C) \vert L\)` for some set of variables `\(L\)`. 
-
-
----
-
 # Adjusting for Selection
 
-- If we have a set of variables `\(L\)` such that `\(Y(a, c = 0) \ci (A, C) \vert L\)`, we can estimate 
-`\(E[Y(a, c = 0)]\)` by IP weighting. 
+- Under selection, we are interested in estimating the average of a joint intervention $Y(a, C = 0): 
+  + First we intervene to set `\(C = 0\)` for everyone (no more censoring).
+  + Second we intervene and set `\(A = a\)`. 
+  + The order doesn't matter. 
 
-- Think of `\((a, c = 0)\)` as a joint intervention. Using our previous IP weighting strategy, we need to 
-compute `\(W^{A,C} = \frac{1}{P[A = a, C = 0 \vert L]}\)`. (or `\(f(A, C = 0 \vert L)\)` for general `\(A\)`).
+- We can use a two stage weighting procedure. 
 
-- We can factor `\(P[A = a, C = 0 \vert L]\)` as 
+- First we re-weight the data to look like the world in which nobody was censored. For this we need a set of variables `\(L_1\)` such that
+`$$Y(a, C = 0) \ci C(a) \vert L_1$$`
 
-`$$P[A = a, C = 0 \vert L ] = P[C = 0 \vert A=a, L] \cdot P[A = a \vert L]$$` 
--Our total weights are a product of the weights we used previously, `\(W^A = \frac{1}{P[A = a \vert L]}\)` and `$$W^c = \frac{1}{P[C = 0 \vert A, L]}$$`.
+- We use a second set of weights to account for any confounding. So we need a set of variables `\(L_2\)` such that
+
+`$$Y(a, C = 0) \ci A \vert L_2$$`
+
+- We will also need a modification of the positivity condition. 
+
 
 ---
+# Adjusting for Selection 
+
+- If `\(Y(a, C = 0) \ci C \vert L_1\)`, we can weight the data by `\(W^C = 1/P[ C = 0 \vert L_1, A]\)`
+
+- For example, if half the participants with `\(L = l\)` and `\(A = a\)` were censored, the remaining individuals will receive weight 2. 
+
+- If we need to do further adjustment for confounding, we can compute weights `\(W^A = 1/P[A = a \vert L_2]\)`
+
+- Our total weights will be `\(W^C\cdot W^A\)`.
+
+---
+
 # IP Weighting Example 1
 
 - Using the example from HR (modified fig 8.3), data follow the DAG below:
 
 
 &lt;center&gt;
-<div id="htmlwidget-83d94f0fec3153c1c3c3" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-83d94f0fec3153c1c3c3">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y(C = 0)\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"1.04,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.4,0.5!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.5!\"] \n\"1\"->\"2\" [color = \"blue\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-3f9a977491ba7cbb4103" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3f9a977491ba7cbb4103">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y(C = 0)\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"1.04,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.4,0.5!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.5!\"] \n\"1\"->\"2\" [color = \"blue\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 - `\(L\)` represents pre-existing heart disease. 
@@ -236,7 +353,7 @@ compute `\(W^{A,C} = \frac{1}{P[A = a, C = 0 \vert L]}\)`. (or `\(f(A, C = 0 \ve
 
 - Some participants are lost to follow-up ( `\(C = 1\)` ) due either to heart disease or the treatment assignment.
 
-- There is no effect of `\(A\)` on `\(Y\)`, though this is unknown to investigators (blue arrow).
+- There is no effect of `\(A\)` on `\(Y\)`, though this is unknown to investigators.
 
 ---
 # IP Weighting Example 1
@@ -247,25 +364,44 @@ compute `\(W^{A,C} = \frac{1}{P[A = a, C = 0 \vert L]}\)`. (or `\(f(A, C = 0 \ve
 
 &lt;/center&gt;
 
-- There is no confounding between `\(A\)` and `\(Y\)`. 
+- We must condition on `\(L\)` to block the path between `\(Y(a, C = 0)\)` and `\(C(a).\)`
 
-- However, in order for `\(Y(a, c = 0)\)` to be independent of `\(C\)`, we must condition on `\(L\)`. 
+- `\(Y(a, C = 0)\)` is independent of `\(A\)` unconditionally. 
 
-- We only need to compute `\(P[C = 0 \vert L, A]\)` for all levels of `\(L\)` and `\(A\)`. 
+- Since there is no confounding, we only need to compute `\(P[C = 0 \vert L, A]\)` for all levels of `\(L\)` and `\(A\)`. 
 
-- `\(P[A \vert L] = P[A]\)` is constant over levels of `\(L\)`. 
 
 ---
 # IP Weighting Example 1
 
+- The table shows `\(P[C = 0 \vert A, L]\)` from the HR example.
 &lt;center&gt; 
-
-&lt;img src="img/4_fig8_10.png" width="67%" /&gt;
-
-`$$P[C = 0 \vert L = 0, A = 0] = 1 \qquad P[C = 0 \vert L =0, A =1] = 0.5\\\
-
-P[C = 0 \vert L  =1, A = 0] = 0.6 \qquad P[C = 0 \vert L  = 1, A = 1] = 0.2$$`
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A=0\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A=1\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(Y=0\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(Y=1\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 &lt;/center&gt;
+
+- Individuals with `\(A = 0\)` and `\(L = 0\)` get weight 1 because they were never censored. 
+
+- Individuals with `\(A = 1\)` and `\(L =1\)` get weight 5 because only 20\% of this strata were uncensored.
 
 ---
 
@@ -275,10 +411,10 @@ P[C = 0 \vert L  =1, A = 0] = 0.6 \qquad P[C = 0 \vert L  = 1, A = 1] = 0.2$$`
 
 - We do not need `\(P[C = 1 \vert A, L] &gt; 0\)`.
 
-- We also need the the counterfactual outcome `\(Y(a, c = 0)\)` to be well defined. 
+- We also need the the counterfactual outcome `\(Y(a, C = 0)\)` to be well-defined. 
   + If `\(C\)` is loss to follow-up, it makes sense to suppose that all patients were followed. 
 
-- Suppose that `\(C\)` is censoring due to death due to causes other than `\(A\)`. 
+- Suppose that `\(C\)` is censoring due to death resulting from causes other than `\(A\)`. 
   + HR argue that it doesn't make sense to propose an intervention that that eliminates all other causes of death.
   
 ---
@@ -289,8 +425,8 @@ P[C = 0 \vert L  =1, A = 0] = 0.6 \qquad P[C = 0 \vert L  = 1, A = 1] = 0.2$$`
 - This doesn't always work. 
 
 &lt;center&gt;
-<div id="htmlwidget-6b07231651f6d3989309" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6b07231651f6d3989309">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y(C = 0)\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"5\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.8!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-393eb536fcde96dfc4b7" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-393eb536fcde96dfc4b7">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y(C = 0)\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"5\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0.8!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -320,35 +456,44 @@ P[C = 0 \vert L  =1, A = 0] = 0.6 \qquad P[C = 0 \vert L  = 1, A = 1] = 0.2$$`
 - The graph from our first example could have described a case-control study. 
 
 &lt;center&gt;
-<div id="htmlwidget-a98902bdbaca3094d8cc" style="width:504px;height:108px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-a98902bdbaca3094d8cc">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-9f0acaad26992161b039" style="width:504px;height:108px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9f0acaad26992161b039">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 - Individuals are selected into the study based on their value of `\(Y\)`. 
 
-- In this case, we are no longer able estimate the average causal effect or the causal risk ratio. 
+- In this case, we are no longer able estimate the average counterfactuals or the causal risk ratio. 
 - However, in this DAG, we can estimate the causal odds ratio due to cancellation. 
 ---
 # Case-Control Studies
 
-&lt;center&gt;
-<div id="htmlwidget-5120a8ea89b2711a3c20" style="width:504px;height:108px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-5120a8ea89b2711a3c20">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
-&lt;/center&gt;
+- Without censoring, `\(Y(a)\)` and `\(A\)` are exchangeable so `\(E[Y(a)]= E[Y \vert A]\)`.
 
-- In uncensored data `\(Y(a)\)` and `\(A\)` are exchangeable so `\(E[Y(a)]= E[Y \vert A]\)`. We only get to observe `\(E[Y \vert A, C = 0]\)`
-
+- We only get to observe `\(E[Y \vert A, C = 0]\)`
 $$
-\text{OR} = \frac{P[Y = 1 \vert A ]}{P[Y = 0 \vert A ]}
-= \frac{P[Y = 1\vert A, C = 0]P[C = 0 \vert A]}{P[Y = 0\vert A, C = 0]P[C = 0 \vert A]} 
+\text{OR} = \frac{P[Y = 1 \vert A ]}{P[Y = 0 \vert A ]}\\\
+= \frac{P[Y = 1\vert A, C = 0]P[C = 0 \vert A]}{P[Y = 0\vert A, C = 0]P[C = 0 \vert A]} \\\
 = \frac{P[Y = 1\vert A, C = 0]}{P[Y = 0\vert A, C = 0]}
 $$
 - So the association odds ratio is equal to the causal odds ratio. 
 
-- If selection was performed based only on `\(Y\)` then for each person, we know their probability of inclusion `\((C = 0)\)`: `\(P[C = 0 \vert A] = P[C = 0 \vert Y]\)` (from the causal Markov property).
+&lt;center&gt;
+<div id="htmlwidget-f1a68a766dd6878a1f13" style="width:504px;height:108px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f1a68a766dd6878a1f13">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+---
+# Case-Control Studies
+
+- If `\(Y\)` is the only cause of selection, we can recover `\(E[Y(a)]\)` by using outside information. 
+
+- In our graph, `\(P[C = 0 \vert A] = P[C = 0 \vert Y]\)` (from the causal Markov property).
 
 - With a population estimate `\(P[Y]\)` we can estimate `\(P[C = 0 \vert Y ] \propto \frac{\pi_Y}{P[Y]}\)` where `\(\pi_Y\)` is the proportion of study participants with outcome `\(Y\)`.  
-
+&lt;center&gt;
+<div id="htmlwidget-a5eedba1269cf8bad16c" style="width:504px;height:108px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a5eedba1269cf8bad16c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"3\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
 
 ---
 
@@ -363,8 +508,8 @@ $$
   + `\(Y_2\)`: death by time point 2
   
 &lt;center&gt;
-<div id="htmlwidget-ee3921a9c603f1d1783e" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-ee3921a9c603f1d1783e">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"3\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-5b4b838c71da15328149" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5b4b838c71da15328149">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"3\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
   
 
@@ -373,34 +518,50 @@ $$
 # Hazard Ratios
 
 - In this DAG, we can estimate the total causal effect of `\(A\)` on both `\(Y_1\)` and `\(Y_2\)` since we have exchangeability for both. 
+  - In both cases, the causal risk ratio is equal to the association risk ratio.
 
-- In both cases, the causal risk ratio is equal to the association risk ratio
-$$
-\frac{P[Y_j(1)]}{P[Y_j(0)]} = \frac{E[Y_j \vert A = 1]}{E[Y_j \vert A = 0]}
-$$
 
-- The *hazard* at time 2 is the probability of dying by time 2 conditional no being alive at time 1. 
+- The *hazard* at time 2 is the probability of dying by time 2 conditional on being alive at time 1 (for discrete time). 
 
-- Conditioning on `\(Y_1\)` induces a non-causal association between `\(Y_2\)` and `\(A\)` through `\(U\)`. 
+- Based on our DAG, conditional on `\(Y_1\)`, there is no effect of `\(A\)` on `\(Y_2\)`. 
+
+- However, conditioning on `\(Y_1\)` induces a non-causal association between `\(Y_2\)` and `\(A\)` through `\(U\)`. 
 
 &lt;center&gt;
-<div id="htmlwidget-9ea54f156689e35e3f1a" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-9ea54f156689e35e3f1a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"3\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-457cd4d62926bade0bdb" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-457cd4d62926bade0bdb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"3\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
-  
 
 ---
+# Hazard Ratios Example
 
+- Suppose that `\(U\)` is an indicator for being high-risk or low-risk.
+
+- Suppose that the treatment kills all high-risk individuals by time 1 and has no effect for low-risk individuals.
+
+- At time 2, the treatment group contains only low-risk individuals. The control group contains a mix of low and high-risk individuals.
+
+- So the hazard ratio at time 2 will be less than 1 even though the treatment is not beneficial for any patients. 
+
+
+&lt;center&gt;
+<div id="htmlwidget-e153aea3074b9d3644cf" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e153aea3074b9d3644cf">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"3\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+
+---
 # Non-Compliance
 
-- Suppose we do a randomized trial of smoking cessation. 
+- We perform a randomized trial of smoking cessation. 
 
 - A population of current smokers with no immediate plans to quit are recruited. 
 
-- Half the participants are assigned to quit smoking for six weeks, the other half are assigned to continue smoking as usual ($Z$).
+- Half the participants are assigned to quit smoking for six weeks, the other half are assigned to continue smoking as usual ( `\(Z\)` ).
 
 - We measure cardiovascular endurance at the beginning and end of the study. 
-  + `\(Y\)` represents the change in endurance over 6 weeks. 
+
+- Our outcome, `\(Y\)`, represents the change in endurance over 6 weeks. 
 
 
 ---
@@ -409,7 +570,7 @@ $$
 - Suppose that both treatment groups have some rate of non-adherence to the treatment plan. 
 
   + There are some people who are assigned to quit and don't. 
-  + Some people assigned to continue are inspired by their study particpation and decide to quit anyway. 
+  + Some people assigned to continue smoking are inspired by their study particpation and decide to quit anyway. 
 
 - Let `\(A\)` represent the actual treatment each person receives (quitting or not). 
 
@@ -421,25 +582,28 @@ $$
 # Non-Compliance
 
 &lt;center&gt;
-<div id="htmlwidget-6587a0609195ff240e17" style="width:504px;height:288px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6587a0609195ff240e17">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.3,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.8,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"blue\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-27c58cca97c719cfc70c" style="width:504px;height:288px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-27c58cca97c719cfc70c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.3,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.8,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"blue\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 - The blue arrow may exist if knowledge of the treatment assignment alters participants behavior. 
-  + For example, people who are assigned to quit and don't may exercise more to "make up" for not quitting. 
+  + People who are assigned to quit and don't may exercise more to "make up" for not quitting. 
+  
+- The blue arrow might be eliminated if it is possible to conceal the treatment from participants (*blinding*).
+
 ---
 
 # Non-Compliance
 
 - We would like to estimate `\(E[Y(a)]\)` and 
-   + `\(E[Y(A=1)] - E[Y(A = 0)]\)`, the *per-protocol effect (PP)*.
+   + `\(E[Y(A=1)] - E[Y(A = 0)]\)`, the *per-protocol (PP) effect*.
    + In this graph, the presence of `\(U\)` means that `\(E[Y(a)]\)` is not identifiable.
 
 - We can identify `\(E[Y(z)]\)`. 
-  + `\(E[Y(z =1)] - E[Y(z = 0)]\)` is the *intention-to-treat effect (ITT)*. 
+  + `\(E[Y(z =1)] - E[Y(z = 0)]\)` is the *intention-to-treat (ITT) effect*. 
 &lt;center&gt;
-<div id="htmlwidget-4d34d0cadb347a9416a1" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-4d34d0cadb347a9416a1">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.3,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.8,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"blue\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-612dd50f637c3f7dc2eb" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-612dd50f637c3f7dc2eb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.3,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.8,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"blue\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 ---
 
@@ -451,14 +615,15 @@ $$
 
 - The ITT preserves the null: If there is no effect of `\(A\)` on `\(Y\)` then there is no effect of `\(Z\)` on `\(Y\)`. 
 
-- If we further assume *monotonicity* ($Y_i(1) \geq Y_i(0)$ for all individuals `\(i\)` ), then the ITT effect is closer to zero than the PP effect, making the estimate conservative.
+- If we further assume *monotonicity* ( `\(Y_i(1) \geq Y_i(0)\)` for all individuals `\(i\)` ), then the ITT effect is closer to zero than the PP effect, making the estimate conservative.
 
 
 &lt;center&gt;
-<div id="htmlwidget-0af503e49d557147517a" style="width:504px;height:216px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-0af503e49d557147517a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.3,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.8,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"blue\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-f5d8a4f7117f40fda834" style="width:504px;height:216px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f5d8a4f7117f40fda834">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.3,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.8,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"blue\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
+---
 
 # Cons of the ITT
 
@@ -474,6 +639,7 @@ $$
   + If the blue arrow is present the ITT may differ from the PP in any direction. 
 
 ---
+
 # "As-Treated" Analysis to Estimate the PP Effect
 
 - If we can measure confounding factors between `\(A\)` and `\(Y\)`, we can estimate the PP effect using IP weighting or standardization. 
@@ -482,6 +648,10 @@ $$
   
 - This is the "as-treated" analysis. 
 
+&lt;center&gt;
+<div id="htmlwidget-b7b9a906c79973a871ff" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b7b9a906c79973a871ff">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.3,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.8,-0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"blue\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
 
 ---
 # "Per-Protocol" Analysis to Estimate the PP Effect
@@ -495,8 +665,8 @@ $$
 - Later we will see an alternative method, instrumental variable analysis, which requires some additional assumptions.
 
 &lt;center&gt;
-<div id="htmlwidget-338351ae6e9d0c18a1fc" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-338351ae6e9d0c18a1fc">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.2,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.6,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,-0.5!\"] \n  \"5\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.2,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-4d24864d93f67ac8f2ab" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4d24864d93f67ac8f2ab">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Z\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.3,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.8,-0.5!\"] \n  \"5\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"1.8,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"1\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 ---
@@ -510,6 +680,31 @@ $$
 - More generally, measurements of `\(A\)`, `\(Y\)`, or other variables inaccurate. 
 
 - We won't cover methods for accounting for measurment error, but it is important to be aware of. 
+
+
+&lt;center&gt;
+<div id="htmlwidget-4a9ec7e416c66b09ed29" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4a9ec7e416c66b09ed29">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>A<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,1!\"] \n  \"2\" [label = <A<FONT POINT-SIZE=\"8\"><SUP>*<\/SUP><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0.5!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"4\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"5\" [label = <Y<FONT POINT-SIZE=\"8\"><SUP>*<\/SUP><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0.5!\"] \n  \"6\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>Y<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,1!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"6\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+---
+
+# Sources and Types of Measurement Error
+
+- Measurement error is *independent* if `\(U_A\)` is independent of `\(U_Y\)`
+
+- Measurement error might be non-independent if `\(A\)` and `\(Y\)` are collected in the same survey.
+  
+- Measurement error is *non-differential* if `\(U_A\)` and `\(U_Y\)` are independent of `\(A\)` and `\(Y\)`. 
+- Differential error could occur in self-reported variables if participants tend to mis-report high or low values of `\(A\)` or `\(Y\)`. 
+
+- `\(Y\)` might effect `\(U_A\)` if `\(A\)` is measured after some effect of `\(Y\)` has already occurred, creating the appearance of reverse causation.
+
+&lt;center&gt;
+<div id="htmlwidget-ef1f286b8cf4d6593ca6" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ef1f286b8cf4d6593ca6">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>A<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,1!\"] \n  \"2\" [label = <A<FONT POINT-SIZE=\"8\"><SUP>*<\/SUP><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0.5!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"4\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"5\" [label = <Y<FONT POINT-SIZE=\"8\"><SUP>*<\/SUP><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0.5!\"] \n  \"6\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>Y<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,1!\"] \n  \"7\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>A<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.5,1!\"] \n  \"8\" [label = <A<FONT POINT-SIZE=\"8\"><SUP>*<\/SUP><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.5,0.5!\"] \n  \"9\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.5,0!\"] \n  \"10\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"4.5,0!\"] \n  \"11\" [label = <Y<FONT POINT-SIZE=\"8\"><SUP>*<\/SUP><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"4.5,0.5!\"] \n  \"12\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>Y<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"4.5,1!\"] \n  \"13\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>AY<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"4,1.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"6\"->\"5\" [color = \"black\"] \n\"4\"->\"1\" [color = \"black\"] \n\"7\"->\"8\" [color = \"black\"] \n\"9\"->\"8\" [color = \"black\"] \n\"9\"->\"10\" [color = \"black\"] \n\"10\"->\"11\" [color = \"black\"] \n\"12\"->\"11\" [color = \"black\"] \n\"13\"->\"7\" [color = \"black\"] \n\"13\"->\"12\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+  
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
