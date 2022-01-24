@@ -388,15 +388,12 @@ render_graph(gr10)
 ---
 # Adjusting for Selection
 
-- Under selection, we are interested in estimating the average of a joint intervention $Y(a, C = 0): 
-  + First we intervene to set $C = 0$ for everyone (no more censoring).
-  + Second we intervene and set $A = a$. 
-  + The order doesn't matter. 
+- Under selection, we are interested in estimating the average of a joint counterfactual $E[Y(a, C = 0)]$ -- the expected value of $Y$ if everyone received treatment $A$ and was not censored.  
 
 - We can use a two stage weighting procedure. 
 
 - First we re-weight the data to look like the world in which nobody was censored. For this we need a set of variables $L_1$ such that
-$$Y(a, C = 0) \ci C(a) \vert L_1$$
+$$Y( C = 0) \ci C \vert L_1$$
 
 - We use a second set of weights to account for any confounding. So we need a set of variables $L_2$ such that
 
@@ -408,7 +405,7 @@ $$Y(a, C = 0) \ci A \vert L_2$$
 ---
 # Adjusting for Selection 
 
-- If $Y(a, C = 0) \ci C \vert L_1$, we can weight the data by $W^C = 1/P[ C = 0 \vert L_1, A]$
+- If $Y(C = 0) \ci C \vert L_1$, we can weight the data by $W^C = 1/P[ C = 0 \vert L_1, A]$
 
 - For example, if half the participants with $L = l$ and $A = a$ were censored, the remaining individuals will receive weight 2. 
 
@@ -467,7 +464,7 @@ knitr::include_graphics("img/4_comb_ipw1.png")
 
 </center>
 
-- We must condition on $L$ to block the path between $Y(a, C = 0)$ and $C(a).$
+- We must condition on $L$ to block the path between $Y(C = 0)$ and $C.$
 
 - $Y(a, C = 0)$ is independent of $A$ unconditionally. 
 
@@ -597,9 +594,13 @@ render_graph(hiv_graph)
 
 - If $Y$ is the only cause of selection, we can recover $E[Y(a)]$ by using outside information. 
 
-- In our graph, $P[C = 0 \vert A] = P[C = 0 \vert Y]$ (from the causal Markov property).
+- If we know $P[Y = 1] = \alpha$ in the target population, we can compute the value of $P[Y \vert A]$ that we would have observed in the full population.
 
-- With a population estimate $P[Y]$ we can estimate $P[C = 0 \vert Y ] \propto \frac{\pi_Y}{P[Y]}$ where $\pi_Y$ is the proportion of study participants with outcome $Y$.  
+$$
+P[Y(a)=1] = P[Y =1 \vert A] = \frac{P[A \vert Y]P[Y = 1]}{P[A]} \\\
+= \frac{\alpha P[A \vert Y = 1]}{\alpha P[A \vert Y = 1] + (1-\alpha)P[A \vert Y = 0]}
+$$
+
 <center>
 ```{r, echo = FALSE, fig.height = 1.5}
 render_graph(hiv_graph)
