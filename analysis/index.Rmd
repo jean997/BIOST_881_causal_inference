@@ -18,6 +18,7 @@ editor_options:
 
 [3. Effect Modification and Interaction](slides/3_effect_modification_interaction.html)
 
+[4. Selection Bias](slides/4_selection_bias.html)
 
 ## Coming Soon
 
