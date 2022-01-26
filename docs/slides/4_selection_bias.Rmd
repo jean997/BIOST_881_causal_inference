@@ -143,8 +143,8 @@ render_graph(hiv_graph)
 
 ```{r, echo = FALSE}
  opts <- options(knitr.kable.NA = "")
-full <- data.frame(A0 = c(0.2, 0.8), A1 = c(0.8, 0.2), sp = c(NA, NA))
-C1 <- data.frame(A0 = c(0.2, 0.4)/0.6, A1 = c(0.8, 0.1)/0.9)
+full <- data.frame(A0 = c(0.2, 0.8), A1 = c(0.9, 0.1), sp = c(NA, NA))
+C1 <- data.frame(A0 = c(0.2, 0.4)/0.6, A1 = c(0.9, 0.05)/0.95)
 
 
 tot <- cbind(full,  C1)
@@ -156,9 +156,9 @@ kable(tot, col.names = c( "\\(A=0\\)", "\\(A=1\\)", "", "\\(A=0\\)", "\\(A=1\\)"
 
 ```
 
-- The causal risk difference is -0.4.
+- The causal risk difference is 0.1-0.8 = -0.7.
 
-- The associational risk difference among those with $C = 0$ is -0.56
+- The associational risk difference among those with $C = 0$ is $`r round(0.05/0.95, digits = 2)` - `r round(0.4/0.6, digits = 2)` = `r round( (0.05/0.95), digits = 2) -round((0.4/0.6), digits = 2)`$
 ---
 
 # Example Continued
