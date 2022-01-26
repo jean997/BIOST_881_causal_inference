@@ -4,7 +4,7 @@
     <title>L5: Modeling Part 1</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
@@ -154,9 +154,9 @@ form of quantities like `\(E[Y \vert A, L]\)`.
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Inactive life &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 8.9% (104) &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 11.2% (45) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1163 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 403 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Age, years &lt;/td&gt;
@@ -164,19 +164,9 @@ form of quantities like `\(E[Y \vert A, L]\)`.
    &lt;td style="text-align:left;"&gt; 46.2 (12.2) &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Little exercise &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 37.9% (441) &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 40.7% (164) &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Female &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 53.4% (621) &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; 45.4% (183) &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Cigarettes/day &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 21.2 (11.5) &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 18.6 (12.4) &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Non-White &lt;/td&gt;
@@ -184,9 +174,14 @@ form of quantities like `\(E[Y \vert A, L]\)`.
    &lt;td style="text-align:left;"&gt; 8.9% (36) &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; College &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 9.9% (115) &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 15.4% (62) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Cigarettes/day &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 21.2 (11.5) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 18.6 (12.4) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Years smoking &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 24.1 (11.7) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 26 (12.7) &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:left;"&gt; Weight, kg &lt;/td&gt;
@@ -194,9 +189,19 @@ form of quantities like `\(E[Y \vert A, L]\)`.
    &lt;td style="text-align:left;"&gt; 72.4 (15.6) &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; Years smoking &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 24.1 (11.7) &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; 26 (12.7) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; College &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 9.9% (115) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 15.4% (62) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Little exercise &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 37.9% (441) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 40.7% (164) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Inactive life &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 8.9% (104) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 11.2% (45) &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -236,14 +241,11 @@ we should fit a flexible model.
 
 
 ```r
-fit &lt;- glm(
-  qsmk ~ sex + race + age + I(age ^ 2) +
+fit &lt;- glm(qsmk ~ sex + race + age + I(age ^ 2) +
     as.factor(education) + smokeintensity +
     I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
     as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
-  family = binomial(),
-  data = dat
-)
+    family = binomial(), data = dat)
 
 dat$w &lt;- ifelse(dat$qsmk == 0, 
                 1/(1 - predict(fit, type = "response")), 
@@ -479,9 +481,13 @@ cbind(beta, lcl, ucl)
 
 - So the parameter `\(\theta_1\)` is interpretable as the causal risk difference. 
 
+--
+
 - We have proposed a model for the average counterfactual: 
 
 `$$E[Y(a)] = \beta_0 + \beta_1 a$$`
+--
+
 - This model is *marginal* because we have marginalized (averaged) over the values of all
 other covariates. 
 
@@ -629,12 +635,12 @@ summary(dat.s$w_cont)
 
 - We had to make strong assumptions about the distribution of `\(A \vert L\)`. 
 
-- There are positivity issues -- it is not possible for everyone to reduce their smoking by 80 cigarettes per day. 
+- There are structural positivity issues -- it is not possible for everyone to reduce their smoking by 80 cigarettes per day. 
 
 ---
 # Effect Modification in Marginal Structural Models
 
-- Suppose we are interested in estimating the causal effect within strata of `\(V\)`. 
+- We might be interested in estimating the causal effect within strata of `\(V\)`. 
 
 - We can propose a marginal structural model that includes `\(V\)`
 
@@ -746,9 +752,9 @@ regression.
 - If we believe in the model for `\(E[Y(a) \vert L]\)`, then the regression coefficient
 is interpretable as a (conditional) causal parameter. 
 
-- Using the marginal model with IP weighting, we our estimates of `\(f(A \vert L)\)` are accurate. 
+- Using the marginal model with IP weighting, we need to believe that our estimates of `\(f(A \vert L)\)` are accurate. 
 
-- Solving a prediction problem is easier than guessing the correct structural model for all confounders.
+- In some cases, solving a prediction problem is easier than guessing the correct structural model for all confounders.
 
 ---
 
@@ -917,8 +923,7 @@ fit &lt;-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(educa
     + smokeintensity + I(smokeintensity * smokeintensity) + smokeyrs
     + I(smokeyrs * smokeyrs) + as.factor(exercise) + as.factor(active)
     + wt71 + I(wt71 * wt71) + qsmk * smokeintensity,
-    data = dat.u
-  )
+    data = dat.u)
 summary(fit)$coefficients %&gt;% head()
 ```
 
@@ -940,7 +945,7 @@ summary(fit)$coefficients %&gt;% head()
 
 - We would interpret the coefficient for `\(A\)` as "the average additional weight gain associated between quitting smoking conditional on ....". 
 
-- This is an associational parameter. 
+- If we believe our outcome model, this coefficient is the average *causal* effect within strata of `\(L\)`.
 
 - To estimate the (marginal) causal parameter, we need to average over levels of `\(L\)`. 
 
@@ -986,6 +991,16 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 ```
 
 ---
+# Censoring
+
+- In our case, we have assumed that our set of confounders are also sufficient to adjust for censoring.
+
+- In the previous step, we predicted weight gain for all subjects, even those who had missing values in the original data. 
+
+- If our outcome model is correct *and* `\(Y(C = 0) \ci C \vert L\)`, then this is sufficient 
+to eliminate selection bias.
+
+---
 
 # Estimating the Variance 
 
@@ -1003,7 +1018,7 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 
 ```r
 set.seed(1)
-samples &lt;- replicate(n = 100, expr = sample(seq(nrow(dat.u)), size = nrow(dat.u), replace = TRUE))
+samples &lt;- replicate(n = 500, expr = sample(seq(nrow(dat.u)), size = nrow(dat.u), replace = TRUE))
 res &lt;- apply(samples, 2, FUN = function(ix){
   boot_dat &lt;- dat.u[ix,]
   boot_fit &lt;-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(education)
@@ -1023,7 +1038,7 @@ cat(Y1-Y0, "(", ci, ")")
 ```
 
 ```
-## 3.518574 ( 2.557627 4.479521 )
+## 3.518574 ( 2.576592 4.460556 )
 ```
 
 
@@ -1095,6 +1110,8 @@ $$
 - The standardized mean is now consistent for the causal effect if either model was correct. 
 
 - Even when both estimates are wrong, the bias of the doubly robust estimator is smaller than the bias of the either the IP weighted or standardized estimator. 
+
+- More on DR estimators coming up. 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

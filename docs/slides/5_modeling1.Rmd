@@ -136,7 +136,8 @@ tab1 <- dat %>% group_by(qsmk) %>%
                   smokeint_m = mean(smokeintensity), smokeint_sd = sd(smokeintensity), 
                   smokeyrs_m = mean(smokeyrs), smokeyrs_sd = sd(smokeyrs), 
                   ex2_n = sum(exercise==2), ex2_p = mean(exercise==2)*100, 
-                  act2_n = sum(active ==2), act2_p = mean(active==2)*100)
+                  act2_n = sum(active ==2), act2_p = mean(active==2)*100, 
+                  Total = n())
 
 tab1_f <- tab1 %>% 
           mutate(age = paste0(round(age_m, digits = 1), " (", round(age_sd, digits = 1), ")"), 
@@ -149,9 +150,11 @@ tab1_f <- tab1 %>%
                  ex2 = paste0(round(ex2_p, digits = 1), "% (", ex2_n, ")"),
                  act2 = paste0(round(act2_p, digits = 1), "% (", act2_n, ")")
                  ) %>%
-          select(qsmk, age, female, nonwhite, university, weight71, int, yrs, ex2, act2) %>% 
+          select(qsmk, age, female, nonwhite, university, weight71, int, yrs, ex2, act2, Total) %>% 
           gather("variable", "value", -qsmk) %>% spread(qsmk, value) 
 
+o <- match(c("Total", "age", "female", "nonwhite", "int", "yrs", "weight71", "university", "ex2", "act2"), tab1_f$variable)
+tab1_f <- tab1_f[o,]
 tab1_f$variable <- recode(tab1_f$variable, "act2" = "Inactive life", 
                           "age" = "Age, years",
                           "nonwhite"="Non-White", 
@@ -199,14 +202,11 @@ participant has their own unique value of $L$.
 we should fit a flexible model. 
 
 ```{r}
-fit <- glm(
-  qsmk ~ sex + race + age + I(age ^ 2) +
+fit <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
     as.factor(education) + smokeintensity +
     I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
     as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
-  family = binomial(),
-  data = dat
-)
+    family = binomial(), data = dat)
 
 dat$w <- ifelse(dat$qsmk == 0, 
                 1/(1 - predict(fit, type = "response")), 
@@ -404,9 +404,13 @@ $$E_{ps}[Y \vert A ] = \theta_0 + \theta_1 A$$
 
 - So the parameter $\theta_1$ is interpretable as the causal risk difference. 
 
+--
+
 - We have proposed a model for the average counterfactual: 
 
 $$E[Y(a)] = \beta_0 + \beta_1 a$$
+--
+
 - This model is *marginal* because we have marginalized (averaged) over the values of all
 other covariates. 
 
@@ -547,12 +551,12 @@ ggplot(data.frame(x = range(dat$smkintensity82_71)), aes(x)) +
 
 - We had to make strong assumptions about the distribution of $A \vert L$. 
 
-- There are positivity issues -- it is not possible for everyone to reduce their smoking by 80 cigarettes per day. 
+- There are structural positivity issues -- it is not possible for everyone to reduce their smoking by 80 cigarettes per day. 
 
 ---
 # Effect Modification in Marginal Structural Models
 
-- Suppose we are interested in estimating the causal effect within strata of $V$. 
+- We might be interested in estimating the causal effect within strata of $V$. 
 
 - We can propose a marginal structural model that includes $V$
 
@@ -649,9 +653,9 @@ regression.
 - If we believe in the model for $E[Y(a) \vert L]$, then the regression coefficient
 is interpretable as a (conditional) causal parameter. 
 
-- Using the marginal model with IP weighting, we our estimates of $f(A \vert L)$ are accurate. 
+- Using the marginal model with IP weighting, we need to believe that our estimates of $f(A \vert L)$ are accurate. 
 
-- Solving a prediction problem is easier than guessing the correct structural model for all confounders.
+- In some cases, solving a prediction problem is easier than guessing the correct structural model for all confounders.
 
 ---
 
@@ -795,8 +799,7 @@ fit <-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(educatio
     + smokeintensity + I(smokeintensity * smokeintensity) + smokeyrs
     + I(smokeyrs * smokeyrs) + as.factor(exercise) + as.factor(active)
     + wt71 + I(wt71 * wt71) + qsmk * smokeintensity,
-    data = dat.u
-  )
+    data = dat.u)
 summary(fit)$coefficients %>% head()
 ```
 ---
@@ -808,7 +811,7 @@ summary(fit)$coefficients %>% head()
 
 - We would interpret the coefficient for $A$ as "the average additional weight gain associated between quitting smoking conditional on ....". 
 
-- This is an associational parameter. 
+- If we believe our outcome model, this coefficient is the average *causal* effect within strata of $L$.
 
 - To estimate the (marginal) causal parameter, we need to average over levels of $L$. 
 
@@ -849,6 +852,16 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 ```
 
 ---
+# Censoring
+
+- In our case, we have assumed that our set of confounders are also sufficient to adjust for censoring.
+
+- In the previous step, we predicted weight gain for all subjects, even those who had missing values in the original data. 
+
+- If our outcome model is correct *and* $Y(C = 0) \ci C \vert L$, then this is sufficient 
+to eliminate selection bias.
+
+---
 
 # Estimating the Variance 
 
@@ -865,7 +878,7 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 
 ```{r}
 set.seed(1)
-samples <- replicate(n = 100, expr = sample(seq(nrow(dat.u)), size = nrow(dat.u), replace = TRUE))
+samples <- replicate(n = 500, expr = sample(seq(nrow(dat.u)), size = nrow(dat.u), replace = TRUE))
 res <- apply(samples, 2, FUN = function(ix){
   boot_dat <- dat.u[ix,]
   boot_fit <-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(education)
@@ -944,3 +957,5 @@ $$
 - The standardized mean is now consistent for the causal effect if either model was correct. 
 
 - Even when both estimates are wrong, the bias of the doubly robust estimator is smaller than the bias of the either the IP weighted or standardized estimator. 
+
+- More on DR estimators coming up. 
