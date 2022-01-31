@@ -452,7 +452,7 @@ delta_s(dat)
 
 ```{r}
 set.seed(1)
-samples <- replicate(n = 10, 
+samples <- replicate(n = 500, 
                      expr = sample(seq(nrow(dat)), 
                                    size = nrow(dat), replace = TRUE))
 res <- apply(samples, 2, FUN = function(ix){
