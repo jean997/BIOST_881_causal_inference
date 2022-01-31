@@ -22,6 +22,8 @@ editor_options:
 
 [5. Parametric IP Weighting and Standardization](slides/5_modeling1.html)
 
+[6. Propensity Score Methods](slides/6_propensity_scores.html)
+
 ## Coming Soon
 
 Currently this website houses lecture slides. If you are a current student, please see the Canvas site for all other information. More course information may be added here in the future. 
