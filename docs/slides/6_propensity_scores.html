@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L6: Propensity Scores</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+    <script src="libs/viz-1.8.2/viz.js"></script>
+    <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding-1.0.6.1/grViz.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# L6: Propensity Scores
+### Jean Morrison
+### University of Michigan
+### 2022-24-10 (updated: 2022-01-31)
+
+---
+
+# Outline
+
+Plan:
+
+This Lecture:
+- Propensity scores and several methods that make use of them:
+  + Subclassification/standardization
+  + Double robust methods
+  + Matching
+  
+Coming up:
+  - G-Estimation (Ch. 14)
+  - Instrumental Variable Analysis (Ch. 16)
+  - Survival (Ch. 17)
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+---
+# Recap: IP Weighting
+
+- Last lecture we looked at parametric versions of IP weighting and standardization. 
+
+- In IP weighting, we propose a parametric estimator of `\(\pi(L) = P[ A = 1 \vert L ]\)` 
+
+- The IP weight for unit `\(i\)` is `\(1/\pi(L_i)\)` if `\(A_i = 1\)` or `\(1/(1-\pi(L_i))\)` if `\(A_i = 0\)`. 
+
+- We use this weight to make our sample look like randomized sample where treatment is independent of confounders.
+
+- We then use a marginal structural model to estimate a causal parameter. 
+
+- Recall a marginal structural model relates a potential outcome to our observed variables
+$$
+E[Y(a)] = \beta_0 + \beta_1 a
+$$
+
+---
+# Recap: Outcome Regression 
+
+- The alternative to specifying a model for `\(\pi(L)\)` is to specify a model for the outcome, `\(E[Y \vert A=a, L] = b_a(L)\)`
+
+- If `\(b_a(L)\)` is correctly specified, we can estimate `\(E[Y(a)]\)` by standardization. 
+
+- In some cases, the coefficient on `\(A\)` is directly interpretable as a causal parameter. 
+  + This happens when there are no product terms between `\(A\)` and `\(L\)`. 
+
+---
+
+
+# Outcome Regression
+
+- Last time, we fit a linear regression that included a product term between the treatment (quitting smoking) and smoking intensity. 
+
+$$
+E[Y \vert A, L] = \beta_0 + \beta_1 A + \beta_2 A L_1 + \beta_3 L_1 + \dots 
+$$
+
+- Using standardization, we can still use this model to obtain the marginal effect. 
+
+- Without standardization, we can interpret `\(\beta_1 + \beta_2 l\)` as the average effect of quitting smoking for individuals with initial smoking intensity `\(l\)`. 
+
+---
+# Drawbacks of Outcome Regression 
+
+- It is hard to correctly specify the `\(E[Y \vert A, L]\)`.
+
+- This problem gets harder as the dimension of `\(L\)` increases. 
+
+- The form of effect modification by `\(L\)` could be very complex. 
+
+- We will probably be tempted to fit an overly simple model, which may give biased inference. 
+
+---
+# Propensity Scores
+
+- `\(\pi(L) = P[A = 1 \vert L]\)`, the probability of receiving treatment conditional on confounders `\(L\)` is the *propensity score*. 
+
+- Within strata of `\(\pi(L)\)`, the distribution of `\(L\)` will be the same in cases and controls. 
+  - `\(\pi(l)\)` is a *balancing score*. 
+  
+$$
+A \ci L \vert\ \pi(L)
+$$
+
+- The propensity score is the coarsest possible balancing score: 
+  + If `\(b(L)\)` is a balancing score then `\(b(L) = f(\pi(L))\)` for some function `\(f\)`. 
+  + The finest possible balancing score is `\(A\)`. 
+
+---
+# Propensity Scores are Sufficient for Confounder Adjustment
+
+- If `\(Y(a) \ci A \vert L\)`, positivity holds, and `\(b(L)\)` is a balancing score,
+
+- Then `\(Y\)` and `\(A\)` are exchangeable conditional on `\(b(L)\)`, `\(Y(a) \ci A \vert\ b(L)\)`.
+  
+- The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
+
+&lt;center&gt;
+<div id="htmlwidget-9ac32d1fbd683777b677" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9ac32d1fbd683777b677">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+---
+
+# What to Include in a Propensity Score Model
+
+- We have seen that all variables needed to block backdoor paths should be included in the propensity score model. 
+
+- We should not include colliders (or children of colliders), even if they improve our predictions of `\(A\)`. 
+
+- What about other variables? 
+
+  
+---
+
+# Example
+
+- Should we include `\(L_1\)` in in the predictive model of `\(A\)`? 
+<div id="htmlwidget-0a424144993e3d448038" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0a424144993e3d448038">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+--
+
+- Suppose that `\(P[A = 1 \vert L = 0] = 0.01\)` and `\(P[A = 1 \vert L_1 = 1]= 0.99\)` and we condition on `\(L_1\)` to compute `\(\hat{\pi}(L)\)`.
+
+- 1% of our sample will have a weight of 100, while the remaining 99% will have a weight close to 1. 
+- The weighted estimator will have a much higher variance than the (also valid) unweighted estimator. 
+
+---
+
+
+# Example
+
+- Should we include `\(L_2\)` in in the predictive model of `\(A\)`? 
+
+<div id="htmlwidget-245cf351cf900aaf455e" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-245cf351cf900aaf455e">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+
+
+---
+# Conditionality Prinicipal
+
+- In a randomized experiment, `\(Y(a) \ci A\)` unconditionally *on average*.
+
+- So the true value of `\(\pi(L)\)` is constant for all individuals. 
+
+- However, in any given realization of the experiment, there may be imbalances in some confounders. 
+  + These imbalances can lead to bias even though they are "accidental". 
+  
+- Adjusting for the estimated value, `\(\hat{\pi}(L)\)` can eliminate this bias. 
+
+- Even if we knew the true value of `\(\pi(L)\)`, it would be better to use the estimates. 
+
+---
+# Simulations 
+
+- Data are generated from the graph: 
+<div id="htmlwidget-cbdaa8d397f15543f689" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-cbdaa8d397f15543f689">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+- A randomized trial with `\(N/2\)` units each in treatment and control groups. 
+
+- `\(A\)`, `\(Y\)`, and `\(L\)` are all binary. 
+
+- `\(P[Y = 1 \vert L ] = 0.05 + 0.5 L\)`; `\(P[L = 1] = 0.5\)`. 
+
+- In each simulation, we sample 250 units from this model and compute 
+  + `\(\hat{\beta}\)`, the sample difference in means and 
+  + `\(\hat{\beta}_S\)`, the stratified difference in means estimate. 
+
+&lt;!-- - Recall that `\(\hat{\beta}_S\)` is the same as the IP weighted estimate because all of our variables are binary.  --&gt;
+
+
+---
+# Simulation Results 
+
+- Over 1000 simulations, 
+
+- The average bias times `\(\sqrt{N}\)` is
+  + `\(\hat{\beta}\)`: 0.04, `\(\hat{\beta}_S\)`: 0.03
+
+- The mean squared error times `\(N\)` is 
+  + `\(\hat{\beta}\)`: 0.92, `\(\hat{\beta}_S\)`: 0.64
+
+- The Monte Carlo variance of each estimator times `\(\sqrt{N}\)` is 
+  + `\(\hat{\beta}\)`: 0.34, `\(\hat{\beta}_S\)`: 0.22
+
+- In 60% of simulations, the stratified estimator is less biased than the non-stratified estimator. 
+
+- The adjusted estimator has lower bias and is more precise.
+
+
+---
+# Propensity Scores and Positivity
+
+- If positivity holds, propensity scores should be bounded away from 0 and 1:
+  
+  + Everyone should have some chance of having receiving either. 
+  + Propensity scores close to 0 and 1 happen when there is perfect separation by one or a combination of confounders. 
+  + There may be structural positivity violations. 
+
+- Propensity scores should have approximately the same range in both groups. 
+
+  + Non-overlapping ranges suggest random positivity violations (could also be structural). 
+  + Ok for IP weighting but a problem for matching and subclassification. 
+
+---
+# Propensity Scores and Positivity
+
+&lt;img src="6_propensity_scores_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Outcome Regression with Propensity Scores
+
+- Because `\(\pi(L)\)` is sufficient to control confounding, we could propose a model for `\(E[Y(a) \vert L]\)` in terms of one-dimensional `\(\pi(L)\)` rather than high dimensional `\(L\)`.
+
+- Valid inference will depend on 
+  + Correctly estimating `\(\pi(L)\)`
+  + Correctly specifying the functional form of `\(E[Y \vert A , \pi(L)]\)`
+  
+  
+- A simple model like `$$E[Y \vert A, \pi(L)] = \beta_0 + \beta_1 A + \beta_2 \pi(L)$$` could be insufficient to control for confounding.
+
+---
+# Outcome Regression with Propensity Scores
+
+- Because `\(\pi(L)\)` is one-dimensional, it is easy to propose a flexible model. 
+
+- Models which include no effect modification of `\(A\)` by `\(L\)` could include: 
+  + Fitting a cubic spline for effect of `\(\pi(L)\)`
+  + Dividing `\(\pi(L)\)` into deciles and fitting an effect for nine binary indicators decile membership. 
+  
+$$
+E[Y \vert A, L] = \beta_0 + \beta_1 A + g(\pi(L), \boldsymbol{\alpha})
+$$
+---
+
+# Subclassification/Stratification
+
+- Stratification over quantiles of `\(\hat{\pi}(L)\)` allows us to estimate a flexible model *with* effect modification by `\(\pi(L).\)` 
+
+- Let `\(\hat{C}_k = [\hat{c}_{k-1}, \hat{c}_k)\)`, `\(k = 1, \dots, K\)` be non-overlapping intervals dividing the observed range of `\(\hat{\pi}(L)\)`. 
+
+- Within each interval, we estimate 
+
+`$$\hat{E}[Y(a) \vert \hat{\pi} \in \hat{C}_i] = E[Y \vert A = a, \hat{\pi} \in \hat{C}_i] \\\
+= \frac{1}{n_{1,k}}\sum_{i=1}^{N}A_i Y_i 1_{\hat{\pi} \in \hat{C}_i} - \frac{1}{n_{0,k}}\sum_{i=1}^{N}(1-A_i) Y_i 1_{\hat{\pi} \in \hat{C}_i}$$`
+
+- This is the same as fitting the saturated linear regression 
+
+`$$E[Y \vert A, \hat{\pi}(L)] = \beta_0 + \beta_1 A + \sum_{j=2}^{K}\beta_j 1_{\hat{\pi} \in \hat{C}_j} + \sum_{j =2}^{K} \beta_{K-1 + j} A 1_{\hat{\pi} \in \hat{C}_j}$$` 
+---
+
+# Subclassification and Standardization
+
+- We can then compute an estimate of `\(E[Y(a)]\)` using our standardization formula
+
+`$$\hat{\Delta}_S = \sum_{k = 1}^K \frac{n_k}{N} \left\lbrace \frac{1}{n_{1,k}}\sum_{i=1}^{N}A_i Y_i 1_{\hat{\pi} \in \hat{C}_i} - \frac{1}{n_{0,k}}\sum_{i=1}^{N}(1-A_i) Y_i 1_{\hat{\pi} \in \hat{C}_i} \right \rbrace$$`
+
+---
+# Subclassification Estimate in NHEFS
+
+
+```r
+delta_s &lt;- function(df){
+  # Estimate propensity scores
+  fit &lt;- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps &lt;-predict(fit, type = "response")
+  # Deciles of PS
+  df$ps_dec &lt;- cut(df$ps, breaks=c(quantile(df$ps, probs=seq(0,1,0.1))),
+                    labels=seq(1:10),
+                    include.lowest=TRUE)
+  # Fit the model for E[Y | A, pi]
+  fit_psdec &lt;- glm(wt82_71 ~ qsmk*as.factor(ps_dec), data = df)
+  # Standardized Estimate
+  df0 &lt;- df1 &lt;- df; df0$qsmk &lt;- 0; df1$qsmk &lt;- 1
+  Y0 &lt;- predict(fit_psdec, newdata = df0, type = "response")
+  Y1 &lt;- predict(fit_psdec, newdata = df1, type = "response")
+  return(mean(Y1) -mean(Y0))}
+```
+
+```
+## [1] 3.411467
+```
+---
+# Bootstrap Variance
+
+
+```r
+set.seed(1)
+samples &lt;- replicate(n = 10, 
+                     expr = sample(seq(nrow(dat)), 
+                                   size = nrow(dat), replace = TRUE))
+res &lt;- apply(samples, 2, FUN = function(ix){
+  boot_dat &lt;- dat[ix,]
+  return(delta_s(boot_dat))
+})
+se &lt;- sd(res)
+bhat &lt;- delta_s(dat)
+ci &lt;- bhat + c(-1, 1)*qnorm(0.975)*se 
+cat(bhat, "(", ci, ")")
+```
+
+```
+## 3.411467 ( 2.614487 4.208448 )
+```
+---
+# Number and Size of Divisions
+
+- Rosenbaum and Rubin (1983) suggest using sample quintiles ( `\(K=5\)` ). 
+  + This generally leads to residual bias. 
+
+- More intervals leads to less bias but increased variance. 
+
+- The optimal choice of `\(K\)` and interval endpoints is an open problem.
+
+- Intervals must be large enough that individuals with both treatments are in every interval. 
+
+---
+# `\(\hat{\Delta}_S\)` is a Coarsened Horvitz-Thompson Estimator
+
+- Recall the IP weighted Horvitz-Thompson estimator:
+
+`$$\hat{\Delta}_{HT} = \frac{1}{N}\sum_{i=1}^N \frac{A_i Y_i}{\hat{\pi}_i} - \frac{(1-A_i)Y_i}{1-\hat{\pi}_i}$$`
+- Within each interval, estimate a "subclass-specific" propensity score, `\(\hat{p}_k = P[A_i = 1 \vert \hat{\pi}_i \in \hat{C}_k] = \frac{n_{1,k}}{n_k}\)`.
+
+- For each individual, set `\(\hat{\pi}^{C}_i = \sum_k 1_{\hat{\pi}_i \in \hat{C}_k}\hat{p}_{k}.\)`
+
+- Plug these propensity scores into the formula for `\(\hat{\Delta}_{HT}\)` and get `\(\hat{\Delta}_S.\)`
+
+---
+
+# Asymptotic Results
+
+- For a fixed value of `\(K\)`, some bias will always remain. 
+
+  + As `\(N\)` increases, `\(\hat{\Delta}_S\)` is not consistent for the ATE. 
+
+--
+
+- Suppose that we have a rule for picking the number divisions that is a function of the data.
+
+- Is there a rule such that `\(\hat{\Delta}_S\)` is root-N consistent for the ATE?
+
+--
+
+- Wang et al (2016) show that
+
+- In order for `\(\hat{\Delta}_S\)` to be well defined, `\(K(N)\)` must grow slowly enough that there are always units with both values of `\(A\)` in every division.
+  + `\([ K(N)log(K(N))]/N \rightarrow 0\)` as `\(N \rightarrow \infty\)`
+
+- But consistency requires that the binwidth get smaller as `\(N\)` increases:
+  + `\(K(N)/\sqrt{N} \rightarrow \infty\)` as `\(N \rightarrow \infty\)`
+
+---
+# Full Subclassification 
+
+- Wang et al (2016) propose a strategy for allowing `\(K\)` to grow with `\(N\)` called full subclassification. 
+
+- Choose the largest number `\(K\)` such that every `\(1/K\)` quantile of `\(\hat{\pi}\)` has at least one case and at least one control. 
+
+- In simulations, the full subclassification estimator has smaller bias than `\(\hat{\Delta}_{S}\)`.
+
+---
+
+# Comparison with IP Weighting
+
+- Both IP weighting and outcome regression with PS require a correct model for `\(E[A = 1 \vert L ]\)`. 
+
+- Both require a correct marginal model for the relationship between `\(Y(a)\)` and `\(a\)` (easy if `\(A\)` is dichotomous). 
+
+- Outcome regression with propensity scores additionally requires correctly specifying the relationship between `\(Y(a)\)` and `\(\pi(L)\)`. 
+
+- Subclassification allows us to use a very flexible model for the `\(Y\)` - `\(\pi\)` relationship. 
+  - Some bias may remain if intervals are too wide. 
+  
+---
+
+# Comparison with IP Weighting
+
+- IP Weighting:
+  + Asymptotically unbiased
+  + High variance if some weights are large
+  + Very sensitive to misspecification of model for `\(\pi(L)\)`
+  
+  
+  
+- Subclassification
+  + Biased for fixed value of `\(K\)`
+  + Lower variance in some cases 
+  + Less sensitive to misspecification of model for `\(\pi(L)\)`
+  
+- In subclassification, we only rely on `\(\hat{\pi}(L)\)` to group units with similar propensities. 
+
+---
+# Within Stratum Regression Modeling
+
+- Bias in `\(\hat{\Delta}_S\)` occurs because `\(L\)` and `\(A\)` may not be independent within classes. 
+
+- One strategy to deal with this is to fit an outcome regression model for `\(E[Y \vert A, L]\)` *within* each `\(\hat{C}_k\)`.
+
+- Let `\(\hat{Y}_{a,i,k}\)` be the estimate of `\(E[Y \vert A = a, L = L_i]\)` from the model fit within `\(\hat{C}_k\)`. 
+
+`$$\hat{\Delta}_{OR,k} = \frac{1}{n_k}\sum_{i = 1}^{N}1_{\hat{\pi_i} \in \hat{C}} \left(\hat{Y}_{1,i,k} - \hat{Y}_{0, i, k}\right)$$`
+
+`$$\hat{\Delta}_{SR} = \sum_{k=1}^{K} \frac{n_k}{N}\hat{\Delta}_{OR,k}$$`
+
+- If the form of the outcome-regression is correct, this strategy will be consistent. 
+
+  
+---
+# Double Robust Methods
+
+- Double robust methods combine propensity weighting and outcome regression approaches.
+
+- DR methods are consistent if *either* the propensity score model or the outcome regression model is correctly specified. 
+
+- They can still be biased if both models are misspecified. 
+
+- Technically, `\(\hat{\Delta}_{SR}\)` is not doubly robust because it is inconsistent for fixed `\(K\)` if the outcome model is wrong. 
+
+
+---
+# Doubly Robust Estimation
+
+- Suppose we have an outcome regression model.
+
+- For each unit, we can estimate `\(\hat{Y}_{a, i} = E[Y \vert A = a, L = L_i]\)`. 
+
+- We can construct estimators for `\(E[Y(1)]\)` and `\(E[Y(0)]\)` as 
+
+`$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace$$`
+
+
+`$$\hat{\Delta}_{DR,0} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{(1-A_i) Y_i}{1-\hat{\pi}(L_i)} - \left(\frac{1-A_i}{1-\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{0,i} \right \rbrace$$`
+ - Cassel, Särndal, and Wretman (1976); Robins, Rotnitzky, and Zhao (1994)
+---
+
+# Doubly Robust Estimation
+
+`$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace \\\
+= \frac{1}{N} \sum_{i = 1}^N \left \lbrace \hat{Y}_{1,i} + \frac{A_i}{\hat{\pi}(L_i)}\left(Y_i - \hat{Y}_{1,i} \right) \right \rbrace$$`
+
+- If the model for `\(\hat{\pi}\)` is correct then `\(E\left [\frac{A_i}{\hat{\pi}(L_i)}\right] = 1\)`. 
+
+- If the model for `\(\hat{Y}\)` is correct then `\(E[A_i(Y_i - \hat{Y}_{1,i})] = 0\)`. 
+
+- Also called bias corrected OLS (Cassel et al 1976)
+
+---
+# Doubly Robust Estimation
+
+- `\(\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}\)` is a locally semiparametrically efficient estimator. 
+
+- If both models are correctly specified, then, 
+
+- Asymptotically, `\(\hat{\Delta}_{DR}\)` has the smallest variance among estimators in the defined by Robins and Ronitzky (1995).
+
+- `\(\hat{\Delta}_{DR}\)` is an augmented inverse probability weighted estimator (AIPW).
+
+---
+# Regression with Propensity Score
+
+- Another method to form a DR estimator is to fit an outcome regression model adding some function(s) of `\(\hat{\pi}\)` as covariates. 
+
+
+- Scharfstein et al (1999) show that including `\(\frac{1}{\hat{\pi}}\)` as a covariate is sufficient to achieve double robustness. 
+
+- Suppose that our outcome regression model is `\(E[Y \vert A, L] = s(A, L, \beta)\)`, where `\(\beta\)` are parameters to be estimated. 
+
+- We then fit the augmented mode `\(E[Y \vert A, L] = s(A, L, \beta) + \phi f(A, L)\)`. 
+- We then define `\(\tilde{Y}_{a,i} = s(a, L_i, \hat{\beta}) + \hat{\phi}f(a, L_i)\)`
+
+- And estimate
+`$$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$`
+
+
+---
+# Regression with Propensity Score
+
+- Bang and Robins (2005) extend the idea of adding a clever covariate. 
+
+- They show that adding `\(f(A, L) = \frac{A_1}{\hat{\pi_i}} + \frac{1-A_i}{1-\hat{\pi}_i}\)` also gives a DR estimator.
+
+- This estimator is more efficient than the Scharfstein et al estimator when only the outcome model is correct. 
+
+&lt;!-- # Double Robust Estimation in NHEFS  --&gt;
+
+
+
+
+
+
+---
+# Bias 
+
+- The bias of all doubly robust methods is a function of the product of the bias of `\(1/\hat{\pi}(L)\)` and the bias of `\(\hat{b}(L) = \hat{E}[Y \vert A = a, L]\)`.
+
+- The large sample bias of `\(\hat{\Delta}_{DR}\)` is 
+
+$$
+E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - b^*(L) \right) \right]
+$$
+
+- `\(b^*\)` and `\(\pi^*\)` are the limiting expectations of `\(\hat{b}\)` (i.e. `\(\hat{Y}\)`) and `\(\hat{pi}\)`. 
+
+- Doubly robust methods are often lest biased than IP weighting or outcome regression. 
+
+- Kang and Schaffer (2007) demonstrate a simulated example where the bias of the DR estimator is larger than the bias of the OLS estimate when both models are misspecified.
+
+---
+
+# Variance 
+- Lunceford and Davidian (2004) derive large-sample variances for the IPW estimators we have seen as well as for `\(\hat{\Delta}_{DR}\)`. 
+
+- `\(\hat{\Delta}_{DR}\)` has smaller variance than the IPW estimators. 
+
+- The variance of the IPW estimators is smaller if we estimate `\(\hat{\pi}\)` than if we use the true `\(\hat{\pi}\)`. 
+
+- Estimating `\(\hat{\pi}\)` does not impact the variance of `\(\hat{\Delta}_{DR}\)` asymptotically. 
+
+- The sandwich variance estimates for IPW estimators are more stable than plug-in estimates of the large sample variance. 
+
+- `\(\hat{\Delta}_{S}\)`, and `\(\hat{\Delta}_{SR}\)` both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
+
+---
+# Censoring 
+
+- If `\(L\)` are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
+
+- Many of them were developed originally in the context of accounting for missing data rather than accounting for confounding. 
+
+
+---
+# Kang and Schaffer (2007)
+
+- A missing data setting where our goal is to estimate `\(E[Y(C = 0)]\)`. 
+
+- Data are generated as 
+`$$Y_i = \alpha_0 + \sum_{j = 1}^4 \alpha_i Z_{j,i}\qquad \pi_i = P[C_i = 0 ] = expit(\sum_{j = 1}^{4} \beta_j Z_{j,i})$$`
+- Rather than observing `\(Z_1, \dots, Z_4\)`, we observe non-linear transformations
+
+`$$X_{1,i} = e^{Z_{1,i}/2} \qquad X_{2,i} = \frac{Z_{2,i}}{1 + e^{Z_{1,i}}} + 10 \\\
+X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$`
+
+- On average, half the data are missing. 
+
+- `\(E[Y(C = 0)] = 210\)`, `\(E[Y \vert C = 0] = 220\)` and `\(E[Y \vert C = 1] = 200\)`
+
+---
+# Kang and Schaffer (2007)
+
+- Relationships between outcome and observed covariates look about linear.
+&lt;center&gt; 
+
+&lt;img src="img/6_ksfig2.png" width="80%" /&gt;
+
+&lt;/center&gt;
+---
+# IPW vs Subclassification
+
+&lt;center&gt; 
+
+&lt;img src="img/6_kstab1.png" width="80%" /&gt;
+&lt;img src="img/6_kstab2.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+---
+# OLS and Bias Corrected OLS
+
+&lt;center&gt; 
+
+&lt;img src="img/6_kstab3.png" width="80%" /&gt;
+&lt;img src="img/6_kstab5.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+---
+# Scharfstein Estimator and Flexible `\(\pi\)`-Model
+
+&lt;center&gt; 
+&lt;img src="img/6_kstab7.png" width="80%" /&gt;
+&lt;img src="img/6_kstab8.png" width="80%" /&gt;
+&lt;/center&gt;
+
+
+---
+
+# Matching
+
+- Recall our previous discussion of matching for a single variable. 
+
+- For binary or discrete `\(L\)`, for each person with `\(A = 1\)`, we select a control with matching `\(L\)` value. 
+
+- We leave out any samples that cannot be matched. 
+
+- Using this new matched sample, we can compute the average treatment effect among the treated. 
+
+- Alternatively, we could match to the untreated population or any other distribution of `\(L\)`.
+
+- Today, we assume we are matching to the treated population. 
+
+- Content in this section draws heavily from Stuart (2010).
+
+---
+
+# Matching when `\(L\)` is High Dimensional
+
+- For high dimensional `\(L\)`, we probably cannot find exact matches. 
+
+- Instead, we can define a distance measure and match cases with "close" controls. 
+
+- We could define our distance using the full vector of `\(L\)`
+  + E.g the Mahalanobis distance `\(D_{i,j} = (L_i - L_j)^\top \Sigma^{-1} (L_i - L_j)\)`
+  + `\(\Sigma\)` is the sample covariance of `\(L\)` in controls if matching to the treated. 
+
+- Or we could define our distance based on the propensity score: 
+  + Absolute difference `\(D_{i,j} = \vert \hat{\pi}_i - \hat{\pi}_j \vert\)`
+  + Difference in logits `\(D_{i,j} = \vert logit(\hat{\pi}_i) - logit(\hat{\pi}_j )\vert\)`
+
+---
+# Defining "Close"
+
+- We have another bias-variance trade-off.  
+
+- If matching criteria are too stringent, we throw out a lot of data and variance increases.
+
+- If matching criteria are too loose, confounding remains and we have bias. 
+
+&lt;!-- # Target Population --&gt;
+
+&lt;!-- - If every treated individual is matched to one (or more) untreated individuals, the target population is the population of the treated.  --&gt;
+
+&lt;!-- - If some treated individuals are left out because they cannot be matched, the population is now harder to describe.  --&gt;
+
+&lt;!-- - We are estimating the effect in a subset of the population defined by propensity score.  --&gt;
+
+&lt;!-- - It may be more natural to restrict the population based on sets of individuals in `\(L\)` (e.g. smoking intensity).  --&gt;
+
+---
+# Nearest Neighbor Matching
+
+- The simplest matching strategy is to match every case to its nearest control with no cap on maximum distance. 
+
+- We could also match every case to its `\(k\)` nearest controls. 
+
+- This method can lead to some bad matches. 
+
+- We could set a maximum distance and discard cases that have no match within that distance. 
+
+- This changes the target population. 
+
+- It may be more interpretable to restrict the population based on sets of individuals in `\(L\)` (e.g. smoking intensity). 
+
+---
+# Nearest Neighbor Variations
+
+- Optimal matching: Rather than "greedily" choose the match closest to each case one at a time, try to minimize a global distance measure. 
+
+- Ratio matching: Choose multiple matches per case.
+   + May reduce bias by increasing sample size.
+   + May result in poor matches for some units.
+   + Variable ratio matching allows different indviduals to have different numbers of matches. (Requires weighting in analysis)
+   
+- Matching with replacement: Allow multiple cases to match to the same control. 
+  + Can decrease bias by improving match quality. 
+  + Requires weighting in analysis. 
+
+---
+# Subclassification
+
+- The subclassification estimator `\(\hat{\Delta}_S\)` is a form of matching estimator. 
+
+- When we divide individuals into groups based on PS, multiple cases and multiple controls are in the same group. 
+
+- The `\(\hat{\Delta}_S\)` estimator weights the estimate within each stratum by the proportion of total individuals in that stratum.
+
+- We could instead weight by the proportion of treated individuals in order to estimate the ATT. 
+
+---
+# Full Matching
+
+
+- In full matching, rather than pre-selecting the number of classes, we use the maximum number that allow us to have at least one case and one control in each class. 
+
+- We identify subclasses such that:
+
+- Every subclass contains at least one case and one control.
+  + Can be 1:1, 1:many, or many:1
+
+- A measure of global distance is minimized over all possible full matches. 
+
+---
+
+# Analysis Using the Matched Sample
+
+- Different matching schemes require different analysis strategies. 
+
+- In variable ratio matching, each control is weighted according to the number of other controls in its group. 
+  + If a group contains 1 case and 4 controls, each control is weighted 1/4.
+  
+- If matching with replacement, unit `\(i\)` weighted by `\(1/n_i\)` where `\(n_i\)` is the number of times unit `\(i\)` was sampled. 
+
+- For all of the NN matching schemes, we can either:
+  + Simply compute a weighted difference in means. 
+  + Fit an outcome regression model using the matched sample and any necessary weights. 
+  
++ Fitting an outcome regression model in a matched sample is analogous to the double robustness strategy. 
+
+---
+# Analysis Using Full Matching 
+
+- Recall that in subclassification, we could fit an outcome regression within each subclass (the `\(\hat{\Delta}_{SR}\)` estimator). 
+
+- In full matching, we can't fit a regression within each subclass. 
+
+- Instead we fit a model to all data shared coefficients for covariates but subclass specific coefficients for treatment. 
+
+`$$E[Y_{i,k} \vert A, L] = \beta_{0,k} + \beta_{1,k}A_{i,k} + \gamma L_{i,k}$$`
+- We then average subclass effects to obtain 
+`$$\hat{\beta} = \frac{n_k}{N}\sum_{k} \hat{\beta}_{1,k}$$`
+---
+# Variance Estimation
+
+- Rubin and Thomas (1996) and Rubin and Stuart (2006) argue that we don't need to account for uncertainty in in estimating propensity scores because not doing so will be conservative. 
+
+- Another alternative is the bootstrap. 
+
+- Abadie and Imbens (2006) provide a large sample estimator of the variance for 1:k matching with replacement. 
+
+
+---
+# Assessing Matches
+
+- If matching is successful, then all variables in `\(L\)` should be balanced between cases and controls in the matched population. 
+
+- To determine if matching is adequate to control confounding, we need to check that this is true. 
+
+- Ideally we could compare the full multivariate distribution of `\(L\)` between cases and controls, but this is too complicated. 
+
+- Instead we look at each variable individually. 
+  + Should also look at products and squares. 
+  
+---
+# Assessing Matches
+
+- Rubin (2001) suggests three balance measures:
+
+1. Standardized difference in means of the propensity score.(Should be  &lt; 0.25)
+1. Ratio of the variances of the propensity score in treated and control. (Should be between 0.5 and 2)
+1. For each covariate, ratio of the variance after regressing out the propensity score. (Should be between 0.5 and 2)
+
+---
+# `\(p\)`-Values are Unsuitable to Assess Balance
+
+- Balance is an in-sample property, it doesn't make sense to test a super-population hypothesis.
+
+- The `\(p\)`-value may increase after matching simply because the power has decreased due to throwing out samples. 
+
+---
+# Implementation 
+
+- Unlike some of our other methods, matching is not trivial to implement. 
+
+- The R package \textttt{Matching} implements multiple matching strategies including a genetic algorithm to automatically find a balanced match. 
+
+- \textttt{Matching} also provides a function to generate balance statistics. 
+
+&lt;!-- # G-Estimation for Structural Nested Mean Models --&gt;
+
+&lt;!-- --- --&gt;
+
+&lt;!-- # Structural Marginal Models --&gt;
+
+&lt;!-- - Recall previously, we wanted to estimate the causal effect of quitting smoking across strata of a variable `\(V\)` (sex).  --&gt;
+
+&lt;!-- - We proposed a structural marginal model  --&gt;
+
+&lt;!-- $$ --&gt;
+&lt;!-- E[Y(a) \vert V] = \beta_0 + \beta_1 a + \beta_2 a V + \beta_3 V --&gt;
+&lt;!-- $$ --&gt;
+
+&lt;!-- - The causal contrasts we are interested in are `\(E[Y(1)-Y(0) \vert V = 0]\)` and `\(E[Y(1)-Y(0) \vert V = 1]\)`. --&gt;
+
+&lt;!-- - These correspond to parameters `\(\beta_1\)` and `\(\beta_1 + \beta_2\)` in the marginal model.  --&gt;
+&lt;!--   + We have estimated two more parameters than we needed to answer the causal question.  --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # Semiparametric Structrual Marginal Models --&gt;
+
+&lt;!-- - Instead of proposing a model for `\(E[Y(a) \vert V]\)`, we could have proposed a model directly for the contrast we care about  --&gt;
+
+&lt;!-- $$ --&gt;
+&lt;!-- E[Y(1)-Y(0) \vert V] = \beta_1 a + \beta_2 a V --&gt;
+&lt;!-- $$ --&gt;
+
+&lt;!-- - This is a *semiparametric marginal structural model*.  --&gt;
+
+&lt;!-- - It is semiparametric because we don't specify `\(\beta_0\)` and `\(\beta_3\)`.  --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # Semiparametric Structrual Marginal Models --&gt;
+
+&lt;!-- - When `\(A\)` and `\(V\)` are both binary, the structural marginal model we proposed was saturated.  --&gt;
+
+&lt;!-- - We weren't relying on any parametric assumptions so there is no use in becoming semiparametric.  --&gt;
+
+&lt;!-- - However, in more complex situations, using a semiparametric model can be more robust.  --&gt;
+
+
+
+&lt;!-- --- --&gt;
+&lt;!-- # Structural Nested Mean Models --&gt;
+
+&lt;!-- - In the settings we have seen so far with no time varying treatments, semiparametric nested mean models are semiparametric marginal structural models.  --&gt;
+&lt;!-- - The term *nested* will become relevant for problems with time-varying treatments.  --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # Rank Preservation --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # G-Estimation --&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -13,14 +13,18 @@ output:
 ---
 # Outline
 
-1. Outcome regression
-1. Outcome regression with propensity scores
-1. Stratificatin/Standardization
-1. Comparison to IP weighting 
-1. Matching
-1. Best choice of propensity scores
-1. Double robust methods
-1. G-Estimation
+Plan:
+
+This Lecture:
+- Propensity scores and several methods that make use of them:
+  + Subclassification/standardization
+  + Double robust methods
+  + Matching
+  
+Coming up:
+  - G-Estimation (Ch. 14)
+  - Instrumental Variable Analysis (Ch. 16)
+  - Survival (Ch. 17)
 
 $\newcommand{\ci}{\perp\!\!\!\perp}$
 ---
@@ -29,11 +33,12 @@ $\newcommand{\ci}{\perp\!\!\!\perp}$
 - Last lecture we looked at parametric versions of IP weighting and standardization. 
 
 - In IP weighting, we propose a parametric estimator of $\pi(L) = P[ A = 1 \vert L ]$ 
-  + $\pi(L)$ is the *propensity score*. 
 
-- The IP weight for uint $i$ is $1/\pi(L_i)$ if $A_i = 1$ or $1/(1-\pi(L_i))$ if $A_i = 0$. 
+- The IP weight for unit $i$ is $1/\pi(L_i)$ if $A_i = 1$ or $1/(1-\pi(L_i))$ if $A_i = 0$. 
 
-- We can then use this weight in a marginal structural model to estimate a causal parameter. 
+- We use this weight to make our sample look like randomized sample where treatment is independent of confounders.
+
+- We then use a marginal structural model to estimate a causal parameter. 
 
 - Recall a marginal structural model relates a potential outcome to our observed variables
 $$
@@ -51,6 +56,7 @@ $$
   + This happens when there are no product terms between $A$ and $L$. 
 
 ---
+
 
 # Outcome Regression
 
@@ -87,458 +93,44 @@ $$
 A \ci L \vert\ \pi(L)
 $$
 
-- The propensity score is the coarsest possible balancing score: If $b(L)$ is a balancing score then $b(L) = f(\pi(L))$ for some function $f$. 
+- The propensity score is the coarsest possible balancing score: 
+  + If $b(L)$ is a balancing score then $b(L) = f(\pi(L))$ for some function $f$. 
   + The finest possible balancing score is $A$. 
 
 ---
 # Propensity Scores are Sufficient for Confounder Adjustment
 
-- If $Y(a) \ci A \vert L$, and positivity holds, and $b(L)$ is a balancing score,
+- If $Y(a) \ci A \vert L$, positivity holds, and $b(L)$ is a balancing score,
 
 - Then $Y$ and $A$ are exchangeable conditional on $b(L)$, $Y(a) \ci A \vert\ b(L)$.
   
-- The propensity score is like an intermediate node in the DAG mediating all arrows going into $A$.
+- The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
 
-
----
-# Propensity Scores and Positivity
-
-- If positivity holds, propensity scores should be bounded away from 0 and 1:
-  
-  + Everyone should have some chance of having receiving either. 
-  + Propensity scores close to 0 and 1 happen when there is perfect separation by one or a combination of confounders. 
-  + There may be structural positivity violations. 
-
-- Propensity scores should have approximately the same range in both groups. 
-
-  + Non-overlapping ranges suggest random positivity violations (could also be structural). 
-  + Ok for IP weighting but a problem for matching and subclassification. 
-
----
-# Propensity Scores and Positivity
-
-```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=7, fig.align='center'}
+<center>
+```{r, echo = FALSE, fig.height= 2.5, fig.align='center', message = FALSE, warn = FALSE}
 library(tidyverse)
 library(knitr)
 library(kableExtra)
-dat <- read_csv("../../data/nhefs.csv") 
-# dat <- dat.u %>%
-#        filter(!is.na(wt82))
-
-fit <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
-    as.factor(education) + smokeintensity +
-    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
-    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
-    family = binomial(), data = dat)
-
-dat$ps1 <-predict(fit, type = "response")
-
-dat$cens <- ifelse(is.na(dat$wt82), 1, 0)
-fcal_fit <- glm(
-  cens ~ as.factor(qsmk) + as.factor(sex) +
-    as.factor(race) + age + I(age ^ 2) +
-    as.factor(education) + smokeintensity +
-    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
-    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
-  family = binomial(),
-  data = dat
-)
-dat$psc <- 1 - predict(fcal_fit, type = "response")
-
-dat %>% ggplot() + 
-  geom_histogram(aes(x = ps1, fill = as.factor(qsmk), color = as.factor(qsmk), group = as.factor(qsmk)),
-                 alpha = 0.3, position = 'identity', bins=15) +
-  xlab('Probability of Quitting Smoking During Follow-up') + ylab("Count") + 
-  ggtitle('Propensity Score Distribution by Treatment Group') +
-  scale_fill_discrete('qsmk') +
-  scale_color_discrete('qsmk') +
-  theme(axis.title = element_text(size = 14), 
-        legend.title =  element_text(size = 12),
-        plot.title = element_text(size = 18))
-```
-
----
-
-# Outcome Regression with Propensity Scores
-
-- Because $\pi(L)$ is sufficient to control confounding, we could propose a model for $E[Y(a) \vert L]$ in terms of one-dimensional $\pi(L)$ rather than high dimensional $L$.
-
-- Valid inference will depend on 
-  + Correctly estimating $\pi(L)$
-  + Correctly specifying the functional form of $E[Y \vert A , \pi(L)]$
-  
-  
-- A simple model like $$E[Y \vert A, \pi(L)] = \beta_0 + \beta_1 A + \beta_2 \pi(L)$$ is probably insufficient to control for confounding.
-
----
-# Outcome Regression with Propensity Scores
-
-- Because $\pi(L)$ is one-dimensional, it is easy to propose a flexible model. 
-
-- Models which include no effect modification of $A$ by $L$ could include: 
-  + Fitting a cubic spline for effect of $\pi(L)$
-  + Dividing $\pi(L)$ into deciles and fitting an effect for nine binary indicators decile membership. 
-  
-  
----
-
-# Stratification/Subclassification
-
-- Stratification over quantiles of $\hat{\pi}(L)$ allows us to estimate a flexible model *with* effect modification by $\pi(L).$ 
-
-- Let $\hat{C}_k = [\hat{c}_{k-1}, \hat{c}_k)$, $k = 1, \dots, K$ be non-overlapping intervals dividing the observed range of $\hat{\pi}(L)$. 
-
-- Within each interval, we estimate 
-
-$$\hat{E}[Y(a) \vert \hat{\pi} \in \hat{C}_i] = E[Y \vert A = a, \hat{\pi} \in \hat{C}_i] \\\
-= \frac{1}{n_{1,k}}\sum_{i=1}^{N}A_i Y_i 1_{\hat{\pi} \in \hat{C}_i} - \frac{1}{n_{0,k}}\sum_{i=1}^{N}(1-A_i) Y_i 1_{\hat{\pi} \in \hat{C}_i}$$
-
-- This is the same as fitting the saturated linear regression 
-
-$$E[Y \vert A, \hat{\pi}(L)] = \beta_0 + \beta_1 A + \sum_{j=2}^{K}\beta_j 1_{\hat{\pi} \in \hat{C}_j} + \sum_{j =2}^{K} \beta_{K-1 + j} A 1_{\hat{\pi} \in \hat{C}_j}$$ 
----
-
-# Subclassification and Standardization
-
-- We can then compute an estimate of $E[Y(a)]$ using our standardization formula
-
-$$\hat{\Delta}_S = \sum_{k = 1}^K \frac{n_k}{N} \left\lbrace \frac{1}{n_{1,k}}\sum_{i=1}^{N}A_i Y_i 1_{\hat{\pi} \in \hat{C}_i} - \frac{1}{n_{0,k}}\sum_{i=1}^{N}(1-A_i) Y_i 1_{\hat{\pi} \in \hat{C}_i} \right \rbrace$$
-
----
-# Subclassification Estimate in NHEFS
-
-```{r}
-delta_s <- function(df){
-  # Estimate propensity scores
-  fit <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
-    as.factor(education) + smokeintensity +
-    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
-    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
-    family = binomial(), data = df)
-  df$ps <-predict(fit, type = "response")
-  # Deciles of PS
-  df$ps_dec <- cut(df$ps, breaks=c(quantile(df$ps, probs=seq(0,1,0.1))),
-                    labels=seq(1:10),
-                    include.lowest=TRUE)
-  # Fit the model for E[Y | A, pi]
-  fit_psdec <- glm(wt82_71 ~ qsmk*as.factor(ps_dec), data = df)
-  # Standardized Estimate
-  df0 <- df1 <- df; df0$qsmk <- 0; df1$qsmk <- 1
-  Y0 <- predict(fit_psdec, newdata = df0, type = "response")
-  Y1 <- predict(fit_psdec, newdata = df1, type = "response")
-  return(mean(Y1) -mean(Y0))}
-```
-```{r, echo=FALSE}
-delta_s(dat)
-```
----
-# Bootstrap Variance
-
-```{r}
-set.seed(1)
-samples <- replicate(n = 10, 
-                     expr = sample(seq(nrow(dat)), 
-                                   size = nrow(dat), replace = TRUE))
-res <- apply(samples, 2, FUN = function(ix){
-  boot_dat <- dat[ix,]
-  return(delta_s(boot_dat))
-})
-se <- sd(res)
-bhat <- delta_s(dat)
-ci <- bhat + c(-1, 1)*qnorm(0.975)*se 
-cat(bhat, "(", ci, ")")
-```
----
-# Number and Size of Divisions
-
-- Rosenbaum and Rubin (1983) suggest using sample quintiles ( $K=5$ ). 
-  + This generally leads to residual bias. 
-
-- More intervals leads to less bias but increased variance. 
-
-- The optimal choice of $K$ and interval endpoints is an open problem.
-
-- Intervals must be large enough that individuals with both treatments are in every interval. 
-
----
-# $\hat{\Delta}_S$ is a Coarsened Horvitz-Thompson Estimator
-
-- Recall the IP weighted Horvitz-Thompson estimator:
-
-$$\hat{\Delta}_{HT} = \frac{1}{N}\sum_{i=1}^N \frac{A_i Y_i}{\hat{\pi}_i} - \frac{(1-A_i)Y_i}{1-\hat{\pi}_i}$$
-- Within each interval, estimate a "subclass-specific" propensity score, $\hat{p}_k = P[A_i = 1 \vert \hat{\pi}_i \in \hat{C}_k] = \frac{n_{1,k}}{n_k}$.
-
-- For each individual, set $\hat{\pi}^{C}_i = \sum_k 1_{\hat{\pi}_i \in \hat{C}_k}p_{k}.$
-
-- Plug these propensity scores into the formula for $\hat{\Delta}_{HT}$ and get $\hat{\Delta}_S.$
-
----
-
-# Asymptotic Results
-
-- Suppose that we have a rule for picking the number divisions that is a function of the data.
-
-- Is there a rule such that $\hat{\Delta}_S$ is root-N consistent for the ATE?
-
---
-
-- Wang et al (2016) show that
-
-- Consistency requires that $K(N)/\sqrt{N} \rightarrow \infty$ as $N \rightarrow \infty$
-
-- In order for $\hat{\Delta}_S$ to be well defined, $K(N)$ must grow slowly enough that there are always units with both values of $A$ in every division.
-  + $[ K(N)log(K(N))]/N \rightarrow 0$ as $N \rightarrow \infty$
-
----
-# Full Subclassification 
-
-- Wang et al (2016) propose a strategy for allowing $K$ to grow with $N$ called full subclassification. 
-
-- Choose the largest number $K$ such that every $1/K$ quantile of $\hat{\pi}$ has at least one case and at least one control. 
-
----
-
-# Comparison with IP Weighting
-
-- Both IP weighting and outcome regression with PS require a correct model for $E[A = 1 \vert L ]$. 
-
-- Both require a correct marginal model for the relationship between $Y(a)$ and $a$ (easy if $A$ is dichotomous). 
-
-- Outcome regression with propensity scores additionally requires correctly specifying the relationship between $Y(a)$ and $\pi(L)$. 
-
-- Stratification/standardization allows us to use a very flexible model for the $Y$ - $\pi$ relationship. 
-  - Some bias may remain if intervals are too wide. 
-  
----
-
-# Comparison with IP Weighting
-
-- IP Weighting:
-  + Asymptotically unbiased
-  + High variance if some weights are large
-  + Very sensitive to misspecification of model for $\pi(L)$
-  
-  
-  
-- PS Stratification
-  + Biased for fixed value of $K$.
-  + Lower variance in some cases. 
-  + Less sensitive to misspecification of model for $\pi(L)$
-  
-- In PS Stratification, we only rely on $\hat{\pi}(L)$ to group units with similar propensities. 
-
----
-# Within Stratum Regression Modeling
-
-- Bias in $\hat{\Delta}_S$ occurs because $L$ and $A$ may not be independent within intervals. 
-
-- One strategy to deal with this is to fit an outcome regression model for $E[Y \vert A, L]$ *within* each $\hat{C}_k$.
-
-- Let $\hat{Y}_{a,i,k}$ be the estimate of $E[Y \vert A = a, L = L_i]$ from the model fit within $\hat{C}_k$. 
-
-$$\hat{\Delta}_{OR,k} = \frac{1}{n_k}\sum_{i = 1}^{N}1_{\hat{\pi_i} \in \hat{C}} \left(\hat{Y}_{1,i,k} - \hat{Y}_{0, i, k}\right)$$
-
-$$\hat{\Delta}_{SR} = \sum_{k=1}^{K} \frac{n_k}{N}\hat{\Delta}_{OR,k}$$
-
-- If the form of the outcome-regression is correct, this strategy will be consistent. 
-
-  
----
-# Double Robust Methods
-
-- Double robust methods combine propensity weighting and outcome regression approaches.
-
-- DR methods are consistent if *either* the propensity score model or the outcome regression model is correctly specified. 
-
-- They can still be biased if both models are misspecified. 
-
-- Technically, $\hat{\Delta}_{SR}$ is not doubly robust because it is inconsistent for fixed $K$ if the outcome model is wrong. 
-
-
----
-# Doubly Robust Estimation
-
-- Suppose we have an outcome regression model.
-
-- For each unit, we can estimate $\hat{Y}_{a, i} = E[Y \vert A = a, L = L_i]$. 
-
-- We can construct estimators for $E[Y(1)]$ and $E[Y(0)]$ as 
-
-$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace$$
-
-
-$$\hat{\Delta}_{DR,0} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{(1-A_i) Y_i}{1-\hat{\pi}(L_i)} - \left(\frac{1-A_i}{1-\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{0,i} \right \rbrace$$
- - Cassel, Särndal, and Wretman (1976); Robins, Rotnitzky, and Zhao (1994)
----
-# Doubly Robust Estimation
-
-$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace \\\
-= \frac{1}{N} \sum_{i = 1}^N \left \lbrace \hat{Y}_{1,i} + \frac{A_i}{\hat{\pi}(L_i)}\left(Y_i - \hat{Y}_{1,i} \right) \right \rbrace$$
-
-- If the model for $\hat{\pi}$ is correct then $E\left [\frac{A_i}{\hat{\pi}(L_i)}\right] = 1$. 
-
-- If the model for $\hat{Y}$ is correct then $E[A_i(Y_i - \hat{Y}_{1,i})] = 0$. 
-
----
-# Doubly Robust Estimation
-
-- $\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}$ is the locally semiparametrically efficient estimator. 
-
-- If both models are correctly specified, then, 
-
-- Asymptotically, $\hat{\Delta}_{DR}$ has the smallest variance among estimators in the defined by Robins and Ronitzky (1995).
-
-- $\hat{\Delta}_{DR}$ is an augmented inverse probability weighted estimator (AIPW).
-
----
-# Regression with Propensity Score
-
-- Another method to form a DR estimator is to fit an outcome regression model adding some function(s) of $\hat{\pi}$ as covariates. 
-
-
-- Scharfstein et al (1999) show that including $\frac{1}{\hat{\pi}}$ as a covariate is sufficient to achieve double robustness. 
-
-- Suppose that our outcome regression model is $E[Y \vert A, L] = s(A, L, \beta)$, where $\beta$ are parameters to be estimated. 
-
-- We then fit the augmented mode $E[Y \vert A, L] = s(A, L, \beta) + \phi f(A, L)$. 
-- We then define $\tilde{Y}_{a,i} = s(a, L_i, \hat{\beta}) + \hat{\phi}f(a, L_i)$
-
-- And estimate
-$$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$
-
-
----
-# Regression with Propensity Score
-
-- Bang and Robins (2005) extend the idea of adding a clever covarite. 
-
-- They show that adding $f(A, L) = \frac{A_1}{\hat{\pi_i}} + \frac{1-A_i}{1-\hat{\pi}_i}$ also gives a DR estimator.
-
-- This estimator is more efficient than the Scharfstein et al eestimator when only the outcome model is correct. 
-
-<!-- # Double Robust Estimation in NHEFS  -->
-
-
-```{r, echo = FALSE}
-delta_dr <- function(df){
-  # Estimate propensity scores
-  fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
-    as.factor(education) + smokeintensity +
-    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
-    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
-    family = binomial(), data = df)
-  df$ps <-predict(fit_ps, type = "response")
-  df <- mutate(df, w = case_when(qsmk==1 ~ 1/ps, 
-                                 TRUE ~ 1/(1-ps)))
-  # Deciles of PS
-  fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
-                  I(age^2) + as.factor(education) + 
-                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
-                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
-                  qsmk * smokeintensity + w, 
-                  data = df)
-  # Standardized Estimate
-  df0 <- df1 <- df; 
-  df0$qsmk <- 0; df1$qsmk <- 1
-  Y0 <- predict(fit_or, newdata = df0, type = "response")
-  Y1 <- predict(fit_or, newdata = df1, type = "response")
-  return(mean(Y1) -mean(Y0))}
-```
-
-```{r, echo=FALSE}
-delta_dr2 <- function(df){
-  # Estimate propensity scores
-  fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
-    as.factor(education) + smokeintensity +
-    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
-    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
-    family = binomial(), data = df)
-  df$ps <-predict(fit_ps, type = "response")
-  df <- mutate(df, w1 = (qsmk ==1)*1/ps, 
-               w0 = (qsmk==0)*1/(1-ps))
-  fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
-                  I(age^2) + as.factor(education) + 
-                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
-                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
-                  qsmk * smokeintensity, 
-                  data = df)
-  # Standardized Estimate
-  df0 <- df1 <- df; df0$qsmk <- 0; df1$qsmk <- 1
-  Y0 <-  predict(fit_or, newdata = df0, type = "response")
-  Y0c <- with(df, Y0 + w0*(wt82_71-Y0))
-  Y1 <-  predict(fit_or, newdata = df1, type = "response")
-  Y1c <- with(df, Y1 + w1*(wt82_71-Y1))
-  return(mean(Y1c, na.rm=T) -mean(Y0c, na.rm=T))}
-```
-
----
-# Bias of Doubly Robust Methods
-
-- The bias of all doubly robust methods is a product of the bias of $1/\hat{\pi}(L)$ and the bias of $\hat{b}(L) = \hat{E}[Y \vert A = a, L]$.
-
-- Kang and Schaffer (2007) demonstrate a simulated example where the bias of the DR estimator is larger than the bias of the OLS estimate when both models are misspecified.
-
-
----
-# Kang and Schaffer (2007)
-
-- Kang and Schaffer (2007) construct a simulation experiment where it would be hard to get either the outcome or the exposure models correct. 
-
-- Data are generated as 
-$$Y_i = \alpha_0 + \sum_{j = 1}^4 \alpha_i Z_{j,i}\qquad \pi_i = expit(\sum_{j = 1}^{4} \beta_j Z_{j,i})$$
-- Rather than observing $Z_1, \dots, Z_4$, we observe non-linear transformations
-
-$$X_{1,i} = e^{Z_{1,i}/2} \qquad X_{2,i} = \frac{Z_{2,i}}{1 + e^{Z_{1,i}}} + 10 \\\
-X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$
-
----
-# Kang and Schaffer (2007)
-
-- Relationships between outcome and observed covariates look about linear.
-<center> 
-
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_ksfig2.png")
-```
-
-</center>
----
-# IPW vs Stratification
-
-<center> 
-
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab1.png")
-```
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab2.png")
-```
-
-</center>
-
----
-# OLS and Bias Corrected OLS
-
-<center> 
-
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab3.png")
-```
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab5.png")
-```
-
-</center>
-
----
-# Scharfstein Estimator and Flexible $\pi$-Model
-
-<center> 
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab7.png")
-```
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab8.png")
+library(DiagrammeR)
+ndf0 <- create_node_df(n = 4, label = c("A", "P[A | L]", "Y", "L"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     height = 0.3,
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "ellipse",
+                     fixedsize = FALSE,
+                     x = c(0, -1, 1, 0.5)*1, 
+                     y = c(0, 0, 0, 1)*0.5)
+edf0 <- create_edge_df(from = c(1, 2, 4, 4), to = c(3, 1, 2, 3),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr0 <- create_graph(nodes_df = ndf0, edges_df = edf0)
+
+render_graph(gr0)
 ```
 </center>
 
@@ -559,7 +151,6 @@ knitr::include_graphics("img/6_kstab8.png")
 
 - Should we include $L_1$ in in the predictive model of $A$? 
 ```{r, echo = FALSE, fig.height= 2.5, fig.align='center'}
-library(DiagrammeR)
 ndf1 <- create_node_df(n = 3, label = c("A", "Y", "L@_{1}"), 
                      fontname = "Helvetica", 
                      fontsize = 10, 
@@ -693,13 +284,16 @@ xx <- purrr::map_dfr(1:1000,function(x){
 
 - Over 1000 simulations, 
 
-- The average absolute bias times $\sqrt{N}$ is 
-  + $\hat{\beta}$: `r round(with(xx, mean(abs(bhat.A)))*sqrt(250), digits = 2)`
-  + $\hat{\beta}_S$: `r round(with(xx, mean(abs(bhat_strat.A)))*sqrt(250), digits = 2)`
+- The average bias times $\sqrt{N}$ is
+  + $\hat{\beta}$: `r round(with(xx, mean(bhat.A)*sqrt(250)), digits = 2)`, $\hat{\beta}_S$: `r round(with(xx, mean(bhat_strat.A)*sqrt(250)), digits = 2)`
 
-- The Monte Carlo variance of each estimator time $\sqrt{N}$ is
-  + $\hat{\beta}$: `r round(with(xx, var(abs(bhat.A*sqrt(250)))), digits =2)`
-  + $\hat{\beta}_S$: `r round(with(xx, var(abs(bhat_strat.A*sqrt(250)))), digits =2)`
+- The mean squared error times $N$ is 
+  + $\hat{\beta}$: `r round(with(xx, mean(bhat.A^2)*250), digits = 2)`, $\hat{\beta}_S$: `r round(with(xx, mean(bhat_strat.A^2)*250), digits = 2)`
+
+- The Monte Carlo variance of each estimator times $\sqrt{N}$ is 
+  + $\hat{\beta}$: `r round(with(xx, var(abs(bhat.A*sqrt(250)))), digits =2)`, $\hat{\beta}_S$: `r round(with(xx, var(abs(bhat_strat.A*sqrt(250)))), digits =2)`
+
+- In `r round(with(xx, mean(abs(bhat_strat.A) < abs(bhat.A))*100))`% of simulations, the stratified estimator is less biased than the non-stratified estimator. 
 
 - The adjusted estimator has lower bias and is more precise.
 
@@ -723,6 +317,495 @@ geom_point(aes(x = n, y = bhat_strat_avg_bias*sqrt(n)), color = "red") +
 geom_line(aes(x = n, y = bhat_strat_avg_bias*sqrt(n)), color = "red")
 
 ```
+---
+# Propensity Scores and Positivity
+
+- If positivity holds, propensity scores should be bounded away from 0 and 1:
+  
+  + Everyone should have some chance of having receiving either. 
+  + Propensity scores close to 0 and 1 happen when there is perfect separation by one or a combination of confounders. 
+  + There may be structural positivity violations. 
+
+- Propensity scores should have approximately the same range in both groups. 
+
+  + Non-overlapping ranges suggest random positivity violations (could also be structural). 
+  + Ok for IP weighting but a problem for matching and subclassification. 
+
+---
+# Propensity Scores and Positivity
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=7, fig.align='center'}
+dat <- read_csv("../../data/nhefs.csv") 
+# dat <- dat.u %>%
+#        filter(!is.na(wt82))
+
+fit <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = dat)
+
+dat$ps1 <-predict(fit, type = "response")
+
+dat$cens <- ifelse(is.na(dat$wt82), 1, 0)
+fcal_fit <- glm(
+  cens ~ as.factor(qsmk) + as.factor(sex) +
+    as.factor(race) + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+  family = binomial(),
+  data = dat
+)
+dat$psc <- 1 - predict(fcal_fit, type = "response")
+
+dat %>% ggplot() + 
+  geom_histogram(aes(x = ps1, fill = as.factor(qsmk), color = as.factor(qsmk), group = as.factor(qsmk)),
+                 alpha = 0.3, position = 'identity', bins=15) +
+  xlab('Probability of Quitting Smoking During Follow-up') + ylab("Count") + 
+  ggtitle('Propensity Score Distribution by Treatment Group') +
+  scale_fill_discrete('qsmk') +
+  scale_color_discrete('qsmk') +
+  theme(axis.title = element_text(size = 14), 
+        legend.title =  element_text(size = 12),
+        plot.title = element_text(size = 18))
+```
+
+---
+
+# Outcome Regression with Propensity Scores
+
+- Because $\pi(L)$ is sufficient to control confounding, we could propose a model for $E[Y(a) \vert L]$ in terms of one-dimensional $\pi(L)$ rather than high dimensional $L$.
+
+- Valid inference will depend on 
+  + Correctly estimating $\pi(L)$
+  + Correctly specifying the functional form of $E[Y \vert A , \pi(L)]$
+  
+  
+- A simple model like $$E[Y \vert A, \pi(L)] = \beta_0 + \beta_1 A + \beta_2 \pi(L)$$ could be insufficient to control for confounding.
+
+---
+# Outcome Regression with Propensity Scores
+
+- Because $\pi(L)$ is one-dimensional, it is easy to propose a flexible model. 
+
+- Models which include no effect modification of $A$ by $L$ could include: 
+  + Fitting a cubic spline for effect of $\pi(L)$
+  + Dividing $\pi(L)$ into deciles and fitting an effect for nine binary indicators decile membership. 
+  
+$$
+E[Y \vert A, L] = \beta_0 + \beta_1 A + g(\pi(L), \boldsymbol{\alpha})
+$$
+---
+
+# Subclassification/Stratification
+
+- Stratification over quantiles of $\hat{\pi}(L)$ allows us to estimate a flexible model *with* effect modification by $\pi(L).$ 
+
+- Let $\hat{C}_k = [\hat{c}_{k-1}, \hat{c}_k)$, $k = 1, \dots, K$ be non-overlapping intervals dividing the observed range of $\hat{\pi}(L)$. 
+
+- Within each interval, we estimate 
+
+$$\hat{E}[Y(a) \vert \hat{\pi} \in \hat{C}_i] = E[Y \vert A = a, \hat{\pi} \in \hat{C}_i] \\\
+= \frac{1}{n_{1,k}}\sum_{i=1}^{N}A_i Y_i 1_{\hat{\pi} \in \hat{C}_i} - \frac{1}{n_{0,k}}\sum_{i=1}^{N}(1-A_i) Y_i 1_{\hat{\pi} \in \hat{C}_i}$$
+
+- This is the same as fitting the saturated linear regression 
+
+$$E[Y \vert A, \hat{\pi}(L)] = \beta_0 + \beta_1 A + \sum_{j=2}^{K}\beta_j 1_{\hat{\pi} \in \hat{C}_j} + \sum_{j =2}^{K} \beta_{K-1 + j} A 1_{\hat{\pi} \in \hat{C}_j}$$ 
+---
+
+# Subclassification and Standardization
+
+- We can then compute an estimate of $E[Y(a)]$ using our standardization formula
+
+$$\hat{\Delta}_S = \sum_{k = 1}^K \frac{n_k}{N} \left\lbrace \frac{1}{n_{1,k}}\sum_{i=1}^{N}A_i Y_i 1_{\hat{\pi} \in \hat{C}_i} - \frac{1}{n_{0,k}}\sum_{i=1}^{N}(1-A_i) Y_i 1_{\hat{\pi} \in \hat{C}_i} \right \rbrace$$
+
+---
+# Subclassification Estimate in NHEFS
+
+```{r}
+delta_s <- function(df){
+  # Estimate propensity scores
+  fit <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps <-predict(fit, type = "response")
+  # Deciles of PS
+  df$ps_dec <- cut(df$ps, breaks=c(quantile(df$ps, probs=seq(0,1,0.1))),
+                    labels=seq(1:10),
+                    include.lowest=TRUE)
+  # Fit the model for E[Y | A, pi]
+  fit_psdec <- glm(wt82_71 ~ qsmk*as.factor(ps_dec), data = df)
+  # Standardized Estimate
+  df0 <- df1 <- df; df0$qsmk <- 0; df1$qsmk <- 1
+  Y0 <- predict(fit_psdec, newdata = df0, type = "response")
+  Y1 <- predict(fit_psdec, newdata = df1, type = "response")
+  return(mean(Y1) -mean(Y0))}
+```
+```{r, echo=FALSE}
+delta_s(dat)
+```
+---
+# Bootstrap Variance
+
+```{r}
+set.seed(1)
+samples <- replicate(n = 10, 
+                     expr = sample(seq(nrow(dat)), 
+                                   size = nrow(dat), replace = TRUE))
+res <- apply(samples, 2, FUN = function(ix){
+  boot_dat <- dat[ix,]
+  return(delta_s(boot_dat))
+})
+se <- sd(res)
+bhat <- delta_s(dat)
+ci <- bhat + c(-1, 1)*qnorm(0.975)*se 
+cat(bhat, "(", ci, ")")
+```
+---
+# Number and Size of Divisions
+
+- Rosenbaum and Rubin (1983) suggest using sample quintiles ( $K=5$ ). 
+  + This generally leads to residual bias. 
+
+- More intervals leads to less bias but increased variance. 
+
+- The optimal choice of $K$ and interval endpoints is an open problem.
+
+- Intervals must be large enough that individuals with both treatments are in every interval. 
+
+---
+# $\hat{\Delta}_S$ is a Coarsened Horvitz-Thompson Estimator
+
+- Recall the IP weighted Horvitz-Thompson estimator:
+
+$$\hat{\Delta}_{HT} = \frac{1}{N}\sum_{i=1}^N \frac{A_i Y_i}{\hat{\pi}_i} - \frac{(1-A_i)Y_i}{1-\hat{\pi}_i}$$
+- Within each interval, estimate a "subclass-specific" propensity score, $\hat{p}_k = P[A_i = 1 \vert \hat{\pi}_i \in \hat{C}_k] = \frac{n_{1,k}}{n_k}$.
+
+- For each individual, set $\hat{\pi}^{C}_i = \sum_k 1_{\hat{\pi}_i \in \hat{C}_k}\hat{p}_{k}.$
+
+- Plug these propensity scores into the formula for $\hat{\Delta}_{HT}$ and get $\hat{\Delta}_S.$
+
+---
+
+# Asymptotic Results
+
+- For a fixed value of $K$, some bias will always remain. 
+
+  + As $N$ increases, $\hat{\Delta}_S$ is not consistent for the ATE. 
+
+--
+
+- Suppose that we have a rule for picking the number divisions that is a function of the data.
+
+- Is there a rule such that $\hat{\Delta}_S$ is root-N consistent for the ATE?
+
+--
+
+- Wang et al (2016) show that
+
+- In order for $\hat{\Delta}_S$ to be well defined, $K(N)$ must grow slowly enough that there are always units with both values of $A$ in every division.
+  + $[ K(N)log(K(N))]/N \rightarrow 0$ as $N \rightarrow \infty$
+
+- But consistency requires that the binwidth get smaller as $N$ increases:
+  + $K(N)/\sqrt{N} \rightarrow \infty$ as $N \rightarrow \infty$
+
+---
+# Full Subclassification 
+
+- Wang et al (2016) propose a strategy for allowing $K$ to grow with $N$ called full subclassification. 
+
+- Choose the largest number $K$ such that every $1/K$ quantile of $\hat{\pi}$ has at least one case and at least one control. 
+
+- In simulations, the full subclassification estimator has smaller bias than $\hat{\Delta}_{S}$.
+
+---
+
+# Comparison with IP Weighting
+
+- Both IP weighting and outcome regression with PS require a correct model for $E[A = 1 \vert L ]$. 
+
+- Both require a correct marginal model for the relationship between $Y(a)$ and $a$ (easy if $A$ is dichotomous). 
+
+- Outcome regression with propensity scores additionally requires correctly specifying the relationship between $Y(a)$ and $\pi(L)$. 
+
+- Subclassification allows us to use a very flexible model for the $Y$ - $\pi$ relationship. 
+  - Some bias may remain if intervals are too wide. 
+  
+---
+
+# Comparison with IP Weighting
+
+- IP Weighting:
+  + Asymptotically unbiased
+  + High variance if some weights are large
+  + Very sensitive to misspecification of model for $\pi(L)$
+  
+  
+  
+- Subclassification
+  + Biased for fixed value of $K$
+  + Lower variance in some cases 
+  + Less sensitive to misspecification of model for $\pi(L)$
+  
+- In subclassification, we only rely on $\hat{\pi}(L)$ to group units with similar propensities. 
+
+---
+# Within Stratum Regression Modeling
+
+- Bias in $\hat{\Delta}_S$ occurs because $L$ and $A$ may not be independent within classes. 
+
+- One strategy to deal with this is to fit an outcome regression model for $E[Y \vert A, L]$ *within* each $\hat{C}_k$.
+
+- Let $\hat{Y}_{a,i,k}$ be the estimate of $E[Y \vert A = a, L = L_i]$ from the model fit within $\hat{C}_k$. 
+
+$$\hat{\Delta}_{OR,k} = \frac{1}{n_k}\sum_{i = 1}^{N}1_{\hat{\pi_i} \in \hat{C}} \left(\hat{Y}_{1,i,k} - \hat{Y}_{0, i, k}\right)$$
+
+$$\hat{\Delta}_{SR} = \sum_{k=1}^{K} \frac{n_k}{N}\hat{\Delta}_{OR,k}$$
+
+- If the form of the outcome-regression is correct, this strategy will be consistent. 
+
+  
+---
+# Double Robust Methods
+
+- Double robust methods combine propensity weighting and outcome regression approaches.
+
+- DR methods are consistent if *either* the propensity score model or the outcome regression model is correctly specified. 
+
+- They can still be biased if both models are misspecified. 
+
+- Technically, $\hat{\Delta}_{SR}$ is not doubly robust because it is inconsistent for fixed $K$ if the outcome model is wrong. 
+
+
+---
+# Doubly Robust Estimation
+
+- Suppose we have an outcome regression model.
+
+- For each unit, we can estimate $\hat{Y}_{a, i} = E[Y \vert A = a, L = L_i]$. 
+
+- We can construct estimators for $E[Y(1)]$ and $E[Y(0)]$ as 
+
+$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace$$
+
+
+$$\hat{\Delta}_{DR,0} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{(1-A_i) Y_i}{1-\hat{\pi}(L_i)} - \left(\frac{1-A_i}{1-\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{0,i} \right \rbrace$$
+ - Cassel, Särndal, and Wretman (1976); Robins, Rotnitzky, and Zhao (1994)
+---
+
+# Doubly Robust Estimation
+
+$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace \\\
+= \frac{1}{N} \sum_{i = 1}^N \left \lbrace \hat{Y}_{1,i} + \frac{A_i}{\hat{\pi}(L_i)}\left(Y_i - \hat{Y}_{1,i} \right) \right \rbrace$$
+
+- If the model for $\hat{\pi}$ is correct then $E\left [\frac{A_i}{\hat{\pi}(L_i)}\right] = 1$. 
+
+- If the model for $\hat{Y}$ is correct then $E[A_i(Y_i - \hat{Y}_{1,i})] = 0$. 
+
+- Also called bias corrected OLS (Cassel et al 1976)
+
+---
+# Doubly Robust Estimation
+
+- $\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}$ is a locally semiparametrically efficient estimator. 
+
+- If both models are correctly specified, then, 
+
+- Asymptotically, $\hat{\Delta}_{DR}$ has the smallest variance among estimators in the defined by Robins and Ronitzky (1995).
+
+- $\hat{\Delta}_{DR}$ is an augmented inverse probability weighted estimator (AIPW).
+
+---
+# Regression with Propensity Score
+
+- Another method to form a DR estimator is to fit an outcome regression model adding some function(s) of $\hat{\pi}$ as covariates. 
+
+
+- Scharfstein et al (1999) show that including $\frac{1}{\hat{\pi}}$ as a covariate is sufficient to achieve double robustness. 
+
+- Suppose that our outcome regression model is $E[Y \vert A, L] = s(A, L, \beta)$, where $\beta$ are parameters to be estimated. 
+
+- We then fit the augmented mode $E[Y \vert A, L] = s(A, L, \beta) + \phi f(A, L)$. 
+- We then define $\tilde{Y}_{a,i} = s(a, L_i, \hat{\beta}) + \hat{\phi}f(a, L_i)$
+
+- And estimate
+$$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$
+
+
+---
+# Regression with Propensity Score
+
+- Bang and Robins (2005) extend the idea of adding a clever covariate. 
+
+- They show that adding $f(A, L) = \frac{A_1}{\hat{\pi_i}} + \frac{1-A_i}{1-\hat{\pi}_i}$ also gives a DR estimator.
+
+- This estimator is more efficient than the Scharfstein et al estimator when only the outcome model is correct. 
+
+<!-- # Double Robust Estimation in NHEFS  -->
+
+
+```{r, echo = FALSE}
+delta_dr <- function(df){
+  # Estimate propensity scores
+  fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps <-predict(fit_ps, type = "response")
+  df <- mutate(df, w = case_when(qsmk==1 ~ 1/ps, 
+                                 TRUE ~ 1/(1-ps)))
+  # Deciles of PS
+  fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
+                  I(age^2) + as.factor(education) + 
+                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
+                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
+                  qsmk * smokeintensity + w, 
+                  data = df)
+  # Standardized Estimate
+  df0 <- df1 <- df; 
+  df0$qsmk <- 0; df1$qsmk <- 1
+  Y0 <- predict(fit_or, newdata = df0, type = "response")
+  Y1 <- predict(fit_or, newdata = df1, type = "response")
+  return(mean(Y1) -mean(Y0))}
+```
+
+```{r, echo=FALSE}
+delta_dr2 <- function(df){
+  # Estimate propensity scores
+  fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps <-predict(fit_ps, type = "response")
+  df <- mutate(df, w1 = (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps))
+  fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
+                  I(age^2) + as.factor(education) + 
+                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
+                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
+                  qsmk * smokeintensity, 
+                  data = df)
+  # Standardized Estimate
+  df0 <- df1 <- df; df0$qsmk <- 0; df1$qsmk <- 1
+  Y0 <-  predict(fit_or, newdata = df0, type = "response")
+  Y0c <- with(df, Y0 + w0*(wt82_71-Y0))
+  Y1 <-  predict(fit_or, newdata = df1, type = "response")
+  Y1c <- with(df, Y1 + w1*(wt82_71-Y1))
+  return(mean(Y1c, na.rm=T) -mean(Y0c, na.rm=T))}
+```
+
+---
+# Bias 
+
+- The bias of all doubly robust methods is a function of the product of the bias of $1/\hat{\pi}(L)$ and the bias of $\hat{b}(L) = \hat{E}[Y \vert A = a, L]$.
+
+- The large sample bias of $\hat{\Delta}_{DR}$ is 
+
+$$
+E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - b^*(L) \right) \right]
+$$
+
+- $b^*$ and $\pi^*$ are the limiting expectations of $\hat{b}$ (i.e. $\hat{Y}$) and $\hat{pi}$. 
+
+- Doubly robust methods are often lest biased than IP weighting or outcome regression. 
+
+- Kang and Schaffer (2007) demonstrate a simulated example where the bias of the DR estimator is larger than the bias of the OLS estimate when both models are misspecified.
+
+---
+
+# Variance 
+- Lunceford and Davidian (2004) derive large-sample variances for the IPW estimators we have seen as well as for $\hat{\Delta}_{DR}$. 
+
+- $\hat{\Delta}_{DR}$ has smaller variance than the IPW estimators. 
+
+- The variance of the IPW estimators is smaller if we estimate $\hat{\pi}$ than if we use the true $\hat{\pi}$. 
+
+- Estimating $\hat{\pi}$ does not impact the variance of $\hat{\Delta}_{DR}$ asymptotically. 
+
+- The sandwich variance estimates for IPW estimators are more stable than plug-in estimates of the large sample variance. 
+
+- $\hat{\Delta}_{S}$, and $\hat{\Delta}_{SR}$ both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
+
+---
+# Censoring 
+
+- If $L$ are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
+
+- Many of them were developed originally in the context of accounting for missing data rather than accounting for confounding. 
+
+
+---
+# Kang and Schaffer (2007)
+
+- A missing data setting where our goal is to estimate $E[Y(C = 0)]$. 
+
+- Data are generated as 
+$$Y_i = \alpha_0 + \sum_{j = 1}^4 \alpha_i Z_{j,i}\qquad \pi_i = P[C_i = 0 ] = expit(\sum_{j = 1}^{4} \beta_j Z_{j,i})$$
+- Rather than observing $Z_1, \dots, Z_4$, we observe non-linear transformations
+
+$$X_{1,i} = e^{Z_{1,i}/2} \qquad X_{2,i} = \frac{Z_{2,i}}{1 + e^{Z_{1,i}}} + 10 \\\
+X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$
+
+- On average, half the data are missing. 
+
+- $E[Y(C = 0)] = 210$, $E[Y \vert C = 0] = 220$ and $E[Y \vert C = 1] = 200$
+
+---
+# Kang and Schaffer (2007)
+
+- Relationships between outcome and observed covariates look about linear.
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_ksfig2.png")
+```
+
+</center>
+---
+# IPW vs Subclassification
+
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_kstab1.png")
+```
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_kstab2.png")
+```
+
+</center>
+
+---
+# OLS and Bias Corrected OLS
+
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_kstab3.png")
+```
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_kstab5.png")
+```
+
+</center>
+
+---
+# Scharfstein Estimator and Flexible $\pi$-Model
+
+<center> 
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_kstab7.png")
+```
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_kstab8.png")
+```
+</center>
+
 
 ---
 
@@ -898,57 +981,65 @@ $$\hat{\beta} = \frac{n_k}{N}\sum_{k} \hat{\beta}_{1,k}$$
 - The $p$-value may increase after matching simply because the power has decreased due to throwing out samples. 
 
 ---
-# G-Estimation for Structural Nested Mean Models
+# Implementation 
 
----
+- Unlike some of our other methods, matching is not trivial to implement. 
 
-# Structural Marginal Models
+- The R package \textttt{Matching} implements multiple matching strategies including a genetic algorithm to automatically find a balanced match. 
 
-- Recall previously, we wanted to estimate the causal effect of quitting smoking across strata of a variable $V$ (sex). 
+- \textttt{Matching} also provides a function to generate balance statistics. 
 
-- We proposed a structural marginal model 
+<!-- # G-Estimation for Structural Nested Mean Models -->
 
-$$
-E[Y(a) \vert V] = \beta_0 + \beta_1 a + \beta_2 a V + \beta_3 V
-$$
+<!-- --- -->
 
-- The causal contrasts we are interested in are $E[Y(1)-Y(0) \vert V = 0]$ and $E[Y(1)-Y(0) \vert V = 1]$.
+<!-- # Structural Marginal Models -->
 
-- These correspond to parameters $\beta_1$ and $\beta_1 + \beta_2$ in the marginal model. 
-  + We have estimated two more parameters than we needed to answer the causal question. 
-  
----
-# Semiparametric Structrual Marginal Models
+<!-- - Recall previously, we wanted to estimate the causal effect of quitting smoking across strata of a variable $V$ (sex).  -->
 
-- Instead of proposing a model for $E[Y(a) \vert V]$, we could have proposed a model directly for the contrast we care about 
+<!-- - We proposed a structural marginal model  -->
 
-$$
-E[Y(1)-Y(0) \vert V] = \beta_1 a + \beta_2 a V
-$$
+<!-- $$ -->
+<!-- E[Y(a) \vert V] = \beta_0 + \beta_1 a + \beta_2 a V + \beta_3 V -->
+<!-- $$ -->
 
-- This is a *semiparametric marginal structural model*. 
+<!-- - The causal contrasts we are interested in are $E[Y(1)-Y(0) \vert V = 0]$ and $E[Y(1)-Y(0) \vert V = 1]$. -->
 
-- It is semiparametric because we don't specify $\beta_0$ and $\beta_3$. 
+<!-- - These correspond to parameters $\beta_1$ and $\beta_1 + \beta_2$ in the marginal model.  -->
+<!--   + We have estimated two more parameters than we needed to answer the causal question.  -->
 
----
-# Semiparametric Structrual Marginal Models
+<!-- --- -->
+<!-- # Semiparametric Structrual Marginal Models -->
 
-- When $A$ and $V$ are both binary, the structural marginal model we proposed was saturated. 
+<!-- - Instead of proposing a model for $E[Y(a) \vert V]$, we could have proposed a model directly for the contrast we care about  -->
 
-- We weren't relying on any parametric assumptions so there is no use in becoming semiparametric. 
+<!-- $$ -->
+<!-- E[Y(1)-Y(0) \vert V] = \beta_1 a + \beta_2 a V -->
+<!-- $$ -->
 
-- However, in more complex situations, using a semiparametric model can be more robust. 
+<!-- - This is a *semiparametric marginal structural model*.  -->
+
+<!-- - It is semiparametric because we don't specify $\beta_0$ and $\beta_3$.  -->
+
+<!-- --- -->
+<!-- # Semiparametric Structrual Marginal Models -->
+
+<!-- - When $A$ and $V$ are both binary, the structural marginal model we proposed was saturated.  -->
+
+<!-- - We weren't relying on any parametric assumptions so there is no use in becoming semiparametric.  -->
+
+<!-- - However, in more complex situations, using a semiparametric model can be more robust.  -->
 
 
 
----
-# Structural Nested Mean Models
+<!-- --- -->
+<!-- # Structural Nested Mean Models -->
 
-- In the settings we have seen so far with no time varying treatments, semiparametric nested mean models are semiparametric marginal structural models. 
-- The term *nested* will become relevant for problems with time-varying treatments. 
+<!-- - In the settings we have seen so far with no time varying treatments, semiparametric nested mean models are semiparametric marginal structural models.  -->
+<!-- - The term *nested* will become relevant for problems with time-varying treatments.  -->
 
----
-# Rank Preservation
+<!-- --- -->
+<!-- # Rank Preservation -->
 
----
-# G-Estimation
+<!-- --- -->
+<!-- # G-Estimation -->
