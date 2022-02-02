@@ -24,6 +24,8 @@ editor_options:
 
 [6. Propensity Score Methods](slides/6_propensity_scores.html)
 
+[7. G-Estimation](slides/7_g_estimation.html)
+
 ## Coming Soon
 
 Currently this website houses lecture slides. If you are a current student, please see the Canvas site for all other information. More course information may be added here in the future. 
