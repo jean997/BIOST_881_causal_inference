@@ -28,10 +28,10 @@ $\newcommand{\ci}{\perp\!\!\!\perp}$
 
 --
 
-My interpretation of the proposed method: Propose the following model:
+My interpretation of the proposed method: Fit the model
 
-$$E[Y_i \vert A_i, L_i, \hat{\pi}_i] = \beta_0 + \beta_1 A_i + L_i^\top \beta_L + \sum_{j = 1}^{4} \alpha_j I(\hat{\pi}_i \in C_j)$$
-where $C_j$ are quartiles of $\hat{\boldsymbol{\pi}}$ and $L$ are a set of $K$ covaraites. 
+$$E[Y_i \vert A_i, L_i, \hat{\pi}_i] = \beta_0 + \beta_1 A_i + L_i^\top \beta_L + \sum_{j = 1}^{4} \alpha_j I(\hat{\pi}_i \in \hat{C}_j)$$
+where $\hat{C}_j$ are quartiles of $\hat{\boldsymbol{\pi}}$ and $L$ are a set of $K$ covaraites. 
 
 
 Estimate the coefficients by OLS and take $\hat{\beta}_1$ as an estimate of the ATE $E[Y(1)] - E[Y(0)]$.
@@ -48,7 +48,7 @@ E[Y_i(1) \vert \pi_i] = \mu(\pi_i) + \beta(\pi_i)\\\
 E[Y_i \vert A_i, \pi_i] = \mu(\pi_i) + A_i \beta(\pi_i)$$
 where $\mu$ and $\beta$ are unknown function. 
 
-- The ATE is the $\int_0^1 \beta(\pi) d\pi$. 
+- The ATE is the $\int_0^1 \beta(\pi) dF(\pi)$. 
 
 - Define $\tilde{\mu}(L_i) = \mu(g(L_i))$ where $g(L_i) = \pi(L_i) = \pi_i$, similarly for $\tilde{\beta}$.
 
@@ -67,7 +67,7 @@ $$E[Y_i \vert A_i, \pi] = \mu(\pi) + A_i \beta(\pi)$$
 
 - As the interval size gets smaller, we get a better estimate of $\beta$. 
 
-- We approximate $\int_{0}^1 \beta(\pi)d\pi$ with $\sum_{i=1}^{N} \hat{\beta}(\hat{\pi}_i)$ (i.e. standardization).
+- We approximate $\int_{0}^1 \beta(\pi)dF(\pi)$ with $\sum_{i=1}^{N} \hat{\beta}(\hat{\pi}_i)$ (i.e. standardization).
 
 
 ---
@@ -86,24 +86,26 @@ $$E[Y_i \vert A_i, L_i, \hat{\pi}_i] = \sum_{j = 1}^{K}\left(\beta_{0,j} + \beta
 
 # Subclassification Regression Estimator
 
-- In the version with no interactions, we have the following model:
+- In the model with no interactions, we have the following model:
 
 $$\tilde{\mu}(L_i, \hat{\pi}_i) =  \sum_{j = 1}^{K}\left(\beta_{0,j} + L_i^\top \beta_{L,j} \right)I(\hat{\pi}_i \in \hat{C}_j)\\\
 \tilde{\beta}( \hat{\pi}_i) = \sum_{j = 1}^{K}\beta_{1,j}I(\hat{\pi}_i \in \hat{C}_j)$$
 
 - $\beta$ model is the same as $\hat{\Delta}_S$, but we added a flexible parametric model for $\mu.$ 
 
-- In the version with an interaction, we model
+- In the model with an interaction, we model
 
-$$\tilde{\beta}(L_{1,i}, \hat{\pi}_i) = \sum_{j = 1}^{K} \left(\beta_{1,j} + \beta_{2,j}L_{1,i}\right)I(\hat{\pi}_i \in C_j)$$
+$$\tilde{\beta}(L_{1,i}, \hat{\pi}_i) = \sum_{j = 1}^{K} \left(\beta_{1,j} + \beta_{2,j}L_{1,i}\right)I(\hat{\pi}_i \in \hat{C}_j)$$
 ---
 
 # Subclassification Regression Estimator
 
 $$\tilde{\mu}(L_i, \hat{\pi}_i) =  \sum_{j = 1}^{K}\left(\beta_{0,j} + L_i^\top \beta_{L,j} \right)I(\hat{\pi}_i \in \hat{C}_j)\\\
-\tilde{\beta}( \hat{\pi}_i) =\sum_{j = 1}^{K} \left(\beta_{1,j} + \beta_{2,j}L_{1,i}\right)I(\hat{\pi}_i \in C_j)$$
+\tilde{\beta}( \hat{\pi}_i, L_i) =\sum_{j = 1}^{K} \left(\beta_{1,j} + \beta_{2,j}L_{1,i}\right)I(\hat{\pi}_i \in \hat{C}_j)$$
 
 - If we had the correct outcome model, we would just be stratifying and then standardizing by an irrelevant variable $\hat{\pi}$. 
+
+- If the $\pi$-model is correct, then we have just conditioned on a finer balancing score than we needed to. 
   
 - If the $\pi$-model is correct, then in the limit as interval size decreases, we will get an accurate estimate of $\beta$. 
 
@@ -128,7 +130,7 @@ $$E[Y_i \vert A_i, L_i, \hat{\pi}_i] = \beta_{0} +  L_i^\top \beta_{L} + \sum_{j
 $$E[Y_i \vert A_i, L_i, \hat{\pi}_i] = \beta_0 + \beta_1 A_i + L_i^\top \beta_L + \sum_{j = 1}^{4} \alpha_j I(\hat{\pi}_i \in C_j)$$
 --
 
-- In our previous framework, our model is $$\tilde{\mu}(L_i) = \beta_0 + L_i^\top \beta_L + \sum_{j = 1}^{4} \alpha_j I(\hat{\pi}_i \in C_j)\\\ \tilde{\beta}(L_i) = \beta_1$$
+- In our previous framework, our model is $$\tilde{\mu}(L_i, \hat{\pi}_i) = \beta_0 + L_i^\top \beta_L + \sum_{j = 1}^{4} \alpha_j I(\hat{\pi}_i \in C_j)\\\ \beta(\hat{\pi}_i) = \beta_1$$
 
 --
 
@@ -247,7 +249,7 @@ render_graph(gr2)
 ---
 # Treatment Strategies
 
-- A treatment strategy is a rule for determining $A_k$ from a units past covariate values
+- A treatment strategy is a rule for determining $A_k$ from a unit's past covariate values
 
 $$g = (g_0(\bar{a}_{-1}, l_0), \dots, g_K(\bar{a}_{K-1}, \bar{l}_k))$$
 
@@ -608,8 +610,9 @@ knitr::kable(dat2, col.names = c("N", "\\(A_{0}\\)","\\(L_{1}\\)", "\\(A_{1}\\)"
 - To account for confounding by $L_1$, we could try computing the associational difference within strata of $L_1$ and then standardizing. 
 
 - Stratifying on $L_1$: 
-  + $E[Y \vert A_0 = 1, A_1 = 1, L_1 = 0]  - E[Y \vert A_0 = 0, A_1 = 0, L_1 = 0] = 76-84 = -8$
-  + $E[Y \vert A_0 = 1, A_1 = 1, L_1 = 1]  - E[Y \vert A_0 = 0, A_1 = 0, L_1 = 1] = 44-52 = -8$
+
+$$E[Y \vert A_0 = 1, A_1 = 1, L_1 = 0]  - E[Y \vert A_0 = 0, A_1 = 0, L_1 = 0] = 76-84 = -8$$
+$$E[Y \vert A_0 = 1, A_1 = 1, L_1 = 1]  - E[Y \vert A_0 = 0, A_1 = 0, L_1 = 1] = 44-52 = -8$$
 
 --
 
@@ -670,3 +673,8 @@ $$\int f(y \vert \bar{a}, \bar{l}) \prod_{k = 0}^K dF (l_k \vert \bar{a}_{k-1}, 
 $$E[Y(\bar{a})] = \sum_\bar{l} E[Y \vert \bar{A} = \bar{a},\bar{L}= \bar{l}]\prod_{k = 0}^Kf(l_k \vert \bar{a}_{k-1}, \bar{l}_{k-1})\prod_{k=0}^K f^{int}(a_k \vert \bar{a}_{k-1}, \bar{l}_k)$$
 
 - $f^{int}$ is the conditional probability of $a_k$ given the history *under the proposed intervention*.
+
+---
+# Next Time
+
+- Using the g-formula to estimate treatment effects of time-varying treatments.
