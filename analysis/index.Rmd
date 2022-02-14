@@ -30,6 +30,8 @@ editor_options:
 
 [Discussion questions for Hernan et al 2008](slides/Hernan_et_al_2008.html)
 
+[9. Time-Varying Treatments](slides/9_time_varying_treatment.html)
+
 ## Coming Soon
 
 Currently this website houses lecture slides. If you are a current student, please see the Canvas site for all other information. More course information may be added here in the future. 
