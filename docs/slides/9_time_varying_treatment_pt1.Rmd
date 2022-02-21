@@ -146,13 +146,14 @@ sim1 <- function(n = 1000){
   mu <- 0.4*p + 0.6*p^2
   beta <- 1-p
   A <- rbinom(n = n, size = 1, prob = p)
-  Y <- mu + A*beta + rnorm(n = 1000, sd = 0.5)
+  Y <- mu + A*beta + rnorm(n = 1000, sd = 0.5) # True average effect is close to 1/2, 0.49
   z <- log(p/(1-p))
   fp <- glm(A ~ z, family = binomial)
   #fp <- glm(A ~ p, family = binomial) #Logistic estimate stabilizes adj1 but introduces a bit of bias
   dat <- data.frame("A" = A, "Y"=Y, "EY1" = mu + beta, "EY0" = mu, "p" = p, "phat" = fp$fitted.values) %>%
         mutate(wt = A/phat + (1-A)/(1-phat), 
-               w1 = A/phat, w2 = (1-A)/(1-phat), pinv = 1/p, pm1inv = 1/(1-phat))
+               w1 = A/phat, w2 = (1-A)/(1-phat), pinv = 1/phat, pm1inv = 1/(1-phat), 
+               R = case_when(A == 1 ~ wt, TRUE ~ -1*wt))
   fhj <- lm(Y ~ A, weights = wt, data = dat)
   fadj1 <- lm(Y ~ A + w1+ w2 , data = dat)
   dat <- dat %>% mutate(y1 = fadj1$coefficients[1] + fadj1$coefficients[2] + fadj1$coefficients[3]*pinv,
@@ -160,10 +161,22 @@ sim1 <- function(n = 1000){
   badj1 <- mean(dat$y1) - mean(dat$y0)
   dat <- dat %>% mutate(m0 = mean(dat$Y[dat$A ==0]), m1 = mean(dat$Y[dat$A==1]))
   dat <- dat %>% mutate(v1 = (A*Y/p) - (m1*(A -p)/p), v0 = ((1-A)*Y/(1-p)) - (m0*(A - p)/(1-p)))
-  badj3 <- mean(dat$v1)-mean(dat$v0)
+  bdr <- mean(dat$v1)-mean(dat$v0)
 
+  
+  fbr1 <- lm(Y ~ A + R , data = dat)
+  dat <- dat %>% mutate(y1 = fbr1$coefficients[1] + fbr1$coefficients[2] + fbr1$coefficients[3]*pinv,
+                y0 = fbr1$coefficients[1] -  fbr1$coefficients[3]*pm1inv)
+  bbr1 <- mean(dat$y1) - mean(dat$y0)
+  
+  fbr2 <- lm(Y ~ A + wt , data = dat)
+  dat <- dat %>% mutate(y1 = fbr2$coefficients[1] + fbr2$coefficients[2] + fbr2$coefficients[3]*pinv,
+                y0 = fbr2$coefficients[1] +  fbr2$coefficients[3]*pm1inv)
+  bbr2 <- mean(dat$y1) - mean(dat$y0)
+  
   raw <- lm(Y ~ A, data = dat)$coefficients[2] %>% as.numeric()
-  ests <- c("hj" = as.numeric(fhj$coefficients[2]), "adj1" = badj1, "adj3" = badj3, "raw" = raw, "sate" = mean(beta))
+  ests <- c("hj" = as.numeric(fhj$coefficients[2]), "bsc" = badj1, "bdr" = bdr, "bbr1" = bbr1,
+            "bbr2" = bbr2, "raw" = raw, "sate" = mean(beta))
   return(ests)
 }
 res <- purrr::map_dfr(seq(200), function(x){sim1(1000)})
