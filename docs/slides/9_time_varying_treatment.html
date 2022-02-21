@@ -41,8 +41,8 @@ class: center, middle, inverse, title-slide
 
 
 &lt;center&gt;
-<div id="htmlwidget-70508281c9d1f61f5bea" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-70508281c9d1f61f5bea">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-18668afb1c6592866c94" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-18668afb1c6592866c94">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 ---
@@ -1066,7 +1066,7 @@ or
 - In fact, if there is no effect of treatment history on time-varying confounders, `\(f(L_k \vert \bar{A}_{k-1}) = f(L_k)\)` and the G-formula for time-varying treatment reduces to the regular point-treatment G-formula. 
   - HR call this "treatment-confounder feedback". 
 
-- Whether or not there is treatment-confounder feedback, if we are willing to make parametric assumptions, we may can borrow information from units with similar treatment histories.
+- Whether or not there is treatment-confounder feedback, if we are willing to make parametric assumptions, we can borrow information from units with similar treatment histories.
 
 
 ---
@@ -1463,7 +1463,7 @@ Step 4:
 
 - Since we are simulating, we might as well create more data. 
 
-- Rather than starting with the original data set, resample without replacement, a large number of observations, `\(S\)`,
+- Rather than starting with the original data set, resample with replacement, a large number of observations, `\(S\)`,
 from the original data. 
 
   + In the resampled data, the procedure is the same: keep `\(L_0\)` and generate all subsequent data from fitted models. 
@@ -1521,8 +1521,8 @@ from the original data.
 - So will our estimate of `\(f(L_1 \vert A_0)\)`
 
 &lt;center&gt;
-<div id="htmlwidget-83ff68138c6f4dc8b084" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-83ff68138c6f4dc8b084">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-5fbea63802911a1e94c2" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5fbea63802911a1e94c2">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1568,8 +1568,8 @@ from the original data.
 
 
 &lt;center&gt;
-<div id="htmlwidget-a3f0ae96ac3c1ea446b1" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-a3f0ae96ac3c1ea446b1">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-d36d1f659c2988b7d828" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d36d1f659c2988b7d828">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1599,19 +1599,27 @@ from the original data.
 # Repeated Measures
 
 - In Cole et al (2007), CD4 count at time `\(k\)` is modeled as a function of the cumulative time on HAART 
-`$$E[Y_{k} \vert L_{0}, \bar{A}_{k}] = \beta_{0,j} + \beta_{1}^{\top}L_{0} + \beta_2^\top g\left(\sum_{j =0}^k A_{j}\right)$$` 
-- `\(g()\)` is a function which categorizes the cumulative time on treatment into four categories. 
+`$$E[Y_{k} \vert L_{0}, \bar{A}_{k}] = \beta_{0,j} + \beta_{1}^{\top}L_{0} + \beta_2^\top h\left(\sum_{j =0}^k A_{j}\right)$$` 
+- `\(h()\)` is a function which categorizes the cumulative time on treatment into four categories. 
 
 - We are assuming that nobody was on treatment before the study, `\(A_{k} \equiv 0\)` for `\(k &lt; 0\)`. 
   + In this case that assumption is fine because the study starts when HAART became available. 
   + The study also excludes anyone who was already on another form of ART.
   
-- Using our marginal structural model, we could use our previous IP weighting strategy to compute the causal effect of time on HAART on CD4 count. 
+- Using our marginal structural model, we could use our previous IP weighting strategy to compute the causal effect of time on HAART on CD4 count at time `\(k\)`. 
   
 ---
 # Repeated Measures
 
 - We now think of our study as `\(K\)` (nested) shorter studies which we will combine. 
+
+&lt;center&gt; 
+
+&lt;img src="img/9_timevaryingY2.png" width="90%" /&gt;
+
+&lt;/center&gt;
+---
+# Repeated Measures
 
 - Since we are using the same MSM in each study, we can fit one large pooled regression. 
 
@@ -1666,63 +1674,153 @@ from the original data.
 
 - We can then compute the counterfactual survival probability for each person. 
   + And then average to find the average countefactual survival. 
-  
+
+---
+# Iterated Conditional Expectation (ICE) estimation
+
+- As an alternative to the G-formula format we have seen, we could characterize it as a nested expectation
+
+`$$E[Y(\bar{a})] = E \left[E\left[\dots E\left[ Y(\bar{a}) \vert \bar{L}(\bar{a})_K\right] \vert \bar{L}(\bar{a})_{K-1} \right] \dots \vert \bar{L}(\bar{a})_0 \right]$$`
+
+- For just two time points this is
+$$E[Y(a_0, a_1)] = E\left[ E\left[Y(a_0, a_1) \vert L_1(a_0) \right] \vert L_0\right] $$
+
+---
+# ICE Estimation
+
+- The nested expectation formulation gives us an alternate estimator.
+
+- Define
+
+`$$Q_{K+2} = Y\\\
+Q_{K+1} = E[Y \vert\bar{L}_{K}, \bar{A}_{K} = \bar{a}]\\\
+\vdots\\\
+Q_m = E[Q_{m+1} \vert \bar{L}_{m-1}, \bar{A}_{m-1} = \bar{a}_{m-1}]\\\
+\vdots\\\
+Q_0 = E[Q_1 \vert L_0, A_0 = a_0]$$`
+
+- The idea will be to propose a model for `\(E[Q_{m+1} \vert \bar{L}_{m-1}, \bar{A}_{m-1} = \bar{a}_{m-1}]\)` and then use it iteratively to estimate each `\(Q\)`. 
+
+- When we get all the way down to 0, we will have an estimator of `\(Y(\bar{a})\)`. 
+
+---
+# ICE Estimation
+
+- Example with two time-points: Suppose we are interested in a static intervention `\(\bar{a} = (a_0, a_1, a_2)\)`.
+
+- First we propose a model:
+
+`$$E[Y\vert \bar{L}_{2}, \bar{A}_{2}] = \theta_{0, 2} + \theta_{1,2}cum(\bar{A}_{2}) + \theta_{2,2} L_{2}$$`
+- We start at time `\(m = 2\)` and estimate parameters `\(\hat{\theta}_{0,2}, \hat{\theta}_{1,2}\)` and `\(\hat{\theta}_{2,2}\)`.
+
+- Next we estimate `\(\hat{Q}_{2,i}(a_2)\)` by plugging `\(a_2\)` for `\(A_{2,i}\)` but leaving the preceding treatment course unaltered. 
+
+---
+# ICE Estimation
+
+- Now we repeat, except we use `\(\hat{Q}_2(a_2)\)` as the outcome in our regression
+
+`$$E[\hat{Q}_2(a_2) \vert \bar{L}_{1}, \bar{A}_{1}] = \theta_{0, 1} + \theta_{1,1}cum(\bar{A}_1) + \theta_{2,1} L_{1}$$`
+
+estimating parameters `\(\hat{\theta}_{0,1}, \hat{\theta}_{1,1}\)` and `\(\hat{\theta}_{2,1}\)`
+
+- We estimate `\(\hat{Q}_{1,i}(a_1,a_2)\)` by plugging `\(a_1\)` for `\(A_{1,i}\)` but leaving `\(A_{0,i}\)` at its natural value. 
+
+---
+# ICE Estimation
+
+- Finally we fit the regression one last time
+
+`$$E[\hat{Q}_1(a_2, a_1) \vert L_{0}, \bar{A}_{0}] = \theta_{0, 0} + \theta_{1,0}cum(\bar{A}_0) + \theta_{2,0} L_{0}$$`
+estimating parameters `\(\hat{\theta}_{0,1}, \hat{\theta}_{1,1}\)` and `\(\hat{\theta}_{2,1}\)`
+
+- We estimate `\(\hat{Q}_{0,i}(a_0,a_1, a_2)\)` by splugging `\(a_0\)` for `\(A_{0,i}\)`.
+
+- Now we can compute `\(E[Y(0)] = \frac{1}{N}\hat{Q}_{0,1}(\bar{a})\)`
+
+
+---
+# ICE Estimation
+
+- The ICE estimator will be valid if the outcome regression was correct at each time point. 
+
+- An advantage over the parametric G-formula approach is that we didn't have to estimate the joint distribution of `\(L\)`. 
+
 ---
 # Doubly Robust Estimator
 
-- Recall the Bang and Robins (2005) DR estimation strategy: 
+
+- We can turn the ICE estimator into a doubly robust estimator by adding a special covariate based on the propensity score to each regression. 
+
+- Recall the Scharfstein (1999) DR estimation strategy: 
 
 1. Estimate `\(\hat{\pi}\)` using a `\(\pi\)`-model
 
 2. Propose an outcome model `\(E[Y \vert A, L] = m(A, L; \theta)\)`
 
-3. Estimate a model `\(E[Y \vert A, L] = m(A, L; \theta) + \phi R\)` where
-  + `\(R = \frac{A}{\hat{\pi}} - \frac{1-A}{1-\hat{\pi}}\)`
+3. Estimate a model `\(E[Y \vert A, L] = m(A, L; \theta) + \phi_1 A/\hat{\pi} + \phi_2 (1-A)/(1-\hat{\pi})\)` 
 
 4. Compute the standardized estimate 
 
-`$$\frac{1}{N}\sum_{i=1}^N \left(m(1, L_i; \hat{\theta}) + \hat{\phi}\frac{1}{\hat{\pi}_i} \right) - \frac{1}{N}\sum_{i=1}^N \left(m(0, L_i; \hat{\theta}) - \hat{\phi}\frac{1}{1-\hat{\pi}_i} \right)$$`
+`$$\frac{1}{N}\sum_{i=1}^N \left(m(1, L_i; \hat{\theta}) + \hat{\phi_1}\frac{1}{\hat{\pi}_i} \right) - \frac{1}{N}\sum_{i=1}^N \left(m(0, L_i; \hat{\theta}) + \hat{\phi_2}\frac{1}{1-\hat{\pi}_i} \right)$$`
 ---
 # Doubly Robust Estimator for Time Varying Treatment
 
-- We will use a similar procedure with some modifications. 
+- We will use the same strategy in combination with the ICE estimation strategy. 
 
-1a. Estimate time-varying weights (one per each person-time point)
+- At each regression we compute the 
 
 `$$W^{\bar{A}_m} = \prod_{k=0}^m \frac{1}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_k)}$$`
+and
 
-1b. Compute the modified time-varying weight corresponding to the treatment strategy. We will use "always treated" so `\(A_m = 1\)`
-
-`$$W^{\bar{A}_m, a_m = 1} = W^{\bar{A}_{m-1}} \frac{1}{f(A_m = 1 \vert \bar{A}_{m-1}, \bar{L}_m)}$$`
-
+`$$W^{\bar{A}_m, a_m = 1} =  \frac{W^{\bar{A}_{m-1}}}{f(A_m = 1 \vert \bar{A}_{m-1}, \bar{L}_m)}$$`
 ---
 # Doubly Robust Estimator for Time Varying Treatment
 
-2a. Start at time `\(K\)` and fit an outcome model for `\(E[Y \vert \bar{A}_{K}, \bar{L}_{K}]\)` including `\(\hat{W}^{\bar{A}_K}\)` as a covariate. For example, 
+- In each regression step, we add `\(I(\bar{A}_{m-1}  = \bar{a}_{m-1}) \hat{W}^{\bar{A}_m}\)` to the regression. 
 
-`$$E[ Y \vert \bar{A}_K, \bar{L}_K] = \theta_{0, K} + \theta_{1,K}cum(\bar{A}_K) + \theta_{2,K} L_K + \theta_{3,K} \hat{W}^{\bar{A}_K}$$`
-Define `\(\hat{T}_{K+1} = Y\)`. 
+- In the estimation step, we replace `\(A_m\)` with `\(a_m\)` *and* `\(W^{\bar{A}_m}\)` with `\(W^{\bar{A}_m, a_m = 1}\)`.
 
-2b. Estimate `\(\hat{T}_{K}\)` under the treatment strategy in which `\(A_{K}\)` was set to 1. 
-  + To do this, we replace `\(A_K\)` in our data with 1 and `\(\hat{W}^{\bar{A}_K}\)` with `\(\hat{W}^{\bar{A}_{K-1}, a_K = 1}\)`
-  + And then take the average of the predicted values with the new data. 
-  
----
-# Doubly Robust Estimator for Time Varying Treatment
+&lt;!-- --- --&gt;
+&lt;!-- # Doubly Robust Estimator for Time Varying Treatment --&gt;
 
-2c. Proceed backwards to the next time point. Fit the same model, except now `\(\hat{T}_{K}\)` rather than `\(Y\)` is the outcome. 
+&lt;!-- - We will use a similar procedure with some modifications.  --&gt;
 
-`$$E[ \hat{T}_{K} \vert \bar{A}_{K-1}, \bar{L}_{K-1}] = \theta_{0, K} + \theta_{1,K-1}cum(\bar{A}_{K-1}) + \theta_{2,K-1} L_{K-1} + \theta_{3,K-1} \hat{W}^{\bar{A}_{K-1}}$$`
+&lt;!-- 1a. Estimate time-varying weights (one per each person-time point) --&gt;
 
-2d. Estimate `\(\hat{T}_{K-1}\)` as the fitted values from this model, replacing `\(A_{K-1}\)` with the intervention value `\(a_{K-1} = 1\)` and `\(\hat{W}^{\bar{A}_{K-1}}\)` with `\(\hat{W}^{\bar{A}_{K-2}, a_{K-1} = 1}\)`.
 
----
-# Doubly Robust Estimator for Time Varying Treatment
+&lt;!-- 1b. Compute the modified time-varying weight corresponding to the treatment strategy. We will use "always treated" so `\(A_m = 1\)` --&gt;
 
-2e. Keep going all the way back to time point 0. 
+&lt;!-- `$$W^{\bar{A}_m, a_m = 1} = W^{\bar{A}_{m-1}} \frac{1}{f(A_m = 1 \vert \bar{A}_{m-1}, \bar{L}_m)}$$` --&gt;
 
--  When we get all the way back to time 0, the average `\(\frac{1}{N}\sum_{i = 1}^N \hat{T}_{0,i}\)` is a doubly robust estimator of `\(Y(\bar{a})\)`.
-  
+&lt;!-- --- --&gt;
+&lt;!-- # Doubly Robust Estimator for Time Varying Treatment --&gt;
+
+&lt;!-- 2a. Start at time `\(K\)` and fit an outcome model for `\(E[Y \vert \bar{A}_{K}, \bar{L}_{K}]\)` including `\(\hat{W}^{\bar{A}_K}\)` as a covariate. For example,  --&gt;
+
+&lt;!-- `$$E[ Y \vert \bar{A}_K, \bar{L}_K] = \theta_{0, K} + \theta_{1,K}cum(\bar{A}_K) + \theta_{2,K} L_K + \theta_{3,K} \hat{W}^{\bar{A}_K}$$` --&gt;
+&lt;!-- Define `\(\hat{T}_{K+1} = Y\)`.  --&gt;
+
+&lt;!-- 2b. Estimate `\(\hat{T}_{K}\)` under the treatment strategy in which `\(A_{K}\)` was set to 1.  --&gt;
+&lt;!--   + To do this, we replace `\(A_K\)` in our data with 1 and `\(\hat{W}^{\bar{A}_K}\)` with `\(\hat{W}^{\bar{A}_{K-1}, a_K = 1}\)` --&gt;
+&lt;!--   + And then take the average of the predicted values with the new data.  --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # Doubly Robust Estimator for Time Varying Treatment --&gt;
+
+&lt;!-- 2c. Proceed backwards to the next time point. Fit the same model, except now `\(\hat{T}_{K}\)` rather than `\(Y\)` is the outcome.  --&gt;
+
+&lt;!-- `$$E[ \hat{T}_{K} \vert \bar{A}_{K-1}, \bar{L}_{K-1}] = \theta_{0, K} + \theta_{1,K-1}cum(\bar{A}_{K-1}) + \theta_{2,K-1} L_{K-1} + \theta_{3,K-1} \hat{W}^{\bar{A}_{K-1}}$$` --&gt;
+
+&lt;!-- 2d. Estimate `\(\hat{T}_{K-1}\)` as the fitted values from this model, replacing `\(A_{K-1}\)` with the intervention value `\(a_{K-1} = 1\)` and `\(\hat{W}^{\bar{A}_{K-1}}\)` with `\(\hat{W}^{\bar{A}_{K-2}, a_{K-1} = 1}\)`. --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # Doubly Robust Estimator for Time Varying Treatment --&gt;
+
+&lt;!-- 2e. Keep going all the way back to time point 0.  --&gt;
+
+&lt;!-- -  When we get all the way back to time 0, the average `\(\frac{1}{N}\sum_{i = 1}^N \hat{T}_{0,i}\)` is a doubly robust estimator of `\(Y(\bar{a})\)`. --&gt;
+
 ---
 # Doubly Robust Estimator for Time Varying Treatment
 
