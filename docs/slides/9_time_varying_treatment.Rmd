@@ -11,13 +11,14 @@ output:
       highlightLines: true
       countIncrementalSlides: false
 ---
-# Plan
-
-$\newcommand{\ci}{\perp\!\!\!\perp}$
-
----
 # Example 
 
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
 
 - Patients are treated for a disease over time. 
 
@@ -1178,25 +1179,36 @@ render_graph(gr2)
 
   + Example from Cole et al (2007)
   
-- If we are willing to assume a common marginal structural model for each outcome, we can use IP weighting and repeated measures regression strategies. 
+- We can combine information across time points if we are willing to assume a common marginal structural model for each outcome.
 
 ---
 # Repeated Measures
 
-- In Cole et al (2007), CD4 count at time $k$ is modeled as a function of the cumulative time on HAART 
-$$E[Y_{k} \vert L_{0}, \bar{A}_{k}] = \beta_{0,j} + \beta_{1}^{\top}L_{0} + \beta_2^\top h\left(\sum_{j =0}^k A_{j}\right)$$ 
+- Cole et al (2007), use a marginal structural model for CD4 count at time $k$ including a function of the cumulative time on HAART 
+$$E[Y_{k}(\bar{a}_k) \vert L_{0}] = \beta_{0,k} + \beta_{1}^{\top}L_{0} + \beta_2^\top h\left(\sum_{j =0}^k a_{j}\right)$$ 
 - $h()$ is a function which categorizes the cumulative time on treatment into four categories. 
 
-- We are assuming that nobody was on treatment before the study, $A_{k} \equiv 0$ for $k < 0$. 
+- To fit this model, we need to assume that nobody was on treatment before the study, $A_{k} \equiv 0$ for $k < 0$. 
   + In this case that assumption is fine because the study starts when HAART became available. 
   + The study also excludes anyone who was already on another form of ART.
-  
-- Using our marginal structural model, we could use our previous IP weighting strategy to compute the causal effect of time on HAART on CD4 count at time $k$. 
+
+---
+# Repeated Measures
+
+- Cole et al compute weights $W_{ik}^{A}$ for confounding by time-varying covariates and $W_{ik}^{C}$ for censoring.
+
+- Note that time-varying confounders *include* past values of CD4 count. 
+
+- For any given time $k$, we could use our previous strategy and fit the marginal structural model weighted by $W_{ik}^{A}W_{ik}^C$. 
+
+- Our fitted model would let us compute the average counterfactual value of CD4 count that we would have observed at time $k$ under various static interventions up to time $k$. 
   
 ---
 # Repeated Measures
 
-- We now think of our study as $K$ (nested) shorter studies which we will combine. 
+- To combine across time-points, we now think of our study as $K$ (nested) shorter studies. 
+
+- In study $k$, the outcome is $Y_k$. Past values of $Y$ are time-varying covariates which may be confounders. 
 
 <center> 
 
@@ -1212,16 +1224,16 @@ knitr::include_graphics("img/9_timevaryingY2.png")
 
 - Each person contributes one row per time point after baseline. 
 
-- The row for person $i$ at time $k$ is weighted by 
-$$SW^{A}_{i,k}  = \prod_{j=0}^k \frac{f(A_{i,j} \vert \bar{A}_{j-1, i}, L_{0,i})}{f(A_{i,j} \vert \bar{A}_{j-1, i}, L_{0,i}, \bar{L}_{k, i})}$$
+- The row for person $i$ at time $k$ is weighted by $W_{i,k}^A W_{i,k}^C$.
+
 - We then fit the MSM to the expanded data set using robust standard errors to account for repeated measurements of the same person. 
 
 ---
 # Repeated Measures
 
-- This strategy will work whenever we can come up with an MSM that plausibly applies to all time-points. 
+- This strategy works whenever there is an MSM that plausibly applies to all time-points. 
 
-- It relies on knowing the treatment value before time 0, usually assumed to be 0. 
+- We relied on knowing the treatment value before time 0, usually assumed to be 0. 
 
 - Alternatively, we could assume a "short memory". For example
 
@@ -1234,9 +1246,9 @@ $$E[Y_{k} \vert L_{0}, \bar{A}_{k}] = \beta_{0,j} + \beta_{1}^{\top}L_{0} + \bet
 # Time to Event Outcomes
 
 - The treatment of time-to-event data is very similar to repeated measures data. 
-  + Really, we just have a repeated measure of death, $D_k$. 
+  + We have a repeated measure of death status, $D_k$. 
 
-- We need to write a model for the hazard at time $k$. 
+- We need a marginal structural model for the counterfactual hazard at time $k$. 
   + Either use the Cox RR model
   + Or the logistic approximation
   
@@ -1249,81 +1261,92 @@ $$E[Y_{k} \vert L_{0}, \bar{A}_{k}] = \beta_{0,j} + \beta_{1}^{\top}L_{0} + \bet
 ---
 # Parametric G-Formula for Time to Event
 
-- There is a version of the parametric G-formula strategy for time-to-event data. 
-
-- We need a model for the hazard as a function of past history and time. 
+- To apply the parametric G-formula, we need a model for the hazard as a function of past history and time. 
 
 - And a model (or models) for the covariate density as a function of past history. 
 
 - For each person, we simulate time-varying covariates at each time. 
 
-- We also compute the hazard at each time. We do not need to simulate death, only compute the probabiliyt of death. 
+- We also compute the hazard at each time. We do not need to simulate death, only compute the probability of death. 
 
 - We can then compute the counterfactual survival probability for each person. 
   + And then average to find the average countefactual survival. 
 
+
+
 ---
-# Iterated Conditional Expectation (ICE) estimation
+# Iterated Conditional Expectation (ICE)
 
-- As an alternative to the G-formula format we have seen, we could characterize it as a nested expectation
+- Another way to express the G-formula is as a nested expectation
 
-$$E[Y(\bar{a})] = E \left[E\left[\dots E\left[ Y(\bar{a}) \vert \bar{L}(\bar{a})_K\right] \vert \bar{L}(\bar{a})_{K-1} \right] \dots \vert \bar{L}(\bar{a})_0 \right]$$
+
 
 - For just two time points this is
-$$E[Y(a_0, a_1)] = E\left[ E\left[Y(a_0, a_1) \vert L_1(a_0) \right] \vert L_0\right] $$
+$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{E\big[\color{red}{Y} \vert A_0 = a_0, A_1 = a_1, L_0, L_1\big] } \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$
+
 
 ---
 # ICE Estimation
 
-- The nested expectation formulation gives us an alternate estimator.
+- The nested expectation formulation gives us an alternate estimation.
 
 - Define
 
 $$Q_{K+2} = Y\\\
-Q_{K+1} = E[Y \vert\bar{L}_{K}, \bar{A}_{K} = \bar{a}]\\\
+Q_{K+1} = E[Y \vert\bar{L}_{K},  \bar{A}_{K} = \bar{a}_{K}]\\\
 \vdots\\\
 Q_m = E[Q_{m+1} \vert \bar{L}_{m-1}, \bar{A}_{m-1} = \bar{a}_{m-1}]\\\
 \vdots\\\
 Q_0 = E[Q_1 \vert L_0, A_0 = a_0]$$
 
-- The idea will be to propose a model for $E[Q_{m+1} \vert \bar{L}_{m-1}, \bar{A}_{m-1} = \bar{a}_{m-1}]$ and then use it iteratively to estimate each $Q$. 
+- We can propose a model for $E[Q_{m+1} \vert \bar{L}_{m-1}, \bar{A}_{m-1}]$ and then iteratively fit each model. 
 
-- When we get all the way down to 0, we will have an estimator of $Y(\bar{a})$. 
-
----
-# ICE Estimation
-
-- Example with two time-points: Suppose we are interested in a static intervention $\bar{a} = (a_0, a_1, a_2)$.
-
-- First we propose a model:
-
-$$E[Y\vert \bar{L}_{2}, \bar{A}_{2}] = \theta_{0, 2} + \theta_{1,2}cum(\bar{A}_{2}) + \theta_{2,2} L_{2}$$
-- We start at time $m = 2$ and estimate parameters $\hat{\theta}_{0,2}, \hat{\theta}_{1,2}$ and $\hat{\theta}_{2,2}$.
-
-- Next we estimate $\hat{Q}_{2,i}(a_2)$ by plugging $a_2$ for $A_{2,i}$ but leaving the preceding treatment course unaltered. 
+- When we get all the way down to 0, $E[Q_0]$ will be an estimator of $Y(\bar{a})$. 
 
 ---
 # ICE Estimation
 
-- Now we repeat, except we use $\hat{Q}_2(a_2)$ as the outcome in our regression
+- Example with two time-points and a static intervention $\bar{a} = (a_0, a_1)$.
 
-$$E[\hat{Q}_2(a_2) \vert \bar{L}_{1}, \bar{A}_{1}] = \theta_{0, 1} + \theta_{1,1}cum(\bar{A}_1) + \theta_{2,1} L_{1}$$
+- In the first step (nothing really to do here), we use our definition that $Q_{2} = Y$
 
-estimating parameters $\hat{\theta}_{0,1}, \hat{\theta}_{1,1}$ and $\hat{\theta}_{2,1}$
+$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0, L_0}\Big[} \color{green}{E\big[\color{red}{Q_2} \vert A_0= a_0, A_1 = a_1, L_0, L_1\big] } \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$
+--
+- Let's propose a model:
 
-- We estimate $\hat{Q}_{1,i}(a_1,a_2)$ by plugging $a_1$ for $A_{1,i}$ but leaving $A_{0,i}$ at its natural value. 
+$$E[Y\vert \bar{L}_{1}, \bar{A}_{1}] = \theta_{0, 1} + \theta_{1,1}cum(\bar{A}_{1}) + \theta_{2,1} L_{1}$$
+- We can fit this as a regular regression. 
+
 
 ---
 # ICE Estimation
 
-- Finally we fit the regression one last time
+- Fitting this model gives us an estimate of the green part of the expression 
+$$\hat{Q}_1 = \hat{E}[Y \vert \bar{L}_1, A_1 = a_1, A_0]$$
 
-$$E[\hat{Q}_1(a_2, a_1) \vert L_{0}, \bar{A}_{0}] = \theta_{0, 0} + \theta_{1,0}cum(\bar{A}_0) + \theta_{2,0} L_{0}$$
-estimating parameters $\hat{\theta}_{0,1}, \hat{\theta}_{1,1}$ and $\hat{\theta}_{2,1}$
+which we plug into the expression 
 
-- We estimate $\hat{Q}_{0,i}(a_0,a_1, a_2)$ by splugging $a_0$ for $A_{0,i}$.
+$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{\hat{Q}_1} \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$
 
-- Now we can compute $E[Y(0)] = \frac{1}{N}\hat{Q}_{0,1}(\bar{a})$
+- In order to fit the next regression, we estimate $\hat{Q}_1$ for all the covariate values observed in our data. 
+
+- We compute $\hat{Q}_{1,i}$ for each person in the study by substituting $a_1$ for $A_{1,i}$ but leaving $L_{1,i}$, $L_{0,i}$ and $A_{0,i}$ at their natural values. 
+
+
+---
+# ICE Estimation
+
+- Next, use these fitted values to fit the same model as before
+
+
+$$E[\hat{Q}_1 \vert L_{0}, A_{0}] = \theta_{0, 0} + \theta_{1,0}cum(A_0) + \theta_{2,0} L_{0}$$
+- This gives us an estimate of $Q_0 = E[Q_1 \vert A_0 = a_0, L_0]$ that we can plug into the expression. 
+
+$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{\hat{Q}_0} \color{purple}{\bigg]}$$
+
+- We compute $\hat{Q}_{0,i}$ for each person in the study by substituting $a_0$ for $A_{0,i}$ but leaving $L_{0,i}$ at their natural values.
+
+- Finally we estimate $\hat{E}[Y(0)] = \frac{1}{N}\hat{Q}_{0,i}(\bar{a})$
 
 
 ---
@@ -1339,7 +1362,7 @@ estimating parameters $\hat{\theta}_{0,1}, \hat{\theta}_{1,1}$ and $\hat{\theta}
 
 - We can turn the ICE estimator into a doubly robust estimator by adding a special covariate based on the propensity score to each regression. 
 
-- Recall the Scharfstein (1999) DR estimation strategy: 
+- Recall the "special covariate" regression strategy for estimating $Y(a)$:
 
 1. Estimate $\hat{\pi}$ using a $\pi$-model
 
@@ -1347,9 +1370,10 @@ estimating parameters $\hat{\theta}_{0,1}, \hat{\theta}_{1,1}$ and $\hat{\theta}
 
 3. Estimate a model $E[Y \vert A, L] = m(A, L; \theta) + \phi_1 A/\hat{\pi} + \phi_2 (1-A)/(1-\hat{\pi})$ 
 
-4. Compute the standardized estimate 
+4. Compute the standardized estimates 
 
-$$\frac{1}{N}\sum_{i=1}^N \left(m(1, L_i; \hat{\theta}) + \hat{\phi_1}\frac{1}{\hat{\pi}_i} \right) - \frac{1}{N}\sum_{i=1}^N \left(m(0, L_i; \hat{\theta}) + \hat{\phi_2}\frac{1}{1-\hat{\pi}_i} \right)$$
+$$E[Y(1)] = \frac{1}{N}\sum_{i=1}^N \left(m(1, L_i; \hat{\theta}) + \hat{\phi_1}\frac{1}{\hat{\pi}_i} \right)\\\
+E[Y(0)] = \frac{1}{N}\sum_{i=1}^N \left(m(0, L_i; \hat{\theta}) + \hat{\phi_2}\frac{1}{1-\hat{\pi}_i} \right)$$
 ---
 # Doubly Robust Estimator for Time Varying Treatment
 
