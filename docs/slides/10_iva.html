@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L10: Instrumental Variable Analysis</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# L10: Instrumental Variable Analysis
+### Jean Morrison
+### University of Michigan
+### 2022-03-07 (updated: 2022-03-05)
+
+---
+
+
+
+# Introduction
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+So far all of our strategies for identifying causal effects are based on the g-formula. Our strategy has been:
+
+1. Draw a DAG that includes `\(A\)`, `\(Y\)`, and any variables that might be on a causal path between `\(A\)` and `\(Y\)`. 
+
+2. Based on the DAG, identify a set of covariates `\(L\)` such that 
+$$ A \ci Y \vert L$$
+3. Use one of our g-formula strategies to adjust for `\(L\)`: 
+  - IP weighting + marginal structural models
+  - Outcome modeling
+  - Double robust methods
+  - G-estimation
+  
+---
+# Introduction
+
+- The g-formula methods are "general purpose".
+
+- They will work in any situation, as long as we can measure a sufficient set of covariates to eliminate confounding. 
+
+- However, this isn't always possible. Sometimes we know there are confounders that are unmeasurable. 
+
+- There are a handful of non-g-formula methods we can use in these circumstances. 
+  + All require special cirucmstances, not "general-purpose" like the g-formula. 
+  
+---
+# Non-g-formula Methods
+
++ Instrumental variable analysis (this lecture)
+
++ Front door adjustment
+
++ Difference in differences
+
++ Regression discontinuity
+
++ If we have time, we will do a basic over-view of the last three. 
+
+---
+# IVA Motivation
+
+- First, let's go back to the randomized trial. We usually draw the DAG for the RT like this. 
+
+
+- But we could also draw it like this
+  - `\(Z\)` is the randomization assignment. 
+  - `\(A\)` is the treatment received. 
+  
+- In a trial with perfect adherence, `\(Z = A\)` for all individuals, so we usually don't include `\(Z\)` in the DAG. 
+
+- For the next section, we assume that `\(A\)` and `\(Z\)` are both binary. 
+
+---
+# Non-Adherence 
+
+- Now suppose there is some non-adherence.
+
+  + Non-adherence could be caused by unmeasured confounders. 
+  + Or could be random but unrelated to any other variables. 
+  
+- A DAG allowing non-adherence might look like this.
+
+- Even with no confounders, `\(Z\)` and `\(A\)` are no longer identical. 
+
+---
+# Non-Adherence
+
+- Previously, we saw two strategies for dealing with non-adherence: 
+
+  + Estimate the ITT, `\(E[Y(z)]\)`
+  + Treat data like observational data to estimate `\(E[Y(a)]\)`. This requires measuring `\(U\)` so we can adjust for it. 
+
+--
+
+- Problem: `\(E[Y(z)]\)` isn't the effect we want and we might not have measured `\(U\)`.   
+  
+--
+
+- If we know the degree of non-adherence in each group and are willing to make some assumptions, we can do better. 
+
+---
+# Compliance Types
+
+We need some new definitions:
+
+**Always Takers**: Units with `\(A_i(z = 1) = A_i(z = 0) = 1\)`
+
+**Never Takers**: Units with `\(A_i(z = 1) = A_i(z = 0) = 0\)`
+
+**Compliers**: Units with `\(A_i(z = 1) = 1\)` and `\(A_i(z = 0) = 0\)`
+
+**Defiers**: Units with `\(A_i(z = 1) = 0\)` and `\(A_i(z = 1) = 1\)`
+
+--
+
+- These are *compliance types* or *principal strata*. 
+
+- In our study, any unit's compliance type is unobservable because we only get to observe one treatment.
+
+- We will use a variable `\(Q_i \in \lbrace Al, Ne, Co, De \rbrace\)` to indicate unit `\(i\)`'s compliance type. 
+
+---
+# Causal Effect in Compliers
+
+- We can write the average effect of `\(Z\)`, the ITT, as
+
+`$$E[Y(z = 1) - Y(z=0)] = \\\
+E[Y(z =1)-Y(z = 0) \vert Q = Co] P[Q = Co] + \\\
+E[Y(z =1)-Y(z = 0) \vert Q = Al] P[Q = Al] + \\\
+E[Y(z =1)-Y(z = 0) \vert Q = Ne] P[Q = Ne] + \\\
+E[Y(z =1)-Y(z = 0) \vert Q = De] P[Q = De]$$`
+
+--
+- We now make two assumptions: 
+
+1. There are no defiers `\(\Rightarrow\)` the last term is zero. 
+  
+2. All of the effect of `\(Z\)` on `\(Y\)` is mediated by `\(A\)`: 
+
+`$$E[Y(a,z)] = E[Y(a,z^\prime)] \qquad \forall a, z, z^\prime$$`
+  - This means there is no effect of `\(Z\)` on `\(Y\)` in always takers and never takers, so the second and third terms are zero. 
+
+---
+# Causal Effect in Compliers
+
+- We are left with
+
+`$$E[Y(z = 1) - Y(z=0)] = E[Y(z =1)-Y((z = 0) \vert Q = Co] P[Q = Co]$$`
+`$$E[Y(z =1)-Y(z = 0) \vert Q = Co] = \frac{E[Y(z = 1) - Y(z=0)]}{P[Q = Co]}$$`
+- In compliers, `\(Z= A\)` so
+`$$E[Y(z=1) - Y(z = 0) \vert Q = Co] = E[Y(a = 1) - Y(a = 0) \vert Q  = Co]$$`
+
+- We now have a formula for the average treatment effect in compliers. 
+
+---
+# Causal Effect in Compliers
+
+- We need to estimate the two components of the formula, the ITT and the proportion of compliers.
+
+--
+
+- In our DAG there is no confounding between `\(Z\)` and `\(Y\)` so we can estimate `\(E[Y(z = 1) - Y(z=0)]\)` as `$$E[Y \vert Z = 1] - E[Y \vert Z = 0]$$`
+
+- We will see that we can also estimate `\(P[Q = Co]\)`, the proportion of compliers. 
+
+
+---
+# Estimating Proportion of Compliers
+
+- Suppose we observe the following data: 
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; \( N \) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Z\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 900 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 930 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+# Estimating Proportion of Compliers
+
+- Suppose we observe the following data: 
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; \( N \) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Z\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Compliance Type &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 900 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Compliers or Never Takers &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Always Takers &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Never Takers &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 930 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Always Takers or Compliers &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+--
+
+- From this data, we can conclude that 
+  - 10% of the population are Always Takers
+  - 7% of the population are Never Takers
+  - So the proportion of compliers, `\(P[Q = Co]\)`, is 83%. 
+
+---
+# Estimating the Proportion of Compliers
+
+
+- More generally, 
+`$$P[Q = Co] = E[A \vert Z = 1] - E[A \vert Z = 0]$$`
+
+- The proportion of compliers is equal to the additive association between `\(A\)` and `\(Z\)`.
+
+---
+# Causal Effect in Compliers
+
+- Suppose we also observe the average value of `\(Y\)` in each group 
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; \( N \) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Z\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 900 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 930 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- We can compute
+
+`$$E[Y(a = 1)-Y(a = 0) \vert Q = Co] = \frac{E[Y(z =1)-Y(z = 0)]}{P[Q = Co]}\\\
+= \color{blue}{\frac{E[Y \vert Z = 1] - E[Y \vert Z = 0]}{E[A \vert Z = 1] - E[A \vert Z = 0]}}\\
+=\frac{17.65 -11.7}{0.83} = 7.16$$`
+
+---
+# Assumptions
+
+
+$$ \hat{\beta}_{IV} = \frac{E[Y \vert Z = 1] - E[Y \vert Z = 0]}{E[A \vert Z = 1] - E[A \vert Z = 0]}$$
+estimates the causal effect of `\(A\)` in compliers if:
+
+--
+
+(i). `\(A\)` and `\(Z\)` are associated (relevance): 
+
+  + The denominator is not 0. 
+
+
+--
+
+(ii). `\(A\)` fully mediates the effect of `\(Z\)` on `\(A\)` (exclusion restriction):
+  + Otherwise we are just estimating the effect of `\(Z\)` in compliers.
+
+--
+
+(iii). No confounding between `\(Z\)` and `\(Y\)`;  `\(Y(a,z) \ci Z\)` (exchangeability):
+  + The numerator estimates the ITT
+
+--
+
+(iv). There are no defiers (monotonicity):
+  + The denominator estimates the proportion of compliers. 
+  
+
+---
+# Why the Effect in Compliers?
+
+- The causal effect in compliers is a *local effect*. 
+
+- A local average treatment effect (LATE) is the effect restricted to some subgroup (in our case compliers). 
+
+- Often researchers performing IVA assume that the LATE equals the ATE. 
+
+  + This assumption is often unstated.
+
+
+- Alternative versions of assumption (iv) (no defiers) allow us to estimate the ATE. 
+
+
+---
+# Alternatives to Assumption 4
+
+- We could replace the assumption of no defiers with other assumptions, under which `\(\hat{\beta}_{IV}\)` estimates the ATE. 
+
+--
+
+- (iv.1) Complete homogeneity: The treatment effect is the same for every unit. 
+
+- (iv.2) No effect modification by `\(Z\)`. 
+
+- (iv.3) No effect modification by `\(U\)`. 
+
+- (iv.4) The association between `\(A\)` and `\(Z\)` is constant across levels of `\(U\)`. 
+
+
+---
+# (iv.2) No Effect Modification by `\(Z\)`
+
+- Under the assumption no effect modification by `\(Z\)`, have a different derivation for `\(\hat{\beta}_{IV}\)` which does not rely on estimating a causal effect of `\(Z\)`. 
+
+- Write
+`$$E[Y(a = 1) - Y(a = 0) \vert A = 1, Z]  = \beta_0 + \beta_1 Z\\\
+E[Y - Y(a = 0) \vert A, Z] = A (\beta_0 + \beta_1 Z)$$`
+- Note that if `\(A\)` and `\(Z\)` are both binary, then this model is saturated. 
+
+---
+# Instruments
+
+- So far we have been talking about a randomized trial with non-compliance.
+
+- However, `\(Z\)` need not be a randomized variable as long as it meets the four assumptions we laid out previously. 
+
+- In *instrumental variable analysis*, researchers go looking for variables "in the wildd" to play the role of `\(Z\)`. 
+  + These variables are *instruments*. 
+  
+---
+# Surrogate Instruments
+
+- It is not necessary that our instrument directly causes `\(A\)`. 
+  + The relevance condition only requires that `\(Z\)` and `\(A\)` are associated. 
+  
+- In the DAG's below, `\(Z\)` is a valid instrument and `\(\hat{\beta}_Z\)` estimates the LATE
+
+
+---
+# Popular Instruments
+
+
+- Physician Preference:
+  - Suppose there are two possible treatments for a condition, `\(A = 0\)` and `\(A = 1\)`. 
+  - Physician A tends to prescribe `\(A = 1\)` more often and physician B tends to prescribe `\(A = 0\)` more often. 
+  - If the two physicians are within the same clinic or geographically close and similarly priced, we might assume that patient selection of one or the other is close to random. 
+    + Or at least unassociated with other determinants of treatment and outcome. 
+  
+
+- Genetic variants: 
+  + Germ-line genetic variants are fixed over a person's life time and completely determined by variants carried by a person's parents. 
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
