@@ -23,7 +23,7 @@ class: center, middle, inverse, title-slide
 # L10: Instrumental Variable Analysis
 ### Jean Morrison
 ### University of Michigan
-### 2022-03-07 (updated: 2022-03-07)
+### 2022-03-07 (updated: 2022-03-09)
 
 ---
 
@@ -39,7 +39,7 @@ So far all of our strategies for identifying causal effects are based on the g-f
 1. Draw a DAG that includes `\(A\)`, `\(Y\)`, and any variables that might be on a causal path between `\(A\)` and `\(Y\)`. 
 
 2. Based on the DAG, identify a set of covariates `\(L\)` such that 
-$$ A \ci Y \vert L$$
+$$ A \ci Y(a) \vert L$$
 3. Use one of our g-formula strategies to adjust for `\(L\)`: 
   - IP weighting + marginal structural models
   - Outcome modeling
@@ -354,7 +354,7 @@ estimates the causal effect of `\(A\)` in compliers if:
 
 --
 
-(ii). `\(A\)` fully mediates the effect of `\(Z\)` on `\(A\)` (exclusion restriction):
+(ii). `\(A\)` fully mediates the effect of `\(Z\)` on `\(Y\)` (exclusion restriction):
   + Otherwise we are just estimating the effect of `\(Z\)` in compliers.
 
 --
@@ -712,6 +712,11 @@ which is unrealistic.
 
 - If there is no effect modification within the treated then `\(\beta_1 = 0\)`. 
 
+
+- For binary `\(Z\)` and `\(A\)`, an equivalent condition is that the average causal effect in compliers and always takers is the same as the average causal effect in defiers. 
+
+`$$E[Y(a = 1)-Y(a = 0) \vert Q = Co \text{ or } Q = Al] =\\\ E[Y(a = 1)-Y(a=0) \vert Q = De]$$`
+
 &lt;!-- - We could have also written this for `\(A = 0\)` as  --&gt;
 &lt;!-- `$$E[Y(a = 1) - Y(a = 0) \vert A = 0, Z]  = \beta_0^\prime + \beta_1^\prime Z$$` --&gt;
 
@@ -769,43 +774,89 @@ Plugging in `\(\beta_1 = 0\)`, we find
 
 - If we extended (iv.2) to also include no effect modification within the untreated, we could estimate the ATE. 
 
--- 
+--
 
 - Assumption (iv.1) of complete homogeneity is strictly stronger than (iv.2), so `\(\beta_{IV}\)` also estimates the ATT under (iv.1).
 
 - Under (iv.1), the ATT equals the ATE, so `\(\beta_{IV}\)` estimates the ATE. 
 
 
+---
+# Results So Far
 
+- If the instrument `\(Z\)` and exposure `\(A\)` are both binary and `\(Z\)` satisfies IV assumptions (i)-(iii):
+`$$\beta_{IV} = \frac{E[Y \vert Z = 1]-E[Y \vert Z = 0]}{E[A \vert Z = 1] - E[A \vert Z = 0]}$$`
+- Estimates the complier average treatment effect if we assume there are no defiers. 
+  - If we want the ATE, we need to either additionally assume that the LATE equals the ATE.
+  
+- If we cannot assume the absence of defiers, we can replace that assumption with the assumption of no modification of the `\(A-Y\)` effect by `\(Z\)`.
+  + No effect modification in the treated gets us the ATT. 
+  + Adding no effect modification in the untreated gets us the ATE. 
 
+---
+# Results So Far
+
+- If `\(A\)` is continuous, `\(\beta_{IV}\)` estimates the average causal effect due to a one unit increase in `\(A\)` among those affected by the instrument. 
+
+- If `\(Z\)` is a surrogate instrument, we retain our casual interpretations. 
+  + If `\(Z\)` is a surrogate for binary `\(U_Z\)`, then compliers are compliers with respect to `\(U_Z\)`. 
+  + If `\(U_Z\)` is not binary, the complier set is not clearly defined. `\(\beta_{IV}\)` estimates a weighted average of causal effects. 
+
+---
+# Where to Next
+
+- Our simple situation does not cover the majority of real applications of IVA.
+
+- Often we will have continuous instruments, or multiple instruments. 
+
+- These situations will send us towards parametric models. 
+
+---
+# Where to Next
+
+- Introduce linear structural equation models which motivate more complex IV estimators. 
+
+- Examine some distributional properties of IV estimators:
+  + moments
+  + finite sample bias
+  
+- Reassess assumptions of the linear models. When can we relax them?
+
+- What happens when the core IV assumptions are violated?
 
 ---
 # Structural Equation Model Approach
 
 - Consider the set of linear structural models:
 
-`$$A_i  = \beta_{A0} + \beta_{AZ} Z_i + \epsilon_{A,i} \\\
-Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+`$$A_i(z)  = \beta_{A0} + \beta_{AZ} z + \epsilon_{A,i} \\\
+Y_i(a)  = \beta_{Y0} + \gamma a + \epsilon_{Y,i}$$`
 
-- `\(\epsilon_{A,i}\)` and `\(\epsilon_{Y,i}\)` are mean zero deviations, which may depend on other variables not in the model (e.g. `\(U\)`).
+- These equations are structural because they describe the potential outcomes. 
 
-- `\(\gamma\)` is the causal effect of `\(A\)` on `\(Y\)`. In this model, the causal effect is constant across units (complete homogeneity).  
-  + We have seen already that this assumption is stronger than we need for a causal interpretation of `\(\beta_{IV}\)`.
+- In this model we have complete homogeneity of both the effect of `\(Z\)` on `\(A\)` and the effect of `\(A\)` on `\(Y\)`.
+  + `\(\gamma\)` is the causal effect we want to identify. 
 
+- `\(\epsilon_{A,i}\)` and `\(\epsilon_{Y,i}\)` are mean zero deviations, which may depend on other variables (e.g. `\(U\)`).
 
-- If there is confounding between `\(A\)` and `\(Y\)`, then `\(\epsilon_A\)` and `\(\epsilon_Y\)` will be correlated.
+- If there is confounding between `\(A\)` and `\(Y\)`, then `\(\epsilon_A\)` and `\(\epsilon_Y\)` are correlated.
+
+- Using consistency, we can substitute `\(A_i\)` for `\(A_i(z)\)` and `\(Z_i\)` for `\(z\)` in equation 1. 
+  + Similarly for equation 2. 
 
 ---
-# Structural Equation Model Approach
+# Constraints
 
 `$$A_i  = \beta_{A0} + \beta_{AZ} Z_i + \epsilon_{A,i} \\\
 Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+
+--
 
 - The relevance assumption means that `\(\beta_{AZ} \neq 0\)`. 
 
 --
 
-- The exclusion restriction requires that `\(Z\)` is independent of `\(Y\)` given `\(A\)`.  
+- The exclusion restriction requires that `\(Y\)` is independent of `\(Z\)` given `\(A\)`.  In the model, this is satisfied by conditions:
     - `\(Z_i\)` is not in the second equation and 
     - `\(Cov(Z, \epsilon_{Y}) = 0\)`
     
@@ -816,8 +867,8 @@ Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 
 --
 
-- If the relationship between `\(A\)` and `\(Z\)` is not linear or heterogeneous, we may have `\(Cov(Z_i, \epsilon_{A}) \neq 0\)`. 
-  + We will see that this is ok, we can still estimate `\(\gamma\)`. 
+- We need an additional identifiability condition that `\(Cov(Z_i, \epsilon_{A, i}) = 0\)`.
+  + This is equivalent to assuming that the causal effect of `\(Z\)` on `\(A\)` is homogeneous, the functional form is correct, and there is no confounding between `\(Z\)` and `\(A\)`.  
    
 ---
 # Structural Equation Model Approach
@@ -843,15 +894,15 @@ This result suggests two estimation strategies:
 
 1. Two stage least squares:
 
-  - Regress `\(A\)` on `\(Z\)` to obtain `\(\hat{\beta}_{AZ}\)`. 
-  - Regress `\(\hat{\beta}_{AZ}Z\)` on `\(Y\)` to estimate `\(\gamma\)`. 
+  - Regress `\(Z\)` on `\(A\)` to obtain `\(\hat{\beta}_{AZ}\)`. 
+  - Regress `\(Y\)` on `\(\hat{\beta}_{AZ}Z\)` to estimate `\(\gamma\)`. 
 
 --
 
 2. Ratio estimator: 
 
-  - Regress `\(Z\)` on `\(A\)` to obtain `\(\hat{\beta}_{AZ}\)`.
-  - Regress `\(Z\)` on `\(Y\)` to obtain `\(\hat{\beta}_{YZ}\)`, an estimate of `\(\gamma\beta_{AZ}\)`. 
+  - Regress `\(A\)` on `\(Z\)` to obtain `\(\hat{\beta}_{AZ}\)`.
+  - Regress `\(Y\)` on `\(Z\)` to obtain `\(\hat{\beta}_{YZ}\)`, an estimate of `\(\gamma\beta_{AZ}\)`. 
   - Estimate `\(\gamma\)` by `\(\hat{\beta}_{YZ}/\hat{\beta}_{AZ}\)`
   
 - We will show that these estimates are identical, and for binary `\(Z\)` and `\(A\)`, equal to the version of `\(\beta_{IV}\)` we have already seen.
@@ -885,40 +936,54 @@ This result suggests two estimation strategies:
   + So the estimate we saw earlier is a special case of the ratio estimator. 
 
 ---
-# Ratio Estimator
-
-`$$\hat{\gamma} = \hat{\beta}_{IV} = \frac{\hat{\beta}_{ZY}}{\hat{\beta}_{AY}}$$`
+# Two Sample IV
 
 
-- When data for `\(A\)`, `\(Z\)`, and `\(Y\)` are collected in a single sample, the ratio estimator and the 2SLS estimator are identical. 
+- Both the 2SLS framework and the ratio estimator framework suggest that we don't need to measure `\(Z\)`, `\(A\)` and `\(Y\)` in the same sample. 
 
---
+- We could instead have two samples, 
+  + Sample 1: data for `\(Z\)` and `\(A\)` and 
+  + Sample 2: data for `\(Z\)` and `\(Y\)`. 
 
-- Using the ratio formulation, we can see that we actually only needed to be able to estimate `\(\beta_{AY}\)` and `\(\beta_{AZ}\)`. 
+- In 2SLS, we conduct the first stage regression of `\(A\)` on `\(Z\)` in Sample 1. 
 
-- These estimates could have been obtained from different data sources. 
+- We then use `\(\hat{\beta}_{AZ}\)` to compute `\(\hat{\beta}_{AZ}Z\)` in Sample 2. We then regress `\(Y\)` on this new variable. 
+  + `\(\hat{\beta}_{AZ}Z\)` is like an imputed unconfounded version of `\(A\)`.
+  
+- Using the ratio framework, we use Sample 1 to estimate `\(\hat{\beta}_{AZ}\)` and `\(\hat{\beta}_{YZ}\)` and then compute the ratio. 
 
---
+- These two strategies give identical results. 
 
-- This flexibility makes it possible to estimate causal effects in more settings. 
-  + `\(A\)` and `\(Y\)` might occur very far apart in time so measuring them in the same sample would require a long and expensive study. 
-  + One of `\(A\)` or `\(Y\)` might be expensive or difficult to measure while the other easy.
-  + Data for either `\(Z\)` and `\(A\)` or `\(Z\)` and `\(Y\)` might already exist in an external data set.
+---
+# Two Sample IV
+
+- Being able to estimate the effect of `\(A\)` on `\(Y\)` without observing `\(A\)` and `\(Y\)` in the same data set is extremely powerful. 
+
+- It makes it possible to address causal questions that would be otherwise impossible to study. 
+
+- For example, `\(A\)` and `\(Y\)` might occur very far apart in time so measuring them in the same sample would require a long and expensive study. 
+  + E.g Do exposures during pregnancy increase risks of late in life diseases. 
+  
+- One of `\(A\)` or `\(Y\)` might be very expensive or challenging to measure. 
+  + One of our samples might be very large while the other is small. 
+  
+- Using two samples allows us to make use of existing data collected for other purposes. 
+  + Perhaps `\(Z\)` and `\(A\)` have already been measured in a previous study. 
+  + We now only need to collect `\(Z\)` and `\(Y\)` in a new study. 
 
 
 
 
-&lt;!-- - The variance of the 2SLS estimator is easiest to derive.  --&gt;
-
-&lt;!-- `$$\hat{\beta}_{2SLSS} = \frac{(\mathbf{Z}^\top \mathbf{Z})^{-1}\mathbf{Z}^\top\mathbf{Y}}{(\mathbf{Z}^\top \mathbf{Z})^{-1}\mathbf{Z}^\top\mathbf{A}}$$` --&gt;
 
 
 ---
 # Adjusting for `\(Z-Y\)` Confounding
 
-- The 2SLS framework suggests is that our instrument does not have to perfectly satisfy the exchangeability condition. 
+- Our instrument does not have to perfectly satisfy the exchangeability condition, as long as we have measured any variables confounding `\(Z\)` and `\(A\)`. 
 
-- If there are a small number of known confounders between `\(Z\)` and `\(Y\)`, we can adjust for them in the first stage of the regression. 
+- Hernan and Robins suggest that g-methods can be used to estimate the causal effect of `\(Z\)` on `\(A\)` accounting for confounders. 
+
+- Probably the most common strategy is to simply add confounders to the regression of `\(A\)` on `\(Z\)`. 
 
 - In the education example, age is a potential confounder between quarter of birth and wages. 
   + Men born in the first quarter are older than their peers who started school the same year. 
@@ -932,15 +997,20 @@ This result suggests two estimation strategies:
 
 - Let `\(\mathbf{Z}_i\)` be a `\(k\)`-vector of instruments.
 
-- For 2SLS, we extend our linear SEM
+- For 2SLS, we extend our set of linear models.
 
-`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ} \mathbf{Z}_i + \epsilon_{A,i} \\\
+`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
 Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 
-- In 2SLS, we are using the first step to estimate an "unconfounded version" of `\(A_i\)` that we then plug in to the second equation. 
+- In the first stage, we estimate `\(\hat{\boldsymbol{\beta}}_{AZ}\)`. 
 
-- In Angrist and Kruger (1991) also examine the problem using quarter of birth interacted with year-of-birth. 
+- In the second stage regress `\(Y\)` on `\(\hat{A} = \hat{\boldsymbol{\beta}}_{AZ}^\top Z\)`. 
+
+- Angrist and Kruger (1991) also examine the problem using quarter of birth interacted with year-of-birth. 
   + This gives multiple instruments which may each affect total years of education differently. 
+
+
+
 
 ---
 # Inverse Variance Weighted Regression
@@ -955,26 +1025,16 @@ Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 `$$\hat{\beta}_{IVW} = \frac{\sum_{k=1}^K w_k \hat{\beta}_{IV,k}}{\sum_{k =1}^K w_k}$$` where `\(w_k\)` is the inverse of the (approximate) variance of `\(\hat{\beta}_{IV,k}\)`.
 - This is equivalent to a fixed effect meta-analysis estimate. 
 ---
-# Variance of the Ratio Estimator
-
-- The variance of the ratio estimator can be approximated using the first two terms from a Taylor expansion.
-
-- Let `\(\sigma_{AZ_k}^2\)` be the variance of `\(\hat{\beta}_{AZ_k}\)` and `\(\sigma_{YZ_k}^2\)` be the variance of `\(\hat{\beta}_{YZ_k}\)`.
-
-- The approximate variance is 
-
-`$$Var(\hat{\beta}_{IV,k}) \approx \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} + \frac{\hat{\beta}_{Y,Z_k}^2\sigma_{A,Z_k}^2}{\hat{\beta}_{A,Z_k}^4} - \frac{2\hat{\beta}_{Y,Z_k}Cov(\hat{\beta}_{A,Z_k}, \hat{\beta}_{Y,Z_k})}{\hat{\beta}_{A,Z_k}^3}$$`
-- Or we could just approximate it with the first term
-
-`$$Var(\hat{\beta}_{IV,k}) \approx \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2}$$`
-
----
 # IVW Regression
 
-- Using the simpler variance approximation gives
+- For this application, we will approximate the variance of `\(\hat{\beta}_{IV}\)` using the first term in a Taylor series expansion around `\(\gamma\)`. 
+
+`$$Var(\hat{\beta}_{IV,k}) \approx \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2}$$` where `\(\sigma^2_{Y,Z_k}\)` is the variance of `\(\hat{\beta}_{IV,k}\)`. 
+
+- Plugging in these weights gives us
 
 `$$\hat{\beta}_{IVW} = \sum_{k=1}^K   \frac{\hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}{\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}$$`
-- If all of the effect estimates are computed in the same sample, this is exactly equivalent to the 2SLS estimate we would get by adding all the instruments to the first stage regression. 
+- This is asymptotically equivalent (but not numerically identical) to the  2SLS estimate.
 
 ---
 
@@ -983,7 +1043,7 @@ Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 The estimator 
 
 `$$\hat{\beta}_{IVW} = \sum_{k=1}^K   \frac{\hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}{\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}$$`
-is also exactly the estimate we would get from regressing  `\((\hat{\beta}_{A,Z_1}, \dots, \hat{\beta}_{A, Z_K})\)` on `\((\hat{\beta}_{Y,Z_1}, \dots, \hat{\beta}_{Y, Z_K})\)` with no intercept.
+is also exactly the estimate we would get from regressing  `\((\hat{\beta}_{Y,Z_1}, \dots, \hat{\beta}_{Y, Z_K})\)` on `\((\hat{\beta}_{A,Z_1}, \dots, \hat{\beta}_{A, Z_K})\)` with no intercept.
 
 --
 
@@ -1004,36 +1064,210 @@ so we have a regression problem.
 
 
 ---
-# Multiple Instruments Increase Instrument Strength
+# Distribution of the IV Estimator
 
-- Instrument strength is one of the most important determinants of the performance of IV estimators. 
+- We have seen that the IV estimator for a single IV is a ratio of random variables. 
+`$$\hat{\gamma} = \hat{\beta}_{IV} = \frac{\hat{\beta}_{ZY}}{\hat{\beta}_{AY}}$$`
 
-- Instrument strength is the strength of correlation between the instrument and the target exposure. 
+- If `\(\hat{\beta}_{ZY}\)` and `\(\hat{\beta}_{AY}\)` are estimated in different samples then 
+the numerator and denominator are independent. 
 
-- With more instruments, we can achieve a better prediction of the exposure so instrument strength increases. 
+- If they are estimated in the same sample, they are dependent. 
+
+- Inconveniently, none of the moments of `\(\hat{\beta}_{IV}\)` exist and it is not normally distributed. 
+  + This occurs because there is a finite chance that `\(\hat{\beta}_{AZ}\)` is close to zero. 
+
+
 
 ---
-# More Instruments, More Ways to Fail
+# Distribution of the IV Estimator
 
-- The more instruments we put in, the more opportunities we have to violate one of the IV assumptions. 
+- For instruments with large effects on `\(A\)`, the portion of the distribution of `\(\hat{\beta}_{AZ}\)` close to zero is very small. 
 
-- Validity of our estimates requires that IV assumptions (i-iii) are satisfied for all instruments. 
+- When `\(\hat{\beta}_{AZ}\)` is large compared to its standard error, a normal approximation to `\(\hat{\beta}_{IV}\)` works fairly well. 
 
-- However, with a very large number of instruments, we may be able to learn which instruments are valid and which are not emprically.   + More on this to come.
+- The mean and variance for the normal approximation can be retrieved from a Taylor series approximation of `\(\hat{\beta}_{IV}\)`. 
+
+`$$E[\hat{\beta}_{IV}] \approx \gamma - \frac{Cov(\hat{\beta}_{AZ}, \hat{\beta}_{YZ})}{\beta_{AZ}^2} + \frac{Var(\hat{\beta}_{AZ})\gamma}{\beta_{AZ}^2}$$`
+
+- Notably, if `\(\beta_{AZ}\)` is small and `\(Var(\hat{\beta}_{AZ})\)` is large, then `\(\hat{\beta}_{IV}\)` will have large bias. 
+
+- The term `\(Cov(\hat{\beta}_{AZ}, \hat{\beta}_{YZ})\)` is non-zero if the analysis is conducted in a single sample. 
+
+---
+# Distribution of the IV Estimator
+
+
+- The approximate variance of the single instrument IV estimator is 
+
+`$$Var(\hat{\beta}_{IV,k}) \approx \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} + \frac{\hat{\beta}_{Y,Z_k}^2\sigma_{A,Z_k}^2}{\hat{\beta}_{A,Z_k}^4} - \frac{2\hat{\beta}_{Y,Z_k}Cov(\hat{\beta}_{A,Z_k}, \hat{\beta}_{Y,Z_k})}{\hat{\beta}_{A,Z_k}^3}$$`
+
+- However, it is important to keep in mind that for weak IVs, the normal approximation is not good. 
+
+---
+# Distribution of the IV Estimator 
+
+&lt;center&gt; 
+&lt;img src="img/10_bandt_fig2.png" width="95%" /&gt;
+&lt;/center&gt;
+
+
+
+---
+# Asymptotic Bias of IV Estimators
+
+- With `\(K\)` IVs, the moments of the 2SLS and IVW estimators exist up `\(K-1\)`. 
+
+- One estimate of the asymptotic expectation of the IV estimator is
+
+`$$E[\hat{\beta} - \beta] \approx (K-2)\frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}{\boldsymbol{\hat{\beta}}_{AZ}^\top Z^\top Z \boldsymbol{\hat{\beta}}_{AZ}} = \frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}{\sigma^2_{A}}\frac{K-2}{\tau^2}$$`
+- `\(\sigma_{\epsilon_A, \epsilon_Y}\)` is the covariance between `\(\epsilon_{A}\)` and `\(\epsilon_{Y}\)`
+- `\(\sigma^2_A\)` is the variance of `\(\epsilon_A\)`
+- `\(\tau^2 = \boldsymbol{\hat{\beta}}_{AZ}^\top Z^\top Z \boldsymbol{\hat{\beta}}_{AZ}/\sigma^2_A\)`. 
+
+- `\(\tau^2/K\)` is approximately the F-statistic from the first stage regression of `\(A\)` on the `\(K\)` instruments `\(Z_1, \dots, Z_k\)`. 
+
+- `\(\frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}{\sigma^2_{A}}\)` is approximately the asymptotic variance of the the OLS estimate regressing `\(Y\)` on `\(A\)` directly, i.e. the confounded observational association. 
+
+---
+# Asymptotic Bias of IV Estimators
+
+`$$E[\hat{\beta} - \beta] \approx \frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}{\sigma^2_{A}}\frac{K-2}{\tau^2} \approx \frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}{\sigma^2_{A}} \frac{1}{E[F]}$$`
+- This approximation shows us that the bias of the IV estimator is approximately the bias of the OLS estimate divided by the expected value of the F-statistic. 
+
+- For small F statistics, the IV estimate is almost as biased as the OLS estimate. 
+
+- The expression above is an approximation. More exact results show that the bias is not zero for `\(K = 2\)`. 
+
+- An often used rule of thumb is that the `\(F\)` statistic should be larger than 10, reducing the observational bias by 90%. 
+
+
+---
+# Weak Instrument Bias
+
+&lt;center&gt; 
+&lt;img src="img/10_bandt_tab2.png" width="80%" /&gt;
+&lt;/center&gt;
+
+---
+# Weak Instrument Bias in the Education Example
+
+- Bound, Jaeger, and Baker (1993 and 1995) point out that after adjusting for age, age squared, and year of birth the F-statistic for the quarter of birth IVs is actually quite small. 
+
+- A small amount of confounding between years of education and wages or slight violations of the exclusion restriction, could account for the results observed by Angrist and Kruger. 
+
+---
+# Weak Instrument Bias in the Education Example
+
+&lt;center&gt; 
+&lt;img src="img/10_bound_tab1.png" width="90%" /&gt;
+&lt;/center&gt;
+
+---
+# Bias in Two Sample IV
+
+- Our previous approximation suggests that all of the bias is due to correlation in `\(\epsilon_{A}\)` and `\(\epsilon_Y\)`. 
+
+- In two sample IV, these terms are uncorrelated. 
+
+- In two sample IV, weak instruments result in bias towards the null rather than bias towards the confounded OLS estimate. 
+
+- To see this, recall that the IVW estimator is a regression of `\(\boldsymbol{\hat{\beta}}_Y\)` on `\(\boldsymbol{\hat{\beta}}_A\)`. 
+
+- Bias arises because `\(\hat{\beta}_A\)` is measured with error. 
+
+- Measurement error in a predictor will attenuate the estimated coefficient. 
+
+
+---
+# Regression Dilution
+
+- Uncertainty in `\(\hat{\beta}_{AZ}\)` leads to regression dilution, causal estimate biased towards the null. 
+
+&lt;img src="https://lh3.googleusercontent.com/tR_txSm6OKmlavC5RQrkyRYf_rHl-M0th6GWpOG7IDkxWeb7i3CGaqa_Nv-9B_d-hSIAG02Rw33PvqtmpaRFkd-dN6CxFg0cVw3GXb-qFoBKDK-5Ru-Yf369Q7BAgCj3ZA=w1280" height="400"/&gt; 
+
+Animation from Robert Östling
+
+---
+# Regression Dilution
+
+- Uncertainty in `\(\hat{\beta}_{YZ}\)` does not create bias. 
+
+&lt;img src="https://lh5.googleusercontent.com/B6BhzVQNOHckyBm2nzMko7txt3UbkQcUr1A9DUKfVA5KJp0e4gcJyE-JOBY6o0ak7Ck3OWykgutNlQsnybLWjfFo2qpgkAJwv8x1FCctrBZ_yaHDVT2xYesie_jH14gK=w1280" height="400"/&gt; 
+
+Animation from Robert Östling
+
+
+
+---
+# Bias in the IV Estimate
+
+&lt;center&gt; 
+&lt;img src="img/10_bdt_fig1.png" width="115%" /&gt;
+&lt;/center&gt;
+
+---
+# Selection Bias
+
+
+- If we test our potential instrument and find that our estimated F statistic is small, we will probably reject it as an instrument. 
+
+- This means that on average, our estimate of `\(\hat{\beta}_{AZ}\)` will tend to be too extreme (far from 0). 
+
+- Overestimating the magnitude of `\(\hat{\beta}_{AZ}\)` will lead us to understimate the magnitude of `\(\gamma\)`, biasing results towards the null.  
+
+---
+# Selection Bias
+
+- This problem is bigger in settings where there are many possible instruments to choose from and selection is required. 
+  + In these circumstances, three sample IV is sometimes suggested. 
+  + We use one sample with measurements of `\(Z\)` and `\(A\)` to select instruments, and a second sample with measurements of `\(Z\)` and `\(A\)` to estimate `\(\hat{\beta}_{AZ}\)`. 
+  
+- Bias due to winner's curse tends to be small relative to weak instrument bias and is smaller for more stringent significance cutoffs.
+
+---
+# Bias in IV Estimates Summary
+
+- Using 2SLS or IVW in a single sample, bias due to weak instruments will be towards the confounded population correlation. 
+
+- In estimates from separate samples, weak instrument bias will bias the estimate towards the null. 
+
+- Selection bias will bias results towards the null but is smaller than weak instrument bias. 
+
+- This is all bias that occurs *when all of the assumptions are satisfied*. 
+
+- Violations of exchangeability or the exclusion restriction introduce correlation between `\(Z\)` and `\(\epsilon_{Y}\)`. If this occurs, bias could be in any direction but will most often be similar to the observational bias. 
+
+---
+# Pros and Cons of Using Multiple Instruments
+
+Pros: 
+- We have seen that our estimators do not have finite moments for single instruments. 
+  - This makes it appealing to use multiple instruments whenever possible. 
+
+- Adding instruments will increase the total F statistic, which we have seen will decrease bias. 
+
+Cons:
+- The more instruments we include, the more chances we have to vioalte one of the IV assumptions. 
+   + Valid inference depends on all instruments being valid. 
+   
+- In more non-parametric settings, using multiple instruments can make interpretation hard. 
 
 
 ---
 # Multiple Instrument Interpretation
 
-- In Angrist and Kruger, all instruments related to quarter of birth so plausibly, the "complier" group associated with each instrument represent similar populations. 
+- Each of the ratio estimates is an estimate of the complier average causal effect. 
 
-- This isn't always the case. 
+- However, different instruments have different complier groups. 
+  - In Angrist and Kruger, all instruments related to quarter of birth so plausibly, the "complier" group associated with each instrument represent similar populations. 
 
-- If different instruments have different complier groups, the effect estimated by `\(\hat{\beta}_{IVW}\)` or `\(\hat{\beta}_{2SLS}\)` will be a weighted average of effects in each complier group. 
+- If we are not willing to accept a model in which the effect is homogeneous, or there are no non-compliers, we are now estimating a weighted average of LATEs applying to different sub-groups. 
 
-- This can make the magnitude of the estimate hard to interpret. 
+- However, if we believe that the sign of the causal effect is the same in all complier groups, we still have a valid test of the strict null and the sign of the estimated effect is meaningful. 
 
-- If we are willing to assume that the effect direction is the same in every complier group (or homogeneous in the population), then `\(\hat{\beta}_{IVW}\)` is still valid under the strict null and the sign is meaningful. 
+
+
 
 
 ---
@@ -1041,44 +1275,123 @@ so we have a regression problem.
 
 
 - In Mendelian randomization, genetic variants are used as instruments. 
+--
 
-The rationale is that
 
 + Genetic variants are fixed at conception. They can't be altered by any confounders that occur after that point. 
 
+  + No arrows int `\(Z\)` from environment. 
+  
+--
+
 + Genetic variants can alter traits like height or disease risk by changing proteins, changing protein levels, or regulating expression of other genes. 
 
-+ If we are willing to assume random mating with respect to the instruments at hand, then an individuals genetic variants are essentially random.
+  + Relevance can be satisfied
 
-+ A unique feature of MR is that we often have hundreds or thousands of instruments for a particular trait. 
+--
+
++ If we are willing to assume random mating with respect to the instruments at hand, then an individuals genetic variants are perfect randomizations.
+
+  + No associations with confounders
 
 ---
 # Mendelian Randomization
 
-+ There are many possible issues with MR, but it is still a very powerful approach. 
+- MR is incredibly powerful because it can be applied to any pair of traits that has been studied in genetic association studies. 
 
-+ The biggest problems for MR are:
+- Using summary based methods, MR can be applied even when individual level data are not available. 
 
-  - Weak instruments: Most variants explain only a tiny amount of trait variation. 
-  - Violations of the exclusion restriction. Some variants causally effect multipl traits. 
-  - Additionally, genetic variants are correlated with each other, so one variant may be correlated with separate causal variants for two different traits. 
+- However, there are major caveats to results obtained using MR.
+---
+# Estimation Problems in MR
+
+
+- Weak instruments: Most variants explain only a tiny amount of trait variation. 
+
+  + Additionally, we are often trying to identify instruments in the same data we will use to estimate `\(\hat{\beta}_{AZ}\)`. 
+  + This can create selection bias. 
+
+--
+
+- Violations of the exclusion restriction. Some variants causally effect multiple traits. 
+
+  - Also, genetic variants are correlated with each other, so one variant may be correlated with separate causal variants for two different traits. 
+
+--
+
+- Confounding from population structure and assortative mating.
+
+  + We generally try to adjust for this in the regression of `\(A\)` on `\(Z\)`. 
   
-  - Confounding from population structure and assortative mating.
+---
+# Interpretation Problems in MR
+
+- Complier groups are unknown and hard to define. We generally don't know the mechanism of most variants. 
+
+- We generally assume that everyone is a complier for all instruments. 
+
+- The exposure can be ill-defined.
+- We don't know *when* a variant affects a trait so we cannot differentiate short and long term exposure. 
+  + We may know that genetic changes altering `\(A\)` increase disease risk `\(Y,\)` but does that mean that if we pharmaceutically alter `\(A\)` later in life we can prevent `\(Y\)`?
+
+- Variants may be affecting different components of an overly broad exposure, e.g. very large LDLs vs large LDLs. 
+  
+  
+---
+# MR Solutions
+
+- Despite its problems, MR has one big resource -- lots and lots of genetic variants. 
+
+- The exposure trait may have thousands of causal variants, so thousands of potential instruments. 
+
+- One strategy is to assume that most but not all of the instruments are valid. 
+
+- We can then examine the distribution of ratio estimates and reject variants that look very different from the rest. 
+
+- Another option is to use a robust regression rather than OLS for the regression of `\(\boldsymbol{\hat{\beta}}_Y\)` on `\(\boldsymbol{\hat{\beta}}_A\)`. 
+  + E.g median or mode regression
+
+- There are many many interesting methods trying different variations of this or related strategies.  
+
+---
+# Reassess the SEM
+`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+
+- We started this section with a very strong model that required complete homogeneity and linearity of effects for bht the `\(A\)` and `\(Y\)` model. 
+
+- It turns out that we can relax this slightly. 
+
+- The first equation need not be structural. For example, if `\(Z\)` is a surrogate instrument, this equation only expresses an association, rather than a causal link. 
 
 
 ---
-# Next Time
+# Reassess the SEM
+`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 
-+ Weak instruments and finite sample bias of IV estimators. 
+- We also don't need homogeneity in either equation, as long as we satisify 
+`$$Cov(Z_i, \epsilon_A) = 0 \qquad Cov(A_i, \epsilon_Y) = 0$$`
 
-+ Effects of violating the IV assumptions.
+- This first condition means that the structural form of the first equation needs to be correct -- the association between `\(Z\)` and `\(A\)` needs to be linear. 
 
-+ More about Mendelian randomization. 
+- In the second equation, it does not need to be true that `\(E[Y]\)` is linear in `\(A\)`. 
+  + If the true causal relationship is not linear, we will still estimate the ATE. 
+  + However, the ATE will depend on the distribution of `\(A\)` in our sample. 
 
-+ Binary outcomes and logistic regression. 
 
-+ Non-linear causal effects. 
+---
+# Coming up
 
+Last topics in IVA:
+
++ Binary outcomes and logistic regression
+
++ Non-linear causal effects
+
++ More about MR and IVA with many instruments
+
+Introduction to Machine Learning for Causal Inference
 
 &lt;!-- --- --&gt;
 

@@ -1165,16 +1165,38 @@ $$E[\hat{\beta} - \beta] \approx (K-2)\frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}
 ---
 # Asymptotic Bias of IV Estimators
 
-$$E[\hat{\beta} - \beta] \approx \frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}{\sigma^2_{A}}\frac{K-2}{\tau^2}$$
-- This approximation shows us that the bias of the IV estimator is approximately the bias of the OLS estimate divided by the F-statistic. 
+$$E[\hat{\beta} - \beta] \approx \frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}{\sigma^2_{A}}\frac{K-2}{\tau^2} \approx \frac{\sigma_{\epsilon_{A}, \epsilon_{Y}}}{\sigma^2_{A}} \frac{1}{E[F]}$$
+- This approximation shows us that the bias of the IV estimator is approximately the bias of the OLS estimate divided by the expected value of the F-statistic. 
 
 - For small F statistics, the IV estimate is almost as biased as the OLS estimate. 
 
 - The expression above is an approximation. More exact results show that the bias is not zero for $K = 2$. 
 
+- An often used rule of thumb is that the $F$ statistic should be larger than 10, reducing the observational bias by 90%. 
+
+
+---
+# Weak Instrument Bias
+
 <center> 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("img/10_bandt_tab2.png")
+```
+</center>
+
+---
+# Weak Instrument Bias in the Education Example
+
+- Bound, Jaeger, and Baker (1993 and 1995) point out that after adjusting for age, age squared, and year of birth the F-statistic for the quarter of birth IVs is actually quite small. 
+
+- A small amount of confounding between years of education and wages or slight violations of the exclusion restriction, could account for the results observed by Angrist and Kruger. 
+
+---
+# Weak Instrument Bias in the Education Example
+
+<center> 
+```{r, echo=FALSE, out.width="90%"}
+knitr::include_graphics("img/10_bound_tab1.png")
 ```
 </center>
 
@@ -1193,10 +1215,39 @@ knitr::include_graphics("img/10_bandt_tab2.png")
 
 - Measurement error in a predictor will attenuate the estimated coefficient. 
 
+
+---
+# Regression Dilution
+
+- Uncertainty in $\hat{\beta}_{AZ}$ leads to regression dilution, causal estimate biased towards the null. 
+
+<img src="https://lh3.googleusercontent.com/tR_txSm6OKmlavC5RQrkyRYf_rHl-M0th6GWpOG7IDkxWeb7i3CGaqa_Nv-9B_d-hSIAG02Rw33PvqtmpaRFkd-dN6CxFg0cVw3GXb-qFoBKDK-5Ru-Yf369Q7BAgCj3ZA=w1280" height="400"/> 
+
+Animation from Robert Östling
+
+---
+# Regression Dilution
+
+- Uncertainty in $\hat{\beta}_{YZ}$ does not create bias. 
+
+<img src="https://lh5.googleusercontent.com/B6BhzVQNOHckyBm2nzMko7txt3UbkQcUr1A9DUKfVA5KJp0e4gcJyE-JOBY6o0ak7Ck3OWykgutNlQsnybLWjfFo2qpgkAJwv8x1FCctrBZ_yaHDVT2xYesie_jH14gK=w1280" height="400"/> 
+
+Animation from Robert Östling
+
+
+
+---
+# Bias in the IV Estimate
+
+<center> 
+```{r, echo=FALSE, out.width="115%"}
+knitr::include_graphics("img/10_bdt_fig1.png")
+```
+</center>
+
 ---
 # Selection Bias
 
-- Another possible source of bias is selection bias. 
 
 - If we test our potential instrument and find that our estimated F statistic is small, we will probably reject it as an instrument. 
 
@@ -1221,6 +1272,10 @@ knitr::include_graphics("img/10_bandt_tab2.png")
 - In estimates from separate samples, weak instrument bias will bias the estimate towards the null. 
 
 - Selection bias will bias results towards the null but is smaller than weak instrument bias. 
+
+- This is all bias that occurs *when all of the assumptions are satisfied*. 
+
+- Violations of exchangeability or the exclusion restriction introduce correlation between $Z$ and $\epsilon_{Y}$. If this occurs, bias could be in any direction but will most often be similar to the observational bias. 
 
 ---
 # Pros and Cons of Using Multiple Instruments
@@ -1259,16 +1314,25 @@ Cons:
 
 
 - In Mendelian randomization, genetic variants are used as instruments. 
+--
 
-The rationale is that
 
 + Genetic variants are fixed at conception. They can't be altered by any confounders that occur after that point. 
 
+  + No arrows int $Z$ from environment. 
+  
+--
+
 + Genetic variants can alter traits like height or disease risk by changing proteins, changing protein levels, or regulating expression of other genes. 
 
-+ If we are willing to assume random mating with respect to the instruments at hand, then an individuals genetic variants are essentially random.
+  + Relevance can be satisfied
 
-+ A unique feature of MR is that we often have hundreds or thousands of instruments for a particular trait. 
+--
+
++ If we are willing to assume random mating with respect to the instruments at hand, then an individuals genetic variants are perfect randomizations.
+
+  + No associations with confounders
+
 ---
 # Mendelian Randomization
 
@@ -1282,11 +1346,21 @@ The rationale is that
 
 
 - Weak instruments: Most variants explain only a tiny amount of trait variation. 
+
+  + Additionally, we are often trying to identify instruments in the same data we will use to estimate $\hat{\beta}_{AZ}$. 
+  + This can create selection bias. 
+
+--
+
 - Violations of the exclusion restriction. Some variants causally effect multiple traits. 
+
   - Also, genetic variants are correlated with each other, so one variant may be correlated with separate causal variants for two different traits. 
-  
+
+--
+
 - Confounding from population structure and assortative mating.
-  + We generally try to correct for this in the first stage of regression. 
+
+  + We generally try to adjust for this in the regression of $A$ on $Z$. 
   
 ---
 # Interpretation Problems in MR
@@ -1296,15 +1370,16 @@ The rationale is that
 - We generally assume that everyone is a complier for all instruments. 
 
 - The exposure can be ill-defined.
-  + We don't know *when* a variant affects a trait so we cannot differentiate short and long term exposure. 
-  + We may know that modifications in genetic regulation of lipids affects disease risk but does that mean that if we pharmaceutically alter lipids later in life we can prevent the disease?
-  + Variants may be affecting different components of an overly broad exposure, e.g. very large LDLs vs large LDLs. 
+- We don't know *when* a variant affects a trait so we cannot differentiate short and long term exposure. 
+  + We may know that genetic changes altering $A$ increase disease risk $Y,$ but does that mean that if we pharmaceutically alter $A$ later in life we can prevent $Y$?
+
+- Variants may be affecting different components of an overly broad exposure, e.g. very large LDLs vs large LDLs. 
   
   
 ---
 # MR Solutions
 
-- Despite this long list of problems, MR has one big resource -- lots and lots of genetic variants. 
+- Despite its problems, MR has one big resource -- lots and lots of genetic variants. 
 
 - The exposure trait may have thousands of causal variants, so thousands of potential instruments. 
 
@@ -1339,22 +1414,23 @@ $$Cov(Z_i, \epsilon_A) = 0 \qquad Cov(A_i, \epsilon_Y) = 0$$
 
 - This first condition means that the structural form of the first equation needs to be correct -- the association between $Z$ and $A$ needs to be linear. 
 
-- In the second equation, the true relationships does not need to be linear. 
+- In the second equation, it does not need to be true that $E[Y]$ is linear in $A$. 
   + If the true causal relationship is not linear, we will still estimate the ATE. 
   + However, the ATE will depend on the distribution of $A$ in our sample. 
 
----
-# Binary Outcomes
 
 ---
-# Next Time
+# Coming up
 
+Last topics in IVA:
 
++ Binary outcomes and logistic regression
 
++ Non-linear causal effects
 
-+ Binary outcomes and logistic regression. 
++ More about MR and IVA with many instruments
 
-
+Introduction to Machine Learning for Causal Inference
 
 <!-- --- -->
 
