@@ -1523,23 +1523,31 @@ $$E[Y(a)] = \beta_{Y0} + \gamma a$$
 
 - Non-linearity could occur in either the $A-Z$ relationship or in the $Y(a)-a$ relationship. 
 
-- We will see the consequences of each possibility. 
-
-- Summary of results we will see: 
-
-  - $E[A \vert Z]$ non-linear: 2SLS will be biased. However, assessment of the first stage regression could show us the problem. We can correct it by using a more flexible model. 
+- If the relationship betwen $E[Y \vert Z]$ is non-linear in $Z$, the first stage regression is mis-specified.  
+  + We will have a violation of the requirement $Cov(Z, \epsilon_A) = 0$. 
+  + A non-linear relationship between $Z$ and $A$ has the same effect as confounding between $Z$ and $A$.
+  + Our estimate of $\hat{A}$ will be bad. 
   
-  - $E[Y(a)]$ non-linear in $a$: Under some conditions, we will estimate a parameter that is approximately the average derivative of $E[Y(a)]$ averaging over the distribution of $A$ in the sample. 
+- The good news is we have a chance to correct this. 
+  + Using model diagnositcs, we can evaluate the linearity assumption. 
+  + We could additional terms, like a quadratic term, to the regression. 
+  + Or we could use a flexible method like smoothing splines. 
   
----
-# Non-Linear Exposure-Instrument Relationship
-
 ---
 # Non-Linear Exposure Outcome Relationship
+
+- $E[Y(a)] = g(a)$ is non-linear in $a$, then the 2SLS estimate does not estimate the ATE.
+
+- However, the parameter that we do estimate is not meaningless. 
+
+- If every IV is binary and has equal effect size, $\gamma$, then we estimate the local average causal effect
+
+$$LACE(a) \frac{E[Y(a + \gamma) - Y(a)]}{\gamma}$$
+
+- There are IV extensions that allow us to estimate the non-linear relationship between $Y(a)$ and $a$. 
+  + Hopefully more on this in student presentations. 
   
 
----
-# Binary Outcomes and Logistic Regression
 
 
 
