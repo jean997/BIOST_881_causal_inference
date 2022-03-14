@@ -4,7 +4,7 @@
     <title>L11: Machine Learning in Causal Inference</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -31,13 +31,17 @@ class: center, middle, inverse, title-slide
 
 - Statistical models are approximations of joint or conditional probability distributions of observed data. 
 
+--
+
 - For example, if we have observations `\((x_1, y_1), \dots, (x_N, y_N)\)` and we fit a simple linear regression of `\(Y\)` on `\(X\)`, we are using the model
 `$$y_i = \beta_0  + \beta_1 x_i + \epsilon_i\\\ \epsilon_i \sim N(0, \sigma_y^2)$$`
   + We are approximating the conditional distribution of `\(Y \vert X\)` as normal with mean `\(\beta_0 + \beta_1X\)` and variance `\(\sigma_y^2\)`. 
-  
-- More accurately, the linear model is a *class of models* parametrized by a finite set of parameters (three in our case).
+ 
+--
 
-- The OLS procedure identifies the single model within this class that best approximates the distribution of the observed data. 
+- The linear model is a *class of distributions* parametrized by a finite set of parameters (three in our case).
+
+- The OLS procedure identifies the single distribution within the model that best approximates the distribution of the observed data. 
 
 `\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
 
@@ -45,19 +49,25 @@ class: center, middle, inverse, title-slide
 ---
 # Machine Learning
 
-- Machine learning methods allow us to expand the class of models in which we look for approximations. 
+- Machine learning methods allow us to search larger classes of models for good approximations. 
 
 - ML methods are sometimes described as "learning models automatically" from data. 
 
-- However, all statistical methods are learning models. 
+- However, this is a bit hazy since a model is just a class of distributions. 
 
-- A unique feature of ML methods, is that the class of models is sometimes allowed to expand as the number of observations increases, allowing increasing complexity. 
+--
+
+- What is unique about ML methods is the model space is often very large and sometimes allowed to expand as the number of observations increases. 
+
+- ML methods typically privelage some type of smoothness. 
+  + A common way to achieve this is to over-parameterize a model and then penalize some or all of the parameters.
+  + The penalty, controlling the effective number of parameters and degree of smoothness, can be learned from the data via cross-validation. 
 
 
 ---
 # Example: Splines
 
-- As an alternative to the linear model, we add parameters to the regression, for example fitting piece-wise functions. 
+- As an alternative to the linear model, we can add a fixed number parameters to the regression, for example fitting piece-wise functions. 
 
 &lt;center&gt; 
 &lt;img src="img/11_spline1.png" width="85%" /&gt;
@@ -68,11 +78,13 @@ class: center, middle, inverse, title-slide
 ---
 # Example: Smoothing Splines
 
-- As an alternative is to approximate the conditional mean of `\(Y\)` given `\(X\)` as a smooth function of `\(X\)`. 
+- An alternative is to approximate the conditional mean of `\(Y\)` given `\(X\)` as a smooth function of `\(X\)`. 
 
 `$$y_i = h(x_i) + \epsilon_i \qquad h \in \mathcal{H}\\\ \epsilon_i \sim N(0, \sigma_y^2)$$` where `\(\mathcal{H}\)` is a class of "smooth" functions. 
 
-- Smoothness could be definde by a restriction, for example on the second derivative
+--
+
+- Smoothness could be defined by a restriction, for example on the second derivative
 `$$\int (h^{\prime \prime}(x))^2 dx &lt; C$$`
   
   
@@ -87,12 +99,13 @@ class: center, middle, inverse, title-slide
 
 `$$\vert h(x) - \sum_{k = 1}^K\beta_k g_k(x) \vert &lt; \varepsilon \ \ \forall x$$`
 
+--
 
 - Using our spline basis, we replace the previous model with
 `$$y_i = \sum_{k = 1}^{K(N)}\beta_k g_k(x_i) + \epsilon$$`  
   + Often `\(K(N) = N\)`
-  + We then estimate the coefficients `\(\beta_1, \dots, \beta_K\)` via *penalized likelihood. 
-  + The penalty controlls the degree of smoothness or the *effective number of parameters*. 
+  + We then estimate the coefficients `\(\beta_1, \dots, \beta_K\)` via *penalized likelihood*. 
+  + The penalty controls the degree of smoothness or the *effective number of parameters*. 
   
 
 ---
@@ -133,16 +146,16 @@ class: center, middle, inverse, title-slide
 - Allowing the number of spline basis terms to increase as sample size increases provides "built-in" increasing model complexity. 
 
 
-- When we fit a smoothing spline, we are exploiting having lots of data in order to make weaker assumptions about the relationship between `\(E[Y \vert X]\)` and `\(X\)`. . 
+- When we fit a smoothing spline, we leverage having a lot of data in order to make weaker assumptions about the relationship between `\(E[Y \vert X]\)` and `\(X\)`. 
   
   
 ---
 # ML Methods are Good at Approximating Data
 
-- There are numerous ML methods which allow us to approximate distributions which much higher complexity than simple regressions. 
+- There are numerous ML methods which allow us to approximate distributions which much higher complexity than "plain" regressions. 
 
 - These include 
-  + variable selection methods like LASSO. 
+  + variable selection methods like LASSO or stepwise selection. 
   + random forests
   + neural networks
   + empirical Bayes methods (learn the prior from the data)
@@ -163,7 +176,7 @@ or possibly the causal risk ratio
 
 - Neither ML methods nor "standard" statistical methods can learn counterfactual distributions. They can only learn distributions of observed data. 
 
-- So we need to express our counterfactual quantity `\(E[Y(1)]\)` in terms of the probability distribution of the observations.
+- We need to express our counterfactual quantity `\(E[Y(1)]\)` in terms of the probability distribution of the observations.
 
 
 ---
@@ -194,65 +207,148 @@ or possibly the causal risk ratio
   - Inverse probability weighting or treatment modeling
   - Let `\(\pi_a(l) = P[A = a \vert L = l]\)`
   
-- Finally, we saw that using double robust methods we can combine the two. 
-  - We saw that the bias of DR methods is proportional to `\(\left(\frac{1}{\hat{\pi}}- \frac{1}{\pi}\right)\left(\hat{b}-b\right)\)`
+- Combo: Double robust methods combine both options. 
+  - The bias of DR methods is proportional to `\(\left(\frac{1}{\hat{\pi}}- \frac{1}{\pi}\right)\left(\hat{b}-b\right)\)`, so DR methods will be less biased than either of the other options. 
 
 ---
 # Machine Learning in g-Formula Methods
 
 - We can use ML methods to estimate `\(\pi\)` or `\(b\)`. 
 
+--
 
-- **However**, we need to be careful. 
+- **However**, we need to be careful!
+
+--
 
 - Neither outcome modeling alone or IP weighting will generally yield an asymptotically normal estimate for general ML methods. 
   + Both methods require that we pre-specify a parametric model with a fixed number of parameters. 
+  + Standard errors will be incorrect if we just plug in a ML method.
 
+--
 
 - ML methods are not guaranteed to be consistent. 
   + We may not have included all of the confounders.
-  + The set of models the ML method is choosing from may not include the truth. 
+  + The set of models the ML method is searching may not include any models close to the truth. 
   + We may have included variables that induce bias (more on this later).
-  
-- For this reasons we should use a double robust estimator with ML methods. 
-  + Coming up, we will see an especially nice version. 
 
+--
+
+- For this reasons we should use a double robust estimator with ML methods. 
+
+
+
+---
+# Some Formal Definitions
+
+- Let `\(P_0\)` be a probability distribution from which we can observe data.  
+
+- A model `\(\mathcal{M}\)` is a set of models `\(\lbrace P_\theta \vert \theta \in \mathbb{R}^d \rbrace\)`. 
+
+- A model is correctly specified if `\(P_0 \in \mathcal{M}\)`. A model is misspecified if `\(P_0 \not\in \mathcal{M}\)`. 
+
+- We can define a *statistical target parameter* `\(\Psi\)` which is a mapping from `\(\mathcal{M}\)` to `\(\mathbb{R}\)`
+  + For example, `\(\Psi\)` might be the mean. 
+  + `\(\Psi\)` need not be one of the elements of `\(\theta\)`
+  
+- The target estimand (the thing we want to estimate) is `\(\Psi(P_0)\)`
+
+---
+# Empirical Probability Measures 
+
+- Let `\(O_1, \dots, O_n\)` be iid draws from `\(P_0\)`.
+
+- We define the empirical probability measure `\(P_n\)`
+`$$P_n(X) = \frac{1}{n}\sum_{i = 1}^n I(O_i \in X)$$`
+- This defines a measure over sets `\(X\)` and therefore an empirical CDF. 
+
+- `\(P_n\)` is the "histogram" measure. It contains all of the information about `\(O_1, \dots, O_n\)`. 
+
+- `\(P_n\)` is an approximation of the true probability measure `\(P_0\)`. 
+
+---
+# Estimators
+
+- We would like to find a function of the data, i.e. of `\(P_n\)` which is a good estimate of `\(\Psi(P_0)\)`. 
+
+- An estimator is a rule for turning an empirical distribution into an estimate. 
+
+- That is, an estimator is a function `\(\hat{\Psi}: \mathcal{M}_{NP} \to \mathbb{R}\)` where `\(\mathcal{M}_{NP}\)` is a non-parametric class of possible empirical distributions. 
+
+- The *estimate* is `\(\hat{\Psi}(P_n)\)`. 
+
+- `\(\hat{\Psi}(P_n)\)` is a random variable because it is a function of the random empirical distribution. 
 
 ---
 # Asymptotic Linearity
 
-- Let `\(O_1, \dots, O_n\)` be an iid sample from a probability distribution `\(P\)`. 
+- An estimator `\(\hat{\Psi}(P_n)\)` is asymptotically linear if
 
-- Let `\(\hat{\psi}_n\)` be an estimator. The subscript `\(n\)` refers to sample size and helps remind us that `\(\hat{\psi}_n\)` is a function of data. 
+`$$\hat{\Psi}(P_n)- \Psi(P_0) = \frac{1}{n}\sum_{i = 1}^n IC(O_i; \nu) + o_p(n^{-1/2})$$`
+- Reminder of "little o" notation: `\(f(n)\)` is `\(o_p(1)\)` if `\(f(n) \to 0\)` as `\(n \to \infty\)`. 
+  + `\(f(n)\)` is `\(o_p(r)\)` if `\(f(n)/r \to 0\)` as `\(n \to \infty\)`. 
 
 
-- `\(\hat{\psi}_n\)` is asymptotically linear if 
-`$$\hat{\psi}_n = \sum_{i = 1}^n \phi(O_i) + o_p(1)$$`
-- `\(\hat{\psi}_n\)` looks like an average of some function of each data point. 
+- `\(\hat{\Psi}(P_n)-\Psi(P_0)\)` looks like an average of some function of each data point plus a remainder that goes to zero, even if blown up by `\(\sqrt{n}\)`. 
 
-- The function `\(\phi\)`, is called the influence function, or influence curve. 
-
-- If `\(\hat{\psi}_n\)` is asymptotically linear then `\(\hat{\psi}_n\)` is asymptotically normal. 
-  + Result comes from the CLT
-  + A highly describable property
+- The function `\(IC\)` is the influence function, or influence curve. 
 
 
 ---
-# Targeted Maximum Likelihood Estimation (TMLE)
+# Asymptotic Linearity and the CLT
+
+- If `\(\hat{\Psi}(P_n)\)` is asymptotically linear then a consequence of the central limit theorem is that
+
+`$$\sqrt{n}(\hat{\Psi}(P_n) - \Psi(P_0)) \sim N(\mu_{IC}, \sigma^2_{IC})$$`
+
+where `\(\mu_{IC} = E[IC(O_i; \nu)]\)` and `\(\sigma^2_{IC} = Var(IC(O_i; \nu)\)`. 
+
+- Usually `\(\mu_{IC} = 0\)`. 
+
+- Asymptotic linearity implies consistent, asymptotically normal estimators. 
+  + "Nice" estimators that we can easily create Wald-type confidence intervals for. 
+  
+  `$$\hat{\Psi} \pm Z_{1-\frac{\alpha}{2}}\hat{\sigma}_{IC}/\sqrt{N}$$`
+
+---
+# Efficient Influence Functions
+
+- The influence function is the most important thing to know about an asymptotically linear estimator. 
+  + It tells us the mean and variance of the estimator. 
+  
+- Recall that an estimator is *efficient* if it has lower asymptotic variance than every other estimator in its class. 
+  
+---
+# Efficient Influence Functions
+
+- We will not show it but an important result is that *every* efficient estimator within a class has the sample influence function, called the *efficient influence function* (EIF). 
+
+- The EIF can be derived making it possible to reverse engineer efficient estimators. 
+
+- Note that the EIF is model specific. An estimator that is efficient within one model may not be efficient in a larger model. 
+  + The maximum likelihood linear regression estimate is the efficient estimator in the simple linear model case we saw earlier. 
+  + In the larger class of models with `\(E[Y \vert X]\)` a smooth function of `\(X\)`, we can do much better. 
+
+---
+# Targeted Minimum Loss Estimation (TMLE)
 
 - TMLE is a double robust estimation strategy that is very similar to other DR estimators we have seen so far. 
 
 - TMLE yields an asymptotically linear estimator as long as at least one of `\(\hat{\pi}\)` or `\(\hat{b}\)` are consistent. 
-  + If both re consistent, the TMLE is also efficient, meaning that it has the smallest possible asymptotic bias of any estimator.
+  + If both are consistent, the TMLE is also efficient.
   + These properties are also true of the other DR estimators we have seen.
   
 ---
 # TMLE vs AIPW
 
-- TMLE is guaranteed to yield an estimate of `\(E[Y(a)]\)` that is within the range of the original outcome data. 
-  + This is not true of the AIPW estimator (previously the Robins, Rotnitzky, and Zhao estimator)
+- The augmented inverse probability weighted estimator (AIPW) is the estimator we saw previously as the Robins, Rotnitzky, and Zhao estimator. 
+
+`$$\hat{E}[Y(1)] = \hat{\Delta}_{DR,1} = \frac{1}{N} \sum_{i = 1}^N \left \lbrace \hat{Y}_{1,i} + \frac{A_i}{\hat{\pi}(L_i)}\left(Y_i - \hat{Y}_{1,i} \right) \right \rbrace$$`
+
+- TMLE and AIPW have the same influence function -- they are asymptotically equivalent.
+
+- TMLE is guaranteed to yield an estimate of `\(E[Y(a)]\)` that is within the range of the original outcome data, while AIPW is not. 
   
-  `$$\hat{\Delta}_{DR,1} = \frac{1}{N} \sum_{i = 1}^N \left \lbrace \hat{Y}_{1,i} + \frac{A_i}{\hat{\pi}(L_i)}\left(Y_i - \hat{Y}_{1,i} \right) \right \rbrace$$`
 - TMLE is also more stable than AIPTW with `\(\hat{\pi}(L_i)\)` are very small for units. 
 
 
@@ -263,7 +359,8 @@ The following steps produce the TMLE for a binary outcome and binary exposure.
 
 Step 1: Generate an initial estimate `\(\hat{b}_0\)` of `\(E[Y \vert A, L]\)`. 
 
-Step 2: Estimate `\(\hat{\pi}_a = P[A = a \vert L]\)`. For binary exposure, we will estimate `\(\hat{\pi}_1\)` and then compute `\(\hat{\pi}_0 = 1-\hat{\pi}_1\)`. 
+Step 2: Estimate `\(\hat{\pi}_a = P[A = a \vert L]\)`. 
+  + For binary exposure, we will estimate `\(\hat{\pi}_1\)` and then compute `\(\hat{\pi}_0 = 1-\hat{\pi}_1\)`. 
 
 ---
 # TMLE One-Step Update
@@ -277,6 +374,8 @@ Fit the model
 Note that the coefficient on the first term is 1, this is an offset. 
 
 We get out an estimate, `\(\hat{\epsilon}\)`, called the fluctuation parameter. 
+
++ It should not be obvious why we fit this particular model.
 
 ---
 # TMLE One-Step Update
@@ -304,24 +403,11 @@ The lest step is to use standardization to estimate `\(E[Y(a)]\)`
 - Notice that this procedure guarantees us an estimate within the observed range of `\(Y\)`. 
 
 ---
-# Inference
-
-- We can obtain the variance of the treatment effect estimated by TMLE by directly computing the influence function. 
-
-- If `$$\hat{\psi}_n = \sum_{i = 1}^n \phi(O_i) + o_p(1)$$` then `\(\hat{\psi}_n\)` is asymptotically normal with mean `\(E[\phi(O)]\)` and variance `\(\frac{1}{N}Var(\phi(O))\)`. 
-
-- For TMLE, the influence function for the ATE is
-
-`$$\hat{\phi}(O_i) = (Y_i - \hat{b}(A_i, L_i))H(A_i, L_i) + (\hat{b}(1, L_i)- \hat{b}(0, L_i))- \hat{ATE}$$`
-
-- We can estimate the variance of the ATE estimate as the sample variance of `\(\hat{\phi}\)` divided by `\(N\)`. 
-
----
 # Update Step Intuition
 
 - The update step works because it directly solves a formula for the efficient influence function.
 
-- However, we can have some intuition for why it is necessary without knowing about efficient influence functions. 
+- However, we can have some intuition for why it is necessary without deriving the EIF. 
 
 - The models we used to estimate `\(\hat{b}_0\)` and `\(\hat{\pi}\)` have made bias-variance trade-offs aimed at optimizing prediction of `\(Y\)` or `\(A\)` respectively. 
 
@@ -331,13 +417,33 @@ The lest step is to use standardization to estimate `\(E[Y(a)]\)`
 - This is the source of the "Targeted" in TMLE. 
 
 ---
-# Super Learner
+# Update Step Intuition
+
+&lt;center&gt; 
+&lt;img src="img/11_roadmap.png" width="85%" /&gt;
+&lt;/center&gt;
+
+---
+# Inference
+
+- We can obtain the variance of the treatment effect estimated by TMLE by directly computing the influence function. 
+
+- For TMLE, the influence function for the ATE is
+
+`$$\hat{IC}(O_i) = (Y_i - \hat{b}(A_i, L_i))H(A_i, L_i) + (\hat{b}(1, L_i)- \hat{b}(0, L_i))- \hat{ATE}$$`
+
+- We can estimate the variance of the ATE estimate as `$$\frac{Var(\hat{IC})}{N}$$`
+
+
+---
+# Super-Learner
 
 - We need to decide what estimators to use to get `\(\hat{b}_0\)` and `\(\hat{\pi}\)` in the TMLE algorithm. 
 
 - It may be hard to know which of many possible options will give the best results. 
 
-- In super learning, we use a weighted combination of many learners.
+- In super-learning, we use a weighted combination of many learners.
+  + An "ensemble" learner, weights chosen via cross-validation.
   + The best of all worlds. 
   
 - Super learning can improve performance of the TMLE. 
@@ -347,7 +453,7 @@ The lest step is to use standardization to estimate `\(E[Y(a)]\)`
 &lt;/center&gt;
 
 ---
-# Super Learner vs TMLE
+# Super-Learner vs TMLE
 
 - The super learner and the TMLE different, seprable methods. 
 
@@ -357,7 +463,7 @@ The lest step is to use standardization to estimate `\(E[Y(a)]\)`
 
 - TMLE can be used with parametric models for `\(\hat{b}\)` and `\(\hat{\pi}\)`. 
 
-- Super learner can be used for other prediction problems, including as part of non-TMLE causal estimators.
+- Super-learner can be used for other prediction problems, including as part of non-TMLE causal estimators.
 
 ---
 # TMLE with Super Learner
