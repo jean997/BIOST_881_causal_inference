@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L11: Machine Learning in Causal Inference</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# L11: Machine Learning in Causal Inference
+### Jean Morrison
+### University of Michigan
+### 2022-03-14 (updated: 2022-03-14)
+
+---
+
+# Statistical Models Approximate Distributions
+
+- Statistical models are approximations of joint or conditional probability distributions of observed data. 
+
+- For example, if we have observations `\((x_1, y_1), \dots, (x_N, y_N)\)` and we fit a simple linear regression of `\(Y\)` on `\(X\)`, we are using the model
+`$$y_i = \beta_0  + \beta_1 x_i + \epsilon_i\\\ \epsilon_i \sim N(0, \sigma_y^2)$$`
+  + We are approximating the conditional distribution of `\(Y \vert X\)` as normal with mean `\(\beta_0 + \beta_1X\)` and variance `\(\sigma_y^2\)`. 
+  
+- More accurately, the linear model is a *class of models* parametrized by a finite set of parameters (three in our case).
+
+- The OLS procedure identifies the single model within this class that best approximates the distribution of the observed data. 
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+---
+# Machine Learning
+
+- Machine learning methods allow us to expand the class of models in which we look for approximations. 
+
+- ML methods are sometimes described as "learning models automatically" from data. 
+
+- However, all statistical methods are learning models. 
+
+- A unique feature of ML methods, is that the class of models is sometimes allowed to expand as the number of observations increases, allowing increasing complexity. 
+
+
+---
+# Example: Splines
+
+- As an alternative to the linear model, we add parameters to the regression, for example fitting piece-wise functions. 
+
+&lt;center&gt; 
+&lt;img src="img/11_spline1.png" width="85%" /&gt;
+&lt;/center&gt;
+
+- With fixed knots, these models are only a little more flexible than the linear regression. 
+
+---
+# Example: Smoothing Splines
+
+- As an alternative is to approximate the conditional mean of `\(Y\)` given `\(X\)` as a smooth function of `\(X\)`. 
+
+`$$y_i = h(x_i) + \epsilon_i \qquad h \in \mathcal{H}\\\ \epsilon_i \sim N(0, \sigma_y^2)$$` where `\(\mathcal{H}\)` is a class of "smooth" functions. 
+
+- Smoothness could be definde by a restriction, for example on the second derivative
+`$$\int (h^{\prime \prime}(x))^2 dx &lt; C$$`
+  
+  
+- This class of models does not have a finite parametrization
+  - However, it is possible to approximate functions in `\(\mathcal{H}\)` using a finite number of terms. 
+  
+---
+# Example: Smoothing Splines
+
+- We can define a spline basis, an infinite set of functions `\(g_1(x), g_2(x), \dots\)` that allows us to approximate any smooth function well. 
+  + Given any smooth `\(h\)` and error tolerance `\(\varepsilon\)`, we can find a finite `\(K\)` and a set of coefficients `\(\beta_1, \dots, \beta_{K}\)` such that 
+
+`$$\vert h(x) - \sum_{k = 1}^K\beta_k g_k(x) \vert &lt; \varepsilon \ \ \forall x$$`
+
+
+- Using our spline basis, we replace the previous model with
+`$$y_i = \sum_{k = 1}^{K(N)}\beta_k g_k(x_i) + \epsilon$$`  
+  + Often `\(K(N) = N\)`
+  + We then estimate the coefficients `\(\beta_1, \dots, \beta_K\)` via *penalized likelihood. 
+  + The penalty controlls the degree of smoothness or the *effective number of parameters*. 
+  
+
+---
+# Example: Smoothing Splines
+
+&lt;center&gt; 
+&lt;img src="img/11_spline2.png" width="85%" /&gt;
+&lt;/center&gt;
+
+---
+# Bias-Variance Trade-Off
+
+- With no penalization, we could perfectly interpolate the data.
+
+- With an infinite penalty, the problem reduces to simple linear regession. 
+
+- Too little smoothing:
+  + The estimate will have a high variance because very little data contributes to the estimate at each point.
+  
+  
+- Too much smoothing: 
+  + The estimate has low variance but high bias. 
+  
+- In practice, we try to learn the amount of smoothing that best fits the data via cross-validation. 
+
+---
+# Bias-Variance Trade-Off
+
+&lt;center&gt; 
+&lt;img src="img/11_splines.png" width="62%" /&gt;
+&lt;/center&gt;
+
+---
+# Example: Smoothing Splines
+
+- Smoothing splines allow us to expand the class of models to we use to approximate the conditional distribution of `\(Y\)` given `\(X\)` compared to simple linear regression.
+
+- Allowing the number of spline basis terms to increase as sample size increases provides "built-in" increasing model complexity. 
+
+
+- When we fit a smoothing spline, we are exploiting having lots of data in order to make weaker assumptions about the relationship between `\(E[Y \vert X]\)` and `\(X\)`. . 
+  
+  
+---
+# ML Methods are Good at Approximating Data
+
+- There are numerous ML methods which allow us to approximate distributions which much higher complexity than simple regressions. 
+
+- These include 
+  + variable selection methods like LASSO. 
+  + random forests
+  + neural networks
+  + empirical Bayes methods (learn the prior from the data)
+  
+- These are often described as prediction methods but we can also think of them as methods for approximating the distributions of data.
+
+
+---
+# Causal Effects
+
+
+- Early in this course we defined a causal effect as the average treatment effect
+`$$E[Y(1)] - E[Y(0)]$$`
+or possibly the causal risk ratio 
+`$$\frac{E[Y(1)]}{E[Y(0)]}$$`
+
+- The quantity `\(E[Y(1)]\)` is a parameter of the counterfactual distribution of `\(Y\)` under the action setting `\(A\)` to 1. 
+
+- Neither ML methods nor "standard" statistical methods can learn counterfactual distributions. They can only learn distributions of observed data. 
+
+- So we need to express our counterfactual quantity `\(E[Y(1)]\)` in terms of the probability distribution of the observations.
+
+
+---
+# Return to the g-Formula
+
+- To link the probability distribution of the observed data and the counterfactual parameters we are interested in we need a DAG and the g-formula
+
+`$$E[Y(a)] = \int E[Y \vert A = a, L = l]dF_l(l)$$`
+
+- The DAG is necessary to identify a sufficient set of confounding variables.
+  + The data cannot tell us what the correct DAG is. 
+  + In some cases it can help. 
+  
+  
+- For this reason, there cannot be any purely automated causal inference. 
+  + Job security for statisticians. 
+
+---
+# g-Formula Methods
+
+- We saw two ways to use the g-formula. 
+
+- Option 1: Estimate `\(E[Y \vert A = a, L = l]\)`
+  - Outcome modeling, or plug-in g-formula. 
+  - Let `\(b(a, l) = E[Y \vert A=a, L=l]\)`
+  
+- Option 2: Estimate `\(P[A = a \vert L = l]\)`
+  - Inverse probability weighting or treatment modeling
+  - Let `\(\pi_a(l) = P[A = a \vert L = l]\)`
+  
+- Finally, we saw that using double robust methods we can combine the two. 
+  - We saw that the bias of DR methods is proportional to `\(\left(\frac{1}{\hat{\pi}}- \frac{1}{\pi}\right)\left(\hat{b}-b\right)\)`
+
+---
+# Machine Learning in g-Formula Methods
+
+- We can use ML methods to estimate `\(\pi\)` or `\(b\)`. 
+
+
+- **However**, we need to be careful. 
+
+- Neither outcome modeling alone or IP weighting will generally yield an asymptotically normal estimate for general ML methods. 
+  + Both methods require that we pre-specify a parametric model with a fixed number of parameters. 
+
+
+- ML methods are not guaranteed to be consistent. 
+  + We may not have included all of the confounders.
+  + The set of models the ML method is choosing from may not include the truth. 
+  + We may have included variables that induce bias (more on this later).
+  
+- For this reasons we should use a double robust estimator with ML methods. 
+  + Coming up, we will see an especially nice version. 
+
+
+---
+# Asymptotic Linearity
+
+- Let `\(O_1, \dots, O_n\)` be an iid sample from a probability distribution `\(P\)`. 
+
+- Let `\(\hat{\psi}_n\)` be an estimator. The subscript `\(n\)` refers to sample size and helps remind us that `\(\hat{\psi}_n\)` is a function of data. 
+
+
+- `\(\hat{\psi}_n\)` is asymptotically linear if 
+`$$\hat{\psi}_n = \sum_{i = 1}^n \phi(O_i) + o_p(1)$$`
+- `\(\hat{\psi}_n\)` looks like an average of some function of each data point. 
+
+- The function `\(\phi\)`, is called the influence function, or influence curve. 
+
+- If `\(\hat{\psi}_n\)` is asymptotically linear then `\(\hat{\psi}_n\)` is asymptotically normal. 
+  + Result comes from the CLT
+  + A highly describable property
+
+
+---
+# Targeted Maximum Likelihood Estimation (TMLE)
+
+- TMLE is a double robust estimation strategy that is very similar to other DR estimators we have seen so far. 
+
+- TMLE yields an asymptotically linear estimator as long as at least one of `\(\hat{\pi}\)` or `\(\hat{b}\)` are consistent. 
+  + If both re consistent, the TMLE is also efficient, meaning that it has the smallest possible asymptotic bias of any estimator.
+  + These properties are also true of the other DR estimators we have seen.
+  
+---
+# TMLE vs AIPW
+
+- TMLE is guaranteed to yield an estimate of `\(E[Y(a)]\)` that is within the range of the original outcome data. 
+  + This is not true of the AIPW estimator (previously the Robins, Rotnitzky, and Zhao estimator)
+  
+  `$$\hat{\Delta}_{DR,1} = \frac{1}{N} \sum_{i = 1}^N \left \lbrace \hat{Y}_{1,i} + \frac{A_i}{\hat{\pi}(L_i)}\left(Y_i - \hat{Y}_{1,i} \right) \right \rbrace$$`
+- TMLE is also more stable than AIPTW with `\(\hat{\pi}(L_i)\)` are very small for units. 
+
+
+---
+# TMLE Initialization
+
+The following steps produce the TMLE for a binary outcome and binary exposure. 
+
+Step 1: Generate an initial estimate `\(\hat{b}_0\)` of `\(E[Y \vert A, L]\)`. 
+
+Step 2: Estimate `\(\hat{\pi}_a = P[A = a \vert L]\)`. For binary exposure, we will estimate `\(\hat{\pi}_1\)` and then compute `\(\hat{\pi}_0 = 1-\hat{\pi}_1\)`. 
+
+---
+# TMLE One-Step Update
+
+
+Step 3: Update the model of `\(E[Y \vert A, L]\)`. To do this we employ the "special covariate" strategy. Define
+`$$H(A, L) = \frac{I(A = 1)}{\hat{\pi}_1(L)} - \frac{I(A = 0)}{\hat{\pi}_0(L)}$$`
+Fit the model 
+
+`$$logit(E[Y \vert A, L]) = logit(\hat{b}_0(A, L)) + \epsilon H(A,L)$$`
+Note that the coefficient on the first term is 1, this is an offset. 
+
+We get out an estimate, `\(\hat{\epsilon}\)`, called the fluctuation parameter. 
+
+---
+# TMLE One-Step Update
+
+Having estimated `\(\epsilon\)`, we now have a new outcome estimate,
+
+`$$\hat{b}(A, L) = expit\left( logit(\hat{b}_0(A, L)) + \hat{\epsilon}H(A, L)\right)$$`
+
+---
+# TMLE Final Step
+
+The lest step is to use standardization to estimate `\(E[Y(a)]\)`
+
+`$$\hat{E}[Y(a)] = \frac{1}{n}\sum_{i=1}^N \hat{b}(a, L_i)$$`
+
+---
+# TMLE with Continouous Outcome
+
+- With a continuous outcome we can use exactly the same algorithm *except*
+
+- Before we begin, we need to transform `\(Y\)` into the range `\([0, 1]\)`. 
+
+- At the end we need to undo our transformation. 
+
+- Notice that this procedure guarantees us an estimate within the observed range of `\(Y\)`. 
+
+---
+# Inference
+
+- We can obtain the variance of the treatment effect estimated by TMLE by directly computing the influence function. 
+
+- If `$$\hat{\psi}_n = \sum_{i = 1}^n \phi(O_i) + o_p(1)$$` then `\(\hat{\psi}_n\)` is asymptotically normal with mean `\(E[\phi(O)]\)` and variance `\(\frac{1}{N}Var(\phi(O))\)`. 
+
+- For TMLE, the influence function for the ATE is
+
+`$$\hat{\phi}(O_i) = (Y_i - \hat{b}(A_i, L_i))H(A_i, L_i) + (\hat{b}(1, L_i)- \hat{b}(0, L_i))- \hat{ATE}$$`
+
+- We can estimate the variance of the ATE estimate as the sample variance of `\(\hat{\phi}\)` divided by `\(N\)`. 
+
+---
+# Update Step Intuition
+
+- The update step works because it directly solves a formula for the efficient influence function.
+
+- However, we can have some intuition for why it is necessary without knowing about efficient influence functions. 
+
+- The models we used to estimate `\(\hat{b}_0\)` and `\(\hat{\pi}\)` have made bias-variance trade-offs aimed at optimizing prediction of `\(Y\)` or `\(A\)` respectively. 
+
+- However, predicting `\(Y\)` and `\(A\)` isn't our end goal. Our end goal is estimating the causal effect. 
+
+- The update step adjusts the bias-variance trade-off to improve estimation of the target parameter. 
+- This is the source of the "Targeted" in TMLE. 
+
+---
+# Super Learner
+
+- We need to decide what estimators to use to get `\(\hat{b}_0\)` and `\(\hat{\pi}\)` in the TMLE algorithm. 
+
+- It may be hard to know which of many possible options will give the best results. 
+
+- In super learning, we use a weighted combination of many learners.
+  + The best of all worlds. 
+  
+- Super learning can improve performance of the TMLE. 
+
+&lt;center&gt; 
+&lt;img src="img/11_ring.png" width="35%" /&gt;
+&lt;/center&gt;
+
+---
+# Super Learner vs TMLE
+
+- The super learner and the TMLE different, seprable methods. 
+
+- Super learner is a machine learning (prediction) method. 
+
+- TMLE is a causal inference method. 
+
+- TMLE can be used with parametric models for `\(\hat{b}\)` and `\(\hat{\pi}\)`. 
+
+- Super learner can be used for other prediction problems, including as part of non-TMLE causal estimators.
+
+---
+# TMLE with Super Learner
+
+&lt;center&gt; 
+&lt;img src="img/11_tmle.png" width="85%" /&gt;
+&lt;/center&gt;
+
+
+---
+# TMLE in R
+
+- There are a few R packages which implement TMLE and the super learner. 
+  - tmle, tmle3
+  - SuperLearner, sl3
+  
+Tutorials:
+
+[Illustrated Guide to TMLE by Katherine Hoffman](https://www.khstats.com/blog/tmle/tutorial/)
+
+[Estimation Tutorial by Miguel Angel Luque Fernandez](https://migariane.github.io/TMLE.nb.html#1_introduction)
+
+[Targeted Learning in R Handbook](https://tlverse.org/tlverse-handbook/index.html)
+
+---
+# TMLE Extensions
+
+Extensions of TMLE have been developed for
+
+- Time-varying exposures, identifying optimal treatment regimes.
+
+- Further improving the update step (collaborative TMLE)
+
+- Mediation analysis
+
+
+
+---
+# Poisoned Covariates
+
+- The best ML methods in the world cannot save us from a misspecified DAG or from unmeasured confounding. 
+
+- Performance of the TMLE requires that all confounders are measured and included in the model. 
+
+- As we've seen previously, there are some covariates that we should not include in our models, namely
+  + Colliders
+  + Children of the outcome (sneaky colliders)
+  
+- We also saw previously that including parents of the exposure that are not on a backdoor path can reduce precision and, if there are unmeasured confounders, increase bias.
+
+---
+# Other ML Opportunities
+
+- The TMLE plus Super Learner framework requires that we observe all confounders and get some aspects of the DAG correct.
+
+- Other methods have been proposed for circumstances where there might be unmeasured confounding.
+
+- These methods are fundamentally controversial and reliant on assumptions. 
+  + Data fundamentally cannot tell us about what is not in the data. 
+
+- Hopefully one of the ML presentation groups will take us through "the deconfounder" by Wang and Blei and its associated controversy. 
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
