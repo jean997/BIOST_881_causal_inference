@@ -36,6 +36,8 @@ editor_options:
 
 [10. IVA](slides/10_iva.html)
 
+[11. Machine Learning](slides/11_ml.html)
+
 ## Coming Soon
 
 Currently this website houses lecture slides. If you are a current student, please see the Canvas site for all other information. More course information may be added here in the future. 
