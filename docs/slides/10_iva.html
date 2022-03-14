@@ -4,7 +4,7 @@
     <title>L10: Instrumental Variable Analysis</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -23,7 +23,7 @@ class: center, middle, inverse, title-slide
 # L10: Instrumental Variable Analysis
 ### Jean Morrison
 ### University of Michigan
-### 2022-03-07 (updated: 2022-03-09)
+### 2022-03-07 (updated: 2022-03-14)
 
 ---
 
@@ -1354,74 +1354,147 @@ Cons:
 - There are many many interesting methods trying different variations of this or related strategies.  
 
 ---
-# Reassess the SEM
-`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
-Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+# Accounting for Violations of the Exclusion Restriction
 
-- We started this section with a very strong model that required complete homogeneity and linearity of effects for bht the `\(A\)` and `\(Y\)` model. 
+- In MR, violations of the exclusion restriction (also called pleiotropy) are the biggest concern. 
 
-- It turns out that we can relax this slightly. 
+- A simple extension of the SEM we have been working with allows for some violations. 
 
-- The first equation need not be structural. For example, if `\(Z\)` is a surrogate instrument, this equation only expresses an association, rather than a causal link. 
+`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i}$$`
+`$$Y_i  = \beta_{Y0} + \gamma A_i + \boldsymbol{\alpha}^\top Z_i + \epsilon_{Y,i}$$` 
+
+- The presence of the `\(\boldsymbol{\alpha}^\top Z_i\)` term in the second equation is a violation of the exclusion restriction. 
+
+- As written, the parameters in this new model are not identifiable. We have to make some restrictions on `\(\boldsymbol{\alpha}\)`. 
+
+---
+# Egger Regression
+
+- Our extended model implies that, if `\(Z_1, \dots, Z_K\)` are independent,  
+`$$E[\hat{\beta}_{YZ,k}] = \alpha_k + \gamma \beta_{AZ,k}$$`
+
+- IVW regression, regresses `\(\hat{\beta}_{YZ}\)` on `\(\hat{\beta}_{AZ}\)` with no intercept.
+
+- Egger regression extends this strategy to add an intercept, fitting
+`$$E[\hat{\beta}_Y] = \alpha_0 + \gamma \hat{\beta}_A$$`
+
+- This strategy is valid if, either `\(\boldsymbol{\alpha} = \alpha_0 \mathbf{1}_{K}\)` or `\(\sum_{k = 1}^K \alpha_k \beta_{AZ,k}  = 0\)`
+  + If we have a large number of instruments and think of `\(\beta_{AZ,k}\)` and `\(\alpha_k\)` as random, we require that `\(Cov(\beta_{AZ}, \alpha) = 0\)`. 
+  
+- This assumption says that effects of instruments not mediated by `\(A\)` are independent of the effects of instruments on `\(A\)`. 
+  + This is called the Instrument Strength Independent of the Direct Effect (InSIDE) assumption
 
 
 ---
-# Reassess the SEM
-`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
-Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+# Violations of InSIDE
 
-- We also don't need homogeneity in either equation, as long as we satisify 
-`$$Cov(Z_i, \epsilon_A) = 0 \qquad Cov(A_i, \epsilon_Y) = 0$$`
+- Violations of the InSIDE assumption occur when some instruments affect `\(A\)` *through* a confounder of the exposure and the outcome. 
 
-- This first condition means that the structural form of the first equation needs to be correct -- the association between `\(Z\)` and `\(A\)` needs to be linear. 
+&lt;center&gt; 
+&lt;img src="img/10_scatter2.png" width="95%" /&gt;
+&lt;/center&gt;
 
-- In the second equation, it does not need to be true that `\(E[Y]\)` is linear in `\(A\)`. 
-  + If the true causal relationship is not linear, we will still estimate the ATE. 
-  + However, the ATE will depend on the distribution of `\(A\)` in our sample. 
+---
+# Median Regression 
+
+- An alternative strategy proposed by Bowden et al (2016) is to assume that most instruments are valid. 
+
+- Rather than use the IVW estimator which averages the `\(K\)` ratio estimates, we take the median of the ratio estimates.
+
+&lt;center&gt; 
+&lt;img src="img/10_median.png" width="95%" /&gt;
+&lt;/center&gt;
+
+---
+# Outlier Robust Regression
+
+- There are several variations of this strategy.
+
+- Modal regression: use the mode of the ratio estimates. 
+
+- Outlier detection: use a strategy to identify outliers and discard them. 
+
+- Robust regression: Use an alternative loss function such as Huber loss to fit the regression. 
+
+&lt;center&gt; 
+&lt;img src="img/10_mrpresso.png" width="55%" /&gt;
+&lt;/center&gt;
+
+---
+# Mixture Models
+
+- Finally, another alternative is to assume that there are two or more groups of instruments. 
+- Instruments are grouped by their latent mechanistic relationship to `\(A\)`. 
+- Instruments with the same mechanistic relationship should have similar ratio estimates. 
+- We assume that the largest group of instruments are valid. 
+
+&lt;center&gt; 
+&lt;img src="img/10_mrpath.png" width="55%" /&gt;
+&lt;/center&gt;
 
 
 ---
-# Coming up
+# Reassessing Assumptions the SEM
+`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 
-Last topics in IVA:
+- We started this section with a very strong model that required complete homogeneity and linearity of effects for the `\(A\)` and `\(Y\)` models. 
 
-+ Binary outcomes and logistic regression
+- It turns out that we can relax this model.
 
-+ Non-linear causal effects
 
-+ More about MR and IVA with many instruments
+---
+# Assumptions for the `\(A-Z\)` Relationship
 
-Introduction to Machine Learning for Causal Inference
+`$$A_i  = \beta_{A0} + \beta_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 
-&lt;!-- --- --&gt;
+- The 2SLS and IVW estimation strategies are valid even if the first equation is not structural.
 
-&lt;!-- # Bias in Finite Samples --&gt;
-
-&lt;!-- - The standard IV estimator is a ratio of estimates --&gt;
-&lt;!-- `$$\hat{\beta}_{IV} = \frac{\hat{\beta}_{YZ}}{\hat{\beta}_{AZ}}$$` --&gt;
-
-&lt;!-- - Recall that the expectation of a ratio is *not* the ratio of the expectations.  --&gt;
-
-&lt;!-- - In finite samples, `\(\hat{\beta}_{IV}\)` is biased. Bias depends on  --&gt;
-&lt;!--   - Sample size --&gt;
-&lt;!--   - Instrument strength, how big is `\(\hat{\beta}_{AZ}\)` relative to its variance.  --&gt;
-&lt;!--   - Whether the numerator and denominator are estimated in the same population or different populations.  --&gt;
+- `\(A\)` and `\(Z\)` do need to be linearly associated.
+  - i.e. `\(Cov(Z, \epsilon_A)  = 0\)`
 
 
 
-&lt;!-- --- --&gt;
-&lt;!-- # Popular Instruments --&gt;
+
+---
+# Assumptions for the `\(A-Y\)` Relationship
+
+`$$A_i  = \beta_{A0} + \beta_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+
+- The second equation does need to be structural, however, it is sufficient that
+
+`$$E[Y(a)] = \beta_{Y0} + \gamma a$$`
 
 
-&lt;!-- - Physician Preference: --&gt;
-&lt;!--   - Suppose there are two possible treatments for a condition, `\(A = 0\)` and `\(A = 1\)`.  --&gt;
-&lt;!--   - Physician A tends to prescribe `\(A = 1\)` more often and physician B tends to prescribe `\(A = 0\)` more often.  --&gt;
-&lt;!--   - If the two physicians are within the same clinic or geographically close and similarly priced, we might assume that patient selection of one or the other is close to random.  --&gt;
-&lt;!--     + Or at least unassociated with other determinants of treatment and outcome.  --&gt;
+- The requirement that `\(Cov(Z, \epsilon_Y) = 0\)` can't be relaxed. 
+  + This assumption ensures that the exclusion restriction and exchangeability hold.
+
+---
+# Consequences of Non-Linearity
+
+- Non-linearity could occur in either the `\(A-Z\)` relationship or in the `\(Y(a)-a\)` relationship. 
+
+- We will see the consequences of each possibility. 
+
+- Summary of results we will see: 
+
+  - `\(E[A \vert Z]\)` non-linear: 2SLS will be biased. However, assessment of the first stage regression could show us the problem. We can correct it by using a more flexible model. 
+  
+  - `\(E[Y(a)]\)` non-linear in `\(a\)`: Under some conditions, we will estimate a parameter that is approximately the average derivative of `\(E[Y(a)]\)` averaging over the distribution of `\(A\)` in the sample. 
+  
+---
+# Non-Linear Exposure-Instrument Relationship
+
+---
+# Non-Linear Exposure Outcome Relationship
+  
+
+---
+# Binary Outcomes and Logistic Regression
 
 
-&lt;!-- - Genetic variants:  --&gt;
-&lt;!--   + Germ-line genetic variants are fixed over a person's life time and completely determined by variants carried by a person's parents.  --&gt;
 
 
     </textarea>
