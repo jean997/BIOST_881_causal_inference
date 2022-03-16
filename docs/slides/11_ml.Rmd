@@ -918,3 +918,27 @@ render_graph(b0)
 
 ---
 # Score-Based Learning
+
+- In score based learning methods, different candidate structures are assigned a score based on how well they describe the data. 
+
+- One method is to use a likelihood-based score with a penalty for the number of parameters (edges). 
+
+- We now need to search through the space of possible graphs to find the graph that optimizes the score. 
+
+- An exhaustive search is computationally untractable, so we need to do local searches. 
+  + E.g. adding and removing single edges. 
+  
+- Surprisingly a greedy local search strategy is asymptotically consistent. 
+
+---
+# Machine Learning and Causal Discovery
+
+- Because the causal discovery task involves searching an enormous parameter space, there is lots of room for improvement. 
+
+- Additionally, score-based approaches rely on having the correct likelihood specification. 
+  + ML methods can allow us to look in a bigger set of likelihood models. 
+  
+- Some recent work has been able to transform combinatorial DAG constraints into continuous constraints. 
+  + It is much easier to solve a continuous optimization problem than a cominatorial one. 
+  
+
