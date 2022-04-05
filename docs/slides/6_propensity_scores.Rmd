@@ -27,6 +27,11 @@ Coming up:
   - Survival (Ch. 17)
 
 $\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
 ---
 # Recap: IP Weighting
 
@@ -623,9 +628,6 @@ $$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{
 
 - Another method to form a DR estimator is to fit an outcome regression model adding some function(s) of $\hat{\pi}$ as covariates. 
 
-
-- Scharfstein et al (1999) show that including $\frac{1}{\hat{\pi}}$ as a covariate is sufficient to achieve double robustness. 
-
 - Suppose that our outcome regression model is $E[Y \vert A, L] = s(A, L, \beta)$, where $\beta$ are parameters to be estimated. 
 
 - We then fit the augmented mode $E[Y \vert A, L] = s(A, L, \beta) + \phi f(A, L)$. 
@@ -634,13 +636,19 @@ $$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{
 - And estimate
 $$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$
 
+---
+# Scharfstein Estimator
+
+- Scharfstein et al (1999) show that including $\frac{A_i}{\hat{\pi}_i}$ as a covariate is sufficient to achieve double robustness for estimation of $Y(A = 1)$. 
+
+- If we want to estimate both $Y(A = 1)$ and $Y(A = 0)$, we can add two covariates, $\frac{A_{i}}{\hat{\pi}_i}$ and $\frac{1-A_i}{1- \hat{\pi}_i}$. 
 
 ---
-# Regression with Propensity Score
+# Bang and Robins Estimator
 
-- Bang and Robins (2005) extend the idea of adding a clever covariate. 
+- Bang and Robins (2005) show that we do not actually need two separate coavariates. 
 
-- They show that adding $f(A, L) = \frac{A_1}{\hat{\pi_i}} + \frac{1-A_i}{1-\hat{\pi}_i}$ also gives a DR estimator.
+- The single covariate $f(A, L) = \frac{A_1}{\hat{\pi_i}} - \frac{1-A_i}{1-\hat{\pi}_i}$ also gives a DR estimator.
 
 - This estimator is more efficient than the Scharfstein et al estimator when only the outcome model is correct. 
 
@@ -648,7 +656,7 @@ $$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$
 
 
 ```{r, echo = FALSE}
-delta_dr <- function(df){
+delta_s <- function(df){
   # Estimate propensity scores
   fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
     as.factor(education) + smokeintensity +
@@ -656,18 +664,55 @@ delta_dr <- function(df){
     as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
     family = binomial(), data = df)
   df$ps <-predict(fit_ps, type = "response")
-  df <- mutate(df, w = case_when(qsmk==1 ~ 1/ps, 
-                                 TRUE ~ 1/(1-ps)))
-  # Deciles of PS
+  df <- mutate(df, w1 = (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps))
+  
+  fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
+                  I(age^2) + as.factor(education) + 
+                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
+                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
+                  qsmk * smokeintensity + w1-w0, 
+                  data = df)
+  
+  df0 <- df1 <- df; 
+  df0 <- mutate(df0, qsmk = 0, 
+                w1 == (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps) )
+  df1 <- mutate(df1, qsmk = 1, 
+                w1 == (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps) )
+  Y0 <- predict(fit_or, newdata = df0, type = "response")
+  Y1 <- predict(fit_or, newdata = df1, type = "response")
+  return(mean(Y1) -mean(Y0))}
+
+delta_br <- function(df){
+  # Estimate propensity scores
+  fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps <-predict(fit_ps, type = "response")
+  df <- mutate(df, w1 = (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps), 
+               w = w1 - w0)
+  
   fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
                   I(age^2) + as.factor(education) + 
                   smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
                   as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
                   qsmk * smokeintensity + w, 
                   data = df)
-  # Standardized Estimate
+  
   df0 <- df1 <- df; 
-  df0$qsmk <- 0; df1$qsmk <- 1
+  df0 <- mutate(df0, qsmk = 0, 
+                w1 == (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps),
+               w = w1 - w0)
+  df1 <- mutate(df1, qsmk = 1, 
+                w1 == (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps),
+               w = w1 - w0)
   Y0 <- predict(fit_or, newdata = df0, type = "response")
   Y1 <- predict(fit_or, newdata = df1, type = "response")
   return(mean(Y1) -mean(Y0))}
