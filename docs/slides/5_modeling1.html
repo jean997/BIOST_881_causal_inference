@@ -4,9 +4,17 @@
     <title>L5: Modeling Part 1</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.13/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
   </head>
@@ -17,12 +25,13 @@ class: center, middle, inverse, title-slide
 # L5: Modeling Part 1
 ### Jean Morrison
 ### University of Michigan
-### 2022-24-10 (updated: 2022-01-26)
+### 2022-01-24 (updated: 2022-04-05)
 
 ---
 
 
 `\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
 
 # Modeling
 
@@ -941,13 +950,16 @@ summary(fit)$coefficients %&gt;% head()
 
 - This first step of fitting the outcome model is just fitting a regular linear regression. 
 
-- If this was a 699 problem, this is probably where we would stop. 
+- If we believe the outcome model is correct and includes all confounders, we can use the outcome regression to estimate the ATE. 
 
-- We would interpret the coefficient for `\(A\)` as "the average additional weight gain associated between quitting smoking conditional on ....". 
+- However, the regression we fit included an interaction between `\(A\)` and a covariate, smoking intensity.
 
-- If we believe our outcome model, this coefficient is the average *causal* effect within strata of `\(L\)`.
+  + With no interaction, the coefficient on `\(A\)` would estimate the ATE (if the model were correct).
+  + A model with no interaction says that the treatment effect is constant across levels of `\(L\)`. 
 
-- To estimate the (marginal) causal parameter, we need to average over levels of `\(L\)`. 
+- With the interaction, the coefficient on `\(A\)` is only the ATE within strata defined by smoking intensity (the conditional effect). 
+
+- To estimate the (marginal) average treatment effect, we need to average over levels of `\(L\)`. 
 
 
 ---

@@ -2,7 +2,7 @@
 title: "L5: Modeling Part 1"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2022-24-10 (updated: `r Sys.Date()`)"
+date: "2022-01-24 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -13,6 +13,11 @@ output:
 ---
 
 $\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
 
 # Modeling
 
@@ -807,13 +812,16 @@ summary(fit)$coefficients %>% head()
 
 - This first step of fitting the outcome model is just fitting a regular linear regression. 
 
-- If this was a 699 problem, this is probably where we would stop. 
+- If we believe the outcome model is correct and includes all confounders, we can use the outcome regression to estimate the ATE. 
 
-- We would interpret the coefficient for $A$ as "the average additional weight gain associated between quitting smoking conditional on ....". 
+- However, the regression we fit included an interaction between $A$ and a covariate, smoking intensity.
 
-- If we believe our outcome model, this coefficient is the average *causal* effect within strata of $L$.
+  + With no interaction, the coefficient on $A$ would estimate the ATE (if the model were correct).
+  + A model with no interaction says that the treatment effect is constant across levels of $L$. 
 
-- To estimate the (marginal) causal parameter, we need to average over levels of $L$. 
+- With the interaction, the coefficient on $A$ is only the ATE within strata defined by smoking intensity (the conditional effect). 
+
+- To estimate the (marginal) average treatment effect, we need to average over levels of $L$. 
 
 
 ---
