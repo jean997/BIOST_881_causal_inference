@@ -42,4 +42,4 @@ editor_options:
 
 ## Coming Soon
 
-Currently this website houses lecture slides. If you are a current student, please see the Canvas site for all other information. More course information may be added here in the future. 
+This website is temporarily under construction in preparation for Winter 2023 so most links are dead. Check back in a few months for links to current slides.
