@@ -1,0 +1,43 @@
+---
+title: "BIOST 881: Advance Topics in Causal Inference"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+## Lecture Slides
+
+[0. Course Overview](slides/0_course_introduction.html) 
+
+[1. Introduction and Potential Outcomes](slides/1_introduction.html)
+
+[2. DAGs and Confounding](slides/2_dags_confounding.html)
+
+[3. Effect Modification and Interaction](slides/3_effect_modification_interaction.html)
+
+[4. Selection Bias](slides/4_selection_bias.html)
+
+[5. Parametric IP Weighting and Standardization](slides/5_modeling1.html)
+
+[6. Propensity Score Methods](slides/6_propensity_scores.html)
+
+[7. G-Estimation](slides/7_g_estimation.html)
+
+[8. Survival](slides/8_survival.html)
+
+[Discussion questions for Hernan et al 2008](slides/Hernan_et_al_2008.html)
+
+[9. Time-Varying Treatments](slides/9_time_varying_treatment.html)
+
+[9. Misc](slides/9_misc.html)
+
+[10. IVA](slides/10_iva.html)
+
+[11. Machine Learning](slides/11_ml.html)
+
+[12. Discussion Questions and Wrap-Up](slides/12_extra.html)
+
+
