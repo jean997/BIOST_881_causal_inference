@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L7: G-Estimation and Structural Nested Models</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# L7: G-Estimation and Structural Nested Models
+### Jean Morrison
+### University of Michigan
+### 2022-02-02 (updated: 2022-02-02)
+
+---
+
+
+# Structural Marginal Models
+
+- Recall previously, we wanted to estimate the causal effect of quitting smoking across strata of a variable `\(V\)` (sex).
+
+- We proposed a structural marginal model
+
+$$
+E[Y(a) \vert V] = \beta_0 + \beta_1 a + \beta_2 a V + \beta_3 V
+$$
+
+- The causal contrasts we are interested in are `\(E[Y(1)-Y(0) \vert V = 0]\)` and `\(E[Y(1)-Y(0) \vert V = 1]\)`.
+
+- These correspond to parameters `\(\beta_1\)` and `\(\beta_1 + \beta_2\)` in the marginal model.
+  + We have estimated two more parameters than we needed to answer the causal question.
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+---
+# Semiparametric Structrual Marginal Models
+
+- Instead of proposing a model for `\(E[Y(a) \vert V]\)`, we could have proposed a model directly for the contrast we care about
+
+$$
+E[Y(1)-Y(0) \vert V] = \beta_1 a + \beta_2 a V
+$$
+
+- This is a *semiparametric marginal structural model*.
+
+- It is semiparametric because we don't specify `\(\beta_0\)` and `\(\beta_3\)`.
+
+---
+# Semiparametric Structrual Marginal Models
+
+- When `\(A\)` and `\(V\)` are both binary, the structural marginal model we proposed was saturated.
+
+- We weren't relying on any parametric assumptions so there is no use in becoming semiparametric.
+
+- However, in more complex situations, using a semiparametric model can be more robust.
+
+
+
+---
+# Structural Nested Mean Models
+
+- In the settings we have seen so far with no time varying treatments, semiparametric nested mean models are semiparametric marginal structural models.
+- The term *nested* will become relevant for problems with time-varying treatments.
+
+
+---
+# G-Estimation
+
+- Suppose we have a semiparametric structural marginal model
+$$
+E[Y(a)-Y(0) \vert V] = \beta_1 a
+$$
+
+- How do we estimate the parameters if we can never observe both `\(Y(a)\)` and `\(Y(0)\)` for the same person? 
+
+
+---
+
+# G-Estimation
+
+- First we make a strong assumption. Suppose
+$$
+Y_i(a)- Y_i(0) = \psi_1 a
+$$
+for all individuals. 
+
+- Re-write as $$ Y_i(0) = Y_i - \psi_1 a$$
+
+- By consistency, if `\(A_i = a\)` then `\(Y_i = Y(a)\)` so $$ Y_i(0) = Y_i - \psi_1 A_i$$
+- If we knew `\(\psi_1\)`, we could compute `\(Y_i(0)\)`. 
+
+---
+# G-Estimation
+
+- Let `$$H(\psi^\dagger) = Y - \psi^\dagger A$$` We want to find the value of `\(\psi^\dagger\)` that will make `\(H\)` equal to `\(Y(0)\)`. 
+  + We can drop the `\(i\)` subscript because we have assumed the same model for everyone. 
+  
+- Now we will use exchangeability. Exchangeability says that 
+`\(Y(0) \ci A \vert L\)`
+so at `\(\psi_1\)`, `\(H(\psi_1) \ci A \vert L\)`.
+
+- For any given value of `\(\psi^\dagger\)`, we can compute `\(H(\psi^\dagger)_i = Y_i - \psi^\dagger \alpha\)` for every person in the study. 
+
+---
+# G-Estimation 
+
+- If `\(L\)` is one dimensional, we can fit the regression 
+$$
+logit P[A = 1 \vert H(\psi^\dagger), L] = \alpha_0 + \alpha_1 H(\psi^\dagger) + \alpha_2 L
+$$
+
+- At `\(\psi_1\)`, `\(\hat{\alpha}_1(\psi_1)\)` should equal 0. 
+
+- So we can find `\(\pi_1\)` by doing a grid search, repeatedly fitting the regression and choosing the value that gives `\(\hat{\alpha}_1(\psi)\)` closest to 0. 
+  + There is also a closed-form estimate, we don't have to do the grid search.
+
+- We are looking for the value of the causal effect that would make exchangeability true. 
+
+---
+# Variance of the Estimate
+
+- Suppose that `\(\hat{\psi}\)` is the solution to `\(\min_{\psi} \vert \hat{\alpha}(\psi) \vert\)` found via grid search.
+
+- For every value of `\(\psi\)` we try, we get a regression fit including a `\(p\)`-value for `\(\hat{\alpha}_1(\psi) = 0\)`. Call this `\(p\)`-value `\(p_1(\psi)\)`.
+
+- We can get a confidence interval for `\(\hat{\psi}\)` by inverting this `\(p\)`-value. 
+
+- The 95% confidence interval for `\(\hat{\psi}\)` is the set of values 
+`\(\lbrace \psi : p_1(\psi) &gt; 0.05 \rbrace\)`.
+
+---
+# G-Estimation
+
+&lt;img src="7_g_estimation_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Censoring
+
+- If there is censoring in our data, we can fit the regression model with weights for censoring. 
+
+- In this case, if we use the sandwich variance estimate, our 95% confidence interval will be conservative. 
+
+---
+# Assumptions
+
+- To motivate the estimator, we had to assume that `\(A\)` had the exact same causal effect in everyone. 
+
+- This is actually much stronger than we need. We only need to get the model for the average treatment effect correct `\(E[Y(1)-Y(0) \vert L]\)`
+
+&lt;!-- - We also need to get the mean model for `\(P[A = 1 \vert L]\)` correct --&gt;
+
+
+
+---
+# Effect Modification
+
+- In G-estimation, we are estimating `\(E[Y(a)-Y(0) \vert L, A = a]\)` -- the treatment effect *conditional* on `\(L\)`. 
+
+- So if there is any effect modification by variables in `\(L\)`, we need to include that in the model. 
+
+- For example, we might propose the model
+
+$$E[Y(1)-Y(0) \vert L, V ] = \beta_0 + \beta_1 a + \beta_2 a V $$
+- We now have two parameters to estimate `\(\beta_1\)` and `\(\beta_2\)`, so we need to perform a search over a two dimensional grid. 
+
+- At the true values, `\(\alpha_1\)` and `\(\alpha_2\)` are both zero in the regression 
+
+$$
+logit P[A = 1 \vert H(\psi^\dagger), L] = \alpha_0 + \alpha_1 H(\beta_1, \beta_2) + \alpha_2 H(\beta_1, \beta_2) V + \alpha_3 L
+$$
+---
+# Effect Modification
+
+- Using structural marginal models, we only need to include an effect modifier if we are interested in measuring the modification. 
+
+- In semiparametric models, *have to* include effect modifiers if they exist, and get the form of the effect modification correct. 
+
+---
+# Doubly Robust G-Estimation
+
+- To make the estimator more robust, we can replace `\(H(\psi)\)` with `\(H(\psi) - E[H(\psi) \vert L]\)`. 
+
+- We can estimate `\(E[H(\psi) \vert L] = H[Y(0)\vert L]\)` by fitting a regression.
+
+- The resulting estimator will be consistent if either the outcome model in the untreated or the propensity model are correct. 
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

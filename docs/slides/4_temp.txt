@@ -1,0 +1,7 @@
+- Backdoor criterion not sufficient to identify selection bias
+
+- Barenboim and Pearl: Y \ci S \vert X then p(y \vert x) recoverable as p(y \vert x, S = 1). 
+
+- Note in A -> Y -> S example, we did not accurately recover P[Y(a)] but we did accurately recover P[Y(1)] - P[Y(0)].
+
+

@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L1: Getting Started</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# L1: Getting Started
+### Jean Morrison
+### University of Michigan
+### 2022-01-05 (updated: 2022-01-10)
+
+---
+
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+# Motivation 
+
++ The idea that causality is interesting is easy to motivate.
+
++ The question "Why?" motivates nearly all scientific endeavors. 
+
++ Causal inference formalizes what it means to answer this "Why?" question.
+
++ The idea that we need this formalization is much newer than the idea that causal questions are interesting. 
+
+---
+
+# Example: Smoking and Lung Cancer
+
+--
+
++ In 1900 only 140 cases of lung cancer were known in published medical literature. 
+
+--
+
++ By the 1920's incidence of lung cancer had increased dramatically. 
+
+--
+
++ Smoking was a hypothesized cause of lung cancer as early as 1912...
+
+--
+
++ But so were:
+  - Air pollution 
+  - Asphalt dust from new roads
+  - Poison gas from WWI
+  - Influenza pandemic of 1918
+  - Increasing use of radiography 
+  - Increasing clinical awareness of lung cancer
+  - Aging population
+
+
+---
+
+# The Case Against Smoking
+
+--
+
+- Observational studies showed a strong association between smoking and lung cancer. 
+
+  + Earliest studies used a case/control design. 
+  + Followed by prospective studies matching healthy smokers and non-smokers by age, sex, and occupation and following them over time. 
+  + All studies observed a large and robust association between smoking and lung cancer (Doll and Hill estimate an OR of 40 in 1954).
+
+--
+
+- Supporting evidence comes from animal studies in the 1930's and 1940's: Exposing animals to tobacco products causes cancer.  
+
+--
+
+- Even more evidence from chemical analysis in the 1940's and 1950's: Cigarette smoke contains known cancer causing chemicals.
+  + Much of this work is done by tobacco companies themselves.
+
+--
+
+- By the 1950's tobacco companies also believe that tobacco use causes cancer. This information is kept secret.
+
+---
+
+# Challenges to the Smoking-Lung Cancer Link
+
+- Tobacco companies invested large amounts of money into research and advertising challenging the link between smoking and lung cancer. 
+
+- In the 1960's only one third of doctors believed smoking to be a major cause of lung cancer.
+
+- RA Fisher was a famous challenger of the smoking `\(\rightarrow\)` lung cancer hypothesis:
+
+ + Fisher pointed to a genetic factor linked to both smoking and lung cancer, arguing this factor may be a common cause of both. 
+ + This concern about confounding is valid, but the effect size would need to be enormous.
+ + The genetic hypothesis is also inconsistent with earlier low rates of lung cancer, animal studies, and reduced cancer rates in quitters.
+ + It also disregards the possibility that smoking may be mediating the gene-cancer association.
+
+---
+
+# Why did Fisher (and others) Get it Wrong?
+
+
+- Some have suggested that Fisher had conflicts of interest -- he had done work as a tobacco industry consultant and was himself a smoker. 
+
+- Fisher's statement that the association between smoking and lung cancer could be explained by a common cause is correct. 
+
+- But that model is inconsistent with many other lines of evidence. 
+
+---
+
+# Lessons 
+
+--
+
+- Causal inference cannot be achieved through only statistical procedures. It requires a model, assumptions, and information external to the study.
+
+--
+
+- All causal analyses of observational data require un-provable assumptions. 
+
+--
+
+- Many interesting and important questions cannot be answered in a randomized trial.
+
+  + We need theory and language that allows us to test causal hypotheses in observational data. 
+
+---
+
+# Early Foundations of Causal Theory
+
+
+- Neyman 1923: Notation and formalization of potential outcomes introduced.
+
+- Fisher 1925: Physical randomization of units as the "reasoned basis" for inference.
+
+- Wright 1921: Introduced graphical models and path analysis.
+
+---
+
+# Languages of Causality
+
+--
+
++ Potential Outcomes/counterfactuals:
+  - Proposes the existence of unobserved outcomes for each unit under different possible exposures or treatments.
+  - First formalized by Neyman (1923), further developed by Donald Rubin (1974 and onward) and others.
+  - "Rubin causal model". 
+
+--
++ Graphs:
+  - Represents causal relationships between observed and unobserved variables as directed edges in a graph. 
+  - Causal interventions are represented as modifications of the graph. 
+  - Introduced by Wright (1921), further developed by Judea Pearl (1988 and onward) and others.
+
+--
++ Structural Equations:
+   - Represents causal relationships as a series of equations describing conditional probability distributions.
+   - Also introduced by Wright in 1921.
+   - More work by Pearl, Haavelmo, Duncan, and many more.
+
+--
++ Under some conditions, all three languages are equivalent/mutually compatible.
+
+---
+
+&lt;!-- # Languages of Causality --&gt;
+
+&lt;!-- + Causality described using potential outcomes: --&gt;
+&lt;!--   - Neyman, 1923 (statistics) --&gt;
+&lt;!--   - Lewis, 1973 (philosophy) --&gt;
+&lt;!--   - Rubin 1974 (statistics) --&gt;
+&lt;!--   - Robins, 1986 (epidemiology) --&gt;
+
+&lt;!-- + Causality described using graphs: --&gt;
+&lt;!--   + Wright, 1921 (genetics) --&gt;
+&lt;!--   + Pearl, 1988 (CS, statistics) --&gt;
+&lt;!--   + Sprites, Glymour, Scheines, 1993 (philosophy) --&gt;
+
+&lt;!-- + Causality described using structural equations: --&gt;
+&lt;!--    - Wright, 1921 (genetics) --&gt;
+&lt;!--    - Haavelmo, 1943 (econometrics) --&gt;
+&lt;!--    - Duncan, 1975 (social sciences) --&gt;
+&lt;!--    - Pearl, 2000 (CS, statistics) --&gt;
+
+&lt;!-- --- --&gt;
+
+# Counterfactuals/Potential Outcomes
+
++ What does it mean to say that `\(A\)` causes `\(Y\)`?
+
+--
+
++ A counterfactual value, `\(Y_i(A_i = a)\)` is the value of `\(Y\)` the `\(i\)`th individual **would have had** if `\(A\)` had been **intervened on** and set to `\(a\)`.
+
+--
+
++ Many equivalent notations:
+  - `\(Y(A = a)\)`, `\(Y(a)\)`: I will primarily use these notations. 
+  - `\(Y^a\)`: This is the main notation in Hernán and Robins.
+  - `\(Y\vert \ do(A = a)\)`: This notation emphasizes the intervention of setting `\(A\)` equal to `\(a\)` and is favored by Judea Pearl. There are some subtle differences between the "do operator" and counterfactuals. 
+
+--
+
++ A counterfactual fundamentally supposes a hypothetical intervention (treatment).
+
+
+
+&lt;!-- + I will (try to) stick with `\(Y(A = a)\)` or `\(Y(a)\)` when the meaning is unambiguous.  --&gt;
+
+&lt;!-- -- --&gt;
+
+&lt;!-- + We can only observe `\(Y_i\)` under a single value of `\(A_i\)`, so `\(Y_i(A_i = a)\)` is missing for all but one value of `\(a\)`. --&gt;
+
+---
+
+# Example
+
+For each person we observe:
+
++ If they wear a helmet when biking ( `\(A_i = 1\)` ) or not ( `\(A_i = 0\)` ).
+
++ If they sustain a head trauma in a given year ( `\(Y_i = 1\)` )  or not ( `\(Y_i = 0\)` ).
+
++ Below is the full table of counterfatual outcomes:
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=0)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=1)\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+---
+# Individual vs Average Treatment Effects
+
++ Sharp causal null: No effect of treatment for any individual, `\(Y_i(A_i = 1) = Y_i(A_i = 0)\)` for all `\(i\)`. 
+
++ Average causal null: The average causal effect is zero, `\(E[Y(A = 0)] = E[Y(A = 1)]\)`.
+
++ In our example, the sharp null is false, but the average null is true.
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=0)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=1)\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+---
+
+# Measures of Treatment Effects
+
++ Average treatment effect (ATE): `\(E[Y(1)] - E[Y(0)] = E[Y_i(A1) - Y_i(0)]\)`
+
++ Risk ratio (RR): `\(E[Y(0)]/E[Y(1)]\)`
+
++ Odds ratio (OR; for binary outcomes): `\(\frac{E[Y(1)]/(1-E[Y(1)])}{E[Y(0)]/(1-E[Y(0)]}\)`
+
++ Null hypotheses ATE `\(=0\)`, RR `\(=1\)`, and OR `\(=1\)` are equivalent.
+
++ The ATE can be interpreted either as the difference in average outcome between groups or as the average difference.
+
++ This is not true for RR and OR -- RR is not equal to the average risk ratio over the population.
+
+---
+
+# Counterfactuals and Missing Data 
+
++ The counterfactual framework turns causal inference into a missing data problem. 
+
++ Even if we were able to observe `\(A\)` and `\(Y\)` for the entire population, uncertainty would remain in our estimate of the ATE because we cannot observe both `\(Y_i(1)\)` and `\(Y_i(0)\)` for the same individual. 
+
++ This has been called the "fundamental problem of causal inference."
+
+
+---
+
+# Sample vs Population Treatment Effect
+
++ We very rarely sample the entire population of interest. 
+
++ Sample average treatment effect (SATE): `\(\frac{1}{n}\sum_{i = 1}^{n} Y_i(1) - \frac{1}{n}\sum_{i = 1}^{n} Y_i(0)\)`
+
++ Population average treatment effect (PATE): `\(E[Y(1)] - E[Y(0)]\)`, with expectation is taken over a super-population. 
+
++ Identifying the population is a scientific (rather than a statistical) task.
+
+---
+
+# Non-Deterministic Counterfactuals
+
++ So far we have seen two sources of uncertainty in the ATE: 
+  
+  - Missing counterfactual outcomes
+  - Sampling variation
+  
++ A third source is randomness in the counterfactual outcome. 
+
++ Rather than thinking of `\(Y_i(A_i = a)\)` as a deterministic value, we can think of it as a random variable with individual specific (random) cdf `\(F_{Y_i(a)}(y)\)`. 
+
++ We will abbreviate `\(F_{Y_i(a)}(y)\)` to `\(F_{a,i}\)`. 
+
+---
+
+# Non-Deterministic Counterfactuals
+
++ If `\(Y_i(A_i = a)\)` is a random variable, the ATE is a double expectation:
+ `$$E[Y(A = a)] = E\left \lbrace E[ Y_i(A_i = a) \vert F_{a,i} ] \right \rbrace$$`
+with the inside expectation taken over the distribution of `\(Y_i(A_i = a)\)` and the outer expectation taken over the population. 
+
++ Let `\(F_{a} = E[F_{a,i}]\)` be the average counterfactual cdf. 
+
+`$$E[Y(A =a)] = E\left[\int y \ dF_{a,i}(y) \right] = \int y \ dE[F_{a,i}(y)] = \int y \ dF_a(y)$$`
++ So, the average counterfactual value is the expectation w.r.t the average counterfactual cdf. 
+
++ The distinction between deterministic and non-deterministic counterfactuals doesn't matter for average effects. 
+
+---
+
+# Causation vs Association
+
+
+![](img/1_fig1.png)
+
+Fig 1.1 from HR
+
+---
+
+# Bike Helmet Example Continued
+
+&lt;table class="table" style="width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=0)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=1)\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table class="table" style="width: auto !important; margin-right: 0; margin-left: auto"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=0)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=1)\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+Average causal effect: `\(E[Y(A = 1)] - E[Y(A = 0)] = 0.2 - 0.4 = -0.2\)`
+
+Observed association: `\(E[Y \vert A = 1] - E[Y \vert A = 0] = 0.25 - 0.33 = -0.08\)`
+
+---
+# Conditions for Identifying the Causal Effect
+
++ Suppose we only observe `\(A\)` and `\(Y\)`. When is it possible to estimate the ATE?
+
+--
+
++ We must be able to estimate `\(E[Y(a)]\)` for all values of `\(a\)`. Therefore, we must have 
+$$ E[Y(a)] = E[Y \vert A = a]$$
+
+--
+
++ This is true under three assumptions:
+
+  - Consistency
+  - Stable Unit Treatment Value Assumption (SUTVA)
+  - Exchangeability (exogeneity)
+
+  
+---
+# Consistency
+
++ The observed value of `\(Y_i\)` is the same as the counterfactual value of `\(Y_i\)` under the treatment `\(a_i\)`, where `\(a_i\)` is the treatment individual `\(i\)` actually recieved. 
+
+`$$Y_i = Y_i(A_i = a_i)$$`
+
+--
+
+Bike example:
++ A person's chances of head injury are the same if they wear a helmet of their own accord or if they are required to wear a helmet.
+
+--
+ 
++ Whether or not consistency holds may depend on the nature of the hypothesized intervention. 
+
+---
+# Stable Unit Treatment Value Assumption
+
+1. There are no different versions of treatment available to an individual and the treatment level `\(a\)` is unambiguous for all values of `\(a\)`.
+
+--
+
+1. No interference: The counterfactual outcome for unit `\(i\)`, `\(Y_i (A_i = a)\)` is independent of the treatment received by other units in the study.
+
+--
+
+  + Formally, let `\(\mathbf{A} = (A_1, \dots, A_n)\)` be the vector of treatment assignments for all units with `\(\mathbf{a}\)` being a single realization of `\(\mathbf{A}\)`. Let `\(a_i\)` be the `\(i\)`th element of `\(\mathbf{a}\)` and `\(\mathcal{A}^n\)` be the sample space of `\(\mathbf{A}\)`. Let `\(Y_i(\mathbf{A} = \mathbf{a})\)` be the counterfactual value of `\(Y_i\)` under the treatment vector `\(\mathbf{a}\)`. No interference is the condition that 
+
+$$
+Y_i(\mathbf{A}= \mathbf{a}) = Y_i(A_i = a_i) \ \  \ \forall\ \ \mathbf{a} \in \mathcal{A}^{n}
+$$
+
+--
+
+Pair discussion:
+
++ What do these assumptions look like in the bike helmet example?
+
++ Can you think of a time "No interference" may not hold?
+
+---
+
+# Exchangeability
+
++ Exchangeability: `\(Y(a) \ci A\)`. 
+
+--
+
++ Question: How is `\(Y(a) \ci A\)` different from `\(Y \ci A\)`?
+
+--
+
++ Mean exchangeability: `\(E[Y(a) \vert A = a^\prime] = E[Y(a) \vert A = a^{\prime \prime}]\)` for all pairs `\(a^\prime, a^{\prime \prime} \in \mathcal{A}.\)`
+
+--
+
++ Mean exchangeability is sufficient to prove `\(E[Y(a)] = E[Y \vert A = a].\)` 
+
+--
+
++ For dichotomous `\(Y\)`, mean exchangeability and exchangeability are equivalent. 
+
+--
+
++ What about for non-dichotomous `\(Y\)`?
+
+--
+
++ Full exchangeability: Let `\(Y^{\mathcal{A}} = \left \lbrace Y(a), Y(a^\prime), \dots \right \rbrace\)` be the set of all counterfactual outcomes ( `\(Y^{\mathcal{A}} = \left \lbrace Y(1), Y(0) \right \rbrace\)` for a dichotomous treatment). Full exchangeability states that 
+
+$$
+Y^{\mathcal{A}} \ci A 
+$$
+
+
+---
+
+# Exchangeability in the Bike Helmet Example:
+
+&lt;table class="table" style="width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=0)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=1)\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table class="table" style="width: auto !important; margin-right: 0; margin-left: auto"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=0)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=1)\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+`\(E[Y(A = 0) \vert A = 0] = 0.33\)`,   `\(E[Y(A = 0) \vert A = 1] = 0.5\)`
+
+`\(E[Y(A = 1) \vert A = 0] = 0.17\)`,   `\(E[Y(A = 1) \vert A = 1] = 0.25\)`
+
+---
+
+# Identification Theorem
+
+Theorem: If consistency, SUTVA, and exchangeability hold, then `$$Y(a) \overset{d}{=} Y | A = a,$$` where `\(\overset{d}{=}\)` means equal in distribution. 
+
+--
+
+Proof: 
+
+`$$P[Y(a) \leq y] = P[Y(a) \leq y \vert A = a] \ \ \ \text{(exchangeability)}$$`
+`$$= P[Y \leq y \vert A = a] \ \ \  \text{(consistency)}$$`
+--
+
+Corrolary: If consistency, SUTVA, and exchangeability hold then `\(E[Y(a)] = E[Y \vert A = a]\)`
+
+---
+
+# Where did SUTVA come in?
+
++ If the levels of `\(A\)` are not clearly defined, the causal question is ill-defined (i.e. `\(Y(a)\)` is poorly defined). 
+
++ In the presence of interference, there is no single value of `\(Y_i(a_i)\)`. Instead, we must discuss `\(Y_i(\mathbf{a})\)`, the potential outcome given the entire vector of treatment assignments.
+
+
+---
+
+# Simple Randomized Experiments
+
++ Units are assigned a treatment value using a randomization procedure that is independent of all unit characteristics (e.g. flip a coin).
+
++ For now, we assume full compliance (everyone assigned treatment `\(a\)` receives treatment `\(a\)`).
+
++ Exchangeability holds by design. 
+
++ So, we can estimate the ATE as long as consistency and SUTVA hold.
+
++ One estimator is just the difference in average outcomes (more on estimators in HW1):
+`$$\frac{1}{n_{1}}\sum_{i: A_i = 1}Y_i - \frac{1}{n_2}\sum_{i:A_i = 0}Y_i = \bar{Y}_1 - \bar{Y}_0$$`
+
+---
+
+# Conditionally Randomized Experiments
+
+
++ Units are assigned a treatment with probability depending on a set of features, `\(L\)`.
+
++ If `\(L\)` and `\(Y(a)\)` are not independent, then exchangeability does not (generally) hold.
+
++ However, we can still identify the ATE if we have access to the randomization features `\(L\)`. 
+
+---
+
+# Example
+
++ We are doing an experiment of a new treatment for a disease. Some patients will receive the new treatment ( `\(A = 1\)` ), 
+while the rest will receive standard of care ( `\(A = 0\)` ).
+
++ Let `\(L = 0\)` indicate that a patient is less sick and `\(L = 1\)` indicate that they are more sick.
+
++ We decide on a randomization scheme in which sicker patients are more likely to receive the new treatment. We set `\(P(A = 1 \vert L = 0) = 0.5\)` and `\(P(A = 1 \vert L = 1) = 0.75\)`.
+
++ We observe if each patient dies before a set time point ( `\(Y = 1\)` for death, `\(Y = 0\)` for survival).
+
+
+
+
+---
+
+# Conditional Exchangeability
+
++ Notice that our trial looks like two fully randomized trials combined. 
+  
+    - In one trial, the target population is patients with `\(L = 0\)` and the treatment probability is 0.5.
+    - In the other, the target population is patients with `\(L = 1\)` and the treatment probability is 0.75.
+
+--
+
++ Conditional exchangeability captures the idea that data are randomized *within* levels of `\(L\)`.
+
+--
+
+
++ Conditional exchangeability holds with respect to a set of variables `\(L\)`, if
+
+`$$Y(a) \ci A\ \vert\ L$$`
+---
+# Stratum Specific Causal Effects and Standardization
+
++ Exchangeability holds within levels of `\(L\)`, so `\(E[Y(a) \vert L = l]\)` is identifiable.
+
+`$$E[Y(a) \vert L = l] = E[Y \vert A = a, L = l]$$`
+
+--
+
++ If we want to estimate the population level marginal counterfactual value of `\(Y\)` under treatment `\(A = a\)`, we can simply weight our estimates
+by the population frequency of `\(L\)`:
+$$
+E[Y(a)] = \sum_{l}E[Y(a) \vert L = l]P[L = l]
+$$
+--
+
++ This is called the standardized mean (standardized by whatevery population frequencies of `\(L\)` you choose).
+
+---
+
+
+# Positivity
+
++ Of course, the standardization trick doesn't work if, within one level of `\(L\)`, patients never (or always) receive treatment.
+
+--
+
++ The positivity condition states that at all individuals have some chance of receiving any treatment: 
+
+`$$P[A = a \vert L = l] &gt; 0 \ \ \forall a, l$$`
+
+
+---
+
+# Identification Theorem (Conditional)
+
+Theorem: If consistency, SUTVA, conditional exchangeability, *and positivity* hold, then `$$Y(a) \vert\ L =l \overset{d}{=} Y |\ L = l, A = a.$$` 
+
+--
+
+We can use exactly the same proof as the non-conditional theorem, conditioning on `\(L\)` in each step.
+
+Proof: 
+
+`$$P[Y(a) \leq y \vert L = l] = P[Y(a) \leq y \vert L=l, A = a] \ \ \ \text{(conditional exchangeability)}$$`
+`$$= P[Y \leq y \vert L=l, A = a] \ \ \  \text{(consistency)}$$`
+
+---
+
+# Inverse Probability Weighting 
+
++ Rather than using the standardization method, we can think of our trial as a weighted sampling from a larger, fully randomized trial with `\(2N\)` participants.
+
++ This *pseudo-population* contains two members for every member in our trial, one receiving each treatment. 
+
++ In the pseudo-population, `\(Y(a) \ci A\)` so the conditional mean, `\(E[Y \vert A = a]\)` estimates the counterfactual mean `\(E[Y(a)]\)`.
+
+---
+
+# Inverse Probability Weighting 
+
++ We can imagine that each individual in our trial was sampled from the larger population with probability conditional on `\(L\)` and `\(A\)`.
+ 
+ - In our study we selected half of participants with `\(A_i = 0\)` and `\(L_i = 0\)`
+ - Half of participants with `\(A_i = 1\)` and `\(L = 0\)`
+ - One quarter of participants with `\(A_i = 0\)` and `\(L = 1\)` 
+ - Three quarters of participants with `\(A_i = 1\)` and `\(L = 1\)`
+
+--
+
++ We can recover the estimate from the pseudo-population by weighting each participant by the number of units in the larger study that they represent:
+  
+  - `\(A_i=0\)`, `\(L_i=0\)`: `\(1/0.5 = 2\)`
+  - `\(A_i = 1\)`, `\(L_i = 0\)`: `\(1/0.5 = 2\)`
+  - `\(A_i = 0\)`, `\(L_i = 1\)`: `\(1/0.25 = 4\)`
+  - `\(A_i = 1\)`, `\(L_i = 0\)`: `\(1/0.75 = 1.33\)`
+
+
+---
+
+# Inverse Probability Weighting 
+
++ Formally, let `\(f_{A \vert L}(a\vert l)\)` be the conditional pdf of `\(A\)` given `\(L\)`. 
+
++ We assume that `\(f_{A \vert L}(a\vert l) &gt; 0\)` for all `\(a\)` and `\(l\)` s.t `\(P[L = l] &gt; 0\)`. 
+
++ The IP weighting for individual `\(i\)` is `\(W^A_i = 1/f_{A\vert L}(a_i \vert l_i)\)`.
+
++ The IP weighted mean for treatment level `\(a\)` is `\(E\left[\frac{I(A=a)Y}{f(A\vert L)}\right]\)`
+
+---
+
+# Equivalence of IP Weighting and Standardization
+
++ We will assume that `\(A\)` and `\(L\)` are discrete and `\(f(a \vert l) = P[A = a \vert L = l] &gt; 0\)` for all `\(l\)` with `\(P[L = l] &gt; 0\)`.
+
++ Use the iterated expectation formula:
+
+
+`$$E\left[\frac{I(A=a)Y}{f(A\vert L)}\right] = E_L \left \lbrace E_{A} \left\lbrace E_{Y}\left[\frac{I(A=a)Y}{f(A\vert L)} \vert A, L \right]\right\rbrace \right\rbrace$$`
+`$$=\sum_l \frac{E[Y\vert A = a, L = l]}{f(a\vert l)} f(a \vert l) P[L = l]$$`
+`$$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$`
+
++ This proof extends to continuous `\(L\)` but not to continuous `\(A\)`.
+
++ If conditional exchangeability holds, then both the IP weighted mean and the standardized mean estimate `\(Y(a)\)`.
+
+
+---
+
+# Causal Effects from in an Observational Data
+
++ None of our four identification conditions consistency, SUTVA, conditional exchangeability, and positivity require that our data is from a randomized trial.
+
++ However, these are much stronger assumptions in observational data. 
+---
+
+# Consistencey
+  
+- Consistency says: The outcome we observed for unit `\(i\)` ( `\(Y_i\)` ), who received treatment `\(a\)` is the same as the outcome we *would have observed* if we had intervened and set `\(A_i\)` to `\(a\)`.
+
+`$$A_i = a \Rightarrow Y_i = Y_i(a)$$`
+
+- In a trial with an intervention, consistency is almost tautological. 
+    
+    + We *did* intervene and set `\(A_i\)` to `\(a\)`. 
+
+
+- In an observational study we should think about if consistency is justified. 
+
+  + People may change their behavior if they receive an intervention vs. choosing a behavior independently.
+  
+---
+# Conditional Exchangeability
+
++ In a trial, exchangeability is guaranteed by the study design. 
+  - The researchers control the assignment mechanism and therefore know all of the features which contribute to treatment probabilities.
+  
++ In observational studies, treatment assignment occurs "naturally".
+  - Identifying a set of variables to give conditional exchangeability requires assumptions and external information.
+  - It may not be possible to measure all necessary variables.
+
+---
+
+# Positivity
+
++ In a trial, positivity is guaranteed by design. 
+
++ In observational data, even if we know a set `\(L\)` of variables such that `\(Y(a) \ci A\ \vert \ L\)`, there may be levels `\(L\)` for which `\(P(A = a \vert L = l)\)` is close to or exactly zero. 
+
+---
+
+# The Target Trial
+
+- Hernán and Robins argue that in order to identify a causal effect in observational data, we must have in mind a target trial that would identify the same parameter if it were feasible. 
+
+- This includes clearly and specifically defining a hypothetical intervention. 
+
+- This is often tricky (but not necessarily impossible): Consider the statements
+  
+  + "Earning a college degree will increase your earnings."
+  + "He was pulled over because he is Black."
+  + "Obesity causes heart disease".
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
