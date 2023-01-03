@@ -8,4 +8,13 @@ editor_options:
   chunk_output_type: console
 ---
 
-[Link to 2022 slides](slide_index_2022.html)
+## Lecture Slides
+
+[0. Course Overview](slides_2023/0_course_introduction.html) 
+
+[1. Introduction and Potential Outcomes](slides_2023/1_introduction.html)
+
+
+## Lecture Slides from Past Years
+
+[2022 slides](slide_index_2022.html)
