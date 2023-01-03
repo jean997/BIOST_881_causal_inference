@@ -1,0 +1,20 @@
+<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous">
+</script>
+
+<script>
+$(document).ready(function() {
+  var h2 = $( ":not(.toc) > h2" );
+  var items = h2.map(
+    function(){return $(this).text()}
+    ).get()
+  items.shift(); // Remove first item (title)
+  items.pop();   // Remove last item (spurious???)
+  var item_list = items.join("</li><li>");
+  var toc = "<ul><li>" + item_list + "</li></ul>";
+  $(".toc > h2").after(toc);
+
+});
+</script>
