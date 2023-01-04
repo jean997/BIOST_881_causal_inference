@@ -1,0 +1,48 @@
+---
+title: "In Class Acitivites"
+date: "Last updated: `r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+
+---
+
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+## Monday, January 9, 2023
+
+For this activity, don't use the slides. 
+
+In pairs, write down the definition for one of these terms (Jean will assign one term to each pair):
+
+- Counterfactual
+
+- Average treatment effect
+
+- Consistency (in the causal sense not the statistical sense)
+
+- Exchangeability
+
+- Interference
+
