@@ -178,3 +178,11 @@ penalized as long as you contact me ahead of time to arrange an alternate deadli
 ## Intro Survey
 
 Please fill out [the introductory survey](https://docs.google.com/forms/d/e/1FAIpQLSfuaiirJz-mJF-C9G6p7d4_BWA94wg8KNJR0lhhTPJ5Qm8VwA/viewform?usp=sf_link) by Friday. 
+
+
+---
+
+
+background-image: url(img/0_cats.jpg)
+background-position: center
+background-size: contain
