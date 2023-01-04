@@ -469,6 +469,8 @@ tr <- kable(D[11:20,], col.names = c("", "\\(Y(A=0)\\)", "\\(Y(A=1)\\)", "\\(A\\
               color = ifelse(D$A[11:20] == 0, "black", "grey")) %>% 
   column_spec(3, bold = ifelse(D$A[11:20] == 1, TRUE, FALSE), 
               color = ifelse(D$A[11:20] == 1, "black", "grey"))
+tl
+tr
 
 ```
 
@@ -501,7 +503,7 @@ sample.
 
 - Formally, let $\mathcal{P} = \lbrace P_\theta \vert \theta \in \Theta \rbrace$ be a set of 
 distributions parameterized by $\theta$. Then $\theta$ is identifiable if unique values of $\theta$
-correspond to unique distributions, i.e. $P_theta \neq P_{\theta^\prime}$ if $\theta \neq \theta^\prime$.
+correspond to unique distributions, i.e. $P_{\theta} \neq P_{\theta^\prime}$ if $\theta \neq \theta^\prime$.
 
 - Identifiability is a property of the model, not of a particular estimation procedure or 
 a data set. 

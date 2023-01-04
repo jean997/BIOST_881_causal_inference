@@ -36,7 +36,7 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### Lecture on 2023-01-04
-(updated: 2023-01-03)
+(updated: 2023-01-04)
 ]
 
 ---
@@ -151,8 +151,8 @@ Causal inference consists of three elements:
 ## Fisher's Argument 
 
 
-<div id="htmlwidget-1812349c2b601b64fc9e" style="width:90%;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1812349c2b601b64fc9e">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Smoking\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Genertic Variant\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,1!\"] \n  \"3\" [label = \"Lung Cancer\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"3,0!\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-80285f0acda76562cf86" style="width:90%;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-80285f0acda76562cf86">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Smoking\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Genertic Variant\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,1!\"] \n  \"3\" [label = \"Lung Cancer\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"3,0!\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 ## What is Wrong with Fisher's Argument?
@@ -532,7 +532,151 @@ What is the average causal effect `\(E[Y(1)] - E[Y(0)]\)`?
 
 What is the association `\(E[Y \vert A = 1] - E[Y \vert A = 0]\)`? 
 
+&lt;table class="table" style="font-size: 14px; width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=0)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=1)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
+&lt;table class="table" style="font-size: 14px; width: auto !important; margin-right: 0; margin-left: auto"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=0)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(Y(A=1)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
 .small[**Bold** = Observed]
 
@@ -704,7 +848,7 @@ sample.
 
 - Formally, let `\(\mathcal{P} = \lbrace P_\theta \vert \theta \in \Theta \rbrace\)` be a set of 
 distributions parameterized by `\(\theta\)`. Then `\(\theta\)` is identifiable if unique values of `\(\theta\)`
-correspond to unique distributions, i.e. `\(P_theta \neq P_{\theta^\prime}\)` if `\(\theta \neq \theta^\prime\)`.
+correspond to unique distributions, i.e. `\(P_{\theta} \neq P_{\theta^\prime}\)` if `\(\theta \neq \theta^\prime\)`.
 
 - Identifiability is a property of the model, not of a particular estimation procedure or 
 a data set. 
