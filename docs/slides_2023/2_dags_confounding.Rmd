@@ -952,7 +952,7 @@ render_graph(f711_graph)
 
 
 ---
-# 3. Connecting DAGs and Counterfactuals through Single World Intervention Graphs
+# 5. Single World Intervention Graphs
 
 ---
 
@@ -1044,6 +1044,7 @@ knitr::include_graphics("img/2_swig1.png")
 </center>
 
 ---
+
 ## SWIG Procedure
 
 - Step 1: Split nodes
@@ -1062,7 +1063,9 @@ knitr::include_graphics("img/2_split_nodes.png")
   - $a$ a fixed component representing the intervention.
 
 - Incoming arrows go into $A$ and outgoing arrows go out of $a$. 
+
 ---
+
 ## SWIG Procedure
 
 - Step 2: Re-label downstream nodes as counterfactuals.
@@ -1130,72 +1133,6 @@ knitr::include_graphics("img/2_fig16.png")
 
 ---
 
-<!-- ## Linking $\mathcal{G}$ and $\mathcal{G}(a)$ -->
-
-
-<!-- - Let $P(\mathbf{V})$ be a probability distribution over nodes $\mathbf{V}$ that factorizes according to the DAG $\mathcal{G}$.  -->
-
-<!-- - Goal: conditional d-separation in SWIG $\Rightarrow$ conditional exchangeability -->
-
-
-<!-- - To get there, we need to know that $P(\mathbf{V}(\mathbf{a}))$, the probability distribution over counterfactuals subject to the intervention $\mathbf{a},$ factorizes according to the SWIG $\mathcal{G}(\mathbf{a})$. -->
-
-<!-- - To get this, we need to be more specific about defining a model to go with our DAGs.  -->
-
-
-<!-- --- -->
-
-<!-- ## Non-Parametric Structural Equation Models -->
-
-<!-- - The models we have expressed so far as DAGs represent underlying counterfactual models. We can now give a formal definition of that model. -->
-
-<!-- - Start with a set of variables $\mathbf{V}$ represented by a DAG $\mathcal{G}$. -->
-
-<!-- -- -->
-
-<!-- Counterfactual Existance Assumption: -->
-
-<!-- - Every variable $V \in \mathbf{V}$ can be intervened on.  -->
-
-<!-- - Let $\mathbf{R}$ be a set of variables to be intervened on and set to $\widetilde{\mathbf{r}}$. We define the counterfactual value of $V(\mathbf{r})$ recursively as a function of the counterfactual values of it's parents. Let $\widetilde{\mathbf{r}}_{pa(V)}$ be the subset of $\widetilde{\mathbf{r}}$ which correspond to parents of $V$. -->
-<!-- $$V(\widetilde{\mathbf{r}}) = V \left(\widetilde{\mathbf{r}}_{pa(V)}, (\mathbf{PA}_V \backslash \mathbf{R})(\widetilde{\mathbf{r}}) \right)$$ -->
-<!-- --- -->
-
-<!-- ## Equivalent Equation Version  -->
-
-<!-- The previous definition is equivalent to:  -->
-
-<!-- - Assume the existence of unmeasured errors $\epsilon_V$.  -->
-
-<!-- - Let $\widetilde{\mathbf{pa}}_V$ be an intervention on the parents of $V$. Then we assume the existence of deterministic functions  -->
-<!-- $$V(\widetilde{\mathbf{pa}}_V) = f_V(\widetilde{\mathbf{pa}}_V, \epsilon_V).$$ -->
-<!-- - With consistancy, this also implies that  -->
-<!-- $$ V = f_V(PA_V, \epsilon_V)$$ -->
-<!-- --- -->
-
-<!-- ## Example -->
-
-<!-- This graph -->
-
-<!-- <center>  -->
-
-<!-- ```{r, echo=FALSE, out.width="40%", fig.height=1.7} -->
-<!-- knitr::include_graphics("img/2_swig6_fig9.png") -->
-<!-- ``` -->
-
-<!-- </center> -->
-
-<!-- corresponds to equations -->
-
-<!-- $$Z = f_Z(\epsilon_Z)$$ -->
-<!-- $$M(z) = f_M(z, \epsilon_M)$$ -->
-<!-- $$Y(z, m) = f_Y(z, m, \epsilon_Y)$$ -->
-
-<!-- - Our model also says that intervening on the future, does not affect past variables: $Z(m, y) = Z$, $M(z, y) = M(z)$, $M(y) = M(Z)$.  -->
-
-<!-- - For partial interventions, we have $Y(m) = Y(m, Z)$, $Y(z) = Y(z, M(z))$, $Y = Y(Z, M(Z))$. -->
-
----
 
 ## Independence Assumptions
 
@@ -1212,6 +1149,7 @@ knitr::include_graphics("img/2_fig16.png")
 - We will generally always assume FFRCISTG.
 
 ---
+
 ## FFRCISTG vs NPSEM-IE
 <center> 
 
@@ -1385,6 +1323,7 @@ $$E[Y(A = 1)] - E[Y(A = 0)]$$
   - But we intervene on $L$ and set it to $L(0)$. 
 ---
 
+
 ## Natural Direct and Indirect Effect
 
 <center>
@@ -1419,87 +1358,74 @@ $$
 
 - If we further assume the NPSEM-IE model, NIE and NDE are identifiable.
 
----
+- We will come back to this in the future to talk more about mediation. 
 
-## Identifying the NDE under NPSEM-IE Assumptions
+<!-- --- -->
 
-- Under NPSEM-IE assumptions, cross-world independcies hold. 
+<!-- ## Identifying the NDE under NPSEM-IE Assumptions -->
 
-- Specifically, we have 
+<!-- - Under NPSEM-IE assumptions, cross-world independcies hold.  -->
 
-$$ Y(A = 1, l) \ci L(A = 0) \qquad \forall\ l $$
-- We want to estimate $E[Y(A = 1, L(A = 0))]$. 
+<!-- - Specifically, we have  -->
 
-$$
-E[Y(A = 1, L(A = 0))] = \sum_l E[Y(A = 1, L = l)\vert L(0) = l]P[L(0) = l]
-$$
-$$
-=\sum_l E[Y(A = 1, L=l)]P[L(0) = l]
-$$
-- The second equality comes from the independence assumption above. 
+<!-- $$ Y(A = 1, l) \ci L(A = 0) \qquad \forall\ l $$ -->
+<!-- - We want to estimate $E[Y(A = 1, L(A = 0))]$.  -->
 
----
+<!-- $$ -->
+<!-- E[Y(A = 1, L(A = 0))] = \sum_l E[Y(A = 1, L = l)\vert L(0) = l]P[L(0) = l] -->
+<!-- $$ -->
+<!-- $$ -->
+<!-- =\sum_l E[Y(A = 1, L=l)]P[L(0) = l] -->
+<!-- $$ -->
+<!-- - The second equality comes from the independence assumption above.  -->
 
-## Identifying the NDE under NPSEM-IE Assumptions
+<!-- --- -->
 
-- We now only need to estimate $E[Y(A = 1, L = l)]$ and $P[L(0) = l]$ which can be estimated as
-$$
-E[Y(A = 1, L = l)] = E[Y \vert A = 1, L = l]
-$$
-$$
-P[L(0) = l ] = P[L=l \vert A = 0]
-$$
-- Both equalities come from exchangeability
+<!-- ## Identifying the NDE under NPSEM-IE Assumptions -->
 
-- So
+<!-- - We now only need to estimate $E[Y(A = 1, L = l)]$ and $P[L(0) = l]$ which can be estimated as -->
+<!-- $$ -->
+<!-- E[Y(A = 1, L = l)] = E[Y \vert A = 1, L = l] -->
+<!-- $$ -->
+<!-- $$ -->
+<!-- P[L(0) = l ] = P[L=l \vert A = 0] -->
+<!-- $$ -->
+<!-- - Both equalities come from exchangeability -->
 
-$$
-E[Y(A = 1, L(A = 0))] = \sum_l E[Y \vert A = 1, L = l]P[L =l \vert A = 0]
-$$
+<!-- - So -->
 
----
-## Non-Identifiability of NDE under FFRCISTG Intuition
-
-- Consider two types of units:
-  + Both have $L(0) = 0$ and $L(1) = 1$
-  
-- In both cases $Y(1, 1) = 1$ and $Y(0, 0) = 0$.
-
-- For type 1, $Y(1, 0) = 0$ and for type 2 $Y(1, 0) = 1$.
-  - For type 1, if $A$ had not caused $L$, they would not have experienced $Y$.
-  - For type 2, $L$ did not matter. 
-  
-- Even if we could observe both types under both treatments of $L$, we could not tell them apart. 
-
-- But type 1 individuals represent indirect effects while type 2 individuals represent direct effects.
+<!-- $$ -->
+<!-- E[Y(A = 1, L(A = 0))] = \sum_l E[Y \vert A = 1, L = l]P[L =l \vert A = 0] -->
+<!-- $$ -->
 
 <!-- --- -->
 <!-- ## Non-Identifiability of NDE under FFRCISTG Intuition -->
 
-<!-- - Type 1: $L(0) = 0$, $L(1) = 1$, $Y(1, 1) = 1$, $Y(0, 0) = 0$, $Y(1, 0) = 0$ -->
+<!-- - Consider two types of units: -->
+<!--   + Both have $L(0) = 0$ and $L(1) = 1$ -->
 
-<!-- - Type 2: $L(0) = 0$, $L(1) = 1$, $Y(1, 1) = 1$, $Y(0, 0) = 0$, $Y(1, 0) = 1$ -->
+<!-- - In both cases $Y(1, 1) = 1$ and $Y(0, 0) = 0$. -->
 
-<!-- - NPSEM-IE assumes that the proportion of type 1 individuals is equal to the proportion of  -->
+<!-- - For type 1, $Y(1, 0) = 0$ and for type 2 $Y(1, 0) = 1$. -->
+<!--   - For type 1, if $A$ had not caused $L$, they would not have experienced $Y$. -->
+<!--   - For type 2, $L$ did not matter.  -->
 
-<!-- - Type 3: $L(0) = 1$, $L(1) = 1$, $Y(1, 1) = 1$, $Y(0, 0) = 0$, $Y(1, 0) = 0$ -->
+<!-- - Even if we could observe both types under both treatments of $L$, we could not tell them apart.  -->
 
-<!-- - And that the proportion of type 2 individuals is equal to the proportion  -->
+<!-- - But type 1 individuals represent indirect effects while type 2 individuals represent direct effects. -->
 
-<!-- - Type 4: $L(0) = 1$,  $L(1) = 1$, $Y(1, 1) = 1$, $Y(0, 0) = 0$, $Y(1, 0) = 1$ -->
+<!-- --- -->
+<!-- ## Controlled Direct and Indirect Effects -->
 
----
-## Controlled Direct and Indirect Effects
+<!-- - Controlled effects are an alternative to natural effects.  -->
 
-- Controlled effects are an alternative to natural effects. 
+<!-- - These are the effect of $Y$ when we control $L$ at some pre-determined value. -->
 
-- These are the effect of $Y$ when we control $L$ at some pre-determined value.
+<!-- $$E[Y(A = 1, L = l)] - E[Y(A = 0, L = l)]$$ -->
 
-$$E[Y(A = 1, L = l)] - E[Y(A = 0, L = l)]$$
+<!-- - This definition only requires a joint intervention and doesn't require cross-world relationships between counterfactuals. -->
 
-- This definition only requires a joint intervention and doesn't require cross-world relationships between counterfactuals.
-
-- Therefore CDE and CIE are identifiable under the FFRCISTG model.
+<!-- - Therefore CDE and CIE are identifiable under the FFRCISTG model. -->
 
 <!-- --- -->
 
