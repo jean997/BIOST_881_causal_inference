@@ -1,7 +1,7 @@
-name: "BIOST881_winter2022"
+name: "BIOST 881"
 output_dir: ../docs
 navbar:
-  title: "BIOST881_winter2022"
+  title: "BIOST 881"
   left:
   - text: Home
     href: index.html

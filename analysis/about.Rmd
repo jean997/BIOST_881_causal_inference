@@ -12,4 +12,4 @@ This is a teaching website for
 BIOSTAT 881: Advanced Topics in Causal Inference
 
 
-A class taught Winter 2022, and Winter 2023 by Jean Morrison at the University of Michigan. This website is temporarily under construction in preparation for Winter 2023 so most links are dead. Check back in a few months for links to current slides.
+A class taught Winter 2022, and Winter 2023 by Jean Morrison at the University of Michigan. 
