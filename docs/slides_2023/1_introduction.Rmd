@@ -925,12 +925,30 @@ $$A_i = a \Rightarrow Y_i = Y_i(a)$$
 
 - This includes clearly and specifically defining a hypothetical intervention. 
 
-- This is often tricky (but not necessarily impossible): Consider the statements
-  
-  + "Earning a college degree will increase your earnings."
-  + "He was pulled over because he is Black."
-  + "Obesity causes heart disease."
-  
-  
-- Is there a target trial that could correspond to each statement?
+- However, that intervention doesn't necessarily need to be currently possible. 
 
+
+---
+
+## Group Discussion Question
+
+
+- Design a "target trial" to test the question "Does getting a college degree increase earnings?"
+
+- Are there parts of the question you would modify? How/Why?
+
+---
+
+## Non-Modifiable Exposures
+
+- There are some features (e.g. race, sex, BMI) that are very hard to imagine modifying. 
+
+- Another way to think about this is that race, sex, and body size are multi-faceted conditions. 
+  - These categories include multiple physical and social features. 
+  - In the case of race and sex, definitions may shift over time. 
+  
+- In some discrimination studies, there is a work-around: intervene on an observers perceptions:
+  - In admissions discrimination studies, the same applications are sent with different names. 
+  - In studies of housing discrimination, actors of different races view apartments. 
+  
+- We will come back to this issue later in the semester.

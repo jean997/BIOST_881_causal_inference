@@ -34,9 +34,11 @@ style_mono_accent(
 
 1. Representing Causal Relationships in Directed, Acyclic Graphs (DAGs)
 
-1. The Backdoor Criterion
+1. Connecting DAGs to Counterfactuals
 
-1. Connecting DAGs and Counterfactuals through Single World Intervention Graphs
+1. Using the backdoor criterion to identify conditional exchangeability.
+
+1. Single World Intervention Graphs
 
 
 ---
@@ -78,6 +80,21 @@ ay_graph <- create_graph(nodes_df = ay, edges_df = ay_edge)
 
 render_graph(ay_graph)
 ```
+
+---
+
+## Why Use Graphs
+
+- Graphs are a natural way of encoding scientific understanding of the world. 
+
+- For many people, the graph encoding is fairly intuitive. 
+  - This makes them a useful tool for communicating structural assumptions across domains. 
+
+- Under some assumptions, graphical properties can be used to easily solve problems that are hard to solve otherwise. 
+  - In particular, graphs are very useful for answering the question "what variables should I condition on?".
+  
+  
+
 
 ---
 
@@ -153,7 +170,7 @@ there are two paths from $A$ to $Y$ but only one directed path.
 
 --
 
-+ Work with your neighbor to arrange the following variables in a DAG (there is moer than one right answer):
++ Work with your neighbor to arrange the following variables in a DAG (there is more than one right answer):
 
   - Patient outcome
   - Initial disease severity
@@ -161,7 +178,6 @@ there are two paths from $A$ to $Y$ but only one directed path.
   - Treatment Adherence
   - Age
 
-(The DAG is not uniquely determined from the information given.)
 
 ---
 ## Disease Treatment Example 
@@ -282,15 +298,217 @@ render_graph(di_graph)
 
 </center>
 
----
-# 2. The Backdoor Criterion
 
+---
+
+# 2. Connecting DAGs and Counterfactuals through the 'do' Operator
+
+---
+## The 'do' Operator
+
+- In order for a graph to be a **causal graph**, it must say something about counterfactual worlds in which a variable is **set** to a particular value. 
+
+- Judea Pearl makes this connection by introducing the 'do' operator and 'graph surgery'. We will see two other ways to make this connection in this lecture. 
+
+- The operation $do(X = x)$ indicates the intervention of setting the variable $X$ equal to $x$. 
+
+---
+## 'do' Operator in DAGs
+
+- Pearl suggests that the action of setting $X$ to $x$ can be represented graphically by removing all of the arrows into $X$. 
+
+- This is because, in the interventional world, $X$ is no longer affected by its parents, we determined what it would be
+
+---
+## Pearl's Graph Surgery
+
+.pull-left[
+Original DAG
+
+```{r, echo=FALSE, out.width="90%"}
+knitr::include_graphics("img/2_sprinkler_dag_1.png")
+```
+$$
+\begin{split}
+P(\mathbf{x}) = P(x_1) P(x_2 \vert x_1)P(x_3, \vert x_1)\\P(x_4 \vert x_2, x_3)P(x_5 \vert x_4)
+\end{split}
+$$
+]
+.pull-right[
+DAG with intervention "turning sprinkler on".
+
+```{r, echo=FALSE, out.width="90%"}
+knitr::include_graphics("img/2_sprinkler_dag_2.png")
+```
+
+$$
+\begin{split}
+P_{X_3 = ON}(\mathbf{x}) = & P(x_1) P(x_2 \vert x_1)\\& P(x_4 \vert x_2, X_3 = ON)\\ & P(x_5 \vert x_4)
+\end{split}
+$$
+]
+---
+ 
+# 3. Connecting DAGs and Counterfactuals through Structural Equation Models
+
+---
+
+## Structural Equation Models
+
+- In a **structural equation** the bit on the left is qualitatively different from the bit on the right. 
+
+- The bit on the left is a counterfactual. 
+
+---
+
+## Example
+
+- Suppose we have a machine for measuring blood pressure. 
+
+- $X$ represents the true systolic blood pressure and $Y$ represents the measured systolic blood pressure. 
+
+- Suppose that the machine has some small amount of error. 
+
+- We can represent this system with a graph:
+
+<center>
+```{r, echo = FALSE, out.width='50%', fig.height = 2.5, fig.align='left', message = FALSE, warning=FALSE}
+xy <- create_node_df(n = 2, label = c("X", "Y"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     x = c(0, 1), 
+                     y = c(0, 0))
+xy_edge <- create_edge_df(from = c(1), to = c(2), 
+                          minlen = 1, 
+                          color = "black", 
+                          )
+xy_graph <- create_graph(nodes_df = xy, edges_df = xy_edge)
+
+render_graph(xy_graph)
+```
+</center>
+---
+
+## Example
+
+- We could also represent the system with an equation 
+
+$$Y = X + \epsilon_Y$$
+where $\epsilon_Y$ is a random variable that is the error of the machine. 
+
+- Mathematically, it would be equivalent to say 
+
+$$X = Y - \epsilon_Y$$
+
+- But the first equation is structural while the second is not. 
+
+- We can find the counterfactual value $Y(X = x)$ by plugging $x$ into the first equation. 
+
+- The second equation is descriptive but not counterfactual. 
+
+---
+
+## Non-Parametric Structural Equation Models
+
+- We can link a graph to a causal model with a system of non-parametric structural equations. 
+
+- Let $\mathcal{G} = \lbrace V, E \rbrace$ is a directed graph with nodes $V_1, \dots, V_n$.
+
+- Let $\epsilon_1, \dots, \epsilon_n$ be a set of random variables corresponding to each node. 
+
+- We assume that for a given $V_i$ with parents $\mathbf{pa}_i \subset V$, there is a counterfactual $V_i(\mathbf{pa}_i)$ given by the 
+structural equation 
+$$V_i(\mathbf{pa}_i) = f_{V_i}(\mathbf{pa}_i, \epsilon_{i})$$
+
+---
+
+## Example 
+
+This graph
+
+<center> 
+
+```{r, echo=FALSE, out.width="40%", fig.height=1.7}
+knitr::include_graphics("img/2_swig6_fig9.png")
+```
+
+</center>
+
+corresponds to equations
+
+$$Z = f_Z(\epsilon_Z)$$
+$$M(z) = f_M(z, \epsilon_M)$$
+$$Y(z, m) = f_Y(z, m, \epsilon_Y)$$
+---
+
+## Special Case: Linear Structural Equation Models
+
+- A linear SEM is the special case that $f_{V_1}, \dots, f_{V_n}$ are linear and $\epsilon_{1}, \dots, \epsilon_n$ are mutually independent. 
+
+- In the previous example, a linear SEM would be 
+
+$$
+\begin{split}
+&Z = \epsilon_Z\\
+&M = \beta_{ZM} Z + \epsilon_M\\
+&Y = \beta_{ZY} Z + \beta_{MY} M + \epsilon_Y
+\end{split}
+$$
+- In the linear case, the SEM can be written in matrix notation 
+
+$$
+\mathbf{V}(\mathbf{v}) = \mathbf{B}^{\top}\mathbf{v} + \boldsymbol{\epsilon}
+$$
+
+---
+
+## Linear SEMs
+
+- Lots of early work on causal inference deals specifically with linear SEMs. 
+
+- Linear SEMs are easy to work with, so it is sometimes convenient to demonstrate a property using linear SEMs.
+
+- However, this is a very restrictive model. 
+
+- For now, we will try to make as few assumptions as possible. 
+
+- When we start the modeling section, we will add some assumptions so that we can estimate parameters but it is nice to be clear about which assumptions are necessary and which are just a convenience. 
+
+---
+
+## Completing the Causal Model Definiton
+
+- Our definition of NPSEMs is not quite sufficient to provide a causal model because it doesn't guarantee the causal Markov property. 
+
+- For this we need an assumption about $\epsilon_1, \dots, \epsilon_n$.
+
+- One sufficient assumption is that $\epsilon_1, \dots, \epsilon_n$ are mutually independent of each other and
+the other variables in the model. 
+
+- Richardson and Robins call this the NPSEM-IE (IE = Indepement Errors) model. They also propose a weaker set of assumptions that is also sufficient. 
+
+- We will come back to this later.
+
+---
+# 4. The Backdoor Criterion
+
+- Using DAGs to identify conditioning sets. 
+
+- Confounding
+
+- Colliding
 
 ---
 
 ## Exchangeability
 
-- Is the outcome O exchangeable with respect to the treatment? $O(t) \ci T$?
+- We want to know if the outcome $O$ exchangeable with respect to the treatment? $O(t) \ci T$?
+
+- If not, what set of variables, $L$ can we condition on such that $O(t) \ci T \vert L$?
 
 <center>
 
@@ -350,7 +568,7 @@ render_graph(ayl_graph0)
 
 ```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, fig.align='center'}
 
-ayll <- create_node_df(n = 4, label = c("A", "Y", "L@_{1}", "L@_{2}"), 
+ayll_node <- create_node_df(n = 4, label = c("A", "Y", "L@_{1}", "L@_{2}"), 
                      fontname = "Helvetica", 
                      fontsize = 10, 
                      width = 0.3, 
@@ -362,9 +580,9 @@ ayll_edge <- create_edge_df(from = c( 3, 3, 4), to = c( 1, 4, 2),
                           minlen = 1, 
                           color = "black", 
                           )
-ayll_graph <- create_graph(nodes_df = ayll, edges_df = ayll_edge)
+ayll_graph1<- create_graph(nodes_df = ayll_node, edges_df = ayll_edge)
 
-render_graph(ayll_graph)
+render_graph(ayll_graph1)
 ```
 
 </center>
@@ -466,17 +684,17 @@ rownames(pop ) <- rownames(stars) <-  c("\\(T = 0\\)", "\\(T = 1\\)")
 
 - d-Separation formalizes the rules for identifying pairs of independent variables based on graphical rules.
 
-
+<center>
 ```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, fig.align='center'}
-ayll_edge <- create_edge_df(from = c( 3, 3, 2), to = c( 1, 4, 4), 
+ayll_edge2 <- create_edge_df(from = c( 3, 3, 2), to = c( 1, 4, 4), 
                           minlen = 1, 
                           color = "black", 
                           )
-ayll_graph <- create_graph(nodes_df = ayll, edges_df = ayll_edge)
+ayll_graph2<- create_graph(nodes_df = ayll_node, edges_df = ayll_edge2)
 
-render_graph(ayll_graph)
+render_graph(ayll_graph2)
 ```
-
+</center>
 ---
 
 ## No Statistical Definition of Confounding
@@ -494,8 +712,7 @@ render_graph(ayll_graph)
 <center>
 
 ```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, fig.align='center'}
-
-render_graph(ayll_graph)
+render_graph(ayll_graph2)
 ```
 
 </center>
@@ -519,6 +736,30 @@ render_graph(ayll_graph)
 
 ---
 
+## Examples:
+
+<center>
+.pull-left[
+```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, fig.align='center', out.width="80%"}
+ayll_node3 <- ayll_node %>% mutate(shape = c("circle", "circle", "circle", "square"))
+render_graph(ayll_graph1)
+```
+]
+.pull-right[
+```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, fig.align='center', out.width="80%"}
+render_graph(ayll_graph2)
+```
+]
+
+```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, fig.align='center', out.width="40%"}
+ayll_graph3<- create_graph(nodes_df = ayll_node3, edges_df = ayll_edge2)
+render_graph(ayll_graph3)
+```
+
+</center>
+
+---
+
 ## d-Separation and the Causal Markov Property
 
 Let $A$, $B$, and $C$ be sets of variables. Verma and Pearl (1988) proved that:
@@ -531,7 +772,7 @@ If $A$ and $B$ are d-separated given $C$ then $A \ci B \vert\ C$.
 ## Faithfulness
 
 Faithfulness is the property that, for three sets of variables $A$, $B$, and $C$
-$$A \ci B \vert C \Rightarrow\ A \text{ is } d\text{-separated from }B\text{ given }C$$. 
+$$A \ci B \vert C \Rightarrow\ A \text{ is } d\text{-separated from }B\text{ given }C$$ 
 
 - Violations of faithfulness occur when confounding effects perfectly cancel each other. 
   + Pearl calls these "incidental cancellations". 
@@ -563,6 +804,8 @@ render_graph(di_graph)
 ## Backdoor Path
 
 - A backdoor path from $A$ to $Y$ is a path from $A$ to $Y$ that begins with an edge going *into* $A$. 
+
+- Find the backdoor paths from $A$ to $Y$. 
 
 <center>
 
@@ -615,9 +858,6 @@ then $Y(a) \ci A \vert L$.
 --
 - The two conditions in the theorem are referred to as the *backdoor criterion*. 
 
---
-
-- To justify this, we need a connection between DAGs and counterfactuals. 
 
 ---
 
@@ -708,6 +948,9 @@ render_graph(f711_graph)
 --
 
 - No. $L$ is a descendant of $A$, so it does not satisfy the backdoor criterion.
+
+
+
 ---
 # 3. Connecting DAGs and Counterfactuals through Single World Intervention Graphs
 
@@ -715,7 +958,18 @@ render_graph(f711_graph)
 
 ## Single World Intervention Graphs (SWIGs)
 
-- SWIGs are a method of including counterfactuals in DAG. 
+- SWIGs are a method of including counterfactuals in DAG proposed by Richardson and Robins.
+
+- This is an alternative to Pearl's graph surgery strategy.
+
+- SWIGs make the intervention more explicit. 
+
+- Using SWIGs, we can evaluate conditional exchangeability using only $d$-separation without having to 
+manage the other aspects of the backdoor criterion. 
+
+---
+
+## SWIGs
 
 - To create a SWIG, the node representing the intervened on variable is split into two nodes. 
   - One node represents the natural value of of the variable.
@@ -754,9 +1008,7 @@ knitr::include_graphics("img/2_swig1.png")
 
 - Each SWIG can represent only a single intervention, i.e. the world in which everyone receives treatment $A = a$. 
 
-- A template is graph valued function $x \rightarrow \mathcal{G}(x)$
-  + Input is the value the intervened on variable is set to.
-  + Output is a SWIG.
+- A template is graph valued function $x \rightarrow \mathcal{G}(x)$.  The input is the value the intervened on variable is set to, the output is a SWIG.
   
 <center> 
 
@@ -827,15 +1079,36 @@ knitr::include_graphics("img/2_label_nodes.png")
 
 ## d-Separation in SWIGs
 
-- In SWIGs we have an additional rule for d-separation.
+- In a SWIG, any path containing an intervention node is blocked. 
 
-- Any path containing an intervention node is blocked. 
+- This sounds like a new rule but isn't really. 
 
-- Alternatively, $A$ and $Y$ are d-separated in $\mathcal{G}(a)$ if they are d-separated in the subgraph of $\mathcal{G}(a)$ achieved by removing all of the fixed nodes. 
+- Intervention nodes are fixed at a value, so no information can propogate through. 
 
-- Remember, intervention nodes are fixed at a single value, so no information can propogate through them.
+- Fixed nodes in any graph block a path. 
 
-- We are heading toward the result that (conditional) d-separation of $Y(a)$ and $A$ in a SWIG $\mathcal{G}(a)$ implies (conditional) exchangeability of $Y(a)$ and $A$. 
+- However, it is atypical to include fixed nodes in a graph so this is an important rule to remember for SWIGs.
+
+---
+
+## d-Separation in SWIGs
+
+- Under the NPSEM-IE assumptions, $d$-separation in the SWIG implies exchangeability. 
+
+- That is, if $\mathcal{G}(a)$ is the SWIG of the intervention $A = a$ and $Y(a)$ and $A$ are $d$-separated in $\mathcal{G}(a)$, then 
+$$Y(a) \ci A$$
+
+- We have a similar result for conditional exchangeability. 
+
+- IF $Y(a)$ and $A$ are $d$-separated in $\mathcal{G}(a)$ conditional on a set of nodes $L$, then 
+$$Y(a) \ci A \vert \ L$$
+- NPSEM-IE is stronger than necessary to achieve this result. 
+
+<!-- - Alternatively, $A$ and $Y$ are d-separated in $\mathcal{G}(a)$ if they are d-separated in the subgraph of $\mathcal{G}(a)$ achieved by removing all of the fixed nodes.  -->
+
+<!-- - Remember, intervention nodes are fixed at a single value, so no information can propogate through them. -->
+
+<!-- - We are heading toward the result that (conditional) d-separation of $Y(a)$ and $A$ in a SWIG $\mathcal{G}(a)$ implies (conditional) exchangeability of $Y(a)$ and $A$.  -->
 
 ---
 ## Applying d-separation in SWIGs
@@ -857,76 +1130,76 @@ knitr::include_graphics("img/2_fig16.png")
 
 ---
 
-## Linking $\mathcal{G}$ and $\mathcal{G}(a)$
+<!-- ## Linking $\mathcal{G}$ and $\mathcal{G}(a)$ -->
 
 
-- Let $P(\mathbf{V})$ be a probability distribution over nodes $\mathbf{V}$ that factorizes according to the DAG $\mathcal{G}$. 
+<!-- - Let $P(\mathbf{V})$ be a probability distribution over nodes $\mathbf{V}$ that factorizes according to the DAG $\mathcal{G}$.  -->
 
-- Goal: conditional d-separation in SWIG $\Rightarrow$ conditional exchangeability
-
-
-- To get there, we need to know that $P(\mathbf{V}(\mathbf{a}))$, the probability distribution over counterfactuals subject to the intervention $\mathbf{a},$ factorizes according to the SWIG $\mathcal{G}(\mathbf{a})$.
-
-- To get this, we need to be more specific about defining a model to go with our DAGs. 
+<!-- - Goal: conditional d-separation in SWIG $\Rightarrow$ conditional exchangeability -->
 
 
----
+<!-- - To get there, we need to know that $P(\mathbf{V}(\mathbf{a}))$, the probability distribution over counterfactuals subject to the intervention $\mathbf{a},$ factorizes according to the SWIG $\mathcal{G}(\mathbf{a})$. -->
 
-## Non-Parametric Structural Equation Models
+<!-- - To get this, we need to be more specific about defining a model to go with our DAGs.  -->
 
-- The models we have expressed so far as DAGs represent underlying counterfactual models. We can now give a formal definition of that model.
 
-- Start with a set of variables $\mathbf{V}$ represented by a DAG $\mathcal{G}$.
+<!-- --- -->
 
---
+<!-- ## Non-Parametric Structural Equation Models -->
 
-Counterfactual Existance Assumption:
+<!-- - The models we have expressed so far as DAGs represent underlying counterfactual models. We can now give a formal definition of that model. -->
 
-- Every variable $V \in \mathbf{V}$ can be intervened on. 
+<!-- - Start with a set of variables $\mathbf{V}$ represented by a DAG $\mathcal{G}$. -->
 
-- Let $\mathbf{R}$ be a set of variables to be intervened on and set to $\widetilde{\mathbf{r}}$. We define the counterfactual value of $V(\mathbf{r})$ recursively as a function of the counterfactual values of it's parents. Let $\widetilde{\mathbf{r}}_{pa(V)}$ be the subset of $\widetilde{\mathbf{r}}$ which correspond to parents of $V$.
-$$V(\widetilde{\mathbf{r}}) = V \left(\widetilde{\mathbf{r}}_{pa(V)}, (\mathbf{PA}_V \backslash \mathbf{R})(\widetilde{\mathbf{r}}) \right)$$
----
+<!-- -- -->
 
-## Equivalent Equation Version 
+<!-- Counterfactual Existance Assumption: -->
 
-The previous definition is equivalent to: 
+<!-- - Every variable $V \in \mathbf{V}$ can be intervened on.  -->
 
-- Assume the existence of unmeasured errors $\epsilon_V$. 
+<!-- - Let $\mathbf{R}$ be a set of variables to be intervened on and set to $\widetilde{\mathbf{r}}$. We define the counterfactual value of $V(\mathbf{r})$ recursively as a function of the counterfactual values of it's parents. Let $\widetilde{\mathbf{r}}_{pa(V)}$ be the subset of $\widetilde{\mathbf{r}}$ which correspond to parents of $V$. -->
+<!-- $$V(\widetilde{\mathbf{r}}) = V \left(\widetilde{\mathbf{r}}_{pa(V)}, (\mathbf{PA}_V \backslash \mathbf{R})(\widetilde{\mathbf{r}}) \right)$$ -->
+<!-- --- -->
 
-- Let $\widetilde{\mathbf{pa}}_V$ be an intervention on the parents of $V$. Then we assume the existence of deterministic functions 
-$$V(\widetilde{\mathbf{pa}}_V) = f_V(\widetilde{\mathbf{pa}}_V, \epsilon_V).$$
-- With consistancy, this also implies that 
-$$ V = f_V(PA_V, \epsilon_V)$$
----
+<!-- ## Equivalent Equation Version  -->
 
-## Example
+<!-- The previous definition is equivalent to:  -->
 
-This graph
+<!-- - Assume the existence of unmeasured errors $\epsilon_V$.  -->
 
-<center> 
+<!-- - Let $\widetilde{\mathbf{pa}}_V$ be an intervention on the parents of $V$. Then we assume the existence of deterministic functions  -->
+<!-- $$V(\widetilde{\mathbf{pa}}_V) = f_V(\widetilde{\mathbf{pa}}_V, \epsilon_V).$$ -->
+<!-- - With consistancy, this also implies that  -->
+<!-- $$ V = f_V(PA_V, \epsilon_V)$$ -->
+<!-- --- -->
 
-```{r, echo=FALSE, out.width="40%", fig.height=1.7}
-knitr::include_graphics("img/2_swig6_fig9.png")
-```
+<!-- ## Example -->
 
-</center>
+<!-- This graph -->
 
-corresponds to equations
+<!-- <center>  -->
 
-$$Z = f_Z(\epsilon_Z)$$
-$$M(z) = f_M(z, \epsilon_M)$$
-$$Y(z, m) = f_Y(z, m, \epsilon_Y)$$
+<!-- ```{r, echo=FALSE, out.width="40%", fig.height=1.7} -->
+<!-- knitr::include_graphics("img/2_swig6_fig9.png") -->
+<!-- ``` -->
 
-- Our model also says that intervening on the future, does not affect past variables: $Z(m, y) = Z$, $M(z, y) = M(z)$, $M(y) = M(Z)$. 
+<!-- </center> -->
 
-- For partial interventions, we have $Y(m) = Y(m, Z)$, $Y(z) = Y(z, M(z))$, $Y = Y(Z, M(Z))$.
+<!-- corresponds to equations -->
+
+<!-- $$Z = f_Z(\epsilon_Z)$$ -->
+<!-- $$M(z) = f_M(z, \epsilon_M)$$ -->
+<!-- $$Y(z, m) = f_Y(z, m, \epsilon_Y)$$ -->
+
+<!-- - Our model also says that intervening on the future, does not affect past variables: $Z(m, y) = Z$, $M(z, y) = M(z)$, $M(y) = M(Z)$.  -->
+
+<!-- - For partial interventions, we have $Y(m) = Y(m, Z)$, $Y(z) = Y(z, M(z))$, $Y = Y(Z, M(Z))$. -->
 
 ---
 
 ## Independence Assumptions
 
-- From this model alone, we can't conclude the causal Markov property. We need an additional assumption.
+- As we said before, the NPSEM model is not sufficient to conclude the causal Markov property. We need an additional assumption.
 
 - FFRCISTG Assumption: Let $\mathbf{v}^\dagger$ be an intervention on every variable in $V$. The FFRCISTG independence assumption says that all of the counterfactual variables $\lbrace V(\mathbf{v}^\dagger) \rbrace$ are mutually independent after this intervention. 
 
@@ -958,7 +1231,7 @@ knitr::include_graphics("img/2_swig6_fig9.png")
 
 ## Factorization Proof Sketch
 
-- The result that $P(\mathbf{V})$ factorizes according to $\mathcal{G} \Rightarrow P(\mathbf{V}(\mathbf{a}))$ factorizes according to the SWIG $\mathcal{G}$ follows from the FFRCISTG independence assumption. 
+- An important result is that the FFRCISTG assumption is sufficient to conclude that if  $P(\mathbf{V})$ factorizes according to $\mathcal{G}$ then  $P(\mathbf{V}(\mathbf{a}))$ factorizes according to the SWIG $\mathcal{G}(a)$. 
 
 
 Proof idea: Work by reverse induction
@@ -994,7 +1267,11 @@ knitr::include_graphics("img/2_factorization.png")
 
 - Recall: Conditional exchangeability says that $Y(a) \ci A \vert L$, which is exactly what is implied by $d$-separation in the SWIG. 
 
-- This is an alternative formulation of the backdoor criterion. 
+- $d$-separation in the SWIG is equivalent to satisfying the backdoor criterion. 
+
+- So this proof also shows that the FFRCISTG assumptions imply the backdoor criterion. 
+
+- Since NPSEM-IE is strictly stronger than FFRCISTG, NPSEM-IE assumptions also imply the backdoor criterion. 
 
 ---
 

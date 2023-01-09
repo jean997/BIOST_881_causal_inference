@@ -4,7 +4,7 @@
     <title>L1: Getting Started</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -36,7 +36,7 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### Lecture on 2023-01-04
-(updated: 2023-01-04)
+(updated: 2023-01-08)
 ]
 
 ---
@@ -151,8 +151,8 @@ Causal inference consists of three elements:
 ## Fisher's Argument 
 
 
-<div id="htmlwidget-f4ab046ee0f156123c78" style="width:90%;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-f4ab046ee0f156123c78">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Smoking\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Genertic Variant\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,1!\"] \n  \"3\" [label = \"Lung Cancer\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"3,0!\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-2a4dee094ddecc952df2" style="width:90%;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2a4dee094ddecc952df2">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Smoking\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Genertic Variant\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,1!\"] \n  \"3\" [label = \"Lung Cancer\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"3,0!\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 ## What is Wrong with Fisher's Argument?
@@ -1552,15 +1552,33 @@ the treatment has discrete levels.
 
 - This includes clearly and specifically defining a hypothetical intervention. 
 
-- This is often tricky (but not necessarily impossible): Consider the statements
-  
-  + "Earning a college degree will increase your earnings."
-  + "He was pulled over because he is Black."
-  + "Obesity causes heart disease."
-  
-  
-- Is there a target trial that could correspond to each statement?
+- However, that intervention doesn't necessarily need to be currently possible. 
 
+
+---
+
+## Group Discussion Question
+
+
+- Design a "target trial" to test the question "Does getting a college degree increase earnings?"
+
+- Are there parts of the question you would modify? How/Why?
+
+---
+
+## Non-Modifiable Exposures
+
+- There are some features (e.g. race, sex, BMI) that are very hard to imagine modifying. 
+
+- Another way to think about this is that race, sex, and body size are multi-faceted conditions. 
+  - These categories include multiple physical and social features. 
+  - In the case of race and sex, definitions may shift over time. 
+  
+- In some discrimination studies, there is a work-around: intervene on an observers perceptions:
+  - In admissions discrimination studies, the same applications are sent with different names. 
+  - In studies of housing discrimination, actors of different races view apartments. 
+  
+- We will come back to this issue later in the semester.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
