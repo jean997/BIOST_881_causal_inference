@@ -1,0 +1,862 @@
+---
+title: "L3: Effect Modification and Interaction"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "Lecture on 2023-01-18 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+
+# Lecture Outline
+
+1. Effect Modification
+1. Interaction
+1. Collapsibility
+
+
+---
+
+# 1. Effect Modification
+
+---
+
+## Effect Modification Example
+
+- Suppose we have a binary treatment $A$ and a binary outcome $Y$. 
+
+- Suppose $V$ is a binary variable representing a pre-existing co-morbidity.
+
+- We want to know if treatment $A$ has the same effect in patients with $V=1$ and patients with $V = 0$.
+
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+---
+
+## Effect Modification Example
+
+```{r, echo = FALSE, message = FALSE}
+library(dplyr)
+library(kableExtra)
+library(knitr)
+library(DiagrammeR)
+
+set.seed(1)
+n <- 1000
+V <- rep(c(0, 1), each = n/2)
+p_v0 <- c(0.1, 0.3,0.4, 0.2) #Prob of (0, 0), (0, 1), (1, 0), (1, 1)
+p_v1 <- c(0.1, 0.5, 0.2, 0.2)
+Y_V0 <- sample(1:4, size = n, prob = p_v0, replace = TRUE)
+Y_V1 <- sample(1:4, size = n, prob = p_v1, replace = TRUE)
+
+Y <- Y_V0
+Y[V == 1] <- Y_V1[V == 1]
+
+Y0 <- as.numeric(Y %in% c(3, 4))
+Y1 <- as.numeric(Y %in% c(2, 4))
+df <- data.frame(V = V, Y0 = Y0, Y1 = Y1) %>% group_by(V, Y0, Y1) %>% summarize(n = n())
+kable(df, col.names = c("\\(V\\)",  "\\(Y(A=0)\\)", "\\(Y(A=1)\\)", "\\(N\\)"), format = 'html') %>%
+   row_spec(4, extra_css = "border-bottom: solid;")
+```
+
+$$E[Y(1) \vert V = 0] - E[Y(0) \vert V = 0] = `r round(mean(Y1[V ==0]), digits = 2)` - `r round(mean(Y0[V == 0]), digits = 2)` = `r round(mean((Y1-Y0)[V==0]), digits = 2)`$$
+$$E[Y(1) \vert V = 0] - E[Y(0) \vert V = 1] = `r round(mean(Y1[V ==1]), digits = 2)` - `r round(mean(Y0[V == 1]), digits = 2)` = `r round(mean((Y1-Y0)[V==1]), digits = 2)`$$
+
+
+---
+
+## Effect Modification Definition
+
+- Variable $V$ is a *modifier* of the effect of $A$ on $Y$ if the causal effect differs over strata of $V$.
+
+- Effect modification does not care about mechanism. 
+  
+    + $V$ does not need to mechanistically alter the effect of $A$.
+    + $V$ does not even need to be causally related to $Y$.
+
+- Effect modification depends on the choice of effect measurement.
+
+---
+
+## Additive and Multiplicative Modification
+
+- Additive effect modification:
+
+$$
+E[Y(1) \vert V = 1] - E[Y(0) \vert V = 1] \neq \\
+E[Y(1) \vert V = 0] - E[Y(0) \vert V = 0] 
+$$
+
+- Multiplicative effect modification:
+
+$$
+\frac{E[Y(1) \vert V = 1]}{E[Y(0) \vert V = 1]} \neq \frac{E[Y(1) \vert V = 0]}{ E[Y(0) \vert V = 0]}
+$$
+--
+
+- Does additive modification imply multiplicative modification? What about vice-versa?
+
+---
+## Additive vs Multiplicative Modification
+
+```{r, echo = FALSE, message = FALSE}
+
+full <- data.frame(matrix(c(0.6, 0.8, 0.2, 0.4, 0.4, 0.6), nrow = 1))
+ 
+ full[2,] <- c(NA, full[1,2]-full[1, 1], NA, full[1,4]-full[1, 3], NA, full[1,6]-full[1,5]) %>% round(digits = 2)
+ full[3,] <- c(NA, full[1,2]/full[1, 1], NA, full[1,4]/full[1, 3], NA, full[1,6]/full[1,5]) %>% round(digits = 2)
+ 
+
+ rownames(full)[1] <- "\\((P[Y(a) = 1)]\\)"
+ rownames(full)[2] <- "Risk Difference"
+ rownames(full)[3] <- "Risk Ratio"
+
+ opts <- options(knitr.kable.NA = "")
+
+ knitr::kable(full, row.names = TRUE, col.names =  rep(c("\\(A = 0\\)", "\\(A = 1\\)"), 3), format = 'html')%>%
+   add_header_above(c(" " = 1, "\\(V = 0 \\)" = 2, "\\( V = 1\\)" = 2, "Combined" = 2))  %>%
+   row_spec(1, extra_css = "border-bottom: solid;") %>%
+   column_spec(3, extra_css = "border-right: solid;")%>%
+   column_spec(5, extra_css = "border-right: solid;")
+```
+
+
+<br>
+
+```{r, echo=FALSE}
+full <- data.frame(matrix(c(0.1, 0.2, 0.2, 0.4, 0.15, 0.3), nrow = 1))
+ 
+ full[2,] <- c(NA, full[1,2]-full[1, 1], NA, full[1,4]-full[1, 3], NA, full[1,6]-full[1,5]) %>% round(digits = 2)
+ full[3,] <- c(NA, full[1,2]/full[1, 1], NA, full[1,4]/full[1, 3], NA, full[1,6]/full[1,5]) %>% round(digits = 2)
+ rownames(full)[1] <- "\\((P[Y(a) = 1)]\\)"
+ rownames(full)[2] <- "Risk Difference"
+ rownames(full)[3] <- "Risk Ratio"
+
+ knitr::kable(full, row.names = TRUE, col.names =  rep(c("\\(A = 0\\)", "\\(A = 1\\)"), 3), format = 'html')%>%
+   add_header_above(c(" " = 1, "\\(V = 0 \\)" = 2, "\\( V = 1\\)" = 2, "Combined" = 2))  %>%
+   row_spec(1, extra_css = "border-bottom: solid;") %>%
+   column_spec(3, extra_css = "border-right: solid;")%>%
+   column_spec(5, extra_css = "border-right: solid;")
+```
+
+
+---
+## Types of Effect Modification
+
+1. The causal effect has the same direction in all levels of $V$.
+
+  - There may be effect modification only on the additive scale or only on the multiplicative scale.
+  
+1. The causal effect is exactly zero in at least one stratum of $V$.
+
+  - If this type of effect modification is present on one scale, it will be present on the other. 
+
+1. The causal effect has different signs in different strata of $V$ (*qualitative modification*). 
+
+  - If this type of effect modification is present on one scale, it will be present on the other. 
+
+---
+
+## Effect Modification in DAGs
+
+- Effect modification is hard to represent in DAGs.
+
+- There is no DAG feature that always corresponds to effect modification. 
+
+- Effect modifiers are always connected to the outcome by an open path.
+
+---
+
+## Effect Modification in DAGs
+
+- In all of the DAGs below, $V$ could be a modifier of the effect of $A$ on $Y$. 
+
+<center>
+
+```{r, echo = FALSE, fig.height = 3, fig.width = 8}
+mo_node1 <- create_node_df(n = 3, label = c("V", "A", "Y"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     x = c(-0.5, 0, 1), 
+                     y = c(0.5, 0, 0))
+mo_edge1 <- create_edge_df(from = c(1,2),
+                          to = c(3,3),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+
+mo_node2 <- create_node_df(n = 4, label = c("U", "A", "Y", "V"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     x = c(-0.5, 0, 1, 0) + 2, 
+                     y = c(0.5, 0, 0, 1))
+mo_edge2 <- create_edge_df(from = c(1,2, 1) + 3,
+                          to = c(3,3, 4) + 3,
+                          minlen = 1, 
+                          color = "black", 
+                          )
+
+mo_node3 <- create_node_df(n = 5, label = c("U", "A", "Y", "V", "W"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "circle",
+                     x = c(-0.5, 0, 1, -0.5 , 0 ) + 4, 
+                     y = c(0.5, 0, 0, 1.2, 0.7))
+mo_node3$shape[5] <- "square"
+mo_edge3 <- create_edge_df(from = c(1,2, 1, 4) + 7,
+                          to = c(3,3, 5, 5)+ 7,
+                          minlen = 1, 
+                          color = "black", 
+                          )
+
+no <- combine_ndfs(mo_node1, mo_node2, mo_node3)
+ed <- combine_edfs(mo_edge1, mo_edge2, mo_edge3)
+mo <- create_graph(nodes_df = no, edges_df = ed)
+
+render_graph(mo)
+```
+
+</center>
+
+- In the third graph, $W$ is in the conditioning set.
+  + Why is $V$ associated with $Y$?
+
+- In graphs 2 and 3, $V$ is a *surrogate effect modifier*. 
+
+---
+
+## More on Effect Measures
+
+- If there is a non-zero effect of $A$ on $Y$ in at least one stratum of $V$ and $E[Y(a) \vert V]$ varies with $V$ for some value of $a$ then 
+  
+- $V$ <u>always</u> modifies the effect of $A$ on $Y$ on either the additive or multiplicative scale (or both).
+  
+- Hernán and Robins argue that the additive scale is preferable.
+
+
+---
+
+
+## Transportability
+
++ The ATE is the average effect in the population being sampled.
+
++ An effect estimate is *transportable* if it is a good estimate for the effect in other populations
+
++ Differences in effect modifiers between populations could lead to lack of transportability.
+
+--
+
++ Example: 
+  - In our population $P[V = 1] = 0.5$. 
+  - Average risk difference among those with $V = 0$ is -0.1.
+  - Average risk difference among those with $V = 1$ is 0.3.
+  - What wold be a good effect estimate for a population in which everyone has $V = 0$?
+  - How about a population in which $P[V = 1] = 0.25$?
+
+--
+
++ There are no guarantees modifiers are transportable either.
+
+---
+## Example
+
+- There are genetic variants that increase susceptibility to nicotine addiction. 
+
+- In populations with easy access to smoking tobacco, these variants increase risk of lung cancer.
+
+- Tobacco access is an effect modifier.
+
+- Without accounting for tobacco access, our causal effect estimate is not transportable. 
+
+<center>
+```{r, echo = FALSE, fig.height=2.5, fig.width = 10}
+sm_node <- create_node_df(n = 5, label = c("Genotype", "Addiction\n Susceptibility", "Tobacco\n Access", "Smoking", "Lung Cancer"), 
+                     fontname = "Helvetica", 
+                     fontsize = 20, 
+                     width = 0.3, 
+                     fixedsize=FALSE,
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "ellipse",
+                     x = c(0, 1, 2, 2, 3)*3,
+                     y = c(0, 0, 1.3, 0, 0))
+sm_edge <- create_edge_df(from = c(1,2, 4, 3),
+                          to = c(2,4, 5, 4),
+                          minlen = 1, 
+                          color = "black"
+                          )
+
+sm <- create_graph(nodes_df = sm_node, edges_df = sm_edge)
+
+render_graph(sm)
+```
+
+</center>
+---
+## Other Reasons to Care About Effect Modification
+
+-  We might be interested in identifying subpopulations with the most to gain from an intervention. 
+  + Should we only treat patients with $V = 1$?
+  
+- In some cases, identifying effect modifiers can provide information about the 
+mechanism of the causal effect. 
+  - In the genetic example, knowing that tobacco access modifies the effect may help us conclude that the genetic variant affects lung cancer because it affects smoking behavior.
+
+---
+
+## Identifying Counterfactual Means in Subgroups
+
+- To characterize effect modification, we need to estimate $E[Y(a) \vert V = v]$. 
+
+- Under what conditions is $E[Y(a) \vert V = v]$ identifiable?
+
+--
+
+- If $E[Y(a)]$ is identifiable then $E[Y(a) \vert V = v]$ is identifiable.
+
+
+- Recall the four conditions for identifying $E[Y(a)]$:
+--
+
+  + Consistency
+  + No interference
+  + Positivity - must hold within strata of $V$
+  + Conditional exchangeablity, conditional on observed variables $L$
+
+
+---
+
+## Estimating Counterfactual Means in Subgroups
+
+We can use a two step estimation procedure:
+
+1. Stratify the data by $V$.
+
+2. Use standardization or IP weighting with $L$ to estimate the expected counterfactual within each level of $V$.
+
+
+---
+
+## Standardization for Subgroup Effects
+
+- The standardized mean of $Y(a) \vert V = v$ is
+
+
+$$
+E[Y(a) \vert V = v] = \sum_{l}E[Y(a) \vert  V = v, L = l]P[L = l \vert V = v]
+$$
+$$
+ = \sum_l E[Y \vert A = a, L = l, V = v]P[L = l \vert V = v]
+$$ 
+---
+
+## IPW for Subgroup Effects 
+- Or equivalently, the IPW mean:
+
+$$
+E[Y(a) \vert V = v] = E \left[\frac{I(A = a)Y}{f_{A \vert L, V =v}(A, L)} \Big\vert V = v\right ]
+$$
+- We simply compute the IPW mean within strata defined by $V$.
+
+---
+## Example
+
+I simulated 1000 units from the model
+
+<center>
+
+```{r, echo = FALSE, fig.height = 3, fig.width = 8}
+ex_node <- create_node_df(n = 4, label = c("V", "A", "Y", "L"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     x = c(1, 0, 1, 0.5), 
+                     y = c(1, 0, 0, 0.8))
+ex_edge <- create_edge_df(from = c(1, 4, 4),
+                          to = c(3, 2, 3),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+ex_graph <- create_graph(nodes_df = ex_node, edges_df = ex_edge)
+
+render_graph(ex_graph)
+```
+</center>
+
+$$
+V \sim Bern(0.5)\qquad L \sim Bern(0.35)\\\
+A \sim Bern(0.6-0.3L)\\\
+Y(0) \sim Bern(0.5 + 0.2L)\\\
+Z \sim Bern(0.2 + 0.3V)\\\
+Y(1) = \begin{cases} 0 &  \ \ Y(0) = 0 \\\ 
+1- Z & \ \  Y(1) =1 
+\end{cases}\\\
+$$
+
+```{r, echo = FALSE, message = FALSE}
+
+set.seed(1)
+n <- 1000
+V <- rbinom(n = n, size = 1, prob = 0.5)
+L <- rbinom(n = n, size= 1, prob = 0.35)
+Y0 <- rbinom(n =n, size = 1, prob = 0.5 + 0.2*L)
+Y1 <- (Y0 - rbinom(n = n, size = 1, prob = 0.2 + 0.3*V)) %>% pmax(., 0) %>% as.integer
+A <- rbinom(n = n, size = 1, prob = 0.6 -0.3*L)
+X <- data.frame(Y0 = Y0, Y1=Y1,A = A, L=L, V=V) 
+
+```
+
+---
+
+## Example
+
+If we knew the full counterfactuals, we could compute the conditional effects directly
+
+```{r, echo = FALSE}
+
+ XX <- X %>% group_by( V) %>% summarize(N = n(), Y_0 =round( mean(Y0), digits =2), Y_1 =round(mean(Y1), digits = 2), N = n(), diff = round(mean(Y1-Y0), digits = 2))
+ 
+kable(XX, col.names = c("\\(V\\)", "\\(N\\)","\\(\\bar{Y}(0)\\)", "\\(\\bar{Y}(1)\\)", "\\(\\bar{Y}(1)-\\bar{Y}(0)\\)"), format = 'html', row.names =FALSE) 
+```
+
+
+$$E[Y(1) \vert V = 0]- E[Y(0) \vert V = 0] = `r round(mean((X$Y1-X$Y0)[X$V ==0]), digits = 2)`$$
+$$E[Y(1) \vert V = 1]- E[Y(0) \vert V = 1] = `r round(mean((X$Y1-X$Y0)[X$V ==1]), digits = 2)`$$
+
+---
+
+## Example 
+
+To estimate conditional causal effects in the observed data, we make use of the fact that $Y(a) \ci A \vert L$ to compute the standardized means.
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+X <- X %>% mutate(Y = case_when(A == 0 ~ Y0, TRUE ~ Y1))
+Ta <- X %>% group_by(L, V, A) %>% summarize(N = n(), Y = round(mean(Y), digits = 2)) 
+
+T0 <- X %>% group_by(L, V, A) %>% summarize(N = n(), Y = mean(Y)) 
+
+ S <- X %>% group_by(L, V) %>% summarize(N = n(), Y0 = mean(Y0), Y1 = mean(Y1), N = n(), diff = mean(Y1-Y0))
+ plgivenv = S[, 1:3] %>% mutate(Vtot = case_when(V == 0~ sum(S$N[S$V == 0]), 
+                                                 TRUE ~  sum(S$N[S$V == 1])), p = N/Vtot, 
+                                pr = round(p, digits = 2))
+ 
+t1 <- kable(Ta[Ta$A==0,], col.names = c("\\(L\\)", "\\(V\\)","\\(A\\)", "\\(N\\)", "\\(\\bar{Y}\\)"), format = 'html', row.names =FALSE) %>%
+  kable_styling(position = "float_left", full_width = FALSE)
+
+t2 <- kable(Ta[Ta$A==1,], col.names = c("\\(L\\)", "\\(V\\)","\\(A\\)", "\\(N\\)", "\\(\\bar{Y}\\)"), format = 'html', row.names =FALSE)%>%
+  kable_styling(position = "center", full_width = FALSE)
+t1
+t2
+```
+
+$$P[L = 0 \vert V = 0] = \frac{`r S$N[1]`}{`r S$N[1] + S$N[3]`} = `r round(S$N[1]/( S$N[1] + S$N[3]), digits = 2)`$$ 
+
+$$
+\begin{split}
+\hat{E}[Y(1) \vert V = 0] = & E[Y \vert A = 1, V = 0, L = 0 ] P[L = 0 \vert V = 0] + \\
+& E[Y \vert A = 1, V =0, L = 1] P[L = 1 \vert V = 0]\\
+ = & `r Ta$Y[2]`\cdot `r plgivenv$pr[1]` + `r Ta$Y[6]`\cdot `r plgivenv$pr[3]` = `r round(Ta$Y[2]* plgivenv$p[1] + Ta$Y[6]*plgivenv$p[3], digits = 2)`
+\end{split}
+$$
+
+
+
+---
+
+## Example 
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+t1
+t2
+```
+
+$$ P[L = 0 \vert V = 0] = \frac{`r S$N[1]`}{`r S$N[1] + S$N[3]`} = `r round(S$N[1]/( S$N[1] + S$N[3]), digits = 2)`$$ 
+
+$$ \hat{E}[Y(1) \vert V = 0] = `r round(Ta$Y[2]* plgivenv$p[1] + Ta$Y[6]*plgivenv$p[3], digits = 2)` $$
+$$
+\begin{split}
+\hat{E}[Y(0) \vert V = 0] = & E[Y \vert A = 0, V = 0, L = 0 ] P[L = 0 \vert V = 0] + \\
+& E[Y \vert A = 0, V =0, L = 1] P[L = 1 \vert V = 0]\\
+ = & `r Ta$Y[1]`\cdot `r plgivenv$pr[1]` + `r Ta$Y[5]`\cdot `r plgivenv$pr[3]` = `r round(Ta$Y[1]* plgivenv$p[1] + Ta$Y[5]*plgivenv$p[3], digits = 2)`
+\end{split}
+$$
+
+
+$$\hat{E}[Y(1) \vert V = 0]-\hat{E}[Y(0) \vert V = 0] = `r round((Ta$Y[2]* plgivenv$p[1] + Ta$Y[6]*plgivenv$p[3])-(Ta$Y[1]* plgivenv$p[1] + Ta$Y[5]*plgivenv$p[3]), digits = 2)`$$
+
+
+---
+
+## Special Case: V = L
+
+- If $Y(a) \ci A \vert L$ and we are also interested in effect modification by $L$, we can skip the step of computing the standardized mean. 
+
+- Instead, we simply stratify by $L$ and compute $E[Y(a) \vert L = l] = E[Y \vert A = a, L = l]$. 
+
+- These are the *stratified* means. 
+
+
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+Ta <- X %>% group_by(L,  A) %>% summarize(N = n(), Y = round(mean(Y), digits = 2)) 
+
+
+kable(Ta, col.names = c("\\(L\\)", "\\(A\\)", "\\(N\\)", "\\(\\bar{Y}\\)"), format = 'html', row.names =FALSE) %>%
+  kable_styling(position = "center", full_width = FALSE)
+
+```
+---
+
+## Special Case: V = A
+
+- If there is effect modification by treatment status, the causal effect among those who received treatment $A=1$ is different from the causal effect among those who received treatment $A = 0$. 
+
+- The *average treatment effect among the treated* (ATT) is 
+$$
+E[Y(1) \vert A = 1] - E[Y(0) \vert A = 1]
+$$
+- Note that if the ATT is different from the ATE, this implies that unconditional exchangeability ( $Y(a) \ci A$ ) does not hold. 
+
+  + Why?
+---
+
+## Average Effect Among the Treated 
+
+<center>
+```{r, echo=FALSE, out.width="85%"}
+knitr::include_graphics("img/3_att.png")
+```
+</center>
+
+---
+
+## Identifying the ATT
+
+- To identify the ATT, we don't need full conditional exchangeability which says that 
+$$ Y(a) \ci A \vert L$$ for all $a$. 
+
+- We only need *partial exchangeability*: $Y(0) \ci A \vert L$
+
+--
+
+- Equivalently, to identify the average effect among the non-treated, we need $Y(1) \ci A \vert L$.
+
+- Generally, to identify $E[Y(a) \vert A = a^\prime]$ we need $$ Y(a) \ci A \vert L$$ for all $a \neq a^\prime$.
+
+---
+
+## Standardization to Estimate the ATT
+
+- From our previous expression for the conditional standardized mean
+
+$$
+E[Y(a) \vert A = 1] = \sum_l E[Y(a) \vert L=l, A = 1 ]P[L = l \vert A = 1]
+$$
+
+--
+
+- From consistency we know
+$$E[Y(1) \vert L = l, A = 1] = E[Y \vert L = l, A = 1]$$
+--
+
+- From partial exchangeability, we know that
+$$
+E[Y(0) \vert L = l, A = 1] = E[Y(0) \vert L = l]
+$$
+--
+
+- Consistency again:
+
+$$ E[Y(0) \vert L = l] = E[Y \vert L = l, A = 0]$$
+--
+
+- So
+
+$$
+E[Y(a) \vert A = 1] = \sum_l E[ Y \vert L=l, A = a ]P[L = l \vert A = 1]
+$$
+
+---
+## ATT Example
+
+In the simulated data example, the average effect among the treated is
+
+$$
+E[Y(1) \vert A = 1] = `r round(with(X, mean(Y1[A == 1])), digits = 2)`\\\
+E[Y(0) \vert A = 1] = `r round(with(X, mean(Y0[A == 1])), digits = 2)`\\\
+E[Y(1)-Y(0) \vert A = 1] = `r round(with(X, mean((Y1-Y0)[A == 1])), digits = 2)`
+$$
+To estimate these values using standardization we compute
+
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+Ta <- X %>% group_by(L,  A) %>% summarize(N = n(), Y = round(mean(Y), digits = 2)) 
+
+plgivena = Ta[, 1:3] %>% mutate(Atot = case_when(A == 0~ sum(Ta$N[Ta$A == 0]), 
+                                                 TRUE ~  sum(Ta$N[Ta$A == 1])), 
+                                p = N/Atot, 
+                                pr = round(p, digits = 2))
+kable(Ta, col.names = c("\\(L\\)", "\\(A\\)", "\\(N\\)", "\\(\\bar{Y}\\)"), format = 'html', row.names =FALSE) %>%
+  kable_styling(position = "float_left", full_width = FALSE)
+
+```
+
+$$
+P[L = 0 \vert A = 1] = `r round(plgivena$p[2], digits = 2)`\\\
+P[L = 1 \vert A = 1] = `r round(plgivena$p[4], digits = 2)`
+$$
+
+
+$$
+E[Y(1) \vert A = 1] = `r round(Ta$Y[2], digits = 2)`\cdot `r plgivena$pr[2] ` + 
+`r round(Ta$Y[4], digits = 2)`\cdot `r plgivena$pr[4] ` = `r round((Ta$Y[2]*plgivena$p[2]) +(Ta$Y[4]*plgivena$p[4])  , digits = 2)`\\\
+E[Y(0) \vert A = 1] = `r round(Ta$Y[1], digits = 2)`\cdot `r plgivena$pr[2] ` + 
+`r round(Ta$Y[3], digits = 2)`\cdot `r plgivena$pr[4] ` = `r round((Ta$Y[1]*plgivena$p[2]) +(Ta$Y[3]*plgivena$p[4])  , digits = 2)`
+$$
+
+---
+
+## Matching
+
+- Matching is an alternative method to adjust for confounders $L$. 
+
+- For each person receiving $A = 1$, we identify a "match" with the same value of $L$ who received $A = 0$. 
+  + We leave aside the rest of the data. 
+  
+- In the resulting matched population, the distribution of $L$ is the same in the $A=1$ and $A =0$ cohorts. 
+
+- Since we matched to the $A = 1$ cohort, we are now able to estimate the ATT as $E_m[Y \vert A = 1] - E_m[Y \vert A = 0]$ where the expectation is with respect to the matched population. 
+
+- Alternatively, we could have matched to the $A = 0$ cohort, or to a different distribution of $L$. 
+
+---
+
+# 2. Interactions
+
+---
+
+## Interactions Describe Joint Interventions
+
+- An *interaction* between variables refers to relationships between joint counterfactuals.
+
+- We say that there is an additive interaction between $A$ and $E$ if 
+
+$$E[Y(A = 1, E = 0)] - E[Y(A = 0, E = 0)] \neq \\E[Y(A = 1, E = 1)] - E[Y(A = 0, E = 1)].$$
+
+- Like effect modification, interaction depends on the effect measure. 
+  + There may be an additive but not a multiplicative interaction or vice versa.
+
+---
+## Interactions in DAGs
+
+- Like effect modification, interactions are hard to clearly indicate in DAGs. 
+
+- In order for an interaction between $A$ and $E$ to occur, $Y$ must be 
+a descendant of both $A$ and $E$. 
+
+
+<center>
+```{r, echo=FALSE, out.width="45%"}
+knitr::include_graphics("img/3_swig_ix.png")
+```
+</center>
+
+---
+## Example
+
+- $Y$ indicates whether or not the lamp is on.
+
+- $A$ indicates if there is a bulb in the lamp.
+
+- $E$ indicates if the lamp is plugged in. 
+
+- The lamp is on if it is pulgged in and has a bulb:  $Y(1, 1) = 1$
+
+- Otherwise it is off: $Y(1, 0) = Y(0, 1) = Y(0, 0) = 0$. 
+
+- There is an interaction because $Y(1, 0) - Y(0, 0) = 0$ and $Y(1, 1) - Y(0, 1) = 1$. 
+  + Adding a bulb is effective if the lamp is plugged in but otherwise is ineffective.
+  
+<center>
+```{r, echo=FALSE, out.width="35%"}
+knitr::include_graphics("img/3_swig_ix.png")
+```
+</center>
+---
+
+## Identifying Interactions
+
+- In order to identify an interaction, we must be able to identify $Y(a, e)$ for all values of $a$ and $e$. 
+
+- We need our usual four identification criteria, but they need to apply to the joint counterfactual. 
+
+- Consistency: $A_i = a$ and $E_i = e$ $\Rightarrow$ $Y_i = Y_i(a, e)$.
+
+- Positivity: $P[A = a, E=e \vert L = l] > 0$ for all $a$, $e$, $l$.
+
+- Exchangeability: $Y(a, e) \ci A, E \vert L$
+
+
+- If these hold, we can estimate $E[Y(a, e)]$ using the same standardization or IPW strategy we used for single interventions. 
+---
+
+## Effect Modification vs Interaction
+
+- When $Y(a, e) \ci A, E$, we have 
+$$
+E[Y(a, e)] = E[Y(a) \vert E = e] = E[Y(e) \vert A = a]= E[Y \vert A=a, E=e]
+$$
+
+- So interaction between $A$ and $E$ implies that $E$ is a modifier of the effect of $A$ on $Y$.
+
+- Or equivalently, $A$ is a modifier of the effect of $E$ on $Y$. 
+
+- If we are only willing to assume $Y(a) \ci A \vert L$, then we can identify modification but not interaction. 
+
+---
+
+# 3. Collapsibility
+
+---
+## Collapsibility
+
+- An association measure is *collapsible* with respect to a variable $Z$ if the measure in the entire population is equal to a weighted average of the measure within strata.
+
+- The average treatment effect and risk ratio are collapsible: 
+$$
+E[Y(1)] - E[Y(0)] = \sum_{z}(E[Y(1) \vert Z=z]-E[Y(0) \vert Z=z])P[Z=z]
+$$
+
+$$
+\frac{E[Y(1)]}{E[Y(0)]} = \sum_l \frac{E[Y(1) \vert Z=z]}{E[Y(0) \vert Z=z]}w_z
+$$
+$$
+w_z = \frac{E[Y(0)\vert Z=z]P[Z=z]}{E[Y(0)]}
+$$
+- For ATE and RR, if we know strata specific effects, we know the possible range of the population effect. 
+
+- This is not the case for the odds ratio. 
+
+---
+## Collapsibility of Association Measures
+
+- Effect measures are functions of the counterfactual distribution. 
+
+- Association measures are functions of distribution of the observed data. 
+
+- $E[Y(1)] - E[Y(0)]$ is an effect measure. $E[Y \vert A = 1] - E[Y \vert A = 0]$ is an association measure.
+
+- The same definition of collapsibility applies to association measures.
+
+- If $g(P(a, y))$ is an association measure, then $g$ is collapsible over $Z$ if
+  $$g(P(a, y)) = \sum_z g(P(a, y \vert z))w(z) $$
+  where $w(z) \geq 0$ and $\sum_z w(z) = 1.$
+
+---
+
+## Strict Collapsibility 
+
+- An association measure is strictly collapsible over $A$ if $g(P(a, y \vert z)) = g(P(a, y))$ for all values of $z$.
+
+- Strict collapsibility says that the association measure is the same within strata as in the population.
+
+
+---
+
+## Collapsibility and Confounding
+
+- One definition of confounding says that if $g(P(a, y \vert z)) \neq g(P(a, y))$, then $Z$ is a confounder and we should adjust for it. 
+
+- Is this definition correct if $g$ is the risk difference?
+
+- What about risk ratio?
+
+- What about odds ratio? 
+
+
+---
+
+## Collapsibility and Confounding
+
+**Theorem:** If $g$ is the risk difference, faithfulness holds, and $g$ is strictly collapsible over $Z$ then $A$ and $Y$ are unconfounded by $Z$.
+
+- The reverse is not true, if $g$ is not collapsible over $Z$, we can't conclude that $Z$ is a confounder. 
+
+- This theorem does not hold for the odds ratio.
+
+---
+## Non-Collapsibility of the Odds Ratio
+
+```{r, echo = FALSE, message = FALSE}
+
+
+male <- data.frame( A_0 = c(0.1, 0.15), A_1 = c(0.05, 0.2) )*1000 
+female <- data.frame( A_0 = c(0.2, 0.05), A_1 = c(0.15, 0.1) )*1000 
+comb <- (male + female)
+rownames(male ) <- rownames(female) <- c("\\(Y = 0\\)", "\\( Y= 1\\)")
+ full <- cbind(male, female, comb)
+ rownames(full) <- rownames(male)
+ full[3,] <- full[2,]/(full[2,] + full[1,]) %>% round(digits = 2)
+ full[4,] <- c(NA, full[3,2]-full[3, 1], NA, full[3,4]-full[3, 3], NA, full[3,6]-full[3,5]) %>% round(digits = 2)
+ full[5,] <- c(NA, full[3,2]/full[3, 1], NA, full[3,4]/full[3, 3], NA, full[3,6]/full[3,5]) %>% round(digits = 2)
+ 
+ full[6,] <- c(NA, (full[3,2]/(1-full[3,2]))/(full[3, 1]/(1-full[3,1])), NA, (full[3,4]/(1-full[3,4]))/(full[3, 3]/(1-full[3,3])), NA, (full[3,6]/(1-full[3,6]))/(full[3, 5]/(1-full[3,5]))) %>% round(digits = 2)
+ 
+ full[1,] <- formatC(as.numeric(full[1,]), digits = 0, format = "f")
+ full[2,] <- formatC(as.numeric(full[2,]), digits = 0, format = "f")
+ 
+ 
+ 
+ rownames(full)[3] <- "Risk"
+ rownames(full)[4] <- "Risk Difference"
+ rownames(full)[5] <- "Risk Ratio"
+ rownames(full)[6] <- "Odds Ratio"
+ opts <- options(knitr.kable.NA = "")
+
+ knitr::kable(full, row.names = TRUE, col.names =  rep(c("\\(A = 0\\)", "\\(A = 1\\)"), 3), format = 'html')%>%
+   add_header_above(c(" " = 1, "Male" = 2, "Female" = 2, "Combined" = 2))  %>%
+   row_spec(2, extra_css = "border-bottom: solid;") %>%
+   column_spec(3, extra_css = "border-right: solid;")%>%
+   column_spec(5, extra_css = "border-right: solid;")
+ 
+
+
+```
