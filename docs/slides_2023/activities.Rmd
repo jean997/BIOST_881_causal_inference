@@ -46,3 +46,23 @@ In pairs, write down the definition for one of these terms (Jean will assign one
 
 - Interference
 
+---
+
+## Wednesday, January 11, 2023
+
+Activities scattered throughout lecture 2
+
+---
+## Wednesday, January 18, 2023
+
+<center>
+```{r, echo=FALSE, out.width="45%"}
+knitr::include_graphics("img/activity_3.png")
+```
+</center>
+
+1. Are $U_2$ and $L_1$ $d$-separated?
+
+2. $U_1$ and $L_1$ are un-measured. Is there a set $\mathcal{V}$ of measured variables such that 
+
+$$ Y(a) \ci Y \vert \mathcal{V}?$$
