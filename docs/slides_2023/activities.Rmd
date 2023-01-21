@@ -65,4 +65,4 @@ knitr::include_graphics("img/activity_3.png")
 
 2. $U_1$ and $L_1$ are un-measured. Is there a set $\mathcal{V}$ of measured variables such that 
 
-$$ Y(a) \ci Y \vert \mathcal{V}?$$
+$$ Y(a) \ci A \vert \mathcal{V}?$$
