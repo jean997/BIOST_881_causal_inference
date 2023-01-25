@@ -1086,7 +1086,7 @@ render_graph(gr5)
 
 ## Measurement Error in DAGs
 
-- To represent measurement error in a DAG, we can use different nodes for measured values ($A^*$ and $Y^*$ below) and true values ($A$ and $Y$).
+- To represent measurement error in a DAG, we can use different nodes for measured values ( $A^*$ and $Y^*$ below) and true values ( $A$ and $Y$).
 
 - Add in other variables that might affect the measured value.
 
