@@ -53,7 +53,7 @@ style_mono_accent(
 
 - They also might drop out if they are in poor health due to side effects of treatment, $L$.
 
-- Use a variable $C$ (for censoring) to represent whether a patient drops out of the study before one year ( $C = 1$ ) or stays in the study ($C = 0$).
+- Use a variable $C$ (for censoring) to represent whether a patient drops out of the study before one year ( $C = 1$ ) or stays in the study ( $C = 0$).
 
 - With a partner, draw a DAG representing this scenario.
 
@@ -214,7 +214,7 @@ $$
 
 $$
 \begin{split}
-P( Y = 1 \vert A = 1, C = 0) = & \frac{0.5 \cdot 0.1 }{0.95} \approx 0.053\\
+P( Y = 1 \vert A = 1, C = 0) = & \frac{0.5 \cdot 0.1 }{0.95} \approx 0.053 \\
 P( Y = 1 \vert A = 0, C = 0) = & \frac{0.5 \cdot 0.8 }{0.6} \approx 0.67
 \end{split}
 $$
@@ -379,14 +379,18 @@ render_graph(hiv_graph2)
 ## Selection Bias Definition
 
 
-- Selection bias occurs when we condition on a variable which is a common effect of two variables, $X_1$ and $X_2$ and
+- **Selection bias** is bias that occurs due the presence of selection. 
+  - An estimator that would be unbiased if all data were observed is biased due to conditioning on $C = 0$. 
+
+
+- Selection bias occurs when we condition on a variable, $C$, which is a common effect of two variables, $X_1$ and $X_2$ and
 
 - $X_1$ is either the treatment or *associated* with the treatment.
 
 - $X_2$ is either the exposure or *associated* with the exposure. 
 
 
-- Equivalently, conditioning on $C$ leads to selection bias **unless** $ Y \ci C \vert X$ ($Y$ is $d$-separated from $C$ by $X$).
+- Equivalently, conditioning on $C$ leads to selection bias **unless** $Y \ci C \vert X$ (i.e. $Y$ is $d$-separated from $C$ by $X$).
 
 ---
 
@@ -560,8 +564,8 @@ render_graph(gr15)
 - $\mathbf{Z}$ satisfies the s-backdoor criterion relative to $A$ and $Y$ if:
 
 1. $\mathbf{Z}^{+}$ blocks all backdoor paths from $A$ to $Y$.
-1. $Y \ci \mathbf{Z}^{-} \vert X, \mathbf{Z}^{+}$ ( $Y$ is $d$-separated from $\mathbf{Z}^{-}$ by $X$ and $\mathbf{Z}^{+}$)
-1. $Y \ci C \vert X, \mathbf{Z}$ ( $Y$ is $d$-separated from $C$ by $X$ and $\mathbf{Z}$)
+1. $Y \ci \mathbf{Z}^{-} \vert A, \mathbf{Z}^{+}$ ( $Y$ is $d$-separated from $\mathbf{Z}^{-}$ by $A$ and $\mathbf{Z}^{+}$)
+1. $Y \ci C \vert A, \mathbf{Z}$ ( $Y$ is $d$-separated from $C$ by $A$ and $\mathbf{Z}$)
 1. $P(\mathbf{Z})$ can be measured without selection.
 
 ---
@@ -571,6 +575,25 @@ render_graph(gr15)
 - If $\mathbf{Z}$ satisfies the s-backdoor criterion, then $E[Y(a)]$ can be identified by 
 
 $$P[Y(a)] = \sum_{z} P(Y \vert A, \mathbf{Z}, C = 0) P(\mathbf{Z})$$
+
+
+- We need $P(A = a, Z = z, C = 0) > 0$ for all $a$ and $z$.
+  - Or equivalently, $P[C = 0 \vert A = a, Z = z] > 0$. 
+---
+## Example
+
+- In this example, we can satisfy the s-backdoor criterion with $\mathbf{Z} = \left\lbrace L \right \rbrace$ with $\mathbf{Z}^{+} = \left\lbrace L \right \rbrace$ and $\mathbf{Z}^{-} = \left\lbrace  \right \rbrace$:
+
+1. There are no backdoor paths from $A$ to $Y$.
+1. $\mathbf{Z}^{-}$ is the empty set so the second condition is satisfied.
+1.  $Y \ci C \vert A, L$
+1. So we must be able to observe $L$ without censoring. 
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr15)
+```
+</center>
 
 
 ---
@@ -631,6 +654,8 @@ render_graph(gr15)
 
 - We can do this as long as only $Y$ is censored.
 
+- To use the stratification strategy, we only needed uncensored estimates of $P(L)$. 
+
 <center>
 ```{r, echo = FALSE, fig.height = 3}
 render_graph(gr15)
@@ -654,7 +679,7 @@ kable(X, col.names = c( "\\(A=0\\)", "\\(A=1\\)"),
 
 - Individuals with $A = 0$ and $L = 0$ get weight 1 because they were never censored. 
 
-- Individuals with $A = 1$ and $L =1$ get weight 5 because only 20\% of this strata were uncensored.
+- Individuals with $A = 1$ and $L =1$ get weight 5 because only 20% of this strata were uncensored.
 
 ---
 
@@ -702,7 +727,44 @@ render_graph(gr2)
 
 - In this case, stratifying by $L$ induces confounding through the path $A \rightarrow L \leftarrow U \rightarrow Y$.
 
-- But weighting by $1/P[C = 0 \vert A, L]$ works.
+- In this graph, there is no way to satisfy the s-backdoor criterion without observing $U$:
+  - To $d$-separate $Y$ from $C$, we must condition on $L$. 
+  - But $L$ is a child of $A$, so in $\mathbf{Z}^{-}$ and there is no way to $d$-separate $L$ from $Y$ without $U$. 
+
+
+---
+## IP Weighting Example 2
+
+
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+ndf2 <- create_node_df(n =5 , label = c("A", "Y(C = 0)", "L", "C", "U"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     fixedsize = FALSE,
+                     shape = c("circle", "ellipse", "circle", "square", "circle"),
+                     x = c(0, 3, 1,2, 2)*0.8, 
+                     y = c(0, 0, 0, 0, 1)*0.8)
+edf2 <- create_edge_df(from = c(1, 3, 5, 5), to = c(3, 4, 3, 2),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+gr2 <- create_graph(nodes_df = ndf2, edges_df = edf2)
+
+render_graph(gr2)
+```
+</center>
+
+
+- There is no stratification we can do to recover $E[Y(a)]$, even with outside information (if $U$ is unobserved). 
+
+- However, weighting by $1/P[C = 0 \vert A, L]$ works. We must be able to observe $A$, $L$ and $C$ without censoring.
+
 
 ---
 
@@ -758,17 +820,19 @@ render_graph(hiv_graph)
 ---
 ## Case-Control Studies
 
-- If $Y$ is the only cause of selection, we can recover $E[Y(a)]$ by using outside information. 
+- If $Y$ is the only cause of selection, we can recover $E[Y(a)]$ by using outside information, even though there is no way to satisfy the s-backdoor criterion.
 
 - If we know $P[Y = 1] = \alpha$ in the target population, we can compute the value of $P[Y \vert A]$ that we would have observed in the full population.
 
 $$
-P[Y(a)=1] = P[Y =1 \vert A] = \frac{P[A \vert Y]P[Y = 1]}{P[A]} \\\
-= \frac{\alpha P[A \vert Y = 1]}{\alpha P[A \vert Y = 1] + (1-\alpha)P[A \vert Y = 0]}
+\begin{split}
+P[Y(a)=1] = & P[Y =1 \vert A = a] = \frac{P[A = a \vert Y = 1]P[Y = 1]}{P[A = a]} \\
+= &\frac{\alpha P[A = a \vert Y = 1]}{\alpha P[A = a \vert Y = 1] + (1-\alpha)P[A = a \vert Y = 0]}\\
+= & \frac{\alpha P[A = a \vert Y = 1, C= 0]}{\alpha P[A = a \vert Y = 1, C = 0] + (1-\alpha)P[A = a \vert Y = 0, C = 0]}
+\end{split}
 $$
-
 <center>
-```{r, echo = FALSE, fig.height = 1.5}
+```{r, echo = FALSE, fig.height = 1}
 render_graph(hiv_graph)
 ```
 </center>
