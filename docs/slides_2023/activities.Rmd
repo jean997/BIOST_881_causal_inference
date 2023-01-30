@@ -66,3 +66,15 @@ knitr::include_graphics("img/activity_3.png")
 2. $U_1$ and $L_1$ are un-measured. Is there a set $\mathcal{V}$ of measured variables such that 
 
 $$ Y(a) \ci A \vert \mathcal{V}?$$
+---
+## Monday, January 30, 2023
+
+- We are interested in the effect of a genetic variant, $G$ on an outcome $Y$. 
+
+- Participants who require surgery, either for $Y$ or a different condition are recruited into a genetic study. 
+
+- The variant $G$ could affect $Y$ and could also affect other medical conditions that require surgery. 
+
+- Draw a DAG of this scenario.
+
+- Would you expect selection bias to affect the estimate of $G$ on $Y$? Why/why not?
