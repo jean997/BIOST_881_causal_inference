@@ -154,8 +154,9 @@ $$
 ## Limitations
 
 - For now we will focus on individuals with complete data. 
-  + There are 63 people who did not fill in the second survey. 
+  + There are some people who did not fill in the second survey. 
   + For these people we know covariates but don't know either the exposure or the outcome. 
+  + Additionally, there are 63 people who did fill in the second survey but who's weight is unknown. 
   + More on this later. 
 
 - Individuals may have quit at different times. 
@@ -318,16 +319,6 @@ are missing from our data by chance.
 ```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=7, fig.align='center'}
 dat$ps1 <-predict(fit, type = "response")
 
-# dat %>% ggplot() + 
-#   geom_histogram(aes(x = ps1, fill = as.factor(qsmk), color = as.factor(qsmk), group = as.factor(qsmk)),
-#                  alpha = 0.3, position = 'identity', bins=15) +
-#   xlab('Probability of Quitting Smoking During Follow-up') + ylab("Count") + 
-#   ggtitle('Propensity Score Distribution by Treatment Group') +
-#   scale_fill_discrete('qsmk') +
-#   scale_color_discrete('qsmk') +
-#   theme(axis.title = element_text(size = 14), 
-#         legend.title =  element_text(size = 12),
-#         plot.title = element_text(size = 18))
 
 ggplot() +
   geom_histogram( aes(x = dat$ps1[dat$qsmk == 0], y = ..density..), fill="#ea8a1a" ) +
@@ -586,7 +577,13 @@ $$
 - We can use the variance of the residuals as an estimate of the variance of $A \vert L$
 
 - We then compute $f(A \vert L)$ using `dnorm`. 
-```{r, echo = FALSE}
+
+
+---
+## Estimating Weights for the Continuous Treatment
+
+
+```{r}
 dat.s <- filter(dat, smokeintensity <= 25)
 fal_fit<- lm(smkintensity82_71 ~ as.factor(sex) +
     as.factor(race) + age + I(age ^ 2) +
@@ -632,19 +629,19 @@ summary(dat.s$w_cont)
 
 ```{r, echo = FALSE}
 opts <- options(knitr.kable.NA = "")
-msm.sw.cont <-geeglm( wt82_71 ~ smkintensity82_71 + I(smkintensity82_71^2),
+msm_sw_cont <-geeglm( wt82_71 ~ smkintensity82_71 + I(smkintensity82_71^2),
     data = dat.s, weights = sw_cont, id = seqn, corstr = "independence")
-beta <- coef(msm.sw.cont)
-SE <- coef(summary(msm.sw.cont))[, 2]
+beta <- coef(msm_sw_cont)
+SE <- coef(summary(msm_sw_cont))[, 2]
 lcl <- beta - qnorm(0.975) * SE 
 ucl <- beta + qnorm(0.975) * SE
 tabsw <- data.frame(eff = signif(beta, digits = 2) %>% as.character(), 
                     ci = paste0("(",signif(lcl, digits=2), ", ", signif(ucl, digits = 2), ")"), 
                     sp = c(NA, NA, NA))
-msm.w.cont <- geeglm( wt82_71 ~ smkintensity82_71 + I(smkintensity82_71^2),
+msm_w_cont <- geeglm( wt82_71 ~ smkintensity82_71 + I(smkintensity82_71^2),
     data = dat.s, weights = w_cont, id = seqn, corstr = "independence")
-beta <- coef(msm.w.cont)
-SE <- coef(summary(msm.w.cont))[, 2]
+beta <- coef(msm_w_cont)
+SE <- coef(summary(msm_w_cont))[, 2]
 lcl <- beta - qnorm(0.975) * SE
 ucl <- beta + qnorm(0.975) * SE
 tabw <- data.frame(eff = signif(beta, digits = 2) %>% as.character(), 
@@ -661,7 +658,7 @@ kable(tab, col.names = c( "Estimate", "95% CI", " ", "Estimate", "95% CI"),
 
 
 ```{r, echo = FALSE,fig.align='center', fig.width=10 }
-b <- coef(msm.sw.cont)
+b <- coef(msm_sw_cont)
 fa <- function(a){b[1] + b[2]*a + b[3]*a^2}
 ggplot(data.frame(x = range(dat$smkintensity82_71)), aes(x)) + 
    geom_function(fun = fa) + 
@@ -893,6 +890,36 @@ row.names(tab) <- c("Intercept", "Quit Smoking")
 kable(tab, col.names = c( "Estimate", "95% CI"), 
       format = 'html', row.names = TRUE) 
 ```
+
+---
+## Survey Weights
+
+- Typically, nationally representative surveys won't use a completely random sampling scheme. 
+  + They will try to over-sample smaller groups. 
+  + This allows them to get better estimates for less common covariate values. 
+  
+- Over-sampling introduces selection bias that needs to be corrected.
+
+- If the survey was done well, a specific over-sampling rule was used. 
+  + For example, you might select census tracts randomly according to a covariate informed probability and then select housees randomly within census tract. 
+  
+- This allows the survey administers to compute $P[C = 0 \vert L]$ for every participant. 
+
+
+---
+## Survey Weights
+
+
+- If $L$ includes every factor affecting study inclusion, then $P[C = 0 \vert A, L] = P[C = 0 \vert L]$ for any exposure $A$. 
+
+- So we could use the same set of weights regardless of what exposure we are looking at. 
+
+- Usually, survey administers will compute $P[ C = 0 \vert L]$ and distribute $1/P[C = 0 \vert L]$ as "survey weights". 
+  + Survey weights are censoring weights!
+
+- If you have survey data that come with survey weights, be sure to read about how these are calculated. 
+  + Most likely, if you want to estimate a parameter for the larger population, you will need to use the survey weights. 
+
 
 ---
 # 3. G-Computation (Standardization)
