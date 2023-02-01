@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L6: Propensity Scores</title>
+    <title>L6: More PS Estimators and Double Robustness</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -24,7 +24,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L6: Propensity Scores
+# L6: More PS Estimators and Double Robustness
 ]
 .author[
 ### Jean Morrison
@@ -84,8 +84,8 @@ $$
 - The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
 
 &lt;center&gt;
-<div id="htmlwidget-17484e3ce0aca0837fa4" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-17484e3ce0aca0837fa4">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-0a00df70c7892b9f9884" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0a00df70c7892b9f9884">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -266,7 +266,7 @@ delta_s &lt;- function(df){
 
 ```r
 set.seed(1)
-samples &lt;- replicate(n = 10, 
+samples &lt;- replicate(n = 1000, 
                      expr = sample(seq(nrow(dat)), 
                                    size = nrow(dat), replace = TRUE))
 res &lt;- apply(samples, 2, FUN = function(ix){
@@ -274,14 +274,25 @@ res &lt;- apply(samples, 2, FUN = function(ix){
   return(delta_s(boot_dat))
 })
 se &lt;- sd(res)
-bhat &lt;- delta_s(dat)
-ci &lt;- bhat + c(-1, 1)*qnorm(0.975)*se 
+bhat &lt;- delta_s(dat) %&gt;% round(digits = 2)
+ci &lt;- round(bhat + c(-1, 1)*qnorm(0.975)*se, digits=2)
 cat(bhat, "(", ci, ")")
 ```
 
 ```
-## 3.287702 ( 2.446258 4.129146 )
+## 3.29 ( 2.29 4.29 )
 ```
+---
+## Bootstrap Alternative
+
+- An alternative strategy to calculate the variance of `\(\Delta_S\)` is to use an approximation,
+
+`$$\frac{1}{K^2}\sum_{k = 1}^K \hat{\sigma}^2_k$$`
+where `\(\hat{\sigma}^2_k\)` is the variance of the within stratum difference in means estimator:
+
+`$$\hat{\sigma}^2_k = \frac{s^2_{1,k}}{n_1} + \frac{s^2_{0,k}}{n_k -n_1}$$`
+with `\(n_k\)` number of samples in `\(\hat{C}_k\)`, `\(n_1\)`, number of cases in `\(\hat{C}_k\)`, `\(s^2_{1,k}\)` sample variance of cases in `\(\hat{C}_k\)`, `\(s^2_{01,k}\)` sample variance of controls in `\(\hat{C}_k\)`.
+
 ---
 ## Number and Size of Subclasses
 
@@ -407,8 +418,8 @@ good ranking.
 ## Predictors of Treatment
 
 - Should we include `\(L_1\)` in in the predictive model of `\(A\)`? 
-<div id="htmlwidget-b3457bab3979228cc9c0" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-b3457bab3979228cc9c0">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-fd273c3f1aa6b08e22bb" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-fd273c3f1aa6b08e22bb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 --
 
 - Suppose that `\(P[A = 1 \vert L = 0] = 0.01\)` and `\(P[A = 1 \vert L_1 = 1]= 0.99\)` and we condition on `\(L_1\)` to compute `\(\hat{\pi}(L)\)`.
@@ -424,8 +435,8 @@ good ranking.
 
 - Should we include `\(L_2\)` in in the predictive model of `\(A\)`? 
 
-<div id="htmlwidget-48176a8cc28cfdd27c72" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-48176a8cc28cfdd27c72">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-172e24bd81795143e211" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-172e24bd81795143e211">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 
 
@@ -435,8 +446,8 @@ good ranking.
 ## Simulations 
 
 - Data are generated from the graph: 
-<div id="htmlwidget-4baf0b987e8d815b964a" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-4baf0b987e8d815b964a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-e3b4c231621153a63400" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e3b4c231621153a63400">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 - A randomized trial with `\(N/2\)` units each in treatment and control groups. 
 
@@ -457,16 +468,13 @@ good ranking.
 
 - Over 1000 simulations, 
 
-- The average bias times `\(\sqrt{N}\)` is
-  + `\(\hat{\beta}\)`: 0.04, `\(\hat{\beta}_S\)`: 0.03
+- Average bias: `\(\hat{\beta}\)`: 0.0024, `\(\hat{\beta}_S\)`: 0.0021
 
-- The mean squared error times `\(N\)` is 
-  + `\(\hat{\beta}\)`: 0.92, `\(\hat{\beta}_S\)`: 0.64
+- Mean squared error:  `\(\hat{\beta}\)`: 0.0037, `\(\hat{\beta}_S\)`: 0.0026
 
-- The Monte Carlo variance of each estimator times `\(\sqrt{N}\)` is 
-  + `\(\hat{\beta}\)`: 0.34, `\(\hat{\beta}_S\)`: 0.22
+- Monte Carlo standard deviation (e.g. SD of estimates over 1k simulations): `\(\hat{\beta}\)`: 0.0605, `\(\hat{\beta}_S\)`: 0.0505
 
-- In 59% of simulations, the stratified estimator is less biased than the non-stratified estimator. 
+- In 60% of simulations, the stratified estimator is less biased than the non-stratified estimator. 
 
 - The adjusted estimator has lower bias and is more precise.
 
@@ -507,10 +515,10 @@ across participants.
 - Back to Chatton et al (2020) comparing G-computation and IPW. 
 
 - For each method, they consider four sets of adjustment variables:
-  + "Common": Only variables necessary to control confounding. In their setup, commmon causes of `\(A\)` and `\(Y\)`. 
-  + "Outcome": All variables that cause `\(Y\)` ("Common" + variables that cause `\(Y\)` but not `\(A\)`). 
-  + "Treatment": All variables that cause `\(A\)` ("Common" + variables that cause `\(A\)` but not `\(Y\)`). 
-  + "All": All variables
+  + Common: Only variables necessary to control confounding. In their setup, commmon causes of `\(A\)` and `\(Y\)`. 
+  + Outcome: All variables that cause `\(Y\)` ("Common" + variables that cause `\(Y\)` but not `\(A\)`). 
+  + Treatment: All variables that cause `\(A\)` ("Common" + variables that cause `\(A\)` but not `\(Y\)`). 
+  + All: All variables
   
 - What are your predictions? Which set does best? Will the results be different for G-computation and IPW?
 
@@ -584,6 +592,8 @@ across participants.
 
 - Also called bias corrected OLS (Cassel et al 1976)
 
+- Can obtain variance from bootstrapping or sandwich standard errors. These don't come directly out of standard R functions, but there are specialized R packages, e.g. `causalGAM`, and `AIPW`. 
+
 ---
 ## Augmented Inverse Probability Weighting (AIPW)
 
@@ -593,6 +603,13 @@ across participants.
 - If both models are correctly specified, then, 
 
 - Asymptotically, `\(\hat{\Delta}_{DR}\)` has the smallest variance among estimators in the defined by Robins and Ronitzky (1995).
+
+- **locally**: The efficiency result is limited to a class of estimators. 
+
+- **semiparametrically**: The class is a semiparametric class. 
+
+- The class of estimators defined by Robins and Ronitzky is the class of all consistent, semiparametric estimators of `\(E[Y(0)]\)` and `\(E[Y(1)]\)`. 
+  - Semiparametric means that they do not require a parametric distribution for `\((L, Y(0), Y(1))\)`.  
 
 
 ---
@@ -649,17 +666,15 @@ across participants.
 
 ---
 
-## Within Stratum Regression Modeling
+## Subclassification Plus Regression
 
-- There is also a double robust "flavored" variation of subclassification. 
+- There is also a double robust flavored variation of subclassification, `\(\hat{\Delta}_{SR}\)`. 
 
-- Recall - in subclassification we compute the difference in means estimate within strata of the propensity score. 
+- Divide data into strata based on PS as before. 
 
-- As an alternative, we can fit a full outcome regression model and standardize within strata. 
+- Fit a full outcome regression model in each stratum and standardize to get a stratum-specific estimate, then average the standardized estimates over strata. 
 
-- Then average the standardized estimates over strata. 
-
-- This strategy is not technically doubly robust because subclassification is not consistent. 
+- This strategy is not technically doubly robust because subclassification is not consistent with fixed `\(K\)`. 
 
 - So within stratum regression modeling is only consistent if the outcome model is consistent. 
 
@@ -683,18 +698,33 @@ across participants.
 
 ---
 
-## Variance 
-- Lunceford and Davidian (2004) derive large-sample variances for the IPW estimators we have seen as well as for `\(\hat{\Delta}_{DR}\)`. 
+## Variance, Results from Lunceford and Davidian (2004)
+- Lunceford and Davidian (2004) investigate large-sample variances for the IPW estimators we have seen as well as for `\(\hat{\Delta}_{DR}\)`. Some results follow:
 
-- `\(\hat{\Delta}_{DR}\)` has smaller variance than the IPW estimators. 
+- `\(\hat{\Delta}_{DR}\)` has smaller variance than the IPW estimators when the PS model is correct. We expect this to be true because of the efficiency result from Robins and Rotnitzky. 
 
 - The variance of the IPW estimators is smaller if we estimate `\(\hat{\pi}\)` than if we use the true `\(\hat{\pi}\)`. 
 
 - Estimating `\(\hat{\pi}\)` does not impact the variance of `\(\hat{\Delta}_{DR}\)` asymptotically. 
 
-- The sandwich variance estimates for IPW estimators are more stable than plug-in estimates of the large sample variance. 
+- The sandwich variance estimates for IPW estimators are more stable in practice than plug-in estimates of the large sample variance. 
+
+
+---
+
+## More from Lunceford and Davidian (2004)
+
+
+- As we said before  `\(\hat{\Delta}_{S}\)` is inconsistent for fixed `\(K\)`. `\(\hat{\Delta}_{SR}\)` is only consistent if within stratum regression models are correctly specified. 
+
 
 - `\(\hat{\Delta}_{S}\)`, and `\(\hat{\Delta}_{SR}\)` both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
+
+- Neither `\(\hat{\Delta}_{S}\)` or `\(\hat{\Delta}_{SR}\)` is in the semiparametric class defined by Robins et al.
+
+
+- In support of our arguments about the conditionality principle, Lunceford and Davidian show that including covariates that are not related to treatment but are associated with response reduces (or does not change) the variance of IP weighting estimators and `\(\hat{\Delta}_{DR}\)`. 
+  + Not clearly the case for `\(\hat{\Delta}_{S}\)` or `\(\hat{\Delta}_{SR}\)`.
 
 ---
 ## Censoring 

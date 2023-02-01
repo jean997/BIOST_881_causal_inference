@@ -1,5 +1,5 @@
 ---
-title: "L6: Propensity Scores"
+title: "L6: More PS Estimators and Double Robustness"
 author: "Jean Morrison"
 institute: "University of Michigan"
 date: "2023-02-01 \n(updated: `r Sys.Date()`)"
@@ -264,7 +264,7 @@ delta_s <- function(df){
 
 ```{r}
 set.seed(1)
-samples <- replicate(n = 10, 
+samples <- replicate(n = 1000, 
                      expr = sample(seq(nrow(dat)), 
                                    size = nrow(dat), replace = TRUE))
 res <- apply(samples, 2, FUN = function(ix){
@@ -272,10 +272,21 @@ res <- apply(samples, 2, FUN = function(ix){
   return(delta_s(boot_dat))
 })
 se <- sd(res)
-bhat <- delta_s(dat)
-ci <- bhat + c(-1, 1)*qnorm(0.975)*se 
+bhat <- delta_s(dat) %>% round(digits = 2)
+ci <- round(bhat + c(-1, 1)*qnorm(0.975)*se, digits=2)
 cat(bhat, "(", ci, ")")
 ```
+---
+## Bootstrap Alternative
+
+- An alternative strategy to calculate the variance of $\Delta_S$ is to use an approximation,
+
+$$\frac{1}{K^2}\sum_{k = 1}^K \hat{\sigma}^2_k$$
+where $\hat{\sigma}^2_k$ is the variance of the within stratum difference in means estimator:
+
+$$\hat{\sigma}^2_k = \frac{s^2_{1,k}}{n_1} + \frac{s^2_{0,k}}{n_k -n_1}$$
+with $n_k$ number of samples in $\hat{C}_k$, $n_1$, number of cases in $\hat{C}_k$, $s^2_{1,k}$ sample variance of cases in $\hat{C}_k$, $s^2_{01,k}$ sample variance of controls in $\hat{C}_k$.
+
 ---
 ## Number and Size of Subclasses
 
@@ -501,14 +512,18 @@ bhat <- function(df){
   f <- lm(Y ~ A, data = df)
   bhat <- f$coefficients[2]
   sebhat <- summary(f)$coefficients[2, 2]
-  return(c(bhat, sebhat))
+  return(bhat)
+  #return(c(bhat, sebhat))
 }
 
 bhat_strat <- function(df){
-  f <- lm(Y ~ A + L, data = df)
-  bhat <- f$coefficients[2]
-  sebhat <- summary(f)$coefficients[2, 2]
-  return(c(bhat, sebhat))
+  f <- lm(Y ~ A*L, data = df)
+  df0 <- df1 <- df
+  df0$A <- 0
+  df1$A <- 1
+  y1 <- mean(predict(f, df1, type = "response"))
+  y0 <- mean(predict(f, df0, type = "response"))
+  return(y1 - y0)
 }
 
 xx <- purrr::map_dfr(1:1000,function(x){
@@ -516,8 +531,23 @@ xx <- purrr::map_dfr(1:1000,function(x){
                           df <- run1(250)
                           b1 <- bhat(df)
                           b2 <- bhat_strat(df)
-                          c(bhat = b1[1], sebhat = b1[2], bhat_strat = b2[1], sebhat_strat = b2[2])}) %>%
-      mutate(diff = bhat_strat.A - bhat.A)
+                          c(bhat = b1, bhat_strat = b2)})
+
+#colMeans(xx)*sqrt(250)
+#    bhat.A bhat_strat 
+#0.03731488 0.03257410 
+
+#with(xx, sum(abs(bhat.A) < abs(bhat_strat)))
+#[1] 400
+
+#colMeans(xx^2)*250
+#   bhat.A bhat_strat 
+# 0.9166240  0.6392205
+
+
+#apply(xx, 2, sd)*sqrt(250)
+#    bhat.A bhat_strat 
+# 0.9571561  0.7992485 
 ```
 ---
 
@@ -525,16 +555,13 @@ xx <- purrr::map_dfr(1:1000,function(x){
 
 - Over 1000 simulations, 
 
-- The average bias times $\sqrt{N}$ is
-  + $\hat{\beta}$: `r round(with(xx, mean(bhat.A)*sqrt(250)), digits = 2)`, $\hat{\beta}_S$: `r round(with(xx, mean(bhat_strat.A)*sqrt(250)), digits = 2)`
+- Average bias: $\hat{\beta}$: `r round(with(xx, mean(bhat.A)), digits = 4)`, $\hat{\beta}_S$: `r round(with(xx, mean(bhat_strat)), digits = 4)`
 
-- The mean squared error times $N$ is 
-  + $\hat{\beta}$: `r round(with(xx, mean(bhat.A^2)*250), digits = 2)`, $\hat{\beta}_S$: `r round(with(xx, mean(bhat_strat.A^2)*250), digits = 2)`
+- Mean squared error:  $\hat{\beta}$: `r round(with(xx, mean(bhat.A^2)), digits = 4)`, $\hat{\beta}_S$: `r round(with(xx, mean(bhat_strat^2)), digits = 4)`
 
-- The Monte Carlo variance of each estimator times $\sqrt{N}$ is 
-  + $\hat{\beta}$: `r round(with(xx, var(abs(bhat.A*sqrt(250)))), digits =2)`, $\hat{\beta}_S$: `r round(with(xx, var(abs(bhat_strat.A*sqrt(250)))), digits =2)`
+- Monte Carlo standard deviation (e.g. SD of estimates over 1k simulations): $\hat{\beta}$: `r round(with(xx, sd(bhat.A)), digits =4)`, $\hat{\beta}_S$: `r round(with(xx, sd(bhat_strat)), digits =4)`
 
-- In `r round(with(xx, mean(abs(bhat_strat.A) < abs(bhat.A))*100))`% of simulations, the stratified estimator is less biased than the non-stratified estimator. 
+- In `r round(with(xx, mean(abs(bhat_strat) <= abs(bhat.A))*100))`% of simulations, the stratified estimator is less biased than the non-stratified estimator. 
 
 - The adjusted estimator has lower bias and is more precise.
 
@@ -594,10 +621,10 @@ across participants.
 - Back to Chatton et al (2020) comparing G-computation and IPW. 
 
 - For each method, they consider four sets of adjustment variables:
-  + "Common": Only variables necessary to control confounding. In their setup, commmon causes of $A$ and $Y$. 
-  + "Outcome": All variables that cause $Y$ ("Common" + variables that cause $Y$ but not $A$). 
-  + "Treatment": All variables that cause $A$ ("Common" + variables that cause $A$ but not $Y$). 
-  + "All": All variables
+  + Common: Only variables necessary to control confounding. In their setup, commmon causes of $A$ and $Y$. 
+  + Outcome: All variables that cause $Y$ ("Common" + variables that cause $Y$ but not $A$). 
+  + Treatment: All variables that cause $A$ ("Common" + variables that cause $A$ but not $Y$). 
+  + All: All variables
   
 - What are your predictions? Which set does best? Will the results be different for G-computation and IPW?
 
@@ -704,6 +731,8 @@ $$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{
 
 - Also called bias corrected OLS (Cassel et al 1976)
 
+- Can obtain variance from bootstrapping or sandwich standard errors. These don't come directly out of standard R functions, but there are specialized R packages, e.g. `causalGAM`, and `AIPW`. 
+
 ---
 ## Augmented Inverse Probability Weighting (AIPW)
 
@@ -713,6 +742,13 @@ $$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{
 - If both models are correctly specified, then, 
 
 - Asymptotically, $\hat{\Delta}_{DR}$ has the smallest variance among estimators in the defined by Robins and Ronitzky (1995).
+
+- **locally**: The efficiency result is limited to a class of estimators. 
+
+- **semiparametrically**: The class is a semiparametric class. 
+
+- The class of estimators defined by Robins and Ronitzky is the class of all consistent, semiparametric estimators of $E[Y(0)]$ and $E[Y(1)]$. 
+  - Semiparametric means that they do not require a parametric distribution for $(L, Y(0), Y(1))$.  
 
 
 ---
@@ -854,17 +890,15 @@ delta_dr2 <- function(df){
 
 ---
 
-## Within Stratum Regression Modeling
+## Subclassification Plus Regression
 
-- There is also a double robust "flavored" variation of subclassification. 
+- There is also a double robust flavored variation of subclassification, $\hat{\Delta}_{SR}$. 
 
-- Recall - in subclassification we compute the difference in means estimate within strata of the propensity score. 
+- Divide data into strata based on PS as before. 
 
-- As an alternative, we can fit a full outcome regression model and standardize within strata. 
+- Fit a full outcome regression model in each stratum and standardize to get a stratum-specific estimate, then average the standardized estimates over strata. 
 
-- Then average the standardized estimates over strata. 
-
-- This strategy is not technically doubly robust because subclassification is not consistent. 
+- This strategy is not technically doubly robust because subclassification is not consistent with fixed $K$. 
 
 - So within stratum regression modeling is only consistent if the outcome model is consistent. 
 
@@ -888,18 +922,33 @@ $$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - 
 
 ---
 
-## Variance 
-- Lunceford and Davidian (2004) derive large-sample variances for the IPW estimators we have seen as well as for $\hat{\Delta}_{DR}$. 
+## Variance, Results from Lunceford and Davidian (2004)
+- Lunceford and Davidian (2004) investigate large-sample variances for the IPW estimators we have seen as well as for $\hat{\Delta}_{DR}$. Some results follow:
 
-- $\hat{\Delta}_{DR}$ has smaller variance than the IPW estimators. 
+- $\hat{\Delta}_{DR}$ has smaller variance than the IPW estimators when the PS model is correct. We expect this to be true because of the efficiency result from Robins and Rotnitzky. 
 
 - The variance of the IPW estimators is smaller if we estimate $\hat{\pi}$ than if we use the true $\hat{\pi}$. 
 
 - Estimating $\hat{\pi}$ does not impact the variance of $\hat{\Delta}_{DR}$ asymptotically. 
 
-- The sandwich variance estimates for IPW estimators are more stable than plug-in estimates of the large sample variance. 
+- The sandwich variance estimates for IPW estimators are more stable in practice than plug-in estimates of the large sample variance. 
+
+
+---
+
+## More from Lunceford and Davidian (2004)
+
+
+- As we said before  $\hat{\Delta}_{S}$ is inconsistent for fixed $K$. $\hat{\Delta}_{SR}$ is only consistent if within stratum regression models are correctly specified. 
+
 
 - $\hat{\Delta}_{S}$, and $\hat{\Delta}_{SR}$ both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
+
+- Neither $\hat{\Delta}_{S}$ or $\hat{\Delta}_{SR}$ is in the semiparametric class defined by Robins et al.
+
+
+- In support of our arguments about the conditionality principle, Lunceford and Davidian show that including covariates that are not related to treatment but are associated with response reduces (or does not change) the variance of IP weighting estimators and $\hat{\Delta}_{DR}$. 
+  + Not clearly the case for $\hat{\Delta}_{S}$ or $\hat{\Delta}_{SR}$.
 
 ---
 ## Censoring 
