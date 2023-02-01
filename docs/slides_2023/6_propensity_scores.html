@@ -4,7 +4,7 @@
     <title>L6: Propensity Scores</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -33,7 +33,8 @@ class: center, middle, inverse, title-slide
 ### University of Michigan
 ]
 .date[
-### 2022-01-31 (updated: 2023-01-31)
+### 2023-02-01
+(updated: 2023-02-01)
 ]
 
 ---
@@ -83,8 +84,8 @@ $$
 - The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
 
 &lt;center&gt;
-<div id="htmlwidget-bf87fe094049e9d7a644" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-bf87fe094049e9d7a644">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-17484e3ce0aca0837fa4" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-17484e3ce0aca0837fa4">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -406,8 +407,8 @@ good ranking.
 ## Predictors of Treatment
 
 - Should we include `\(L_1\)` in in the predictive model of `\(A\)`? 
-<div id="htmlwidget-f68c5690ef7d46b3e3b2" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-f68c5690ef7d46b3e3b2">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-b3457bab3979228cc9c0" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b3457bab3979228cc9c0">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 --
 
 - Suppose that `\(P[A = 1 \vert L = 0] = 0.01\)` and `\(P[A = 1 \vert L_1 = 1]= 0.99\)` and we condition on `\(L_1\)` to compute `\(\hat{\pi}(L)\)`.
@@ -423,8 +424,8 @@ good ranking.
 
 - Should we include `\(L_2\)` in in the predictive model of `\(A\)`? 
 
-<div id="htmlwidget-86878ea0cc429b1665af" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-86878ea0cc429b1665af">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-48176a8cc28cfdd27c72" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-48176a8cc28cfdd27c72">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 
 
@@ -434,8 +435,8 @@ good ranking.
 ## Simulations 
 
 - Data are generated from the graph: 
-<div id="htmlwidget-b101f881b93710b1fa9c" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-b101f881b93710b1fa9c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-4baf0b987e8d815b964a" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4baf0b987e8d815b964a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 - A randomized trial with `\(N/2\)` units each in treatment and control groups. 
 
@@ -465,7 +466,7 @@ good ranking.
 - The Monte Carlo variance of each estimator times `\(\sqrt{N}\)` is 
   + `\(\hat{\beta}\)`: 0.34, `\(\hat{\beta}_S\)`: 0.22
 
-- In 60% of simulations, the stratified estimator is less biased than the non-stratified estimator. 
+- In 59% of simulations, the stratified estimator is less biased than the non-stratified estimator. 
 
 - The adjusted estimator has lower bias and is more precise.
 
@@ -499,6 +500,26 @@ across participants.
 
 
 - Even if we know the true value of `\(\pi(L),\)` it is better to use the estimates!
+
+---
+## More Simulation Results
+
+- Back to Chatton et al (2020) comparing G-computation and IPW. 
+
+- For each method, they consider four sets of adjustment variables:
+  + "Common": Only variables necessary to control confounding. In their setup, commmon causes of `\(A\)` and `\(Y\)`. 
+  + "Outcome": All variables that cause `\(Y\)` ("Common" + variables that cause `\(Y\)` but not `\(A\)`). 
+  + "Treatment": All variables that cause `\(A\)` ("Common" + variables that cause `\(A\)` but not `\(Y\)`). 
+  + "All": All variables
+  
+- What are your predictions? Which set does best? Will the results be different for G-computation and IPW?
+
+---
+## More Simulation Results
+
+
+&lt;img src="6_propensity_scores_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+
 
 
 
@@ -567,13 +588,12 @@ across participants.
 ## Augmented Inverse Probability Weighting (AIPW)
 
 
-- `\(\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}\)` is a locally semiparametrically efficient estimator. 
+- `\(\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}\)` is a *locally semiparametrically* efficient estimator. 
 
 - If both models are correctly specified, then, 
 
 - Asymptotically, `\(\hat{\Delta}_{DR}\)` has the smallest variance among estimators in the defined by Robins and Ronitzky (1995).
 
-- `\(\hat{\Delta}_{DR}\)` is an augmented inverse probability weighted estimator (AIPW).
 
 ---
 ## Regression with Propensity Score
@@ -598,7 +618,7 @@ across participants.
 ---
 ## Bang and Robins Estimator
 
-- Bang and Robins (2005) show that we do not actually need two separate coavariates. 
+- Bang and Robins (2005) show that we don't actually need two separate coavariates. 
 
 - The single covariate `\(f(A, L) = \frac{A_1}{\hat{\pi_i}} - \frac{1-A_i}{1-\hat{\pi}_i}\)` also gives a DR estimator.
 
@@ -611,23 +631,39 @@ across participants.
 
 
 
+---
+
+## Doubly Robust Standardization
+
+- Yet another variation, Vansteelandt and Keiding (2010) suggest simply combining G-computation and IP weighting. 
+
+- Propose and fit a treatment model, compute `\(\hat{\pi}\)`. 
+
+- Propose an outcome model. 
+
+- Fit the model, weighting by the IP weights. 
+
+- Standardize as usual. 
+
+
 
 ---
 
 ## Within Stratum Regression Modeling
 
-- Bias in `\(\hat{\Delta}_S\)` occurs because `\(L\)` and `\(A\)` may not be independent within classes. 
+- There is also a double robust "flavored" variation of subclassification. 
 
-- One strategy to deal with this is to fit an outcome regression model for `\(E[Y \vert A, L]\)` *within* each `\(\hat{C}_k\)`.
+- Recall - in subclassification we compute the difference in means estimate within strata of the propensity score. 
 
-- Let `\(\hat{Y}_{a,i,k}\)` be the estimate of `\(E[Y \vert A = a, L = L_i]\)` from the model fit within `\(\hat{C}_k\)`. 
+- As an alternative, we can fit a full outcome regression model and standardize within strata. 
 
-`$$\hat{\Delta}_{OR,k} = \frac{1}{n_k}\sum_{i = 1}^{N}1_{\hat{\pi_i} \in \hat{C}} \left(\hat{Y}_{1,i,k} - \hat{Y}_{0, i, k}\right)$$`
+- Then average the standardized estimates over strata. 
 
-`$$\hat{\Delta}_{SR} = \sum_{k=1}^{K} \frac{n_k}{N}\hat{\Delta}_{OR,k}$$`
+- This strategy is not technically doubly robust because subclassification is not consistent. 
 
-- If the form of the outcome-regression is correct, this strategy will be consistent. 
+- So within stratum regression modeling is only consistent if the outcome model is consistent. 
 
+- In practice, there can be issues with missing covariate levels within strata. 
 
 
 ---
@@ -639,9 +675,9 @@ across participants.
 
 `$$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - b^*(L) \right) \right]$$`
 
-- `\(b^*\)` and `\(\pi^*\)` are the limiting expectations of `\(\hat{b}\)` (i.e. `\(\hat{Y}\)`) and `\(\hat{pi}\)`. 
+- `\(b^*\)` and `\(\pi^*\)` are the limiting expectations of `\(\hat{b}\)` (i.e. `\(\hat{Y}\)`) and `\(\hat{\pi}\)`. 
 
-- Doubly robust methods are often lest biased than IP weighting or outcome regression. 
+- Doubly robust methods are often less biased than IP weighting or outcome regression. 
 
 - Kang and Schaffer (2007) demonstrate a simulated example where the bias of the DR estimator is larger than the bias of the OLS estimate when both models are misspecified.
 
@@ -663,7 +699,7 @@ across participants.
 ---
 ## Censoring 
 
-- If `\(L\)` are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
+- If covariates `\(L\)` are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
 
 - Many of them were developed originally in the context of accounting for missing data rather than accounting for confounding. 
 
@@ -687,40 +723,132 @@ X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$`
 ---
 ## Kang and Schaffer (2007)
 
+- Plan: Use several models to estimate `\(E[Y(C = 0)]\)`, the mean if nobody had been censored. 
+
+
+- "Correct model": For either censoring or outcome, fit a linear model using the `\(Z_1, \dots, Z_4\)`.
+
+- "Incorrect model": for either censoring or outcome, fit a linear modeling using `\(X_1, \dots, X_4\)`. 
+
+---
+## Kang and Schaffer (2007)
+
 - Relationships between outcome and observed covariates look about linear.
 &lt;center&gt; 
 
 &lt;img src="img/6_ksfig2.png" width="80%" /&gt;
 
 &lt;/center&gt;
+
+
+
 ---
-## IPW vs Subclassification
+## IP Weighting
+
+- Kang and Schaffer look at two IP Weighting estimators. 
+
+- IPW-POP is the Hajek estimator we saw in L5. 
+
+- IPW-NR is a variation in which we first estimate the mean weighted to the population of non-respondants and then compute a weighted average with the observed mean in the respndants. 
 
 &lt;center&gt; 
 
 &lt;img src="img/6_kstab1.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+---
+## Subclassification
+
+- The subclassification estimator has higher bias but lower RMSE than IPW for correctly specified models. 
+
+- It has lower error for the incorrect model at the larger sample size. 
+
+&lt;center&gt;
 &lt;img src="img/6_kstab2.png" width="80%" /&gt;
 
 &lt;/center&gt;
 
 ---
-## OLS and Bias Corrected OLS
+## G-computation
+
+- For their "OLS" estimator, Kang and Schaffer fit the model for `\(E[Y \vert Z]\)` or `\(E[Y \vert X]\)` and then average the fitted values for all samples (censored and not). 
+
+- This is the same as what we called G-computation or standardization before. 
+
+- Should be un-biased for correctly specified outcome model. 
 
 &lt;center&gt; 
 
 &lt;img src="img/6_kstab3.png" width="80%" /&gt;
+
+---
+## Bias Corrected OLS (AIPW)
+
+- Happily, using AIPW, we have low bias if either model is correct as promised. 
+
+- When both models are wrong, the bias is quite bad. 
+
+- "This estimate is indeed highly efficient when the `\(\pi\)` -model is true and the `\(y\)` -model is highly predictive. In our experience, however, if the π -model is misspecified, it is not difficult to find DR estimators that outperform this one by venturing outside the AIPW class."
+
+&lt;center&gt;
 &lt;img src="img/6_kstab5.png" width="80%" /&gt;
 
 &lt;/center&gt;
 
 ---
-## Scharfstein Estimator and Flexible `\(\pi\)`-Model
+
+## Doubly Robust Standardization 
+
+- "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate (8) when one of the models is true, but much better when both models are misspecified"
+
+&lt;center&gt;
+&lt;img src="img/6_kstab9.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+---
+##  Propensity Covariate
+
+
+- Fit the outcome model and add a smoothing spline for propensity score, compute standardized estimate as usual. 
+
+- "We found that these polynomial splines occasionally produced erratic predicted values of `\(y_i\)` for nonrespondents with low propensities, driving up the variance of the regression estimate. The best performance was achieved by simply coarsening the `\(\hat{\pi}_i\)` ’s into five categories and creating four dummy indicators".
+
+---
+##  Propensity Covariate
+
+- Best of the DR methods when both models are wrong. Worse than OLS with incorrect `\(y\)` model. 
 
 &lt;center&gt; 
 &lt;img src="img/6_kstab7.png" width="80%" /&gt;
+&lt;/center&gt;
+
+---
+## Scharfstein Estimator 
+
+- "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified `\(\pi\)` -model (Table 8). The performance of this method is disastrous when some of the estimated propensities are small."
+
+&lt;center&gt;
+
 &lt;img src="img/6_kstab8.png" width="80%" /&gt;
 &lt;/center&gt;
 
+---
+
+## Conclusions
+
+- Double robustness is an appealling property. 
+
+- Multiple alternative DR estimators, no best "all-purpose" DR estimator. 
+
+- Very large weights lead to erratic behavior. 
+
+- Non-overlapping covariate distributions lead to erratic behavior. 
+
+- Subclassification and the flexible propensity covariate method are not consistent in all settings but can be quite robust to model mis-specification in practice. 
+
+- It is often a good idea to fit multiple estimators and compare. 
   
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>

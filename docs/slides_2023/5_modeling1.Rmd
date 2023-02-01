@@ -1090,7 +1090,7 @@ cat(round(eff, digits = 2), "(", round(ci, digits = 2), ")")
 
 
 ---
-## Effect Modification in Standardization
+## Effect Modification in G-Computation
 
 - If we want to estimate the average causal effect stratified by $V$, we can simply stratify by $V$ before averaging our predicted values. 
 
@@ -1101,9 +1101,10 @@ dat.u %>% group_by(sex) %>%
       summarize(Y0 = mean(Y0), Y1 = mean(Y1))
 ```
 
+
 ---
 
-## IP Weighting vs Standardization
+## IP Weighting vs G-Computation
 
 - When we are non-parametric, IP weighting and standardization are the same. 
 
@@ -1115,7 +1116,87 @@ dat.u %>% group_by(sex) %>%
 
 - In either case, if our our parametric models are wrong, our predictions will be biased and so our estimators will be biased. 
 
-- The amount of bias depends on how bad our predictions are. 
+- May be wise to compute both and compare.
 
-- We can compute both estimates and compare. 
 
+---
+
+## IP Weighting vs G-Computation
+
+- Chatton et al (2020) present simulation results comparing IPW, G-computation, and two methods we haven't talked about yet. 
+
+- In their simulation scenario, G-computation always had a lower MSE than IPW 
+
+- For IPW, they calculated variance using robust SEs (as we did earlier) and found slight over coverage (~97% for a 95% target). 
+
+- They used parametric simulation to compute the variance of the G-computation estimate. This gave close to target coverage but slightly under in some cases (~94%). 
+
+
+---
+
+## Chatton et al Results
+
+
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=4, fig.align='center'}
+library(gridExtra)
+chatton_data <- data.frame(N = rep(c(100, 300, 500, 2000 ), each = 8), method = rep(rep(c("GC", "IPW"), each = 4), 4), 
+                           covars = rep(c("outcome", "treatment", "common", "all"), 16), 
+                           mse = c(0.526, 0.580, 0.552, 0.558, 
+                                   0.578, 0.716, 0.587, 0.741, 
+                                   0.283, 0.319, 0.304, 0.297, 
+                                   0.301, 0.372, 0.318, 0.361,
+                                   0.217, 0.245, 0.233, 0.228,
+                                   0.230, 0.285, 0.244, 0.274, 
+                                   0.108, 0.122, 0.116, 0.113, 
+                                   0.113, 0.138, 0.120, 0.131), 
+                           power = c(17.7, 14.0, 15.1, 16.9, 
+                                     7.8, 9.8, 8.8, 9.6, 
+                                     43.6, 35.2, 38.5, 39.9, 
+                                     24, 21.4, 26.1, 20.0, 
+                                     64.5, 53.6,57.6,  60.5,
+                                     43.3, 35.4, 43.7, 33.9, 
+                                     99.6, 98.6, 99.1, 99.4, 
+                                     98.1, 93.0, 97.7, 93.6))
+p1 <- chatton_data %>% filter(covars == "common") %>% 
+ggplot() + geom_point(aes(x = N, y = mse, shape = method, color = method), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = method)) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14))
+
+p2 <- chatton_data %>% filter(covars == "common") %>% 
+ggplot() + geom_point(aes(x = N, y = power, shape = method, color = method), size = 3) + 
+  geom_line(aes(x = N, y = power, color = method)) + 
+  ylab("Power") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14))
+grid.arrange(p1, p2, ncol = 2)
+```
+
+
+---
+
+## IP Weighting vs G-Computation
+
+- Snowden et al (2010) describe G-Compuatation as rarely used in epidemiology due to lack of awareness. 
+
+- However, G-Computation can be more precise than IP weighting in some circumstances. 
+
+  + IP weighting can be inefficient when weights are very large. 
+  
+  
+- Vansteelandt and Keiding note that IPW performs better when the covariate distribution is very different in cases and controls. 
+  + Depending on the model used fo G-Computation, the dominant group may have too much influence over estimate in these regions. 
+  + G-Computation may under-estimate the uncertainty about the counterfactuals in these regions. 
+  
+  
+- Some people suggest that we shouldn't be trying to estimate the countefactuals in these regions at all, since in order to estimate them, we need to extrapolate into regions with low density of data points. 

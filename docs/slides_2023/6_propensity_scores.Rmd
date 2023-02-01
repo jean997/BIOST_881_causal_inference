@@ -2,7 +2,7 @@
 title: "L6: Propensity Scores"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2022-01-31 (updated: `r Sys.Date()`)"
+date: "2023-02-01 \n(updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -588,6 +588,59 @@ across participants.
 
 - Even if we know the true value of $\pi(L),$ it is better to use the estimates!
 
+---
+## More Simulation Results
+
+- Back to Chatton et al (2020) comparing G-computation and IPW. 
+
+- For each method, they consider four sets of adjustment variables:
+  + "Common": Only variables necessary to control confounding. In their setup, commmon causes of $A$ and $Y$. 
+  + "Outcome": All variables that cause $Y$ ("Common" + variables that cause $Y$ but not $A$). 
+  + "Treatment": All variables that cause $A$ ("Common" + variables that cause $A$ but not $Y$). 
+  + "All": All variables
+  
+- What are your predictions? Which set does best? Will the results be different for G-computation and IPW?
+
+---
+## More Simulation Results
+
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=4.5, fig.align='center', dpi=300}
+library(gridExtra)
+chatton_data <- data.frame(N = rep(c(100, 300, 500, 2000 ), each = 8), method = rep(rep(c("GC", "IPW"), each = 4), 4), 
+                           covars = rep(c("outcome", "treatment", "common", "all"), 16), 
+                           mse = c(0.526, 0.580, 0.552, 0.558, 
+                                   0.578, 0.716, 0.587, 0.741, 
+                                   0.283, 0.319, 0.304, 0.297, 
+                                   0.301, 0.372, 0.318, 0.361,
+                                   0.217, 0.245, 0.233, 0.228,
+                                   0.230, 0.285, 0.244, 0.274, 
+                                   0.108, 0.122, 0.116, 0.113, 
+                                   0.113, 0.138, 0.120, 0.131), 
+                           power = c(17.7, 14.0, 15.1, 16.9, 
+                                     7.8, 9.8, 8.8, 9.6, 
+                                     43.6, 35.2, 38.5, 39.9, 
+                                     24, 21.4, 26.1, 20.0, 
+                                     64.5, 53.6,57.6,  60.5,
+                                     43.3, 35.4, 43.7, 33.9, 
+                                     99.6, 98.6, 99.1, 99.4, 
+                                     98.1, 93.0, 97.7, 93.6))
+chatton_data %>% 
+ggplot() + geom_point(aes(x = N, y = mse, shape = covars, color = covars), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = covars)) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) + 
+  facet_wrap(~ method)
+
+```
+
+
 
 
 ---
@@ -655,13 +708,12 @@ $$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{
 ## Augmented Inverse Probability Weighting (AIPW)
 
 
-- $\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}$ is a locally semiparametrically efficient estimator. 
+- $\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}$ is a *locally semiparametrically* efficient estimator. 
 
 - If both models are correctly specified, then, 
 
 - Asymptotically, $\hat{\Delta}_{DR}$ has the smallest variance among estimators in the defined by Robins and Ronitzky (1995).
 
-- $\hat{\Delta}_{DR}$ is an augmented inverse probability weighted estimator (AIPW).
 
 ---
 ## Regression with Propensity Score
@@ -686,7 +738,7 @@ $$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$
 ---
 ## Bang and Robins Estimator
 
-- Bang and Robins (2005) show that we do not actually need two separate coavariates. 
+- Bang and Robins (2005) show that we don't actually need two separate coavariates. 
 
 - The single covariate $f(A, L) = \frac{A_1}{\hat{\pi_i}} - \frac{1-A_i}{1-\hat{\pi}_i}$ also gives a DR estimator.
 
@@ -784,23 +836,39 @@ delta_dr2 <- function(df){
   return(mean(Y1c, na.rm=T) -mean(Y0c, na.rm=T))}
 ```
 
+---
+
+## Doubly Robust Standardization
+
+- Yet another variation, Vansteelandt and Keiding (2010) suggest simply combining G-computation and IP weighting. 
+
+- Propose and fit a treatment model, compute $\hat{\pi}$. 
+
+- Propose an outcome model. 
+
+- Fit the model, weighting by the IP weights. 
+
+- Standardize as usual. 
+
+
 
 ---
 
 ## Within Stratum Regression Modeling
 
-- Bias in $\hat{\Delta}_S$ occurs because $L$ and $A$ may not be independent within classes. 
+- There is also a double robust "flavored" variation of subclassification. 
 
-- One strategy to deal with this is to fit an outcome regression model for $E[Y \vert A, L]$ *within* each $\hat{C}_k$.
+- Recall - in subclassification we compute the difference in means estimate within strata of the propensity score. 
 
-- Let $\hat{Y}_{a,i,k}$ be the estimate of $E[Y \vert A = a, L = L_i]$ from the model fit within $\hat{C}_k$. 
+- As an alternative, we can fit a full outcome regression model and standardize within strata. 
 
-$$\hat{\Delta}_{OR,k} = \frac{1}{n_k}\sum_{i = 1}^{N}1_{\hat{\pi_i} \in \hat{C}} \left(\hat{Y}_{1,i,k} - \hat{Y}_{0, i, k}\right)$$
+- Then average the standardized estimates over strata. 
 
-$$\hat{\Delta}_{SR} = \sum_{k=1}^{K} \frac{n_k}{N}\hat{\Delta}_{OR,k}$$
+- This strategy is not technically doubly robust because subclassification is not consistent. 
 
-- If the form of the outcome-regression is correct, this strategy will be consistent. 
+- So within stratum regression modeling is only consistent if the outcome model is consistent. 
 
+- In practice, there can be issues with missing covariate levels within strata. 
 
 
 ---
@@ -812,9 +880,9 @@ $$\hat{\Delta}_{SR} = \sum_{k=1}^{K} \frac{n_k}{N}\hat{\Delta}_{OR,k}$$
 
 $$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - b^*(L) \right) \right]$$
 
-- $b^*$ and $\pi^*$ are the limiting expectations of $\hat{b}$ (i.e. $\hat{Y}$) and $\hat{pi}$. 
+- $b^*$ and $\pi^*$ are the limiting expectations of $\hat{b}$ (i.e. $\hat{Y}$) and $\hat{\pi}$. 
 
-- Doubly robust methods are often lest biased than IP weighting or outcome regression. 
+- Doubly robust methods are often less biased than IP weighting or outcome regression. 
 
 - Kang and Schaffer (2007) demonstrate a simulated example where the bias of the DR estimator is larger than the bias of the OLS estimate when both models are misspecified.
 
@@ -836,7 +904,7 @@ $$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - 
 ---
 ## Censoring 
 
-- If $L$ are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
+- If covariates $L$ are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
 
 - Many of them were developed originally in the context of accounting for missing data rather than accounting for confounding. 
 
@@ -860,6 +928,16 @@ X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$
 ---
 ## Kang and Schaffer (2007)
 
+- Plan: Use several models to estimate $E[Y(C = 0)]$, the mean if nobody had been censored. 
+
+
+- "Correct model": For either censoring or outcome, fit a linear model using the $Z_1, \dots, Z_4$.
+
+- "Incorrect model": for either censoring or outcome, fit a linear modeling using $X_1, \dots, X_4$. 
+
+---
+## Kang and Schaffer (2007)
+
 - Relationships between outcome and observed covariates look about linear.
 <center> 
 
@@ -868,14 +946,34 @@ knitr::include_graphics("img/6_ksfig2.png")
 ```
 
 </center>
+
+
+
 ---
-## IPW vs Subclassification
+## IP Weighting
+
+- Kang and Schaffer look at two IP Weighting estimators. 
+
+- IPW-POP is the Hajek estimator we saw in L5. 
+
+- IPW-NR is a variation in which we first estimate the mean weighted to the population of non-respondants and then compute a weighted average with the observed mean in the respndants. 
 
 <center> 
 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("img/6_kstab1.png")
 ```
+
+</center>
+
+---
+## Subclassification
+
+- The subclassification estimator has higher bias but lower RMSE than IPW for correctly specified models. 
+
+- It has lower error for the incorrect model at the larger sample size. 
+
+<center>
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("img/6_kstab2.png")
 ```
@@ -883,13 +981,30 @@ knitr::include_graphics("img/6_kstab2.png")
 </center>
 
 ---
-## OLS and Bias Corrected OLS
+## G-computation
+
+- For their "OLS" estimator, Kang and Schaffer fit the model for $E[Y \vert Z]$ or $E[Y \vert X]$ and then average the fitted values for all samples (censored and not). 
+
+- This is the same as what we called G-computation or standardization before. 
+
+- Should be un-biased for correctly specified outcome model. 
 
 <center> 
 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("img/6_kstab3.png")
 ```
+
+---
+## Bias Corrected OLS (AIPW)
+
+- Happily, using AIPW, we have low bias if either model is correct as promised. 
+
+- When both models are wrong, the bias is quite bad. 
+
+- "This estimate is indeed highly efficient when the $\pi$ -model is true and the $y$ -model is highly predictive. In our experience, however, if the π -model is misspecified, it is not difficult to find DR estimators that outperform this one by venturing outside the AIPW class."
+
+<center>
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("img/6_kstab5.png")
 ```
@@ -897,15 +1012,62 @@ knitr::include_graphics("img/6_kstab5.png")
 </center>
 
 ---
-## Scharfstein Estimator and Flexible $\pi$-Model
+
+## Doubly Robust Standardization 
+
+- "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate (8) when one of the models is true, but much better when both models are misspecified"
+
+<center>
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_kstab9.png")
+```
+
+</center>
+
+---
+##  Propensity Covariate
+
+
+- Fit the outcome model and add a smoothing spline for propensity score, compute standardized estimate as usual. 
+
+- "We found that these polynomial splines occasionally produced erratic predicted values of $y_i$ for nonrespondents with low propensities, driving up the variance of the regression estimate. The best performance was achieved by simply coarsening the $\hat{\pi}_i$ ’s into five categories and creating four dummy indicators".
+
+---
+##  Propensity Covariate
+
+- Best of the DR methods when both models are wrong. Worse than OLS with incorrect $y$ model. 
 
 <center> 
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("img/6_kstab7.png")
 ```
+</center>
+
+---
+## Scharfstein Estimator 
+
+- "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified $\pi$ -model (Table 8). The performance of this method is disastrous when some of the estimated propensities are small."
+
+<center>
+
 ```{r, echo=FALSE, out.width="80%"}
 knitr::include_graphics("img/6_kstab8.png")
 ```
 </center>
 
+---
+
+## Conclusions
+
+- Double robustness is an appealling property. 
+
+- Multiple alternative DR estimators, no best "all-purpose" DR estimator. 
+
+- Very large weights lead to erratic behavior. 
+
+- Non-overlapping covariate distributions lead to erratic behavior. 
+
+- Subclassification and the flexible propensity covariate method are not consistent in all settings but can be quite robust to model mis-specification in practice. 
+
+- It is often a good idea to fit multiple estimators and compare. 
   
