@@ -390,7 +390,7 @@ render_graph(hiv_graph2)
 - $X_2$ is either the exposure or *associated* with the exposure. 
 
 
-- Equivalently, conditioning on $C$ leads to selection bias **unless** $Y \ci C \vert X$ (i.e. $Y$ is $d$-separated from $C$ by $X$).
+- Equivalently, conditioning on $C$ leads to selection bias **unless** $Y \ci C \vert A$ (i.e. $Y$ is $d$-separated from $C$ by $A$).
 
 ---
 
