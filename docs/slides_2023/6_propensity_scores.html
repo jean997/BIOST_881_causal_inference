@@ -4,7 +4,7 @@
     <title>L6: More PS Estimators and Double Robustness</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -34,7 +34,7 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### 2023-02-01
-(updated: 2023-02-01)
+(updated: 2023-02-05)
 ]
 
 ---
@@ -84,8 +84,8 @@ $$
 - The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
 
 &lt;center&gt;
-<div id="htmlwidget-0a00df70c7892b9f9884" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-0a00df70c7892b9f9884">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-0d5d3fd3ced4bd8b7da5" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0d5d3fd3ced4bd8b7da5">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -418,8 +418,8 @@ good ranking.
 ## Predictors of Treatment
 
 - Should we include `\(L_1\)` in in the predictive model of `\(A\)`? 
-<div id="htmlwidget-fd273c3f1aa6b08e22bb" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-fd273c3f1aa6b08e22bb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-0f7757ef73b80d78f07d" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0f7757ef73b80d78f07d">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 --
 
 - Suppose that `\(P[A = 1 \vert L = 0] = 0.01\)` and `\(P[A = 1 \vert L_1 = 1]= 0.99\)` and we condition on `\(L_1\)` to compute `\(\hat{\pi}(L)\)`.
@@ -435,8 +435,8 @@ good ranking.
 
 - Should we include `\(L_2\)` in in the predictive model of `\(A\)`? 
 
-<div id="htmlwidget-172e24bd81795143e211" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-172e24bd81795143e211">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-725848242a23f332e7fb" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-725848242a23f332e7fb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 
 
@@ -446,8 +446,8 @@ good ranking.
 ## Simulations 
 
 - Data are generated from the graph: 
-<div id="htmlwidget-e3b4c231621153a63400" style="width:504px;height:180px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-e3b4c231621153a63400">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-1d5064c622ccab4efb98" style="width:504px;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1d5064c622ccab4efb98">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 - A randomized trial with `\(N/2\)` units each in treatment and control groups. 
 
@@ -531,6 +531,7 @@ across participants.
 
 
 
+
 ---
 
 # 3. Double Robust Estimators
@@ -592,7 +593,7 @@ across participants.
 
 - Also called bias corrected OLS (Cassel et al 1976)
 
-- Can obtain variance from bootstrapping or sandwich standard errors. These don't come directly out of standard R functions, but there are specialized R packages, e.g. `causalGAM`, and `AIPW`. 
+- Can obtain variance from bootstrapping or sandwich standard errors. I have not found an R implementation of sandwich SEs so in practice, use bootstrapping. 
 
 ---
 ## Augmented Inverse Probability Weighting (AIPW)
@@ -640,6 +641,11 @@ across participants.
 - The single covariate `\(f(A, L) = \frac{A_1}{\hat{\pi_i}} - \frac{1-A_i}{1-\hat{\pi}_i}\)` also gives a DR estimator.
 
 - This estimator is more efficient than the Scharfstein et al estimator when only the outcome model is correct. 
+
+- The Scharfstein and Bang and Robins estimators are both asymptotically equivalent to `\(\hat{\Delta}_{DR}\)` when both models are correct. 
+  + This means that they are all asymptotically unbiased and have the same asymptotic variance. 
+  + They don't give the numerically same estimates in finite data. 
+  + They also perform differently when one of the two models is misspecified.
 
 &lt;!-- ## Double Robust Estimation in NHEFS  --&gt;
 
@@ -868,7 +874,7 @@ X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$`
 
 ## Conclusions
 
-- Double robustness is an appealling property. 
+- Double robustness is an appealing property. 
 
 - Multiple alternative DR estimators, no best "all-purpose" DR estimator. 
 

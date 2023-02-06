@@ -635,7 +635,7 @@ across participants.
 ```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=4.5, fig.align='center', dpi=300}
 library(gridExtra)
 chatton_data <- data.frame(N = rep(c(100, 300, 500, 2000 ), each = 8), method = rep(rep(c("GC", "IPW"), each = 4), 4), 
-                           covars = rep(c("outcome", "treatment", "common", "all"), 16), 
+                           covars = rep(c("outcome", "treatment", "common", "all"), 8), 
                            mse = c(0.526, 0.580, 0.552, 0.558, 
                                    0.578, 0.716, 0.587, 0.741, 
                                    0.283, 0.319, 0.304, 0.297, 
@@ -667,6 +667,78 @@ ggplot() + geom_point(aes(x = N, y = mse, shape = covars, color = covars), size 
 
 ```
 
+```{r, echo=FALSE, eval = FALSE}
+chatton_data <- data.frame(N = rep(c(100, 300, 500, 2000 ), each = 8), Method = rep(rep(c("GC", "IPW"), each = 4), 4), 
+                           Covariates = rep(c("Outcome", "Treatment", "Common", "All"), 8), 
+                           mse = c(0.526, 0.580, 0.552, 0.558, 
+                                   0.578, 0.716, 0.587, 0.741, 
+                                   0.283, 0.319, 0.304, 0.297, 
+                                   0.301, 0.372, 0.318, 0.361,
+                                   0.217, 0.245, 0.233, 0.228,
+                                   0.230, 0.285, 0.244, 0.274, 
+                                   0.108, 0.122, 0.116, 0.113, 
+                                   0.113, 0.138, 0.120, 0.131), 
+                           power = c(17.7, 14.0, 15.1, 16.9, 
+                                     7.8, 9.8, 8.8, 9.6, 
+                                     43.6, 35.2, 38.5, 39.9, 
+                                     24, 21.4, 26.1, 20.0, 
+                                     64.5, 53.6,57.6,  60.5,
+                                     43.3, 35.4, 43.7, 33.9, 
+                                     99.6, 98.6, 99.1, 99.4, 
+                                     98.1, 93.0, 97.7, 93.6))
+
+p1 <- chatton_data %>% ggplot() + geom_point(aes(x = N, y = mse, shape = Method, color = Covariates), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = Covariates, linetype = Method, group = paste0(Covariates, Method))) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) 
+
+p2 <- chatton_data %>% ggplot() + geom_point(aes(x = N, y = mse, shape = Method, color = Covariates), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = Covariates, linetype = Method, group = paste0(Covariates, Method))) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) + 
+  facet_wrap(~Covariates)
+
+p3 <- chatton_data %>% ggplot() + geom_point(aes(x = N, y = mse, shape = Method, color = Covariates), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = Covariates, group = paste0(Covariates, Method))) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) + 
+  facet_wrap(~Method)
+
+
+p4 <- chatton_data %>% 
+  mutate(Covariates = factor(Covariates, levels = c("Treatment", "All", "Common", "Outcome")), 
+         N = as.factor(N)) %>%
+  ggplot() + geom_point(aes(x = Covariates, y = mse, shape = N, color = Method), size = 3) + 
+  geom_line(aes(x = Covariates, y = mse, color = Method, linetype = N, group = paste0(N, Method))) + 
+  ylab("MSE") + 
+  scale_shape_manual(values = c(16, 2, 15, 4 )) + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) 
+
+```
 
 
 
@@ -731,7 +803,7 @@ $$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{
 
 - Also called bias corrected OLS (Cassel et al 1976)
 
-- Can obtain variance from bootstrapping or sandwich standard errors. These don't come directly out of standard R functions, but there are specialized R packages, e.g. `causalGAM`, and `AIPW`. 
+- Can obtain variance from bootstrapping or sandwich standard errors. I have not found an R implementation of sandwich SEs so in practice, use bootstrapping. 
 
 ---
 ## Augmented Inverse Probability Weighting (AIPW)
@@ -779,6 +851,11 @@ $$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$
 - The single covariate $f(A, L) = \frac{A_1}{\hat{\pi_i}} - \frac{1-A_i}{1-\hat{\pi}_i}$ also gives a DR estimator.
 
 - This estimator is more efficient than the Scharfstein et al estimator when only the outcome model is correct. 
+
+- The Scharfstein and Bang and Robins estimators are both asymptotically equivalent to $\hat{\Delta}_{DR}$ when both models are correct. 
+  + This means that they are all asymptotically unbiased and have the same asymptotic variance. 
+  + They don't give the numerically same estimates in finite data. 
+  + They also perform differently when one of the two models is misspecified.
 
 <!-- ## Double Robust Estimation in NHEFS  -->
 
@@ -1108,7 +1185,7 @@ knitr::include_graphics("img/6_kstab8.png")
 
 ## Conclusions
 
-- Double robustness is an appealling property. 
+- Double robustness is an appealing property. 
 
 - Multiple alternative DR estimators, no best "all-purpose" DR estimator. 
 
