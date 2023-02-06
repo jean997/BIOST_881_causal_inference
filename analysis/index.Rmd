@@ -24,6 +24,8 @@ editor_options:
 
 [6. More PS Estimators and Double Robustness](slides_2023/6_propensity_scores.html)
 
+[7. Matching](slides_2023/7_matching.html)
+
 ## Lecture Slides from Past Years
 
 [2022 slides](slide_index_2022.html)
