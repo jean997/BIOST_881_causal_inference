@@ -78,3 +78,39 @@ $$ Y(a) \ci A \vert \mathcal{V}?$$
 - Draw a DAG of this scenario.
 
 - Would you expect selection bias to affect the estimate of $G$ on $Y$? Why/why not?
+
+
+---
+## Monday, February 6, 2023
+
+Match the estimator with statements that are true about it. 
+.pull-left[
+**Estimator**
+
+- Hajek Estimator
+
+- G-Computation
+
+- AIPW estimator from Robins, Rotnitzky and Zhao (1994)
+
+- Subclassification estimator
+
+- Bang and Robins estimator
+
+- Adjusting for propensity score as a linear covariate. 
+]
+
+.pull-right[
+
+** Statements**
+
+- Consistent if PS model is correct
+
+- Consistent if outcome model is correct
+
+- Not consistent 
+
+- These two are asymptotically equivalent
+
+- More accurate using estimated PS than using true PS.
+]
