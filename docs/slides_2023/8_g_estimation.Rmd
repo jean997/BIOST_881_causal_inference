@@ -2,7 +2,7 @@
 title: "L8: G-Estimation"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2023-02-08 (updated: `r Sys.Date()`)"
+date: "Lecture on 2023-02-08\n(updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -36,6 +36,10 @@ library(dplyr)
 
 ## Lecture Plan
 
+1. G-Estimation
+
+Lecture materials from HR Chapter 14 and from Vansteelandt and Joffe (2014). 
+
 ---
 ## G-Estimation
 
@@ -48,7 +52,7 @@ library(dplyr)
   + Potentially more efficient than IP weighting.
   + Less extrapolation bias than G-computation.
 
-
+- G-Estimation is also useful for time-varying data, which we will see later.
 
 ---
 ## Marginal Structural Models
@@ -68,7 +72,9 @@ $$E[Y(a)] = \beta_0 + \beta_1 a$$
 
 - Alternatively, in G-Computation, or in regression with propensity score, we could propose model for $E[Y \vert A, L]$. 
 
-- These are also structural models. 
+- These are also structural models because we assume that they describe $E[Y(a) \vert L]$. 
+
+- However, they are **conditional** structural models because we are conditioning on $L$. 
 
 - For example,
 
@@ -133,8 +139,8 @@ for all individuals.
 - By consistency, if $A_i = a$ then $Y_i = Y_i(a)$ so $$ Y_i(0) = Y_i - \psi_1 A_i$$
 
 
-- Let $$H(\psi^\dagger) = Y - \psi^\dagger A$$ We want to find the value of $\psi^\dagger$ that will make $H$ equal to $Y(0)$. 
-  + We can drop the $i$ subscript because we have assumed the same model for everyone. 
+- Let $$H_i(\psi^\dagger) = Y_i - \psi^\dagger A_i$$ We want to find the value of $\psi^\dagger$ that will make $H_i$ equal to $Y_i(0)$. 
+  
   
   
 ---
@@ -161,7 +167,7 @@ $$
 - At $\psi_1$, $\hat{\alpha}_1(\psi_1)$ should equal 0. 
 
 - So we can find $\psi_1$ by doing a grid search, repeatedly fitting the regression and choosing the value that gives $\hat{\alpha}_1(\psi)$ closest to 0. 
-  + There is also a closed-form estimate, we don't have to do the grid search.
+  + There is also a closed-form estimate, coming up in a few slides.
 
 - We are looking for the value of the causal effect that would make exchangeability true. 
 
@@ -177,6 +183,8 @@ $$
 - The 95% confidence interval for $\hat{\psi}$ is the set of values 
 $\lbrace \psi : p_1(\psi) > 0.05 \rbrace$.
 
+- We can also bootstrap using the closed form calculation. 
+
 
 ---
 ## Censoring
@@ -185,7 +193,7 @@ $\lbrace \psi : p_1(\psi) > 0.05 \rbrace$.
 
 - To do this, we can estimate censoring weights $W^C = \frac{1}{P[C = 0 \vert A, L]}$, weight the population by these, and then apply G-estimation. 
 
-- Practically, this works out to using $W^{C}$ as weights when we fit the model for $P[A \vert H(\psi^{\dagger}, L)]$.
+- Practically, this works out to using $W^{C}$ as weights when we fit the model for $P[A \vert H(\psi^{\dagger}), L]$.
 
 ---
 ## G-Estimation in NHEFS
@@ -328,6 +336,18 @@ round(g_est_num/g_est_denom, digits = 2)
   
 - In G-Estimation, we need to specify the form of effect modification, but we don't need to specifiy $E[Y(0) \vert L]$. 
 
+
+---
+
+## Effect Modification
+
+- Even though consistent estimation of the ATE requires correct specification of the conditional mean model, Vansteelandt and Joffe argue that, in the binary $A$ case, mis-specifying the model as $E[Y(1) \vert L] - E[Y(0) \vert L ] = \beta_1$ is interpretable.
+
+- Suppose the true model is $E[Y(1) \vert L] - E[Y(0) \vert L ] = \omega(L)$
+
+- Then the G-estimator using the incorrect model with no effect modification converges to 
+$$\frac{E\left \lbrace Var(A \vert L)\omega(L)\right \rbrace}{E\left \lbrace Var(A \vert L)\right \rbrace}$$ which is a weighted average of treatment effects, giving the most weight to strata with higher values of $Var(A \vert L)$, or strata with the most overalp between treated and control.
+
 ---
 ## Multi-Parameter Structural Mean Models
 
@@ -339,6 +359,11 @@ $$E[Y(a)-Y(0) \vert V, L] = \beta_1 a + \beta_2 a V $$
 - The corresponding "H" model is 
 
 $$H_i(\psi_1, \psi_2) = Y_i - \psi_1 A_i - \psi_2 A_i V_i$$
+- We are looking for values $\psi_1^*$ and $\psi_2^*$ such that $H(\psi_1^*, \psi_2^*) \ci A \vert L, V$
+
+---
+## Multi-Parameter Structural Mean Models
+
 
 - We now have two parameters to estimate, so we need to perform a search over a two dimensional grid. 
 
@@ -385,6 +410,7 @@ $$
 \end{split}
 $$
 - The fact that $E[Y \vert L, A]$ shows up in the definition of $H(\psi)$ if $g$ is logit makes the odds ratio formulation more difficult to deal with. 
+  + There is no consistent G-estimator for the causal odds ratio. 
 
 ---
 ## General Formulation
@@ -392,6 +418,7 @@ $$
 - Next we either grid serach for a value of $\psi$ such that $H(\psi)$ is statistically independent of $A - E[A \vert L]$ or we solve the estimating equations
 
 $$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(\psi^*)(d(A_i) - d(E[A \vert L_i])) = 0$$ where $d$ is a function of $A$ and $L$ with dimension equal to the dimension of $\psi$. 
+
 
 - For example, using the model $E[Y(a) \vert L ] - E[Y(0) \vert L ] = \beta_1 a + \beta_3 a L$, we could use the estimating equation
 
@@ -402,7 +429,7 @@ $$\sum_{i = 1}^n 1_{C_i = 0}W^C_i \begin{pmatrix}1\\L_i \end{pmatrix}(A_i - E[A 
 ---
 ## Efficient choice of $d$
 
-- Under homoskedasticity, hear meaning that the variance of $H(\psi^*)$ is constant given $A$ and $L$, the best choice of $d$ is
+- Under homoskedasticity, here meaning that the variance of $H(\psi^*)$ is constant given $A$ and $L$, the best choice of $d$ is
 
 $$
 d(A, L) = E\left\lbrace \frac{\partial H(\psi^*)}{d\psi} \vert A, L\right\rbrace
@@ -410,7 +437,8 @@ $$
 - So under the two parameter model from a few slides ago where we had
 
 $$H_i(\psi_1, \psi_2) = Y_i - \psi_1 A_i - \psi_2 A_i L_{1,i}$$
-- The best choice of $d$ is $d(A,L) = \begin{pmatrix}A \\ A L_1 \end{pmatrix}$ (getting rid of the minus sign). 
+- The best choice of $d$ is $d(A,L) = \begin{pmatrix}A \\ A L_1 \end{pmatrix}$.
+  + We dropped the minus sign since we can just multiply both sides of the estimating equations by -1. 
 
 ---
 ## Multi-Parameter Model in NHEFS
@@ -426,12 +454,12 @@ $$\sum_{i = 1}^n 1_{C_i = 0}W^C_i \begin{pmatrix}1\\V_i \end{pmatrix}(A_i - E[A 
 
 - By plugging in $H_i(\psi) = Y_i -\psi_1 A_i - \psi_2 A_i V_i$, we obtain
 
-$$\begin{pmatrix}\psi_1 \\ \psi_2 \end{pmatrix} = V^{-1} S$$
+$$\begin{pmatrix}\psi_1 \\ \psi_2 \end{pmatrix} = W^{-1} S$$
 with 
 $$S = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i D_i\\
 \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i V_i D_i\end{pmatrix}$$
 
-$$V = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i D_i & \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i\\
+$$W = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i D_i & \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i\\
 \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i & \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i^2 D_i\end{pmatrix}$$
 
 where $D_i = A_i - E[A \vert L_i]$. 
