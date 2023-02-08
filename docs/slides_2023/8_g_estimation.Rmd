@@ -1,0 +1,499 @@
+---
+title: "L8: G-Estimation"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "2023-02-08 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+library(readr)
+library(ggplot2)
+library(geepack)
+library(dplyr)
+```
+
+## Lecture Plan
+
+---
+## G-Estimation
+
+- This is the last causal estimation method we will see for non-time varying data. 
+
+- It is also the "weirdest". Because of this weirdness (and lack of great software), G-estimation is fairly uncommon in applied literature.
+
+- However G-estimation has several advantages:
+  + For a continuous treatment, we only have to specify $E[A \vert L]$ instead of $f(A \vert L)$.
+  + Potentially more efficient than IP weighting.
+  + Less extrapolation bias than G-computation.
+
+
+
+---
+## Marginal Structural Models
+
+- Recall from previous lectures, in IP weighting, we estimate weights $f(A \vert L)$ and propose a **marginal structural model** (MSM) such as
+
+$$E[Y(a)] = \beta_0 + \beta_1 a$$
+
+- We then estimate the parameters of the MSM by fitting a regression, weighting each observation by $\frac{1}{f(A_i \vert L_i)}$. 
+
+- The model above is **marginal** because we marginalized over the distribution of $L$. 
+
+- We needed to get the model for $f(A \vert L)$ correct.
+
+---
+## Conditional Outcome Models
+
+- Alternatively, in G-Computation, or in regression with propensity score, we could propose model for $E[Y \vert A, L]$. 
+
+- These are also structural models. 
+
+- For example,
+
+$$\begin{split}
+E[Y \vert A = a, L = l] = & E[Y(a) \vert A = a, L] = E[Y(a) \vert L = l] \\
+= & \beta_0 + \beta_1 a + \beta_2 L + \beta_3 a L
+\end{split}$$
+
+---
+## Semiparametric Structural Mean Models
+
+- If our interest is in $E[Y(1)] - E[Y(0)]$, then 
+$$E[Y(a) \vert A= a, L] = \beta_0 + \beta_1 a + \beta_2 L + \beta_3 a L$$
+has more parameters than we need. 
+
+- We are only interested in $\beta_1 + \beta_3L$. 
+
+- Instead, we could propose a model directly for our target:
+
+$$E[Y(1) \vert A= a, L] - E[Y(0) \vert A=a, L] = \beta_1 a + \beta_3 aL$$
+- This model is **semiparametric** because we aren't trying to estimate $\beta_0$ and $\beta_2$. It is **not** marginal because we are conditioning on $L$. 
+
+- We can calculate the ATE by standardizing over $L$,
+
+$$E[Y(1)] - E[Y(0)] = \beta_1 + \frac{1}{n}\sum_{i = 1}^n \beta_3 L_i$$
+
+
+---
+## G-Estimation
+
+- Suppose we have a semiparametric structural mean model (SMM)
+$$
+E[Y(a)-Y(0) \vert L] = \beta_1 a
+$$
+
+- How do we estimate $\beta_1$ if we can never observe both $Y(a)$ and $Y(0)$ for the same person? 
+
+
+---
+
+## G-Estimation
+
+- To motivate the method, we first we make a strong assumption. Suppose
+$$
+Y_i(a)- Y_i(0) = \psi_1 a
+$$
+for all individuals. 
+
+- This says the causal effect is **homogeneous** because it is the same for all individuals.
+
+- Validity of G-estimation doesn't actually require homogeneity but it is a convenient place to start. 
+
+
+- $\beta_1$ in the SMM is equal to $\psi_1$ above.
+
+---
+
+## G-Estimation
+
+- Re-write as $$ Y_i(0) = Y_i(a) - \psi_1 a$$
+
+- By consistency, if $A_i = a$ then $Y_i = Y_i(a)$ so $$ Y_i(0) = Y_i - \psi_1 A_i$$
+
+
+- Let $$H(\psi^\dagger) = Y - \psi^\dagger A$$ We want to find the value of $\psi^\dagger$ that will make $H$ equal to $Y(0)$. 
+  + We can drop the $i$ subscript because we have assumed the same model for everyone. 
+  
+  
+---
+
+## G-Estimation
+
+
+- Now we will use exchangeability. Exchangeability says that 
+$Y(0) \ci A \vert L$
+so at $\psi_1$, $H(\psi_1) \ci A \vert L$.
+
+- For any given value of $\psi^\dagger$, we can compute $H(\psi^\dagger)_i = Y_i - \psi^\dagger A_i$ for every person in the study. 
+
+- Idea is to look for $\psi^*$ such that $H(\psi^*)$ is statistically independent of $A \vert L$ in our sample. 
+
+---
+## G-Estimation 
+
+- If $L$ is one dimensional, we can fit the regression 
+$$
+logit \left( P[A = 1 \vert H(\psi^\dagger), L] \right) = \alpha_0 + \alpha_1 H(\psi^\dagger) + \alpha_2 L
+$$
+
+- At $\psi_1$, $\hat{\alpha}_1(\psi_1)$ should equal 0. 
+
+- So we can find $\psi_1$ by doing a grid search, repeatedly fitting the regression and choosing the value that gives $\hat{\alpha}_1(\psi)$ closest to 0. 
+  + There is also a closed-form estimate, we don't have to do the grid search.
+
+- We are looking for the value of the causal effect that would make exchangeability true. 
+
+---
+## Variance of the Estimate
+
+- Suppose that $\hat{\psi}$ is the solution to $\min_{\psi} \vert \hat{\alpha}(\psi) \vert$ found via grid search.
+
+- For every value of $\psi$ we try, we get a regression fit including a $p$-value for $\hat{\alpha}_1(\psi) = 0$. Call this $p$-value $p_1(\psi)$.
+
+- We can get a confidence interval for $\hat{\psi}$ by inverting this $p$-value. 
+
+- The 95% confidence interval for $\hat{\psi}$ is the set of values 
+$\lbrace \psi : p_1(\psi) > 0.05 \rbrace$.
+
+
+---
+## Censoring
+
+- When there is censoring, we want to estimate $E[Y(A = 1, C =0) - Y(A =0, C =0)]$.
+
+- To do this, we can estimate censoring weights $W^C = \frac{1}{P[C = 0 \vert A, L]}$, weight the population by these, and then apply G-estimation. 
+
+- Practically, this works out to using $W^{C}$ as weights when we fit the model for $P[A \vert H(\psi^{\dagger}, L)]$.
+
+---
+## G-Estimation in NHEFS
+
+Step 1: Compute censoring weights
+
+```{r, message = FALSE}
+dat <- read_csv("../../data/nhefs.csv") 
+dat$cens <- ifelse(is.na(dat$wt82), 1, 0)
+
+cw_fit <- glm(cens==0 ~ qsmk + sex + race + age + I(age^2) 
+                     + as.factor(education) + smokeintensity + I(smokeintensity^2) 
+                     + smokeyrs + I(smokeyrs^2) + as.factor(exercise) 
+                     + as.factor(active) + wt71 + I(wt71^2), 
+                     data = dat, family = binomial())
+
+dat$wc <- 1/predict(cw_fit, type="response")
+```
+
+---
+## G-Estimation in NHEFS
+
+Step 2: Estimate $\psi^{\dagger}$ by grid search. 
+
+
+```{r, warning=FALSE, message = FALSE}
+grid = seq(2, 5, by = 0.1)
+
+Hpsi_coefs <- purrr::map_dfr(grid, function(psi){
+  dat$Hpsi <- dat$wt82_71 - psi * dat$qsmk
+  # Using GEE for robust SEs
+  gest_fit <- geeglm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+                  + smokeintensity + I(smokeintensity*smokeintensity) + smokeyrs
+                  + I(smokeyrs*smokeyrs) + as.factor(exercise) + as.factor(active)
+                  + wt71 + I(wt71*wt71) + Hpsi, 
+                  family=binomial(), data=dat, weights=wc, 
+                  id=seqn, corstr="independence", 
+                  subset = which(!is.na(wt82_71)))
+  res <- data.frame("Est" = summary(gest_fit)$coefficients["Hpsi", "Estimate"], 
+                    "SE" = summary(gest_fit)$coefficients["Hpsi", "Std.err"], 
+                    "p" = summary(gest_fit)$coefficients["Hpsi", "Pr(>|W|)"])
+})
+
+Hpsi_coefs <- Hpsi_coefs %>% mutate(ci_lower = Est - 1.96*SE, 
+                                    ci_upper = Est + 1.96*SE, 
+                                    pns = p > 0.05)
+
+```
+
+---
+## G-Estimation in NHEFS
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=7, fig.align='center'}
+
+Hpsi_coefs %>% ggplot() + geom_point(aes(x = grid, y = Est, color = as.factor(pns))) + 
+  geom_hline(yintercept = 0) + 
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper, x = grid, color = as.factor(pns))) + 
+  scale_color_discrete(guide = "none") + 
+  xlab("Psi")+ ylab("alpha hat") +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 20), 
+        legend.title = element_text(size = 20), 
+        legend.text = element_text(size = 14), 
+        axis.text =  element_text(size = 14))
+```
+
+
+---
+## Assumptions
+
+- In order for the G-estimation estimate to be consistent, we need to get two things right:
+
+- The structural mean model, $$E[Y(a) \vert A = a, L] - E[Y(0) \vert A = a, L]$$
+
+- The model for $E[A \vert L]$. This is the model that we put $H(\psi^\dagger)$ into.
+
+
+---
+## Estimating Equations Version
+
+
+- We are trying to satisfy the criterion that $E[H(\psi^*)]$ is independent of $A$ given $L$. 
+
+- This means that we can estimate $\psi^*$ as the solution to 
+
+$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(\psi^*)(A_i - E[A \vert L_i]) = 0$$
+
+- Which is solved by 
+
+$$\psi^* = \frac{\sum_{i=1}^n 1_{C=0}W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n 1_{C=0}W^C_i A_i (A_i - E[A \vert L_i])}$$
+---
+## Estimating Equations Version
+
+$$\psi^* = \frac{\sum_{i=1}^n 1_{C=0}W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n 1_{C=0}W^C_i A_i (A_i - E[A \vert L_i])}$$
+
+- In the numerator, there is a term $(A_i - E[A \vert L_i])$. Units with $A_i = E[A \vert L_i]$ don't contribute to the sum. 
+
+- This means we are basing our inference on units in the overlap space, units that have a chance of either treatment. 
+
+- When there are regions of covariate space with only cases or only controls, G-Computation suffers from extrapolation bias because it is basing too much of its estimation on only one group. 
+
+- IP weighting on the other hand can have very high variance due to enormous weights. 
+
+- G-estimation remains efficient and doesn't suffer from overlap bias. 
+
+---
+## Estimating Equations in NHEFS
+
+```{r}
+ps_model <- glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+                  + smokeintensity + I(smokeintensity*smokeintensity) + smokeyrs
+                  + I(smokeyrs*smokeyrs) + as.factor(exercise) + as.factor(active)
+                  + wt71 + I(wt71*wt71),
+                  family=binomial(), data=dat)
+dat$ea <- predict(ps_model, type = "response")
+
+g_est_num <- with(dat, sum((1-cens)*wc*wt82_71*(qsmk-ea), na.rm=T))
+g_est_denom <- with(dat, sum((1-cens)*wc*qsmk*(qsmk-ea)))
+
+round(g_est_num/g_est_denom, digits = 2)
+```
+
+- We could obtain the confidence interval by bootstrapping. 
+
+---
+## Effect Modification
+
+- In G-estimation, we are estimating $E[Y(a)-Y(0) \vert L, A = a]$, the treatment effect *conditional* on $L$. 
+   - So if there is any effect modification by variables in $L$, we **have** to include that in the model. 
+
+
+- In IP weighting, we compute weights and then propose a marginal structural model for $E[Y(a)]$. 
+
+  + We only include effect modification if we are interested in $E[Y(a) \vert L]$. 
+  
+- In G-Computation, we propose a model for $E[Y(a) \vert L]$. 
+  + We have to include any effect modification. 
+  + We also have to get the functional for of the intercept part, $E[Y(0) \vert L]$ correct.
+  
+  
+- In G-Estimation, we need to specify the form of effect modification, but we don't need to specifiy $E[Y(0) \vert L]$. 
+
+---
+## Multi-Parameter Structural Mean Models
+
+
+- Suppose we propose the model
+
+$$E[Y(a)-Y(0) \vert V, L] = \beta_1 a + \beta_2 a V $$
+
+- The corresponding "H" model is 
+
+$$H_i(\psi_1, \psi_2) = Y_i - \psi_1 A_i - \psi_2 A_i V_i$$
+
+- We now have two parameters to estimate, so we need to perform a search over a two dimensional grid. 
+
+- At $\psi_1 = \beta_1$ and $\psi_2 = \beta_2$, the $\alpha_1$ and $\alpha_2$ terms will both be 0.  
+
+$$
+logit\left( P[A = 1 \vert H(\psi^\dagger), L] \right) = \alpha_0 + \alpha_1 H(\psi_1, \psi_2) + \alpha_2 H(\psi_1, \psi_2) V + \alpha_3 L
+$$
+
+---
+## Multi-Parameter Structural Mean Models
+
+- We have some choices about how we put $H(\psi^\dagger)$ into the exposure model.
+
+- For example, we could use
+
+$$
+logit\left( P[A = 1 \vert H(\psi^\dagger), L] \right) = \alpha_0 + \alpha_1 H(\psi_1, \psi_2) + \alpha_2 H(\psi_1, \psi_2) V + \alpha_3 L
+$$
+
+or 
+
+$$
+logit\left( P[A = 1 \vert H(\psi^\dagger), L] \right) = \alpha_0 + \alpha_1 H(\psi_1, \psi_2) + \alpha_2 H(\psi_1, \psi_2) V^2 + \alpha_3 L
+$$
+
+- It turns out that the choice only affects efficiency and not consistency, and we can derive the (locally) most efficient choice. 
+
+---
+## General Formulation
+
+- In general we start with a structural mean model 
+
+$$g\left \lbrace E[Y(a) \vert A =a, L]\right \rbrace - g\left \lbrace E[Y(0) \vert A =a, L]\right \rbrace = \gamma(a, l ; \psi^*)  $$
+
+- From this, we define
+
+$$
+\begin{split}
+&H(\psi) = Y - \gamma(L, A; \psi) \qquad &g\ \text{identity}\\
+&H(\psi) = Y\exp[-\gamma(L, A; \psi)]\qquad &g\ \text{log}\\
+&H(\psi) = expit \left( logit(E[Y \vert L, A])- \gamma(L, A; \psi)  \right)
+) \qquad &g\ \text{logit}
+\end{split}
+$$
+- The fact that $E[Y \vert L, A]$ shows up in the definition of $H(\psi)$ if $g$ is logit makes the odds ratio formulation more difficult to deal with. 
+
+---
+## General Formulation
+
+- Next we either grid serach for a value of $\psi$ such that $H(\psi)$ is statistically independent of $A - E[A \vert L]$ or we solve the estimating equations
+
+$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(\psi^*)(d(A_i) - d(E[A \vert L_i])) = 0$$ where $d$ is a function of $A$ and $L$ with dimension equal to the dimension of $\psi$. 
+
+- For example, using the model $E[Y(a) \vert L ] - E[Y(0) \vert L ] = \beta_1 a + \beta_3 a L$, we could use the estimating equation
+
+$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i \begin{pmatrix}1\\L_i \end{pmatrix}(A_i - E[A \vert L_i]) H_i(\psi^*)= 0$$ 
+
+- The $d$ function corresponds to the choice of how to put $H(\psi^\dagger)$ into the exposure model.
+
+---
+## Efficient choice of $d$
+
+- Under homoskedasticity, hear meaning that the variance of $H(\psi^*)$ is constant given $A$ and $L$, the best choice of $d$ is
+
+$$
+d(A, L) = E\left\lbrace \frac{\partial H(\psi^*)}{d\psi} \vert A, L\right\rbrace
+$$
+- So under the two parameter model from a few slides ago where we had
+
+$$H_i(\psi_1, \psi_2) = Y_i - \psi_1 A_i - \psi_2 A_i L_{1,i}$$
+- The best choice of $d$ is $d(A,L) = \begin{pmatrix}A \\ A L_1 \end{pmatrix}$ (getting rid of the minus sign). 
+
+---
+## Multi-Parameter Model in NHEFS
+
+- Suppose we believe there is effect modification by smoking intensity. Let $V$ be smoking intensity and $L$ the remaining confounders. We could use the SMM
+$$E[Y(a) \vert L, V] - E[Y(0) \vert L, V] = \beta_1 a + \beta_3 a V$$
+
+- We need to solve the estimating equations
+
+$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i \begin{pmatrix}1\\V_i \end{pmatrix}(A_i - E[A \vert L_i, V_i]) H_i(\psi^*)= 0$$ 
+---
+## Multi-Parameter Model in NHEFS
+
+- By plugging in $H_i(\psi) = Y_i -\psi_1 A_i - \psi_2 A_i V_i$, we obtain
+
+$$\begin{pmatrix}\psi_1 \\ \psi_2 \end{pmatrix} = V^{-1} S$$
+with 
+$$S = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i D_i\\
+\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i V_i D_i\end{pmatrix}$$
+
+$$V = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i D_i & \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i\\
+\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i & \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i^2 D_i\end{pmatrix}$$
+
+where $D_i = A_i - E[A \vert L_i]$. 
+
+
+---
+## Multi-Parameter Model in NHEFS
+
+
+```{r}
+dat$wc[dat$cens != 0] <- 0
+dat$rem_w <- with(dat, wc*(qsmk - ea))
+S <- with(dat, c(sum(wt82_71*rem_w, na.rm=T), 
+                 sum(smokeintensity*wt82_71*rem_w, na.rm=T)))
+V <- with(dat, c(sum(qsmk*rem_w), sum(smokeintensity*qsmk*rem_w), 
+                 sum(smokeintensity*qsmk*rem_w), sum(smokeintensity^2*qsmk*rem_w)))
+V <- matrix(V, nrow = 2, byrow = T)
+psi <- solve(V) %*% S
+round(psi, digits = 2)
+```
+
+
+
+---
+## Doubly Robust G-Estimation
+
+- To make the estimator more robust, we can replace $H(\psi)$ with $H(\psi) - E[H(\psi) \vert L]$. 
+  - This works using either the estimating equation approach or the grid search approach.
+
+- This amounts to fitting an outcome model. E.g. if $H_i(\psi) = Y_i - \psi A_i$, we need a model for $E[Y \vert L]$. 
+
+- The resulting estimator will be consistent if either the outcome model in the untreated or the propensity model are correct. 
+
+
+
+---
+## Continuous Treatments
+
+
+- One nice feature of G-estimation for continuous treatments is that we only need a model for $E[A \vert L]$. 
+
+- For IP weighting, we need a model for $f(A \vert L)$ which is much harder to get right. 
+
+---
+
+## Summary 
+
+- In G-Estimation we propose a semiparametric structural mean model for the causal contrast of interest **conditional** on $L$. 
+
+- We also propose a model for $E[A \vert L]$. 
+
+- We then obtain a function $H(\psi)$ such that $E[H(\psi^*)] = Y(0)$ for some value of $\psi^*$.
+
+- Finally, we search for the value of $\psi$ that makes $H(\psi)$ statistically independent of $A \vert L$.
+
+---
+
+## Summary 
+
+- G-Estimation avoids some of the problems of G-Computation and IP Weighting
+  + Extrapolation bias (G-Computation)
+  + Large variance (IP Weighting)
+  
+- However, there is no good off the shelf software for G-Estimation (that I know of). 
+
