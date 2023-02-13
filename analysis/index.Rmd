@@ -28,6 +28,8 @@ editor_options:
 
 [8. G-Estimation](slides_2023/8_g_estimation.html)
 
+[9. Survival](slides_2023/9_survival.html)
+
 ## Lecture Slides from Past Years
 
 [2022 slides](slide_index_2022.html)
