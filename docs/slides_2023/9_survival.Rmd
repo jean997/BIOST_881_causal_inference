@@ -926,7 +926,44 @@ $$H(\psi_1^\dagger, \psi^\dagger_2) = T_i\exp(\psi_1^\dagger A_i + \psi_2^\dagge
   3. Condition on competing events
   4. Define a composite event death or cancer recurrence.
   
-- In our example, let $Y_k$ be an indicator for recurrence at time $k$ and $D_k$ an indicator for death at time $k$. 
+- Let $Y_k$ be an indicator for recurrence at time $k$ and $D_k$ an indicator for death at time $k$. 
+  
+---
+## Example
+
+- Draw a DAG for two time points. Include indicators of death, recurrence and censoring at each time point. 
+
+- Remember that a unit can only die once and only recur once. A unit cannot recur or be censored if they have died.
+
+- Include a treatment $A$ that could affect either death or recurrence at either time point. 
+  
+  
+---
+## Example
+
+<center>
+```{r, echo = FALSE, fig.height = 4, warning=FALSE, message=FALSE}
+ndfex <- create_node_df(n =7 , label = c("D@_{1}", "D@_{2}", "C@_{1}", "C@_{2}", "Y@_{1}", "Y@_{2}", "A"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     y = c(2, 2, 0, 0, 1, 1, 1.5)*0.6, 
+                     x = c(0, 1, 0, 1, 0, 1, -1)*0.8)
+edfex <- create_edge_df(from = c(1, 1, 3, 7, 7, 7, 7, 1, 1, 5, 5), 
+                        to = c(2, 4, 4, 1, 5, 6, 2, 5, 6, 6, 2),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+grex <- create_graph(nodes_df = ndfex, edges_df = edfex)
+
+render_graph(grex)
+```
+</center>  
+  
+  
   
 ---
 ## Option 1: Count Death as Censoring
