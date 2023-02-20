@@ -37,7 +37,7 @@ Part 1
 ]
 .date[
 ### Lecture on 2023-02-15
-(updated: 2023-02-15)
+(updated: 2023-02-20)
 ]
 
 ---
@@ -1102,10 +1102,26 @@ or
 
 - Notice that we are only making use of samples with observed treatment history identical to the proposed intervention. 
 
+
+---
+## Using IP Weights Non-Parametrically
+
+- An equivalent way to think of IP weights used non-parametrically is as censoring weights for "non-adherance". 
+
+
 - Suppose we want to compare "always treat" and "never treat" strategies.
-  + An equivalent procedure to IP weighting is to censor everyone who changed treatment (non-adherent units).
-  + We then combine weights for time 0 treatment and weights for censoring. 
-  `$$\frac{1}{P[A_0 = 1]} \times \frac{1}{P[A_1 = 1 \vert A_0 = 1, L_1]}$$`
+
+- We first censor anyone who did not adhere to one of these strategies and think of our study as now a study of the effect of the point treatment at time 1 and full adherence. 
+
+- We first compute the censoring weights
+
+`$$W^{C}_i = \frac{1}{P[A_1 = A_{0,i} \vert A_0 = A_{0,i}, L_1, L_0]}$$`
+
+- And then compute the confounding weights
+
+`$$W_i^{L} = \frac{1}{P[A_0 = A_i \vert L_0]}$$`
+
+- So the total weights are the product of `\(W^{L}\)` and `\(W^{C}\)`.
 
 ---
 ## Weights for Dynamic Treatments
@@ -1139,7 +1155,7 @@ or
 
 - The problem is the numerator of the standardized weights.
 
-- To estimate `\(E[Y(g)]\)`, we should limit ourselves only to units with `\(\bar{A}_i = (g_0(L_{0,i}), g_1(A_{0,i}, \bar{L}_{1,i}), \dots, g_K(\bar{A}_{k-1,i}, \bar{L}_{k,i}))\)`.
+- We calculated the numerator as `\(f(A_1 = A_{1,i} \vert A_{0} = A_{0,i})\)` but we needed to limit to only those with a treatment plan matching the dynamic treatment regime.  
 
 
 -  The numerator should be
@@ -1171,18 +1187,28 @@ or
 
   + `\(cum_{-5}(\bar{A}_{k})\)` is the number of times treated out of the previous five treatment times. 
 
+---
+## Estimating Weights
+
 - Alternatively, we could assume that some coefficients are shared across time points and fit a pooled model, possibly with some time effects.
 
 `$$E[A_k  \vert \bar{A}_{k-1}, \bar{L}_{k-1}] = \beta_{0,k} + \beta_1 A_{k-1} + \beta_2 cum_{-5}(\bar{A}_{k-1}) + \beta_3 L_{k-1} + \beta_4 A_{k-1} k$$`
 
+- This is a more commonly used approach than fitting one model at every time point.
+
+- To fit this model, convert the data into "long" format with one row per person-time combination. 
+  + Add columns for any time-dependent covariates.
+  
+- We now want to fit a marginal model with repeated measures, so we can use GEE. 
 
 ---
 ## Non-Parametric Estimation
 
 - If we are totally non-parametric and there is no effect of treatment on confounders, then estimating the effect of a treatment strategy `\(\bar{a}\)` or `\(g\)` is very similar to estimating the effect of a point treatment of assignment to a particular regime. 
+  - HR call effects of treatment on confounders "treatment-confounder feedback". 
 
-- In fact, if there is no effect of treatment history on time-varying confounders, `\(f(L_k \vert \bar{A}_{k-1}) = f(L_k)\)` and the G-formula for time-varying treatment reduces to the regular point-treatment G-formula. 
-  - HR call this "treatment-confounder feedback". 
+- If there is no effect of treatment history on time-varying confounders, `\(f(L_k \vert \bar{A}_{k-1}) = f(L_k)\)` and the G-formula for time-varying treatment reduces to the regular point-treatment G-formula. 
+
 
 - Whether or not there is treatment-confounder feedback, if we are willing to make parametric assumptions, we can borrow information from units with similar treatment histories.
 
@@ -1247,7 +1273,7 @@ or
 
 - To estimate `\(E[Y(a)]\)` we replaced each persons treatment value with `\(a\)` and then estimated `\(\hat{Y}_i(a) = \hat{E}[Y \vert A = a_0, L = L_i]\)`. 
 
-+ We hen approximated the integral 
++ We then approximated the integral 
     
       `$$\int_l E[Y \vert A, L = l]f_L(l) dl$$`
 with the sum `$$\frac{1}{N} \sum_{i = 1}^N \hat{Y}_i(a)$$`
@@ -1643,8 +1669,8 @@ from the original data.
 - Our estimate of `\(f(L_1 \vert A_0)\)` will also not be a constant function of `\(A_0\)`.
 
 &lt;center&gt;
-<div id="htmlwidget-f388e0a16fb7e0bfaf56" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-f388e0a16fb7e0bfaf56">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-53f5918e76d37dd31039" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-53f5918e76d37dd31039">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1690,8 +1716,20 @@ from the original data.
 
 
 &lt;center&gt;
-<div id="htmlwidget-ad19d81929fb34d07924" style="width:504px;height:234px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-ad19d81929fb34d07924">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-57c5b7a974904fc8391d" style="width:504px;height:234px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-57c5b7a974904fc8391d">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+
+---
+## Beyond the Strict Null
+
+- The figure below shows simulation results from McGrath, Young, and Hernán (2022).
+
+- More flexible models reduce the amount of bias but bias can still be substantial.
+
+&lt;center&gt; 
+&lt;img src="img/9_gnull.png" width="85%" /&gt;
 &lt;/center&gt;
 
 
