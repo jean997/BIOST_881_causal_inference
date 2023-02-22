@@ -4,7 +4,7 @@
     <title>L10: Time Varying Treatment Part 1</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -37,7 +37,7 @@ Part 1
 ]
 .date[
 ### Lecture on 2023-02-15
-(updated: 2023-02-20)
+(updated: 2023-02-22)
 ]
 
 ---
@@ -1097,16 +1097,27 @@ or
 
 + Once we have computed `\(W^{\bar{A}}\)` or `\(SW^{\bar{A}}\)` we can compute `\(Y(\bar{a})\)` as
 
-`$$\hat{E}\left[W_i^{\bar{A}}Y_i I(\bar{A}_i = \bar{a}) \right] = \frac{1}{N}\sum_{i = 1}^{N} W^{\bar{A}}_i Y_i I(\bar{A}_i = \bar{a})$$`
-- We could have used either standardized or non-standardized weights. 
+`$$\frac{\hat{E}\left[W_i^{\bar{A}}Y_i I(\bar{A}_i = \bar{a}) \right]}{\hat{E}[W^{\bar{A}}_i I(\bar{A}_i = \bar{a})]}= \frac{\sum_{i = 1}^{N} W^{\bar{A}}_i Y_i I(\bar{A}_i = \bar{a})}{\sum_{i =1}^N W_i^{\bar{A}}I(\bar{A}_i = \bar{a})}$$`
+- We could have used either stabilized or non-stabilized weights. With non-stabilized weights, the denominator will always equal `\(N\)`. 
 
 - Notice that we are only making use of samples with observed treatment history identical to the proposed intervention. 
 
+---
+## Weights for Dynamic Treatments
 
+&lt;center&gt; 
+&lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
+&lt;/center&gt;
+
+- To compute the non-parametric IP weighted estimate for `\(E[Y(0, 0)]\)` we only need the data for the units that received treatment `\((0, 0)\)`. 
+
+- Using the non-standardized weights:
+
+`$$E[Y(0, 0)] =84 \frac{8000}{32000} + 52 \frac{24000}{32000} = 60$$`
 ---
 ## Using IP Weights Non-Parametrically
 
-- An equivalent way to think of IP weights used non-parametrically is as censoring weights for "non-adherance". 
+- An equivalent way to think of IP weights used non-parametrically is as censoring weights for "non-adherence". 
 
 
 - Suppose we want to compare "always treat" and "never treat" strategies.
@@ -1141,25 +1152,10 @@ or
 &lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
 &lt;/center&gt;
 
-- Using the `\(W^{\bar{A}}\)` weights gives the right answer
+- Using the `\(W^{\bar{A}}\)` we can compute `\(E[Y(g)]\)` and `\(E[Y(g^\prime)]\)` using the non-parametric approach. 
 
-`$$E[Y(g)] = \frac{80\cdot 84 + 24 \cdot 52}{80 + 24} = 60 \qquad  E[Y(g^{\prime})] = \frac{80\cdot 84 + 24 \cdot 52}{80 + 24} = 60$$`
+- The first and fourth row follow the `\((0, L_1)\)` treatment plan while the second and third row follow `\((0, 1-L_1)\)`.
 
-
-- But using `\(SW^{\bar{A}}\)` gives the wrong answer. Why?
-
-
-`$$E[Y(g)] = \frac{12\cdot 84 + 84 \cdot 52}{12 + 84} = 56 \qquad  E[Y(g^{\prime})] = \frac{28\cdot 84 + 36 \cdot 52}{28 + 36} = 66$$`
----
-## Weights for Dynamic Treatments
-
-- The problem is the numerator of the standardized weights.
-
-- We calculated the numerator as `\(f(A_1 = A_{1,i} \vert A_{0} = A_{0,i})\)` but we needed to limit to only those with a treatment plan matching the dynamic treatment regime.  
-
-
--  The numerator should be
-`$$\prod_{k=0}^{1}f(A_k = g_k \vert \bar{A}_{k-1} = g_{k-1}) = \prod_{k=0}^K \sum_{l} f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k}) P[\bar{L}_k = l \vert \bar{A}_{k-1}]$$`
 ---
 ## Weights for Dynamic Treatments
 
@@ -1167,13 +1163,34 @@ or
 &lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
 &lt;/center&gt;
 
-- The numerator of the standardized weights for `\(g = (0, L_1)\)` for the first and fourth row should be
+- Computing the counterfactual means for two dynmaic treatments:
 
-`$$(0.5)(0.6\cdot 0.25 + 0.8 \cdot 0.75) = (0.5)(0.525)$$`
+`$$E[Y(g)] = \frac{1}{N}\sum_{i = 1}^N Y_i W_i^{\bar{A}} I(\bar{A}_i = g) =   \frac{8000\cdot 84 + 24000 \cdot 52}{32000} = 60$$`
 
-- The numerator of the standardized weights for `\(g^{\prime} = (0, 1-L_1)\)` for the second and third row should be
+`$$E[Y(g^{\prime})] = \frac{1}{N}\sum_{i = 1}^N Y_i W_i^{\bar{A}} I(\bar{A}_i = g^\prime) = \frac{8000\cdot 84 + 24000 \cdot 52}{32000} = 60$$`
+---
+## Weights for Dynamic Treatments
+&lt;center&gt; 
+&lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
+&lt;/center&gt;
 
-`$$(0.5)(0.4\cdot 0.25 + 0.2 \cdot 0.75) = (0.5)(0.475)$$`
+- We can do the same calculation using `\(SW^{\bar{A}}\)`, but we get the wrong answer.
+
+
+`$$E[Y(g)] = \frac{1200 \cdot 84 + 8400 \cdot 52}{1200 + 8400} = 56$$`
+
+`$$E[Y(g^{\prime})] = \frac{2800\cdot 84 + 3600 \cdot 52}{2800 + 3600} = 66$$`
+---
+## Weights for Dynamic Treatments
+
+- The problem is the numerator of the standardized weights.
+
+- We calculated the numerator as `\(f(A_1 = A_{1,i} \vert A_{0} = A_{0,i})\)` but this depends on `\(A_k\)` which isn't fixed under the dynamic intervention. 
+
+
+-  This means that we cannot use stabilized weights for dynamic interventions.
+
+
 ---
 ## Estimating Weights
 
@@ -1232,7 +1249,7 @@ or
 
 `$$E_{ps}[Y \vert \bar{A}] = \beta_0 + \beta_1 cum(\bar{A})$$`
 
-- `\(\hat{\beta}_1\)` estimates the causal effect of increasing the number of treated periods by 1. 
+- `\(\hat{\beta}_1\)` estimates the causal effect of increasing the number of treated periods by one. 
 
 - Variance from bootstrap or, conservatively, from robust sandwich estimator. 
 
@@ -1669,8 +1686,8 @@ from the original data.
 - Our estimate of `\(f(L_1 \vert A_0)\)` will also not be a constant function of `\(A_0\)`.
 
 &lt;center&gt;
-<div id="htmlwidget-53f5918e76d37dd31039" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-53f5918e76d37dd31039">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-16b752a467f3a5f850eb" style="width:504px;height:252px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-16b752a467f3a5f850eb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1716,8 +1733,8 @@ from the original data.
 
 
 &lt;center&gt;
-<div id="htmlwidget-57c5b7a974904fc8391d" style="width:504px;height:234px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-57c5b7a974904fc8391d">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-ed6a9c690355df2b6401" style="width:504px;height:234px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ed6a9c690355df2b6401">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1744,6 +1761,19 @@ from the original data.
 
 - So the IP weighting method does not suffer from the g-null paradox. 
 
+
+---
+## Summary
+
+- For time-varying exposures with treatment-confounder feedback, we need to use the time-varying G-formula.
+
+- We saw two estimation strategies, IP weighting and G-computation (parametric G-formula).
+
+- IP weighting for time-varying exposures differs from IP weighting for point exposures in the way the weights are calculated. 
+  + We can also use a parametric structural marginal model that combines information across time-points.
+  
+- Using the parametric G-formula approach differs from G-computation for point exposures in that we need to simulate covariate values for covariates that happen after the first time-point.
+  + This requires a density estimate for every covariate.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

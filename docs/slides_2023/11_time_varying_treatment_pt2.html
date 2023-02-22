@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L11: Time Varying Treatment Part 2</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# L11: Time Varying Treatment
+Part 2
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### 2023-02-22
+(updated: 2023-02-22)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+## Lecture Outline
+
+1. Iterated Conditional Expectation Estimators
+1. G-Estimation for Time-Varying Treatments
+1. Repeated Outcome Measures
+---
+## 1. Iterated Conditional Expectation Estimators
+
+---
+## Iterated Conditional Expectation (ICE)
+
+- Another way to express the G-formula is as a nested expectation.
+
+
+- Recall, for two time-points the G-formula is
+
+`$$E[Y(\bar{a})] = \int_{l_0, l_1} E[Y \vert \bar{A}_1 = \bar{a}, L_0 = l_0, L_1 = l_1] dF_1(l_1 \vert A_0 = a_0, L_0 = l_0) dF_0(l_0)$$`
+- Previously, we showed that we could derive the G-formula from sequential exchangeability as an expression of iterated expectations. 
+
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_0, L_1\\
+&amp;Y(a_0, a_1) \ci A_0 \vert L_0
+\end{split}`
+$$
+---
+
+## Iterated Conditional Expectation (ICE)
+
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_0, L_1\\
+&amp;Y(a_0, a_1) \ci A_0 \vert L_0
+\end{split}`
+$$
+- From the second relation, we determine that
+$$E[Y(\bar{a})] = \color{purple}{E_{L_0}\bigg[ } E[Y(a_1) \vert A_0 = a_0, L_0] \color{purple}{\bigg]} $$
+- From the first relation, we have 
+
+`$$E[Y(a_1) \vert A_0 = a_0, L_0]  = \color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{E\big[\color{red}{Y} \vert \bar{A}_1 = \bar{a}, L_0, L_1\big] } \color{blue}{\Big \vert A_0 = a_0, L_0\Big]}$$`
+- Putting these parts together,
+`$$E[Y(\bar{a})] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{E\big[\color{red}{Y} \vert \bar{A}_1 = \bar{a}, L_0, L_1\big] } \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$`
+
+---
+## ICE Estimation
+
+- The idea of ICE estimation is to fit models for each expectation iteratively. 
+
+- The first step is to define `\(\hat{Q}_3 = Y\)` and plug this into the G-formula expression. 
+
+`$$E[Y(\bar{a})] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{E\big[\color{red}{\hat{Q}_3} \vert \bar{A}_1 = \bar{a}, L_0, L_1\big] } \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$`
+
+- Next, define a model for `\(\hat{Q}_2(L_1, L_0) = \hat{E}[\hat{Q}_3 \vert \bar{A}_1 = \bar{a}, \bar{L}_1]\)`. For example,
+
+`$$E[\hat{Q}_3 \vert \bar{L}_{1}, \bar{A}_{1} = \bar{a}] = \theta_{0, 1} +  \theta_{1,1} L_{1} + \theta_{2,1}L_0$$`
+- We can fit this as a regular regression fit only among those with `\(\bar{A}_1 = \bar{a}\)`.
+
+- Think of `\(\hat{Q}_2\)` as an estimate of `\(E[Y(a_1) \vert A_0 = a_0, L_0, L_1]\)`. 
+
+---
+## ICE Estimation
+
+- Now we plug `\(\hat{Q}_2(L_1, L_0)\)` into the expression 
+
+`$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{\hat{Q}_2(L_0, L_1)} \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$`
+
+- Now we estimate the blue part. This will be a regression model with `\(\hat{Q}_2\)` as the outcome and `\(L_0\)` as predictors fit amongst those with `\(A_0 = a_0\)`.
+
+- To find the outcome, at this stage, we compute `\(\hat{Q}_{2,i}\)` for each person with `\(A_{0,i} = a_0\)` by plugging `\(L_{1,i}\)`, `\(L_{0,i}\)` into the fitted model from the previous stage.
+
+
+---
+## ICE Estimation
+
+- Use these fitted values to fit a model for `\(\hat{Q}_1(L_0) = E[\hat{Q}_{2} \vert A_0 = a_0, L_0]\)`, for example
+
+
+`$$\hat{Q}_1(L_0) = E[\hat{Q}_2 \vert L_{0}, A_{0} = a_0] = \theta_{0, 0} + \theta_{1,0} L_{0}$$`
+- Fit this model using only those with `\(A_0 = a_0\)`. 
+
+- Plugging this into the formula, we have 
+`$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{\hat{Q}_1(L_0)} \color{purple}{\bigg]}$$`
+
+- Now we compute `\(\hat{Q}_{1,i}\)` for each person in the study by plugging `\(L_{0,i}\)` into the fitted model. 
+
+- Finally we estimate `\(\hat{E}[Y(\bar{a})] = \frac{1}{N}\sum_{i =1}^N\hat{Q}_{1,i}\)` using everyone in the sample.
+
+
+---
+## ICE Estimation General Procedure
+
+
+- Define
+
+`$$Q_{K+2} = Y\\\
+Q_{K+1} = E[Y \vert  \bar{A}_K = \bar{a}_K,  \bar{L}_{K}]\\\
+\vdots\\\
+Q_m = E[Q_{m+1} \vert \bar{A}_m = \bar{a}_m, \bar{L}_{m-1} ]\\\
+\vdots\\\
+Q_0 = E[Q_1 \vert A_0 = a_0, L_0]$$`
+
+- Propose models for `\(E[Q_{m+1} \vert \bar{L}_{m-1}, \bar{A}_{m} = \bar{a}_m]\)`.
+
+- At each stage, fit the next model using fitted values from the previous model as the outcome. Fit each model only among those with `\(\bar{A}_m = \bar{a}_m\)`.
+
+- When we get all the way down to 0, `\(Q_0 = E[Q_1 \vert A_0 = a_0, L_0]\)` is an estimator of `\(Y(\bar{a})\)`. 
+
+---
+## ICE Estimation
+
+- The ICE estimator will be valid if the outcome regression was correct at each time point. 
+
+- An advantage over the parametric G-formula approach is that we didn't have to estimate the joint distribution of `\(L\)`. 
+
+
+
+---
+## Doubly Robust Estimator
+
+
+- We can turn the ICE estimator into a doubly robust estimator by adding a special covariate based on the propensity score to each regression. 
+
+- Below is a variation of the Scharfstein et al "special covariate" regression strategy for estimating `\(Y(a)\)` that we saw previously:
+
+1. Estimate `\(P[A = a \vert L]\)` and compute `\(W^{A}_i  = \frac{1}{\hat{P}[A = A_i \vert L]}\)` 
+
+2. Propose an outcome model `\(E[Y \vert A = a, L] = m(A = a, L; \theta)\)`
+
+3. Fit the model `\(E[Y_i \vert A_i, L_i] = m(A_i, L_i; \theta) + \phi W^{A}_i\)`, only among those with `\(A_i = a\)`. 
+
+4. Compute the standardized estimate 
+
+`$$E[Y(a)] = \frac{1}{N}\sum_{i=1}^N \left(m(a, L_i; \hat{\theta}) + \hat{\phi}\frac{1}{\hat{P}[A = a \vert L_i]} \right)$$`
+---
+## Doubly Robust Estimator for Time Varying Treatment
+
+- We will use the same strategy in combination with the ICE estimation strategy. 
+
+- Just as in IP weighting, we need to fit a model for `\(f(A_k \vert \bar{A}_{k-1}, \bar{L}_k)\)` at each time point.
+
+- For each time point compute
+
+`$$W^{\bar{A}_m}_i = \prod_{k=0}^m \frac{1}{\hat{f}(A_k = A_{k,i}\vert \bar{A}_{k-1,i}, \bar{L}_{k,i})}$$`
+and
+
+`$$W^{\bar{A}_m, a_m }_i =  \frac{W^{\bar{A}_{m-1}}_i}{f(A_m = a_m \vert \bar{A}_{i,m-1}, \bar{L}_{i,m})}$$`
+---
+## Doubly Robust Estimator for Time Varying Treatment
+
+- In each regression step, we add `\(\hat{W}^{\bar{A}_m}\)` as a covariate in the regression. 
+
+- In the estimation step, we replace `\(A_m\)` with `\(a_m\)` *and* `\(W^{\bar{A}_m}\)` with `\(W^{\bar{A}_m, a_m = 1}\)`.
+
+&lt;!-- --- --&gt;
+&lt;!-- # Doubly Robust Estimator for Time Varying Treatment --&gt;
+
+&lt;!-- - We will use a similar procedure with some modifications.  --&gt;
+
+&lt;!-- 1a. Estimate time-varying weights (one per each person-time point) --&gt;
+
+
+&lt;!-- 1b. Compute the modified time-varying weight corresponding to the treatment strategy. We will use "always treated" so `\(A_m = 1\)` --&gt;
+
+&lt;!-- `$$W^{\bar{A}_m, a_m = 1} = W^{\bar{A}_{m-1}} \frac{1}{f(A_m = 1 \vert \bar{A}_{m-1}, \bar{L}_m)}$$` --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # Doubly Robust Estimator for Time Varying Treatment --&gt;
+
+&lt;!-- 2a. Start at time `\(K\)` and fit an outcome model for `\(E[Y \vert \bar{A}_{K}, \bar{L}_{K}]\)` including `\(\hat{W}^{\bar{A}_K}\)` as a covariate. For example,  --&gt;
+
+&lt;!-- `$$E[ Y \vert \bar{A}_K, \bar{L}_K] = \theta_{0, K} + \theta_{1,K}cum(\bar{A}_K) + \theta_{2,K} L_K + \theta_{3,K} \hat{W}^{\bar{A}_K}$$` --&gt;
+&lt;!-- Define `\(\hat{T}_{K+1} = Y\)`.  --&gt;
+
+&lt;!-- 2b. Estimate `\(\hat{T}_{K}\)` under the treatment strategy in which `\(A_{K}\)` was set to 1.  --&gt;
+&lt;!--   + To do this, we replace `\(A_K\)` in our data with 1 and `\(\hat{W}^{\bar{A}_K}\)` with `\(\hat{W}^{\bar{A}_{K-1}, a_K = 1}\)` --&gt;
+&lt;!--   + And then take the average of the predicted values with the new data.  --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # Doubly Robust Estimator for Time Varying Treatment --&gt;
+
+&lt;!-- 2c. Proceed backwards to the next time point. Fit the same model, except now `\(\hat{T}_{K}\)` rather than `\(Y\)` is the outcome.  --&gt;
+
+&lt;!-- `$$E[ \hat{T}_{K} \vert \bar{A}_{K-1}, \bar{L}_{K-1}] = \theta_{0, K} + \theta_{1,K-1}cum(\bar{A}_{K-1}) + \theta_{2,K-1} L_{K-1} + \theta_{3,K-1} \hat{W}^{\bar{A}_{K-1}}$$` --&gt;
+
+&lt;!-- 2d. Estimate `\(\hat{T}_{K-1}\)` as the fitted values from this model, replacing `\(A_{K-1}\)` with the intervention value `\(a_{K-1} = 1\)` and `\(\hat{W}^{\bar{A}_{K-1}}\)` with `\(\hat{W}^{\bar{A}_{K-2}, a_{K-1} = 1}\)`. --&gt;
+
+&lt;!-- --- --&gt;
+&lt;!-- # Doubly Robust Estimator for Time Varying Treatment --&gt;
+
+&lt;!-- 2e. Keep going all the way back to time point 0.  --&gt;
+
+&lt;!-- -  When we get all the way back to time 0, the average `\(\frac{1}{N}\sum_{i = 1}^N \hat{T}_{0,i}\)` is a doubly robust estimator of `\(Y(\bar{a})\)`. --&gt;
+
+---
+## `\(K+1\)` Robustness
+
+Our estimator is valid if:
+
+1) The `\(f(A_k \vert \bar{A}_{k-1}, \bar{L}_k)\)` is correct at all times 
+
+OR
+
+2) The outcome model is correct at all time points.
+
+OR
+
+3) The treatment model is correct for times 0 to `\(k\)` and the outcome model is correct for times `\(k+1\)` to `\(K\)` for any `\(k &lt; K\)`
+
+
+
+---
+
+## Other Multiply Robust Estimators
+
+- Just as in the point treatment case, there are other multiply robust estimators for time-varying treatments. 
+
+- For example, there is a version of the AIPW estimator `\(\hat{\Delta}_{DR}\)` for multiple time-points. 
+  + There is also an extension of this estimator that gives `\(2^{K+1}\)` robustness, meaning that only one of the treatment or outcome model must be correct at each time point. 
+  + See Technical Point 21.4 in HR for more details.
+
+
+---
+## G-Estimation For Time-Varying Exposures
+
+---
+## G-Estimation
+
+- Starting with the two time-point model, we use the same strategy that we used in L8, by writing a model for a difference in expected counterfactuals.
+
+- This time we need one model for each time-point. For example, we could use
+
+$$
+`\begin{split}
+&amp;E[Y(a_0, 0) - Y(0, 0) &amp;\vert A_0 = a_0, L_0= l_0] = \gamma_0(a_0; \beta_0) = \beta_0 a_0\\
+&amp;E[Y(a_0, a_1) - Y(a_0, 0) &amp;\vert L_1(a_0) = l_1, L_0 = l_0, A_0 = a_0, A_1(a_0) = a_1] \\
+&amp;&amp;= \gamma_1(a_0, a_1, l_1, l_0; \beta_1) \\
+&amp; &amp;= a_1(\beta_{1,1} + \beta_{1,2}l_1 + \beta_{1,3}a_0 + \beta_{1,4}a_0l_1)
+\end{split}`
+$$
+
+- The model above could be for our previous example which had no `\(L_0\)`.
+
+---
+## G-Estimation
+
+- By consistency, 
+
+$$
+`\begin{split}
+E[Y(a_0, a_1) - Y(a_0, 0) &amp;\vert L_1(a_0) = l_1, L_0= l_0, A_0 = a_0, A_1(a_0) = a_1] =\\
+E[Y(a_0, a_1) - Y(a_0, 0) &amp;\vert L_1 = l_1, L_0= l_0, A_0 = a_0, A_1 = a_1]
+\end{split}`
+$$
+
+- By sequential exchangeability
+$$
+`\begin{split}
+&amp;E[Y(a_0, 0) - Y(0, 0) &amp;\vert A_0 = a_0, L_0= l_0] = E[Y(a_0, 0) - Y(0, 0) \vert L_0= l_0]\\
+&amp;E[Y(a_0, a_1) - Y(a_0, 0) &amp;\vert L_1 = l_1, L_0= l_0,  A_0 = a_0, A_1 = a_1] =\\
+&amp;&amp; E[Y(a_0, a_1) - Y(a_0, 0) \vert L_1 = l_1, L_0= l_0, A_0 = a_0]
+\end{split}`
+$$
+---
+## G-Estimation
+
+- Combining these results with our previous model we now have
+
+$$
+`\begin{split}
+&amp;E[Y(a_0, 0) - Y(0, 0) &amp;\vert L_0= l_0] = \gamma_0(a_0; \beta_0) = \beta_0 a_0\\
+&amp;E[Y(a_0, a_1) - Y(a_0, 0) &amp;\vert L_1 = l_1, L_0= l_0, A_0 = a_0, ] \\
+&amp;&amp;= \gamma_1(a_0, a_1, l_1, l_0; \beta_1) \\
+&amp; &amp;= a_1(\beta_{1,1} + \beta_{1,2}l_1 + \beta_{1,3}a_0 + \beta_{1,4}a_0l_1)
+\end{split}`
+$$
+- Now we need to link this model to the data. We will use consistency!
+
+- By consistency, `\(Y_i(a_0, a_1) = Y_i\)` if `\(A_0 = a_0\)` and `\(A_1 = a_1\)` so
+
+$$
+`\begin{split}
+&amp;E[Y_i(A_{0,i}, 0) \vert L_{1,i}, L_{0,i}, A_{0, i}= a_0, A_{1,i}] = Y_i - \gamma_1(\bar{A}_{i,1}, \bar{L}_{1,i}; \beta_1)\\
+&amp;E[Y_i(0, 0) \vert L_{0,i}, A_{0, i}] = E[Y_i(A_{0,i}, 0) \vert L_{0,i}, A_{0, i}] - \gamma_0(A_{0,i}, L_{0,i}; \beta_0)\\
+\end{split}`
+$$
+- Note the top statement applies only to units with `\(A_{0,i} = a_0\)`.
+
+- These are structural **nested** mean models because the left side of the top equation appears in the bottom equation.
+
+---
+## G-Estimation
+
+- We can now define two "H" functions
+
+$$
+`\begin{split}
+H_{1,i}(\psi^{\dagger}) = Y_i - \gamma_1(\bar{A}_{1,i}, \bar{L}_{1,i}; \psi^{\dagger})\\
+H_{0,i}(\psi^{\dagger}) = H_{1,i}(\psi^\dagger) - \gamma_0(A_{0,i}, L_{0,i}; \psi^{\dagger})
+\end{split}`
+$$
+- Here `\(\psi^\dagger\)` is a combined vector of parameters in both equations.
+
+- Just as before, our goal is to find a value for `\(\psi^\dagger\)` that makes sequential exchangeability true. 
+
+---
+## G-Estimation
+
+- In the time-varying case, we will need models for `\(E[A_k \vert \bar{A}_{k-1}, \bar{L}_k]\)` for each time point. 
+
+- We want to find values of `\(\psi^\dagger\)` such that `\(H_{k}\)` and `\(A_k\)` are independent conditional on `\(\bar{A}_{k-1}\)` and `\(\bar{L}_k\)`.
+
+- We have two options: Fit a model for `\(E[A_{k} \vert \bar{A}_{k-1}, \bar{L}_k, H_k]\)` including `\(H_k\)` as one or more linear covariates and find a value of `\(\psi\)` such that all coefficients for `\(H_k\)` are 0.
+
+- Solve estimating equations. If `\(\psi^\dagger\)` is one dimensional, we have
+
+`$$\sum_{k = 0}^K \sum_{i = 1}^N (A_{i,k} - \hat{E}[A_{i,k} \vert \bar{A}_{i, k-1}, \bar{L}_k ])H_{k,i}(\psi^\dagger) = 0$$`
+---
+## Considerations
+
+- Remember, in G-Estimation we are working with structural nested mean models **not** structural marginal models, these models are conditional on covariates.
+
+- This means we need to get the effect modification model right.
+
+- In the time-varying case, we also need to think about effect modification by past treatment. 
+
+- We could quickly acquire many coefficients, so using the grid search method will become infeasible, we will have to use the estimating equations.
+
+---
+## Estimation
+
+- Once we have estimated all the parameters of the structural nested mean models, we need to estimate `\(E[Y(\bar{a})]\)`.
+
+- `\(E[H_0(\psi^\dagger)] = E[Y(\bar{0})]\)` at the true value of `\(\psi^\dagger\)`, so we can estimate `\(E[Y(\bar{0})]\)` as the sample average of `\(H_{0, i}(\hat{\psi})\)`.
+
+- For other values, we can plug into our nested models.
+
+- However, if the `\(\gamma\)` functions include covariates, we will need to simulate these covariates the same way we did for the parametric G-formula method. 
+
+---
+## Estimation
+
+- For the two time-point case, our two structural nested mean models are
+
+$$
+`\begin{split}
+&amp;E[Y(A_{0}, 0) &amp;\vert L_{1}, L_{0}, A_{0}= a_0, A_{1}] = \\
+&amp;&amp; E[Y(a_0, a_1) \vert L_1, L_0, A_0 = a_0, A_1] - \gamma_1(\bar{A}_1, \bar{L}_{1}; \beta_1)\\
+&amp;E[Y(0, 0) &amp;\vert L_{0}, A_{0}] = E[Y(A_{0}, 0) \vert L_{0}, A_{0}] - \gamma_0(A_{0}, L_{0}; \beta_0)\\
+\end{split}`
+$$
+
+- From the second equation we see that
+
+$$
+`\begin{split}
+E[Y(a_0, 0)] &amp;= E[ E[Y(0, 0) \vert L_0, A_0] - \gamma_0(a_0, L_0; \beta_0)]\\
+&amp;= E[Y(0, 0)] - E[\gamma_0(a_0, L_0; \beta_0)]
+\end{split}`
+$$
+- So we could calculate the expected counterfactual value of `\(Y\)` for any treatment at the first time if we could calculate `\(E[\gamma_0(a_0, L_0; \hat{\psi})]\)` with `\(\hat{\psi}\)` being the G-estimation parameter solution.
+
+
+---
+## Estimation
+
+- Extrapolating this reasoning, we find that
+
+`$$E[Y(\bar{a})] = \frac{1}{N}\sum_{i = 1}^N \hat{H}_{0,i} - \sum_{k = 0}^{K} E[\gamma_k(\bar{a}_k, \bar{L}_k; \hat{\psi})]$$`
+- To  compute `\(E[\gamma_k(\bar{a}_k, \bar{L}_k; \hat{\psi}]\)`, we will need to use Monte Carlo simulations, like we did in G-computation. 
+  + Unless the `\(\gamma\)` functions don't depend on `\(L\)`, in which case we don't need to simulate covariates and can calculate the estimate by standardization.
+
+---
+## Estimation
+
+- Step 1: Fit models for the distribution of covariates at each time, `\(f(l_k \vert \bar{a}_{k-1}, \bar{l}_{k-1})\)`.
+
+- Step 2: Simulate synthetic data under the intervention of interest (just like in G-computation). 
+
+- Step 3: Estimate `\(E[\gamma_k(\bar{a}_k, \bar{L}_k; \hat{\psi})]\)` as the sample average in the synthetic data. 
+
+- Step 4: Plug these estimates into the formula from the previous slide to obtain,
+
+`$$E[Y(\bar{a})] = \frac{1}{N}\sum_{i = 1}^N \hat{H}_{0,i} - \sum_{k = 0}^{K} \hat{E}[\gamma_k(\bar{a}_k, \bar{L}_k; \hat{\psi})]$$`
+---
+## Repeated Outcome Measurements
+
+---
+## Repeated Measures
+
+- Suppose that rather than observing only a single `\(Y\)` at the end of the study, we observe `\(Y_k\)` at every time point. 
+
+- For example, suppose we are interested in the effect of highly active antiretroviral therapy (HAART) on CD4 count over time. 
+
+  + Example from Cole et al (2007)
+  
+- We can combine information across time points if we are willing to assume a common marginal structural model for each outcome.
+
+---
+## Repeated Measures
+
+- Cole et al (2007), use a marginal structural model for CD4 count at time `\(k\)` including a function of the cumulative time on HAART 
+`$$E[Y_{k}(\bar{a}_k) \vert L_{0}] = \beta_{0,k} + \beta_{1}^{\top}L_{0} + \beta_2^\top h\left(\sum_{j =0}^k a_{j}\right)$$` 
+- `\(h()\)` is a function which categorizes the cumulative time on treatment into four categories. 
+
+- To fit this model, we need to assume that nobody was on treatment before the study, `\(A_{k} \equiv 0\)` for `\(k &lt; 0\)`. 
+  + In this case that assumption is fine because the study starts when HAART became available. 
+  + The study also excludes anyone who was already on another form of ART.
+
+---
+## Repeated Measures
+
+- Cole et al compute weights `\(W_{ik}^{A}\)` for confounding by time-varying covariates and `\(W_{ik}^{C}\)` for censoring.
+
+- Note that time-varying confounders *include* past values of CD4 count. 
+
+- For any given time `\(k\)`, we could use our previous strategy and fit the marginal structural model weighted by `\(W_{ik}^{A}W_{ik}^C\)`. 
+
+- Our fitted model would let us compute the average counterfactual value of CD4 count that we would have observed at time `\(k\)` under various static interventions up to time `\(k\)`. 
+  
+---
+## Repeated Measures
+
+- To combine across time-points, we now think of our study as `\(K\)` (nested) shorter studies. 
+
+- In study `\(k\)`, the outcome is `\(Y_k\)`. Past values of `\(Y\)` are time-varying covariates which may be confounders. 
+
+&lt;center&gt; 
+
+&lt;img src="img/9_timevaryingY2.png" width="90%" /&gt;
+
+&lt;/center&gt;
+---
+## Repeated Measures
+
+- Since we are using the same MSM in each study, we can fit one large pooled regression. 
+
+- Each person contributes one row per time point after baseline. 
+
+- The row for person `\(i\)` at time `\(k\)` is weighted by `\(W_{i,k}^A W_{i,k}^C\)`.
+
+- We then fit the MSM to the expanded data set using robust standard errors to account for repeated measurements of the same person. 
+
+---
+## Repeated Measures
+
+- This strategy works whenever there is an MSM that plausibly applies to all time-points. 
+
+- We relied on knowing the treatment value before time 0, usually assumed to be 0. 
+
+- Alternatively, we could assume a "short memory". For example
+
+`$$E[Y_{k} \vert L_{0}, \bar{A}_{k}] = \beta_{0,j} + \beta_{1}^{\top}L_{0} + \beta_2 A_k + \beta_3 A_{k-1} + \beta_4 A_{k-2}$$`
+- In this model the outcome only depends on the three most recent treatments. 
+
+- Without knowing treatment prior to the study, we can't use `\(Y_0\)` and `\(Y_1\)`, but we can fit the model for all time points after and including 2. 
+
+---
+## Time to Event Outcomes
+
+- The treatment of time-to-event data is very similar to repeated measures data. 
+  + We have a repeated measure of death status, `\(D_k\)`. 
+
+- We need a marginal structural model for the counterfactual hazard at time `\(k\)`. 
+  + Either use the Cox RR model
+  + Or the logistic approximation
+  
+- If we are using the Cox model, time-varying weights are used to adjusted each individuals contribution to the "at risk" set at time `\(k\)`. 
+
+- The logistic model is fit using pooled data. 
+
+- We've already seen an analysis like this in the NHS study. 
+
+---
+## Parametric G-Formula for Time to Event
+
+- To apply the parametric G-formula, we need a model for the hazard as a function of past history and time. 
+
+- And a model (or models) for the covariate density as a function of past history. 
+
+- For each person, we simulate time-varying covariates at each time. 
+
+- We also compute the hazard at each time. We do not need to simulate death, only compute the probability of death. 
+
+- We can then compute the counterfactual survival probability for each person. 
+  + And then average to find the average countefactual survival. 
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
