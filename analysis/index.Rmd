@@ -32,6 +32,8 @@ editor_options:
 
 [10. Time-Varying Treatment Part 1](slides_2023/10_time_varying_treatment_pt1.html)
 
+[11. Time-Varying Treatment Part 2](slides_2023/11_time_varying_treatment_pt2.html)
+
 ## Lecture Slides from Past Years
 
 [2022 slides](slide_index_2022.html)
