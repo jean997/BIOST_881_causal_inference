@@ -416,107 +416,266 @@ $$E[Y(\bar{a})] = \frac{1}{N}\sum_{i = 1}^N \hat{H}_{0,i} - \sum_{k = 0}^{K} \ha
 ## Repeated Outcome Measurements
 
 ---
-## Repeated Measures
+## Repeated Outcome Measurements
 
-- Suppose that rather than observing only a single $Y$ at the end of the study, we observe $Y_k$ at every time point. 
+- Until now, we have considered:
 
-- For example, suppose we are interested in the effect of highly active antiretroviral therapy (HAART) on CD4 count over time. 
+1. Point interventions and single outcomes. 
+1. Point interventions and survival outcomes. 
+1. Time-varying interventions and single outcomes. 
 
-  + Example from Cole et al (2007)
+- Now we will consider the case when the outcome of interest is a value that varies over time. The treatment may also vary over time. 
+
+
+---
+
+## Cole et al (2007)
+
+- Cole et al are interested in the effect of highly active antiretroviral therapy (HAART), a treatment for HIV, on viral load. 
+
+- They are using two longitudinal AIDS and HIV study's, the Multicenter AIDS Cohort Study (all men) and the Women's Interacency HIV Study (all women). 
+
+- Participants of both studies complete questionnaires and have blood work taken  every 6 months. 
+
+- HAART therapy became available in April 1996, so the study population is 918 individuals who were alive, HIV positive, and not using antiretroviral therapy at this time. 
+
+- Baseline visit: First visit after April 1996 or first visit after April 1996 with complete data (whichever is later).
+
+
+---
+
+## Challenges in Cole et al (2007)
+
+- The technology used to measure HIV viral load changed over time and differed between study cohorts. 
+
+  + Each technology has a different lower limit of detection, i.e. viral load is "left censored" at a different value for different measurements. 
   
-- We can combine information across time points if we are willing to assume a common marginal structural model for each outcome.
+- The exposure of interest is the cumulative time on HAART, a continuous value. 
+  + Because patients are only measured every 6 months, we don't know exactly how much time a patient has spent on HAART. 
+  + Authors will approximate cumulative exposure as time since HAART initiation. 
+  + Will deal with having a continuous outcome by creating categories supported by exploratory analysis. 
 
 ---
-## Repeated Measures
 
-- Cole et al (2007), use a marginal structural model for CD4 count at time $k$ including a function of the cumulative time on HAART 
-$$E[Y_{k}(\bar{a}_k) \vert L_{0}] = \beta_{0,k} + \beta_{1}^{\top}L_{0} + \beta_2^\top h\left(\sum_{j =0}^k a_{j}\right)$$ 
-- $h()$ is a function which categorizes the cumulative time on treatment into four categories. 
+## Censoring in Cole et al (2007)
 
-- To fit this model, we need to assume that nobody was on treatment before the study, $A_{k} \equiv 0$ for $k < 0$. 
-  + In this case that assumption is fine because the study starts when HAART became available. 
-  + The study also excludes anyone who was already on another form of ART.
+- The authors are interested in comparing HAART with no antiretroviral therapy but there are non-HAART forms of ART that some participants used. 
+
+- Additionally, some people dropped out of the study or died. 
+
+- Cole et al treat death, dropping out, and initiation of non-HAART therapy all as censoring.
+
+- This means that the target parameter is $E[Y_{i,j}(Cum_{i,j}= c, C_{ij} = 0)]$, i.e. the counterfactual expected viral load at time $j$ if everyone had had a cumulative HAART exposure of $c$ at time $j$ and nobody had been censored. 
+
 
 ---
-## Repeated Measures
 
-- Cole et al compute weights $W_{ik}^{A}$ for confounding by time-varying covariates and $W_{ik}^{C}$ for censoring.
+## Exercise
 
-- Note that time-varying confounders *include* past values of CD4 count. 
+- Consider a generic version of the Cole et al study with three time points (0, 1, and 2) and no censoring. 
 
-- For any given time $k$, we could use our previous strategy and fit the marginal structural model weighted by $W_{ik}^{A}W_{ik}^C$. 
+- There are three treatment variables $A_0$, $A_1$, $A_2$. 
 
-- Our fitted model would let us compute the average counterfactual value of CD4 count that we would have observed at time $k$ under various static interventions up to time $k$. 
-  
+- Confounders are measured at each time $L_0$, $L_1$, and $L_2$. These could be affected by past treatment.
+
+- An outcome is measured at each time $Y_0$, $Y_1$, $Y_2$. The outcome could be affected by past treatment and past confounders. 
+
+- Confounders $L_k$ could be affecte by treatment $A_{k-1}$.
+
+- Draw a DAG for this scenario. 
+
+
 ---
-## Repeated Measures
+## Exercise 
 
-- To combine across time-points, we now think of our study as $K$ (nested) shorter studies. 
-
-- In study $k$, the outcome is $Y_k$. Past values of $Y$ are time-varying covariates which may be confounders. 
 
 <center> 
 
-```{r, echo=FALSE, out.width="90%"}
-knitr::include_graphics("img/9_timevaryingY2.png")
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/9_timevarying3.png")
 ```
 
 </center>
----
-## Repeated Measures
 
-- Since we are using the same MSM in each study, we can fit one large pooled regression. 
-
-- Each person contributes one row per time point after baseline. 
-
-- The row for person $i$ at time $k$ is weighted by $W_{i,k}^A W_{i,k}^C$.
-
-- We then fit the MSM to the expanded data set using robust standard errors to account for repeated measurements of the same person. 
+- Here is a simplified solution leaving out arrows from $L_0$ to $Y_1$ and $Y_2$ and from $L_1$ to $Y_2$.
 
 ---
-## Repeated Measures
+## Analyzing the Repeated Outcomes Data
 
-- This strategy works whenever there is an MSM that plausibly applies to all time-points. 
+- If our goal is to estimate $E[Y_k(\bar{A}_k)]$, one thing we could do is treat each outcome separately. 
 
-- We relied on knowing the treatment value before time 0, usually assumed to be 0. 
+- For each $k$, consider a study that ends at time $k$ in which we are only interested in the outcome $Y_k$. 
 
-- Alternatively, we could assume a "short memory". For example
+- All previous outcomes are treated simply as confounders. 
 
-$$E[Y_{k} \vert L_{0}, \bar{A}_{k}] = \beta_{0,j} + \beta_{1}^{\top}L_{0} + \beta_2 A_k + \beta_3 A_{k-1} + \beta_4 A_{k-2}$$
-- In this model the outcome only depends on the three most recent treatments. 
+- We can use our previous machinery (e.g. IP weighting, parametric G-formula, or structural nested models) to estiamte $E[Y_k(\bar{A}_k)]$
 
-- Without knowing treatment prior to the study, we can't use $Y_0$ and $Y_1$, but we can fit the model for all time points after and including 2. 
+
+---
+## Combining Information Across Time-Points
+
+- In some cases, we can combine information across time-points.
+
+- This is possible when we can use the same marginal structural model for every time point.
+
+- We might potentially allow effect modification. 
+
+- We can then fit a **common** marginal structural model across all time points using time-varying weights. 
+
+---
+## Combining Information Across Time-Points
+
+- For example, suppose that only treatment at the two most recent time-points affects $Y_k$. 
+
+- We could propose the MSM
+
+$$
+\begin{split}
+E[Y_{k}(\bar{A}_k)] = &\beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1} \\
+ = & \sum_{j = 1}^K \beta_{0,j}1_{t_j = j} +  \beta_1 A_k + \beta_2 A_{k-1} 
+\end{split}
+$$
+- In this MSM, we have a time-specific intercept but the causal differences are shared. This means we are assuming that the effect of changing from a treatment course with the last two time points untreated to a treatment course with the final time point treated is the same at every time point. 
+
+- Because our MSM includes the last two treatments, we can only fit this model for $k \geq 1$. We could either fit a separate model for $Y_0$ or ignore this outcome. 
+
+
+---
+## Combining Information Across Time-Points
+
+
+- If we had a study that only included two time-points and one measured outcome at time 1, $Y_1$, we would estimate the parameters of the MSM using IP weighting for time-varying treatments (L10). 
+
+$$E[Y_{1}(\bar{a}_1)] = \beta_{0,1} +  \beta_1 a_1 + \beta_2 a_0$$
+- We would first propose and fit models for $f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k-1})$ and $f(A_k \vert \bar{A_k})$ for $k = 0$ and $k=1$ . 
+
+- Then we would calculate weights $$W_{i,1} = \prod_{k = 0}^{k = 1} \frac{f(A_k = A_{k, i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i})}{f(A_k = A_{k,i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i}, \bar{L}_{k-1})}$$
+
+- Finally we would fit the MSM by fitting a linear regression weighted by the IP weights. 
+
+---
+## Combining Information Across Time-Points
+
+- If we would like to combine all time-points together to estimate $\beta_1$ and $\beta_2$, we use the same procedure. 
+
+- The idea is to think of our data as $K$ shorter studies that all include the same people. 
+
+- For each person-time combination, we compute the time-varying stabilized weight 
+$$W_{i,j} = \prod_{k = 0}^{k = j} \frac{f(A_k = A_{k, i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i})}{f(A_k = A_{k,i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i}, \bar{L}_{k-1})}$$
+
+
+---
+## Combining Information Across Time-Points
+
+- We then fit the MSM using all person-time observations weighted by the time-varying weights. 
+
+- We need to use robust standard errors for clustered data (e.g. fit the model with GEE). 
+  + Any working covariance matrix will give valid estimates. 
+
+
+---
+## Back to Cole et al (2007)
+
+
+- Cole et al use exactly this strategy to analyze the viral load data. 
+
+- They fit the MSM
+
+$$E[Y_{ij}(\bar{a}) \vert V_{i,0}] = \beta_{0, j} \beta_1^{\top} V_{i,0} + \beta_2^\top g(Cum_{i,j})$$
+- $V_{i,0}$ are baseline CD4 count and viral load categories. 
+
+- They include these variables in the MSM because they want to use them in the numerator of the stabilized weights. Since the MSM is conditional on $V_{i,0}$, the are assuming no effect modification by $V_{i,0}$.
+
+- $g(Cum_{i,j})$ is a four level categorical variable categorizing the total time since beginning HAART treatment as $0$, $>0-1$, $>1-3$ and $>3-9$ years. 
+
+- There are three counterfactual contrasts given by $\beta_2$ comparing each category to no ART. 
+
+---
+## Censoring in Cole et al (2007)
+
+- Because there is censoring, Cole et al also need to calculate censoring weights, 
+
+$$W_{ij}^{C} = \prod_{k = 1}^{j + 1}\frac{P(C_{ik} = 0 \vert \bar{C}_{ik} = 0, \bar{A}_{ik}, V_{i,0})}{P(C_{ik} = 0 \vert \bar{C}_{ik} = 0, \bar{A}_{ik}, \bar{L}_{ik})}$$
+
+- The total weights are the product of the confounding weights and the censoring weights. 
+
+- The analysis now also relies on the assumption of non-informative censoring. That is, people with high viral loads were not more (or less) likely to be censored than other people with the same covariate and treatment history. 
+
+
+---
+## Limit of Detection in Viral Load Measurements
+
+- The final tricky piece of the Cole et al analysis is left censoring of viral load measurements. 
+
+
+- They deal with this by assuming that $Y_{ij}$ is (marginally) normally distributed with mean $\mu_{ij}$ determined by the MSM. 
+
+- This allows them to write a likelihood for the observed viral loads as a function of the person-time specific limit of detection and the parameters of the MSM. 
+
+
+- They can then estimate the parameters by maximizing the weighted likelihood with weights being the time-varying weights we've described previously.
+
+
+---
+## Cole et al Results
+
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/9_cole_results.png")
+```
+
+</center>
+
+---
+## Standard Analysis
+
+- Cole et al also compute estimates using the the more common regression approach. 
+
+- In this model all weights are set to 1 and baseline and time-varying covariates are added to the model. 
+
+- As we saw in L10, this approach can result in selection bias. 
+
+- The results of this analysis are strongly attenuated to the null. 
+
+---
+## Sensitivity Analysis
+
+- This paper is a nice example of using sensitivity analyses to explore data. 
+
+- They consider effect modification by sex and by baseline CD4 count. 
+
+- They consider an MSM that also includes a linear effect for time on treatment. 
+
+- They consider multiple other covariate models.
+
+- Discussion is a great example of clearly explaining assumptions required for valid inference.
+
 
 ---
 ## Time to Event Outcomes
 
-- The treatment of time-to-event data is very similar to repeated measures data. 
-  + We have a repeated measure of death status, $D_k$. 
+- Previously, we discussed analysis of time-to-event outcomes with a single point treatment. 
+
+- With a time-varying treatment, we can treat these outcomes in the same way that we treat other repeated outcome measurements. 
+
+- In the case of a survival outcome, we have repeated measurements of death by time $k$, $D_k$.
+
+
+- The only difference between survival and non-survival outcomes is the issue of right censoring. We can deal with this using the same hazards "trick" we used in L8. 
+
+
+---
+## Time to Event Outcomes
 
 - We need a marginal structural model for the counterfactual hazard at time $k$. 
-  + Either use the Cox RR model
-  + Or the logistic approximation
+  + Could be either use the Cox RR model or the logistic approximation
   
 - If we are using the Cox model, time-varying weights are used to adjusted each individuals contribution to the "at risk" set at time $k$. 
 
 - The logistic model is fit using pooled data. 
 
-- We've already seen an analysis like this in the NHS study. 
-
----
-## Parametric G-Formula for Time to Event
-
-- To apply the parametric G-formula, we need a model for the hazard as a function of past history and time. 
-
-- And a model (or models) for the covariate density as a function of past history. 
-
-- For each person, we simulate time-varying covariates at each time. 
-
-- We also compute the hazard at each time. We do not need to simulate death, only compute the probability of death. 
-
-- We can then compute the counterfactual survival probability for each person. 
-  + And then average to find the average countefactual survival. 
-
+- Good examples of this are in Hernán et al (2001) and Hernán et al (2008) (see Related Reading page). 
 
 
 
