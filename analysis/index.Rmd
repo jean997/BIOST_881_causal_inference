@@ -34,6 +34,8 @@ editor_options:
 
 [11. Time-Varying Treatment Part 2](slides_2023/11_time_varying_treatment_pt2.html)
 
+[12. Instrumental Variable Analysis Part 1](slides_2023/12_iva_part1.html)
+
 ## Lecture Slides from Past Years
 
 [2022 slides](slide_index_2022.html)
