@@ -1,0 +1,850 @@
+---
+title: "L12: Instrumental Variable Analysis\nPart 1"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "Lecture Starting 2023-03-06\n(updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanthemer, include=FALSE, warning=FALSE, echo = FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+library(tidyverse)
+library(DiagrammeR)
+```
+
+## Lecture Outline
+
+1. Introduction to IVA
+1. Example: Effect of Education on Wages
+1. Surrogate Instruments 
+1. Alternatives to Monotonicity Assumption
+
+---
+# 1. Introduction
+
+---
+
+## Introduction
+
+So far all of our strategies for identifying causal effects are based on the g-formula. Our strategy has been:
+
+1. Draw a DAG that includes $A$, $Y$, and any variables that might be on a causal path between $A$ and $Y$. 
+
+2. Based on the DAG, identify a set of covariates $L$ such that 
+$$ A \ci Y(a) \vert L$$
+3. Use one of our g-formula strategies to adjust for $L$: 
+  - IP weighting + marginal structural models
+  - G-Computation
+  - Double robust methods
+  - G-estimation
+  
+---
+## Introduction
+
+- The g-formula methods are "general purpose".
+
+- They will work in any situation, *as long as we can measure a sufficient set of covariates* to eliminate confounding. 
+
+- However, this isn't always possible. Sometimes we know there are confounders that are unmeasurable. 
+
+- There are a handful of non-g-formula methods we can use in these circumstances. 
+  + All require special cirucmstances, not "general-purpose" like the g-formula. 
+  
+---
+## Non-g-formula Methods
+
++ Instrumental variable analysis (this lecture)
+  - Look for variables that are like naturally occuring randomizations. 
+
++ Front door adjustment
+  - Like IV, takes advantage of very special DAG configuration.
+
++ Difference in differences
+  - Popular for studying policy changes.
+  - Useful when we have data over time. 
+
++ Regression discontinuity
+  - Useful when exposure is determined by a threshold on a continuous measure. 
+
++ If we have time, we might do some introduction of the last three. 
+
+---
+## IVA Motivation
+
+- First, let's go back to the randomized trial. We usually draw the DAG for the RT like this. 
+
+<center> 
+```{r, echo=FALSE, out.width="35%"}
+knitr::include_graphics("img/10_dag1.png")
+```
+</center>
+
+
+- But we could also draw it like this
+<center> 
+```{r, echo=FALSE, out.width="60%"}
+knitr::include_graphics("img/10_dag2.png")
+```
+</center>
+  - $Z$ is the randomization assignment. 
+  - $A$ is the treatment received. 
+  
+- In a trial with perfect adherence, $Z_i = A_i$ for all individuals, so we don't include $Z$ in the DAG. 
+
+
+---
+## Non-Adherence 
+
+- Now suppose there is some non-adherence.
+
+  + Non-adherence could be caused by unmeasured confounders. 
+  + Or could be random but unrelated to any other variables. 
+  + With non-adherence, $Z$ and $A$ are not identical. 
+  
+<center> 
+```{r, echo=FALSE, out.width="70%"}
+knitr::include_graphics("img/10_dag3.png")
+```
+</center>
+
+
+
+---
+## Non-Adherence
+
+- Previously, we saw two strategies for dealing with non-adherence: 
+
+  + Estimate the ITT, $E[Y(z)]$
+  + Treat data like observational data to estimate $E[Y(a)]$. This requires adjusting for $U$.  
+
+--
+
+- Problem: $E[Y(z)]$ isn't the effect we want, and measurements on $U$ may not be available.   
+  
+--
+
+- If we know the degree of non-adherence in each group and are willing to make some assumptions, we can do better. 
+
+--
+
+- For now, we will assume that $A$ and $Z$ are both binary. 
+
+---
+## Compliance Types
+
+We need some new definitions:
+
+**Always Takers**: Units with $A_i(z = 1) = A_i(z = 0) = 1$
+
+**Never Takers**: Units with $A_i(z = 1) = A_i(z = 0) = 0$
+
+**Compliers**: Units with $A_i(z = 1) = 1$ and $A_i(z = 0) = 0$
+
+**Defiers**: Units with $A_i(z = 1) = 0$ and $A_i(z = 1) = 1$
+
+--
+
+- These are **compliance types** or **principal strata**. 
+
+- In our study, any unit's compliance type is unobservable because we only get to observe one treatment.
+
+- We will use a variable $Q_i \in \lbrace Al, Ne, Co, De \rbrace$ to indicate unit $i$'s compliance type. 
+
+---
+## Causal Effect in Compliers
+
+- We can write the average effect of $Z$, the ITT, as
+
+$$E[Y(z = 1) - Y(z=0)] = \\\
+E[Y(z =1)-Y(z = 0) \vert Q = Co] P[Q = Co] + \\\
+E[Y(z =1)-Y(z = 0) \vert Q = Al] P[Q = Al] + \\\
+E[Y(z =1)-Y(z = 0) \vert Q = Ne] P[Q = Ne] + \\\
+E[Y(z =1)-Y(z = 0) \vert Q = De] P[Q = De]$$
+
+--
+- We now make two assumptions: 
+
+1. There are no defiers $\Rightarrow$ the last term is zero. 
+  
+2. All of the effect of $Z$ on $Y$ is mediated by $A$: 
+
+$$E[Y(a,z)] = E[Y(a,z^\prime)] \qquad \forall a, z, z^\prime$$
+  - This means there is no effect of $Z$ on $Y$ in always takers and never takers, so the second and third terms are zero. 
+
+---
+## Causal Effect in Compliers
+
+- We are left with
+
+$$E[Y(z = 1) - Y(z=0)] = E[Y(z =1)-Y((z = 0) \vert Q = Co] P[Q = Co]$$
+$$E[Y(z =1)-Y(z = 0) \vert Q = Co] = \frac{E[Y(z = 1) - Y(z=0)]}{P[Q = Co]}$$
+--
+
+- In compliers, $Z= A$ so
+$$E[Y(z=1) - Y(z = 0) \vert Q = Co] = E[Y(a = 1) - Y(a = 0) \vert Q  = Co]$$
+
+- We now have a formula for the **average treatment effect in compliers** in terms of the ITT and proportion of compliers. 
+
+- The complier average treatment effect is an example of a **local average treatment effect** (LATE), or a treatment effect restricted to a subgroup. 
+
+- The ATT and ATU are examples of LATEs that we have seen previously.
+
+---
+## Causal Effect in Compliers
+
+- We need to estimate the two components of the formula, the ITT and the proportion of compliers.
+
+--
+
+- In our DAG there is no confounding between $Z$ and $Y$ so we can estimate $E[Y(z = 1) - Y(z=0)]$ as $$E[Y \vert Z = 1] - E[Y \vert Z = 0]$$
+
+- We will see that we can also estimate $P[Q = Co]$, the proportion of compliers. 
+
+
+---
+## Estimating Proportion of Compliers
+
+- Suppose we observe the following data: 
+
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
+library(knitr)
+library(kableExtra)
+dat <- data.frame(N = c(900, 100, 70, 930), 
+                  Z = rep(c(0, 1), each  =2), 
+                  A = rep(c(0, 1), 2))
+knitr::kable(dat, col.names = c("\\( N \\)", "\\(Z\\)","\\(A\\)"), format = 'html')  
+```
+
+---
+## Estimating Proportion of Compliers
+
+- Suppose we observe the following data: 
+
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
+dat <- data.frame(N = c(900, 100, 70, 930), 
+                  Z = rep(c(0, 1), each  =2), 
+                  A = rep(c(0, 1), 2), 
+                  lab = c("Compliers or Never Takers", 
+                          "Always Takers", 
+                          "Never Takers", 
+                          "Always Takers or Compliers"))
+knitr::kable(dat, col.names = c("\\( N \\)", "\\(Z\\)","\\(A\\)", "Compliance Type"), format = 'html')  
+```
+
+--
+
+- From this data, we can conclude that 
+  - 10% of those who received $Z = 0$ are Always Takers
+  - 7% of those who received $Z = 1$ population are Never Takers
+
+- Since $Z$ is a randomization, the $Z = 0$ and $Z = 1$ groups are both representative of the population in terms of proportions of compliance types. 
+
+- We can therefore conclude that 83% of the population are compliers. 
+  
+
+---
+## Estimating Proportion of Compliers
+
+- Suppose we observe the following data: 
+
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
+dat <- data.frame(N = c(900, 100, 70, 930), 
+                  Z = rep(c(0, 1), each  =2), 
+                  A = rep(c(0, 1), 2), 
+                  lab = c("Compliers or Never Takers", 
+                          "Always Takers", 
+                          "Never Takers", 
+                          "Always Takers or Compliers"))
+knitr::kable(dat, col.names = c("\\( N \\)", "\\(Z\\)","\\(A\\)", "Compliance Type"), format = 'html')  
+```
+
+- To compute the proportion of compliers we used
+
+$$
+\begin{split}
+P[Q = Co ] = &1 - P[A = 0 \vert Z = 1] - P[A = 1 \vert Z  = 0]\\
+=& P[A = 1 \vert Z = 1] - P[A = 1 \vert Z = 0] \\
+= & E[A \vert Z = 1] - E[A \vert Z = 0]
+\end{split}
+$$
+
+
+---
+## Causal Effect in Compliers
+
+- Suppose we also observe the average value of $Y$ in each group 
+
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
+dat <- data.frame(N = c(900, 100, 70, 930), 
+                  Z = rep(c(0, 1), each  =2), 
+                  A = rep(c(0, 1), 2), 
+                  Y = c(10, 17, 13, 18))
+knitr::kable(dat, col.names = c("\\( N \\)", "\\(Z\\)","\\(A\\)", "\\( \\bar{Y}\\)"), format = 'html')
+```
+
+- We can compute
+
+$$E[Y(a = 1)-Y(a = 0) \vert Q = Co] = \frac{E[Y(z =1)-Y(z = 0)]}{P[Q = Co]}\\\
+= \color{blue}{\frac{E[Y \vert Z = 1] - E[Y \vert Z = 0]}{P[A = 1 \vert Z = 1] - P[A = 1 \vert Z = 0] }}\\
+=\frac{17.65 -11.7}{0.83} = 7.16$$
+
+---
+## Assumptions
+
+
+- The ratio estimator,
+
+$$ \beta_{IV} = \frac{E[Y \vert Z = 1] - E[Y \vert Z = 0]}{E[A \vert Z = 1] - E[A \vert Z = 0]}$$
+estimates the causal effect of $A$ in compliers if:
+
+--
+
+(i). $A$ and $Z$ are associated (relevance): 
+
+  + The denominator is not 0. 
+
+
+--
+
+(ii). $A$ fully mediates the effect of $Z$ on $Y$ (exclusion restriction):
+
+--
+
+(iii). No confounding between $Z$ and $Y$;  $Y(a,z) \ci Z$ (exchangeability):
+  + The numerator estimates the ITT
+
+--
+
+(iv). There are no defiers (monotonicity):
+  + The denominator estimates the proportion of compliers. 
+
+
+---
+## Assumptions
+
+- Assumptions (i), (ii), and (ii) are often called *the instrumental variable assumptions*. 
+
+- Each of these assumptions correspond to a feature of the DAG. 
+
+<center> 
+```{r, echo=FALSE, out.width="65%"}
+knitr::include_graphics("img/10_dag3.png")
+```
+</center>
+
+---
+## Assumptions
+
+- Assumptions (i), (ii), and (ii) are often called *the instrumental variable assumptions*. 
+
+- Each of these assumptions correspond to a feature of the DAG. 
+
+<center> 
+```{r, echo=FALSE, out.width="65%"}
+knitr::include_graphics("img/10_dag4.png")
+```
+</center>
+
+---
+## Assumptions
+
+- Assumptions (i), (ii), and (ii) are often called *the instrumental variable assumptions*. 
+
+- Each of these assumptions correspond to a feature of the DAG. 
+
+<center> 
+```{r, echo=FALSE, out.width="60%"}
+knitr::include_graphics("img/10_dag5.png")
+```
+</center>
+
+---
+## Assumptions
+
+- Assumptions (i), (ii), and (ii) are often called *the instrumental variable assumptions*. 
+
+- Each of these assumptions correspond to a feature of the DAG. 
+
+<center> 
+```{r, echo=FALSE, out.width="65%"}
+knitr::include_graphics("img/10_dag6.png")
+```
+</center>
+
+---
+## Instruments
+
+- So far we have been talking about a randomized trial with non-compliance.
+
+- However, $Z$ need not be a randomized variable as long as it meets the four assumptions we laid out previously. 
+
+- In **instrumental variable analysis**, researchers look for naturally occuring variables to play the role of $Z$. 
+  + These variables are **instruments**. 
+  
+---
+# 2. Example: Effect of Education on Wages 
+  
+---
+## Example: Effect of Education on Wages
+
+- Angrist and Kruger (1991) used quarter of birth as an IV to estimate the effect of education on wages. 
+
+Argument:
+
+- Schools require students to turn six years old by January 1 to start first grade, so people born early in the year will tend to be the oldest children in their grade. 
+
+- These students will reach the legal drop-out age earlier in their educational career than other students. 
+
+- So on average, students born early in the year obtain slightly less education than students born later. 
+
+- Quarter of birth is probably unrelated to other factors affecting wage earning. 
+
+---
+## Birth Quarter and Years of Schooling
+<center> 
+```{r, echo=FALSE, out.width="57%"}
+knitr::include_graphics("img/10_akfig1.png")
+knitr::include_graphics("img/10_akfig4.png")
+```
+</center>
+
+---
+## Example: Effect of Education on Wages
+
+- Angrist and Kruger estimate that men born in the first quarter of the year in the 1930's received about 0.1 fewer years of schooling than men born in the later three quarters. 
+
+- In the 1980 census, the difference in log weekly wage between men born in the first quarter and men born in the last three quarters is -0.01. 
+
+- The ratio $\frac{-0.01}{-0.1} = 0.1$. 
+
+- They estimate that one additional year of schooling will increase log weekly wages by 0.1. Since $exp(0.1) = 1.105$, one additional year of schooling increases wages by about 10%. 
+
+---
+## IVA with Continuous Treatment and Binary Instrument
+
+- Angrist and Kruger are treating years of schooling as a continuous variable. 
+
+- By using the usual IV estimator, they are implicitly assuming a marginal structural model that is linear in years of schooling, 
+$$E[Y(a)] = \beta_0 + \beta_1 a$$
+
+- In some cases, it is possible to make other assumptions, which we will see later.
+
+---
+## Assumptions in the Education Example
+
+(i) Relevance 
+
+  + Angrist and Kruger spend some effort demonstrating that quarter of birth really does affect school attendance through the hypothesized mechanism.
+  + They demonstrate that the legal dropout age affects drop-out times. 
+  + They demonstrate that the association is consistent over several decades. 
+
+--
+
+(iii) Exchangeabaility
+
+  + This assumption is plausibly true because quarter of birth can be thought of as essentially random.
+  + It is unlikely that external factors that also influence educational attainment influence quarter of birth. 
+  
+--
+
+(ii) Exclusion restriction
+  + This is often the hardest assumption to satisfy and to justify. 
+  + Angrist and Kruger need to rule out other ways that quarter of birth could affect wages besides through educational attainment. 
+
+---
+## Examining the Exclusion Restriction
+
+- Are there other ways that quarter of birth could affect wages? What can you think of?
+
+--
+
+Angrist and Kruger consider these options:
+
+- Men born in the first quarter might get more out of their education because they are older than their peers. 
+  + If this affect increases wages, it would create a negative bias in the IV estimate. 
+  
+- Season of birth could be related to socioeconomic status. 
+  + Angrist and Kruger reject this idea based on previous research. 
+
+---
+## Monotonicity in the Education Study
+
+- We have seen the monotonicity assumption as "no defiers". 
+
+- However, in this example, our treatment is continuous. A generalization of the monotonicity assumption is that
+
+$$A_i(1) \geq A_i(0) \ \ \forall i \ \  \text{or}\\\
+A_i(1) \leq A_i(0) \ \ \forall i$$
+
+- This means that anyone born in the later three quarters of the year received at least as much education as they would have if they had been born earlier in the year. 
+  + Red-shirting is the practice of starting children who would be the youngest in their grade one year later.
+  + If red-shirting were common, this would violate the monotonicity assumption.
+
+
+---
+## Compliers in the Education Study
+
+- The "compliers" in this study are men born in quarter 1 who would have recieved more education if they had been born in later quarters and men born in later quarters who would have received more education if they had been born earlier. 
+
+- So we have estimated the average causal effect of one year additional schooling *among those for whom quarter of birth affected time in school*. 
+
+- One critique is that this is a small and specific group of people who may not be be generally representative. 
+
+---
+# 3. Surrogate Instruments
+
+---
+## Surrogate Instruments
+
+- It is not necessary that our instrument directly causes $A$. 
+  + The relevance condition only requires that $Z$ and $A$ are associated. 
+  
+- In the DAG below, $Z$ is a valid instrument. 
+
+- If $Z$ is independent of $A$ given $U_Z$ and $U_Z$ is binary than $\beta_{IV}$ still estimates the causal effect in compliers with compliers defined by $U_Z$. 
+
+<center> 
+```{r, echo=FALSE, out.width="57%"}
+knitr::include_graphics("img/10_dag7.png")
+```
+</center>
+
+
+---
+## Example: Physician Preference
+
+- Brookhart et al (2006) are interested in the effects of two classes of drugs, selective and nonselective nonsteroidal antiinflammatories (NSAIDs), on GI bleeding. 
+  + For our purposes, selective NSAIDs (COX-2 inhibitors) will be drug A, nonselective will be drug B.
+
+- The proposed instrument is physician preference. 
+
+
+---
+## Example: Physician Preference
+
+- Presented with the same patients, some physicians may be more likely to prescribe drug A while others would be more likely to prescribe drug B.
+
+- Physician preference is not observable, so the authors use a surrogate IV, most recent previous prescription. 
+
+- The authors do two analyses, an adjusted outcome regression and an IV analysis. 
+
+  + With the outcome regression, they find no difference in the rate of GI bleeding between the two drugs. 
+  + Using the physician preference IV, they find a protective effect of the selective NSAIDs
+  
+---
+## Assumptions in the NSAIDs Example
+
+(i) Relevance
+  + This is the easiest assumption and the only one that can really be verified. 
+  + The authors show that physicians who recently prescribed drug A prescribed drug A 77.3% of the time while phsysicians who had not recently prescribed drug A prescribed drug A only 54.5% of the time. 
+
+--
+
+(ii) Exclusion Restriction
+
+(iii) Exchangeability
+
+
+- With a partner, discuss the implications of assumptions (ii) and (iii) for this problem. 
+
+
+---
+## Exclusion Restriction
+
+--
+
+- The exclusion restriction requires that physician preference does not affect GI bleeding through any mechanism other than choice of NSAID prescription. 
+
+- It's possible that physicians who prefer drug A alter their care to adjust for that preference. 
+
+- For example, physicians who prefer drug A might be more likely to prescribe protective medications along with NSAIDs. 
+
+---
+## Exchangeability
+
+--
+
+- Exchangeability requires that there are no common causes of phsyician preference and GI bleeding. 
+
+- A violation of exchangeability would occur if physisicians who prefer drug A see patients who differ on average from patients whos physicians prefer drug B. 
+
+- This could happen for many reasons: 
+  + Differences between specialty clinics and GPs
+  + Associations between physician age and patient population.
+  
+---
+## Monotonicity and Compliers in the NSAIDs Example
+
+
+- Monotonicity requires that no doctor who prefers drug A prescribed drug B to a patient that would have gotten drug A from a doctor who prefers drug B. 
+
+- This assumption may be too strong.
+
+- It is unlikely that physicians are so deterministically consistent, so the sample probably does include some "defiers". 
+
+--
+
+- The set of compliers in this study are patients who recieved drug A from a physician who prefers drug A and who would have received drug B if they had gone to a drug B preferring physician. 
+  
+
+---
+## Physician Preference
+
+- Hernan and Robins (2006) argue that the assumption that $U_Z$ is binary is probably inaccurate and that this assumption leads to violations of montonicity.
+
+- They argue that it would make more sense to think of $U_Z$ as continuous, probability of prescribing drug A. 
+
+- However, if $U_Z$ is not binary, there is no longer a clear definition of what effect we are estimating because it is not clear who the compliers. 
+
+- In this case, the IV estimator estimate a weighted average of the effect of drug A vs drug B. 
+  + This makes the magnitude of the estimate hard to interpret, though it still produces a valid test of the strict null. 
+  + If we are willing to assume that the effect has the same sign (or is zero) in all individuals then the sign of the IV estimate is also interpretable.
+
+---
+# 4. Alternatives to the Monotonicity Assumption
+
+---
+## Revisiting Monotonicity
+
+- Assumptions (i), (ii), and (iii) are not enough to identify the causal effect. 
+
+
+- We added a fourth assumption that there are no defiers. 
+
+- With this assumption, we are able to estimate the average treatment effect *among compliers*. 
+
+
+- The LATE is not necessarily interesting. We would really like to estimate the ATE. 
+
+- One solution is to modify assumption (iv) to be "no defiers and the effect in compliers is equal to the ATE". 
+
+  + The assumption that the LATE is equal to the ATE is often unstated.
+
+
+- Alternative versions of assumption (iv) allow us to estimate the ATE either overall or in the treated. 
+
+
+---
+## Alternative Versions of Assumption 4
+
+(iv.1) Complete homogeneity: The treatment effect is the same for every unit. 
+  + Under this assumption $\beta_{IV}$ estimates the ATE. 
+
+(iv.2) No effect modification by $Z$ within the treated. 
+  + Under this assumption, $\beta_{IV}$ estimates the ATT. 
+  + We can further assume that the ATT equals the ATE
+
+(iv.3) No modification of the $A-Y$ effect by $U$. 
+  + Under this assumption, $\beta_{IV}$ estimates the ATE. 
+  + Often implausible
+
+(iv.4) The $Z-A$ association is constant across levels of $U$. 
+  + Testable if confounders are measured.
+
+(iv.5) Monotonicity (the version we have had until now).
+
+
+---
+## Alternative Versions of Assumption 4
+
+<span style="color:blue">(iv.1) Complete homogeneity: The treatment effect is the same for every unit.</span> 
+  + <span style="color:blue"> Under this assumption $\beta_{IV}$ estimates the ATE. </span>
+
+<span style="color:purple">(iv.2) No effect modification by $Z$ within the treated. </span>
+  + <span style="color:purple">Under this assumption, $\beta_{IV}$ estimates the ATT. </span>
+  + <span style="color:purple">We can further assume that the ATT equals the ATE </span>
+
+
+(iv.3) No modification of the $A-Y$ effect by $U$. 
+  + Under this assumption, $\beta_{IV}$ estimates the ATE. 
+  + Often implausible
+
+(iv.4) The $Z-A$ association is constant across levels of $U$. 
+  + Testable if confounders are measured.
+
+(iv.5) Monotonicity (the version we have had until now).
+
+
+
+---
+## (iv.1) Complete homogeneity
+
+- Under complete homogeneity, $E[Y_i(a = 1) - Y_i(a = 0)] = \beta_0$ for all units, regardless of compliance type or treatment value, or any other variable. 
+
+- This assumption is very strong but also very common (we will use it later). 
+
+
+- In particular, it implies additive rank preservation, $$A_i > A_j \Rightarrow E[Y_i] > E[Y_j]$$
+which is unrealistic. 
+
+- The derivation of $\hat{\beta}_{IV}$ for (iv.1) is the same as the derivation for (iv.2) so we will do them together. 
+
+```{r, echo=FALSE, eval = FALSE}
+run_one <- function(n, Q0 =  c(0.75, 0.05, 0.10, 0.10), 
+                       Q1 = c(0.50, 0.10, 0.15, 0.25)){
+  df <- data.frame(U = rbinom(n = n, size = 1, prob = 0.5), Q = NA)
+  df$Q[df$U == 0] <- sample(1:4, size = sum(df$U == 0), replace = TRUE, prob = Q0)
+  df$Q[df$U == 1] <- sample(1:4, size = sum(df$U == 1), replace = TRUE, prob = Q1)
+  df$Z <- rep(c(0, 1), each =n/2)
+  df <- df %>% mutate(A = case_when(Z == 0 & (Q == 1 | Q == 3) ~ 0,
+                             Z == 0 & (Q == 2 | Q == 4) ~ 1,
+                             Z == 1 & (Q == 1 | Q == 2) ~ 1,
+                             Z == 1 & (Q == 3 | Q == 4) ~ 0),
+               EY = case_when(A == 1 ~ 3 + 0.3*(Q == 4),
+                              TRUE ~ 2), 
+               Y = EY + rnorm(n=n))
+  cace <- 1
+  dace <- 1.3
+  ace <- (cace*mean(df$Q == 1) + dace*mean(df$Q == 4))/(mean(df$Q %in% c(1, 4)))
+  lam <- mean(df$Q == 4)/(mean(df$Q %in% c(1, 4)))
+  ebhat <- (1+lam)*cace - lam*dace
+  num <- with(df, mean(Y[Z == 1])-mean(Y[Z == 0]))
+  denom <- with(df, mean(A[Z == 1])-mean(A[Z == 0]))
+  bhat <- num/denom
+  raw <- with(df, mean(Y[A == 1])-mean(Y[A == 0]))
+  return(c(raw, bhat, ace, ebhat))
+}
+
+res <- replicate(n = 500, run_one(1000))
+
+```
+
+---
+## (iv.2) No Effect Modification by $Z$
+
+
+- For dichotomous $Z$ and $A$, we can write a saturated structural mean model
+$$E[Y(a = 1) - Y(a = 0) \vert A = 1, Z]  = \beta_0 + \beta_1 Z$$
+- $\beta_0$ is the causal effect in the treated. 
+
+- If there is no effect modification within the treated then $\beta_1 = 0$. 
+
+
+- For binary $Z$ and $A$, an equivalent condition is that the average causal effect in compliers and always takers is the same as the average causal effect in defiers. 
+
+$$E[Y(a = 1)-Y(a = 0) \vert Q = Co \text{ or } Q = Al] =\\\ E[Y(a = 1)-Y(a=0) \vert Q = De]$$
+
+<!-- - We could have also written this for $A = 0$ as  -->
+<!-- $$E[Y(a = 1) - Y(a = 0) \vert A = 0, Z]  = \beta_0^\prime + \beta_1^\prime Z$$ -->
+
+<!-- - $\beta_0$ is the causal effect in the treated. $\beta_0^\prime$ is the causal effect in the untreated.  -->
+
+<!-- - The assumption of no effect modification means that the ATE is constant across strata of $Z$ -- $\beta_1$ and $\beta_1^\prime$ are both 0.  -->
+
+---
+## (iv.2) No Effect Modification by $Z$
+
+We can re-write 
+$$E[Y(a = 1) - Y(a = 0) \vert A = 1, Z]  = \beta_0 + \beta_1 Z$$ as
+
+$$E[Y - Y(a = 0) \vert A, Z]  = A(\beta_0 + \beta_1 Z)\\\
+E[Y - A(\beta_0 + \beta_1 Z) \vert A, Z] = E[Y(a = 0) \vert A, Z]\\\
+E[Y - A(\beta_0 + \beta_1 Z) \vert Z ] = E[Y(a = 0) \vert Z]$$
+
+--
+
+So
+
+$$E[Y-A\beta_0 \vert Z = 0] = E[Y(a = 0) \vert Z = 0]$$
+and $$E[Y-A(\beta_0 + \beta_1) \vert Z = 1] = E[Y(a=0) \vert Z = 1]$$
+
+---
+## (iv.2) No Effect Modification by $Z$
+
+- Assumption (iii) says that $Y(a, z) \ci Z$.
+
+- Assumption (ii) says that $Y(a, z)  = Y(a, z^\prime)$ for all $a, z$, and $z^\prime$. 
+
+- In combination, these two assumptions imply that $Y(a) \ci Z$.
+
+- So in particular $E[Y(a = 0) \vert Z = 1] = E[Y(a = 0) \vert Z = 0]$
+
+---
+## (iv.2) No Effect Modification by $Z$
+
+
+
+This gives us
+
+$$E[Y - A \beta_0 \vert Z = 1] = E[Y - A(\beta_0 + \beta_1) \vert Z = 0]$$
+--
+Plugging in $\beta_1 = 0$, we find
+
+$$E[Y \vert Z = 0] - E[Y \vert Z = 1] = \beta_0\left(E[A \vert Z = 1]- E[A \vert Z = 0]\right)\\\
+\beta_0 = \frac{E[Y \vert Z = 0] - E[Y \vert Z = 1]}{E[A \vert Z = 1]- E[A \vert Z = 0]}$$
+
+
+---
+## (iv.2) No Effect Modification by $Z$
+
+- Under assumption (iv.2), $\beta_{IV}$ estimates the causal effect in the treated. 
+
+- If we extended (iv.2) to also include no effect modification within the untreated, we could estimate the ATE. 
+
+--
+
+- Assumption (iv.1) of complete homogeneity is strictly stronger than (iv.2), so $\beta_{IV}$ also estimates the ATT under (iv.1).
+
+- Under (iv.1), the ATT equals the ATE, so $\beta_{IV}$ estimates the ATE. 
+
+
+---
+## Results So Far
+
+- If the instrument $Z$ and exposure $A$ are both binary and $Z$ satisfies IV assumptions (i)-(iii):
+$$\beta_{IV} = \frac{E[Y \vert Z = 1]-E[Y \vert Z = 0]}{E[A \vert Z = 1] - E[A \vert Z = 0]}$$
+- Estimates the complier average treatment effect if we assume there are no defiers. 
+  - If we want the ATE, we need to either additionally assume that the LATE equals the ATE.
+  
+- If we cannot assume the absence of defiers, we can replace that assumption with the assumption of no modification of the $A-Y$ effect by $Z$.
+  + No effect modification in the treated gets us the ATT. 
+  + Adding no effect modification in the untreated gets us the ATE. 
+
+---
+## Results So Far
+
+- If $A$ is continuous, $\beta_{IV}$ estimates the average causal effect due to a one unit increase in $A$ among those affected by the instrument. 
+
+- If $Z$ is a surrogate instrument, we retain our casual interpretations. 
+  + If $Z$ is a surrogate for binary $U_Z$, then compliers are compliers with respect to $U_Z$. 
+  + If $U_Z$ is not binary, the complier set is not clearly defined. $\beta_{IV}$ estimates a weighted average of causal effects. 
+
+---
+## Where to Next
+
+- Our simple situation does not cover the majority of real applications of IVA.
+
+- Often we will have continuous instruments, or multiple instruments. 
+
+- These situations will send us towards parametric models. 
+
+---
+## Where to Next
+
+- Introduce linear structural equation models which motivate more complex IV estimators. 
+
+- Examine some distributional properties of IV estimators:
+  + moments
+  + finite sample bias
+  
+- Reassess assumptions of the linear models. When can we relax them?
+
+- What happens when the core IV assumptions are violated?
+
