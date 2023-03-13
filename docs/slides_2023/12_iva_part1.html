@@ -4,7 +4,7 @@
     <title>L12: Instrumental Variable Analysis Part 1</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.16/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -31,7 +31,7 @@ Part 1
 ]
 .date[
 ### Lecture Starting 2023-03-06
-(updated: 2023-03-05)
+(updated: 2023-03-12)
 ]
 
 ---
@@ -739,84 +739,71 @@ A_i(1) \leq A_i(0) \ \ \forall i$$`
 ---
 ## Alternative Versions of Assumption 4
 
-(iv.1) Complete homogeneity: The treatment effect is the same for every unit. 
+(4.1) Complete homogeneity: The treatment effect is the same for every unit. 
   + Under this assumption `\(\beta_{IV}\)` estimates the ATE. 
 
-(iv.2) No effect modification by `\(Z\)` within the treated. 
+(4.2) No effect modification by `\(Z\)` within the treated. 
   + Under this assumption, `\(\beta_{IV}\)` estimates the ATT. 
   + We can further assume that the ATT equals the ATE
 
-(iv.3) No modification of the `\(A-Y\)` effect by `\(U\)`. 
+(4.3) No modification of the `\(A-Y\)` effect by `\(U\)`. 
   + Under this assumption, `\(\beta_{IV}\)` estimates the ATE. 
   + Often implausible
 
-(iv.4) The `\(Z-A\)` association is constant across levels of `\(U\)`. 
+(4.4) The `\(Z-A\)` association is constant across levels of `\(U\)`. 
   + Testable if confounders are measured.
 
-(iv.5) Monotonicity (the version we have had until now).
+(4.5) Monotonicity (the version we have had until now).
 
 
 ---
 ## Alternative Versions of Assumption 4
 
-&lt;span style="color:blue"&gt;(iv.1) Complete homogeneity: The treatment effect is the same for every unit.&lt;/span&gt; 
+&lt;span style="color:blue"&gt;(4.1) Complete homogeneity: The treatment effect is the same for every unit.&lt;/span&gt; 
   + &lt;span style="color:blue"&gt; Under this assumption `\(\beta_{IV}\)` estimates the ATE. &lt;/span&gt;
 
-&lt;span style="color:purple"&gt;(iv.2) No effect modification by `\(Z\)` within the treated. &lt;/span&gt;
+&lt;span style="color:purple"&gt;(4.2) No effect modification by `\(Z\)` within the treated. &lt;/span&gt;
   + &lt;span style="color:purple"&gt;Under this assumption, `\(\beta_{IV}\)` estimates the ATT. &lt;/span&gt;
   + &lt;span style="color:purple"&gt;We can further assume that the ATT equals the ATE &lt;/span&gt;
 
 
-(iv.3) No modification of the `\(A-Y\)` effect by `\(U\)`. 
+(4.3) No modification of the `\(A-Y\)` effect by `\(U\)`. 
   + Under this assumption, `\(\beta_{IV}\)` estimates the ATE. 
   + Often implausible
 
-(iv.4) The `\(Z-A\)` association is constant across levels of `\(U\)`. 
+(4.4) The `\(Z-A\)` association is constant across levels of `\(U\)`. 
   + Testable if confounders are measured.
 
-(iv.5) Monotonicity (the version we have had until now).
+(4.5) Monotonicity (the version we have had until now).
 
 
 
 ---
-## (iv.1) Complete homogeneity
+## 4.1: Complete homogeneity
 
 - Under complete homogeneity, `\(E[Y_i(a = 1) - Y_i(a = 0)] = \beta_0\)` for all units, regardless of compliance type or treatment value, or any other variable. 
 
-- This assumption is very strong but also very common (we will use it later). 
+- This assumption is very strong but also fairly common. 
 
 
-- In particular, it implies additive rank preservation, `$$A_i &gt; A_j \Rightarrow E[Y_i] &gt; E[Y_j]$$`
-which is unrealistic. 
+- In particular, it implies additive rank preservation, meaning that if `\(A_i &gt; A_j\)` then `\(E[Y_i] &gt; E[Y_j]\)` which is unrealistic.
 
-- The derivation of `\(\hat{\beta}_{IV}\)` for (iv.1) is the same as the derivation for (iv.2) so we will do them together. 
+- The derivation of `\(\hat{\beta}_{IV}\)` for assumption (4.1) is the same as the derivation for assumption (4.2) so we will do them together. 
 
 
 
 ---
-## (iv.2) No Effect Modification by `\(Z\)`
+## 4.2: No Effect Modification by `\(Z\)`
 
 
 - For dichotomous `\(Z\)` and `\(A\)`, we can write a saturated structural mean model
 `$$E[Y(a = 1) - Y(a = 0) \vert A = 1, Z]  = \beta_0 + \beta_1 Z$$`
-- `\(\beta_0\)` is the causal effect in the treated. 
+- `\(\beta_0\)` is the average causal effect in the treated (ATT). 
 
 - If there is no effect modification within the treated then `\(\beta_1 = 0\)`. 
 
-
-- For binary `\(Z\)` and `\(A\)`, an equivalent condition is that the average causal effect in compliers and always takers is the same as the average causal effect in defiers. 
-
-`$$E[Y(a = 1)-Y(a = 0) \vert Q = Co \text{ or } Q = Al] =\\\ E[Y(a = 1)-Y(a=0) \vert Q = De]$$`
-
-&lt;!-- - We could have also written this for `\(A = 0\)` as  --&gt;
-&lt;!-- `$$E[Y(a = 1) - Y(a = 0) \vert A = 0, Z]  = \beta_0^\prime + \beta_1^\prime Z$$` --&gt;
-
-&lt;!-- - `\(\beta_0\)` is the causal effect in the treated. `\(\beta_0^\prime\)` is the causal effect in the untreated.  --&gt;
-
-&lt;!-- - The assumption of no effect modification means that the ATE is constant across strata of `\(Z\)` -- `\(\beta_1\)` and `\(\beta_1^\prime\)` are both 0.  --&gt;
-
 ---
-## (iv.2) No Effect Modification by `\(Z\)`
+## 4.2: No Effect Modification by `\(Z\)`
 
 We can re-write 
 `$$E[Y(a = 1) - Y(a = 0) \vert A = 1, Z]  = \beta_0 + \beta_1 Z$$` as
@@ -825,15 +812,18 @@ We can re-write
 E[Y - A(\beta_0 + \beta_1 Z) \vert A, Z] = E[Y(a = 0) \vert A, Z]\\\
 E[Y - A(\beta_0 + \beta_1 Z) \vert Z ] = E[Y(a = 0) \vert Z]$$`
 
---
+- For the last line, use the law of total probability
 
-So
+$$
+`\begin{split}
+E[Y - A(\beta_0 + \beta_1 Z) \vert Z] &amp; = \sum_a E[Y - A(\beta_0 + \beta_1 Z) \vert A = a, Z]P[A = a]\\
+ &amp; = \sum_a E[ Y(a = 0) \vert A = a, Z]P[A = a] = E[Y(a = 0) \vert Z]
+\end{split}`
+$$
 
-`$$E[Y-A\beta_0 \vert Z = 0] = E[Y(a = 0) \vert Z = 0]$$`
-and `$$E[Y-A(\beta_0 + \beta_1) \vert Z = 1] = E[Y(a=0) \vert Z = 1]$$`
 
 ---
-## (iv.2) No Effect Modification by `\(Z\)`
+## 4.2: No Effect Modification by `\(Z\)`
 
 - Assumption (iii) says that `\(Y(a, z) \ci Z\)`.
 
@@ -841,35 +831,35 @@ and `$$E[Y-A(\beta_0 + \beta_1) \vert Z = 1] = E[Y(a=0) \vert Z = 1]$$`
 
 - In combination, these two assumptions imply that `\(Y(a) \ci Z\)`.
 
-- So in particular `\(E[Y(a = 0) \vert Z = 1] = E[Y(a = 0) \vert Z = 0]\)`
+- So, `\(E[Y(a = 0) \vert Z = 1] = E[Y(a = 0) \vert Z = 0]\)`
 
 ---
-## (iv.2) No Effect Modification by `\(Z\)`
+## 4.2: No Effect Modification by `\(Z\)`
 
 
 
-This gives us
+- This gives us
 
 `$$E[Y - A \beta_0 \vert Z = 1] = E[Y - A(\beta_0 + \beta_1) \vert Z = 0]$$`
---
-Plugging in `\(\beta_1 = 0\)`, we find
 
-`$$E[Y \vert Z = 0] - E[Y \vert Z = 1] = \beta_0\left(E[A \vert Z = 1]- E[A \vert Z = 0]\right)\\\
-\beta_0 = \frac{E[Y \vert Z = 0] - E[Y \vert Z = 1]}{E[A \vert Z = 1]- E[A \vert Z = 0]}$$`
+- Plugging in `\(\beta_1 = 0\)`, we find
+
+$$
+`\begin{split}
+&amp;E[Y \vert Z = 0] - E[Y \vert Z = 1] = \beta_0\left(E[A \vert Z = 1]- E[A \vert Z = 0]\right)\\\
+&amp;\beta_0 = \frac{E[Y \vert Z = 0] - E[Y \vert Z = 1]}{E[A \vert Z = 1]- E[A \vert Z = 0]}
+\end{split}`
+$$
 
 
 ---
-## (iv.2) No Effect Modification by `\(Z\)`
+## 4.2: No Effect Modification by `\(Z\)`
 
-- Under assumption (iv.2), `\(\beta_{IV}\)` estimates the causal effect in the treated. 
+- Under assumption (4.2), `\(\beta_{IV}\)` estimates the causal effect in the treated. 
 
-- If we extended (iv.2) to also include no effect modification within the untreated, we could estimate the ATE. 
+- Assumption (4.1) of complete homogeneity is strictly stronger than (4.2), so `\(\beta_{IV}\)` also estimates the ATT under (4.1).
 
---
-
-- Assumption (iv.1) of complete homogeneity is strictly stronger than (iv.2), so `\(\beta_{IV}\)` also estimates the ATT under (iv.1).
-
-- Under (iv.1), the ATT equals the ATE, so `\(\beta_{IV}\)` estimates the ATE. 
+- Under (4.1), the ATT equals the ATE, so `\(\beta_{IV}\)` estimates the ATE. 
 
 
 ---
@@ -878,7 +868,7 @@ Plugging in `\(\beta_1 = 0\)`, we find
 - If the instrument `\(Z\)` and exposure `\(A\)` are both binary and `\(Z\)` satisfies IV assumptions (i)-(iii):
 `$$\beta_{IV} = \frac{E[Y \vert Z = 1]-E[Y \vert Z = 0]}{E[A \vert Z = 1] - E[A \vert Z = 0]}$$`
 - Estimates the complier average treatment effect if we assume there are no defiers. 
-  - If we want the ATE, we need to either additionally assume that the LATE equals the ATE.
+  - If we want the ATE, we need to additionally assume that the LATE equals the ATE.
   
 - If we cannot assume the absence of defiers, we can replace that assumption with the assumption of no modification of the `\(A-Y\)` effect by `\(Z\)`.
   + No effect modification in the treated gets us the ATT. 
@@ -900,7 +890,7 @@ Plugging in `\(\beta_1 = 0\)`, we find
 
 - Often we will have continuous instruments, or multiple instruments. 
 
-- These situations will send us towards parametric models. 
+- In these situations, we can consider parametric models. 
 
 ---
 ## Where to Next
