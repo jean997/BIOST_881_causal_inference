@@ -31,7 +31,13 @@ library(DiagrammeR)
 
 ## Lecture Outline
 
+1. Structural Equation Motivation for IVW
+1. Distribution of Single IV Estimator
+1. Multiple IV Estimators
+1. Mendelian Randomization
 
+---
+# 1. Structural Equation Motivation for IVW
 
 
 ---
@@ -219,6 +225,8 @@ bhatR <- f2z$coefficients[2]/f1$coefficients[2]
   + Age is also associated with earnings. 
   + Angrist and Kruger adjust for age and age squared in the first stage of the 2SLS regression. 
 
+---
+# 2. Distribution of Single IV Estimator
 
 ---
 ## Distribution of the IV Estimator
@@ -237,27 +245,26 @@ the numerator and denominator are independent. Otherwise, they are dependent.
 ---
 ## Distribution of the IV Estimator
 
-- Write $\hat{\beta}_{AZ} = \mu + \sigma_{x} T_a$ where $T_a$ has mean 0 and variance 1, and $\sigma^2_x = Var(\hat{\beta}_{AZ})$.
+- Write $\hat{\beta}_{AZ} = \mu + \sigma_{AZ} T_A$ where $T_A$ has mean 0 and variance 1, and $\sigma^2_{AZ} = Var(\hat{\beta}_{AZ})$.
 
-- If all of our IV assumptions hold the $\hat{\beta}_{YZ} = \gamma \mu + \sigma_{y} T_y$, with  $\sigma^2_y = Var(\hat{\beta}_{YZ})$.
+- If all of our IV assumptions hold the $\hat{\beta}_{YZ} = \gamma \mu + \sigma_{YZ} T_y$, with  $\sigma^2_{YZ} = Var(\hat{\beta}_{YZ})$.
 
 - This means that,
 
-$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{y} T_y}{\mu + \sigma_a T_a} = \gamma \frac{1}{1 + \sigma_a T_a/\mu} + \frac{\sigma_y T_y}{\mu + \sigma_a T_a}$$
+$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A} = \gamma \frac{1}{1 + \sigma_{AZ} T_A/\mu} + \frac{\sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A}$$
 ---
 ## Distribution of the IV Estimator
 
 
-$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{y} T_y}{\mu + \sigma_a T_a} = \gamma \frac{1}{1 + \sigma_a T_a/\mu} + \frac{\sigma_y T_y}{\mu + \sigma_a T_a}$$
+$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A} = \gamma \frac{1}{1 + \sigma_{AZ} T_A/\mu} + \frac{\sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A}$$
 
-- If $T_y$ and $T_a$ are independent, then the expectation of the last term is 0. 
-  + This occurs in two sample IV.
+- If $T_{YZ}$ and $T_{AZ}$ are independent, then the expectation of the last term is 0. This occurs in two sample IVA.
 
-- If we assume that $T_a$ is normally distributed, then $E[1/(1 + \sigma_a T_a/\mu)]$ does not have a defined expectation. 
+- If $T_A$ is normally distributed, then $E[1/(1 + \sigma_{AZ} T_A/\mu)]$ does not have a defined expectation. 
 
-- However, we can see that if $\mu/\sigma_a$ is large, then $\frac{1}{1 + \sigma_a T_a/\mu} \approx 1$. 
+- However, we can see that if $\mu/\sigma_{AZ}$ is large, then $\frac{1}{1 + \sigma_{AZ} T_A/\mu} \approx 1$. 
 
-- If we consider the behavior of $\hat{\beta}_{IV}$ asymptotically as the sample size used to estimate $\hat{\beta}_{ZX}$ increase, we can see that $\hat{\beta}_{IV} \to 1$. 
+- If we consider the behavior of $\hat{\beta}_{IV}$ asymptotically as the sample size used to estimate $\hat{\beta}_{ZX}$ increases, $\hat{\beta}_{IV} \to 1$. 
 
 ---
 ## Distribution of the IV Estimator
@@ -270,13 +277,13 @@ $$f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ}) = f(\boldsymbol{\theta}) + \nabla f(\bol
 ---
 ## Distribution of the IV Estimator
 
-- If we plug in $\boldsymbol{\theta} = (E[\hat{\beta}_{YZ}], E[\hat{\beta}_{AZ}]) = (\gamma \mu_x , \mu_x)$ we obtain 
+- If we plug in $\boldsymbol{\theta} = (E[\hat{\beta}_{YZ}], E[\hat{\beta}_{AZ}]) = (\gamma \mu , \mu)$ we obtain 
 
 $$
 \begin{split}
 E[f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})] \approx & \gamma\\
-Var(f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})) \approx &  \gamma^2 \left(\frac{\sigma^2_x}{ \mu_x^2} + \frac{\sigma^2_y}{\gamma^2 \mu_x^2} - 2 \frac{Cov(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})}{\gamma \mu_x ^2} \right) \\ 
-\approx & \hat{\gamma}^2 \left(\frac{\sigma^2_x}{ \hat{\beta}_{AZ}^2} + \frac{\sigma^2_y}{\hat{\beta}_{YZ}^2} - 2 \frac{Cov(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})}{\hat{\beta}_{AZ}\hat{\beta}_{YZ}} \right)
+Var(f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})) \approx &  \gamma^2 \left(\frac{\sigma^2_{AZ}}{ \mu^2} + \frac{\sigma^2_{YZ}}{\gamma^2 \mu^2} - 2 \frac{Cov(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})}{\gamma \mu ^2} \right) \\ 
+\approx & \hat{\gamma}^2 \left(\frac{\hat{\sigma}^2_{AZ}}{ \hat{\beta}_{AZ}^2} + \frac{\hat{\sigma}^2_{YZ}}{\hat{\beta}_{YZ}^2} - 2 \frac{Cov(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})}{\hat{\beta}_{AZ}\hat{\beta}_{YZ}} \right)
 \end{split}
 $$
 
@@ -338,13 +345,14 @@ ggplot(df) + geom_histogram(aes(x = z, y = ..density.. ),
 ---
 ## Distribution of the IV Estimator
 
-- The approximation is better when $\mu_x$ is larger. 
+- The approximation is better when $\mu$ is larger. 
 
-- When $\mu$ is small and $\gamma \neq 0$, $\hat{\beta}_{IV}- \gamma$ is on average lower than expected under the normal approximation. We are underestimating the causal effect. 
+- When $\mu$ is small and $\gamma \neq 0$, $\hat{\beta}_{IV}- \gamma$ is, on average, lower than expected under the normal approximation. We are underestimating the causal effect. 
 
-- This is called **weak instrument bias**.
+- This is called **weak instrument bias** because it occurs when the effect of the instrument on the exposure is small.
 
-
+---
+# 3. Multiple IV Estimators
 
 ---
 ## Multiple Instruments
@@ -374,10 +382,7 @@ Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$
 - For each instrument, we can construct a ratio estimate
 
 $$\hat{\beta}_{IV,1}  = \frac{\hat{\beta}_{YZ_1}}{\hat\beta_{AZ_1}}, \dots, \hat{\beta}_{IV,K}  = \frac{\hat{\beta}_{YZ_K}}{\hat\beta_{AZ_K}}$$
-- We then construct an overall estimate as a weighted average
-
-$$\hat{\beta}_{IVW} = \frac{\sum_{k=1}^K w_k \hat{\beta}_{IV,k}}{\sum_{k =1}^K w_k}$$ where $w_k$ is the inverse of the (approximate) variance of $\hat{\beta}_{IV,k}$.
-- This is equivalent to a fixed effect meta-analysis estimate. 
+- We then construct an overall estimate as a weighted average $$\hat{\beta}_{IVW} = \frac{\sum_{k=1}^K w_k \hat{\beta}_{IV,k}}{\sum_{k =1}^K w_k}$$ where $w_k$ is the inverse of the (approximate) variance of $\hat{\beta}_{IV,k}$.
 
 - $\hat{\beta}_{IVW}$ is asymptotically equivalent (but not numerically identical) to the  2SLS estimate.
 
@@ -409,7 +414,7 @@ $$w_k = \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} \approx Var(\hat{\beta}_{
 
 - Plugging in these weights gives us
 
-$$\hat{\beta}_{IVW} = \sum_{k=1}^K   \frac{\hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}{\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}$$
+$$\hat{\beta}_{IVW} =   \frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{AZ_k}\sigma^{-2}_{YZk}}{\sum_{k=1}^K \hat{\beta}_{AZ_k}\sigma^{-2}_{YZ_k}}$$
 
 
 ---
@@ -439,11 +444,36 @@ knitr::include_graphics("img/10_ldl_cad.jpg")
 Ference et al, Journal of American College of Cardiology (2012)
 
 ---
-## Distribution of Multivariable IV Estimators
+## Expectation of IVW Estimator
 
 - With $K$ IVs, the moments of the 2SLS and IVW estimators exist up $K-1$. 
 
-- One estimate of the expectation of the two sample IVW regression estimator is
+- Zhao et al (2019) (and others) calculate an approximation of $E\left[\hat{\beta}_{IVW}\right]$ for independent samples. 
+
+- For simplicity, assume that $\sigma^2_{AZ_k} = \sigma^2_{A}$ and $\hat{\sigma}^2_{YZ_k} = \sigma^2_{Y}$ are constant over instruments.
+
+- Write $\hat{\beta}_{YZ_k} = \gamma \mu_k + \epsilon_{Y,k}$ and $\hat{\beta}_{AZ_k} = \mu_k + \epsilon_{A,k}$.
+
+- With independent samples, $\epsilon_{Y,k}$ and $\epsilon_{A,k}$ are independents.
+
+
+---
+## Expectation of IVW Estimator
+
+$$
+\begin{split}
+E[\hat{\beta}_{IVW}] =& E\left[\frac{\sum_{k=1}^K \hat{\beta}_{Y,Z_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Z_k}}{\sum_{k=1}^K \hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}\right]\\
+=& E\left[\frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}}{\sum_{k=1}^K \hat{\beta}_{A,Z_k}}\right] \approx \frac{E\left[\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\right]}{E\left[\sum_{k=1}^K \hat{\beta}_{A,Z_k}\right]}\\
+\approx &\frac{\gamma \sum_{k = 1}^K \mu_k^2}{\sum_{k = 1}^K \mu_k^2 + \sum_{k = 1}^K E[\epsilon_{A,k}^2]} = \frac{\gamma}{1 + (p\sigma^2_{A})/\sum_{k = 1}^K \mu_k^2}\\
+=& \frac{\gamma}{1 + 1/\kappa}&
+\end{split}
+$$
+
+where $\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k}{\sigma^2_{AZ_k}}$ represents the average instrument strength. 
+---
+## Expectation of IVW Estimator
+
+- Solving the expression from the previous slide, we find that 
 
 $$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma}{\kappa}$$
 - $\kappa = \frac{1}{K} \sum_{k = 1}^K \frac{E[\hat{\beta}_{AZ_k}]^2}{\sigma^2_{A,k}}$ represents average instrument strength. This can be estimated as the average chi-squared statistic minus 1.
@@ -452,21 +482,93 @@ $$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma}{\kappa}$$
 
 
 ---
-## Distribution of Multivariable IV Estimators
+## Expectation of IVW Estimator
 
-- When there is sample overlap then there is an additional term in the expression for the expected bias
+- When there is sample overlap then $\epsilon_{A,k}$ and $\epsilon_{Z_k}$ are not independent and there is an additional term in the expression for the expected bias.
 
-$$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma}{\kappa} + \rho \frac{\sum_{k =1 }^K \sigma_{Y,k}}{\sum_{k = 1}^K \sigma_{A,k}}\frac{1}{\kappa}$$
-- Where $\rho$ is equal to the population correlation of $A$ and $Y$ times the proportion of sample overlap. 
+- In the numerator of the expression for $E[\hat{\beta}_{IVW}]$ we have
+$$E\left[\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\right] = \gamma \sum_{k = 1}^K \mu_k^2 + Cov(\epsilon_{A,k},\epsilon_{Z_k})$$
+- Rearranging terms and combining with the previous expression we have
 
-- If the sample is partially or completely overlapping, weak instrument bias will push the IVW estimate towards the bias of the OLS estimator. 
+$$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma + \rho c}{\kappa}$$
+- Where $\rho = Cor(\epsilon_{A,k},\epsilon_{Z_k})$ and $c = \sigma_{Y}/\sigma_{A}$.
 
-- If we only have weak instruments, we would be better off with the unadjusted regression estimate!
+---
+## Expectation of IVW Estimator
 
+$$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma + \rho c}{\kappa}$$
+
+- If each instrument explains a small amount of the variance of $A$ then $\rho$ is approximately equal to the population correlation of $A$ and $Y$ times the proportion of sample overlap. 
+
+- If the sample is completely overlapping, the bias of the OLS estimate (regression $A$ on $Y$ directly) is $\rho c -\gamma$. 
+
+-  So weak instrument bias is in the direction of the unadjusted (confounded) OLS estimate. 
+
+```{r, echo = FALSE, eval = FALSE}
+run1 <- function(n = 1000, p = 10, ba = rep(0.02, 10), 
+                 gamma = 0, bua = 0.2, buy = -0.2){
+  Z <- matrix(rnorm(n = n*p), nrow = n)
+  
+  U <- rnorm(n = n)
+  s <- sqrt(1 - bua^2 - sum(ba^2) )
+  eps <- rnorm(n = n, sd = s)
+  A <- matrix(rowSums(t(t(Z)*ba)) + bua*U + eps, nrow = n)
+  sy <- sqrt(1 - buy^2)
+  nu <- rnorm(n = n, sd = sy)
+  Y <- matrix(gamma*A + buy*U + nu, nrow = n)
+  Pz <- Z %*% solve(t(Z) %*% Z) %*% t(Z)
+  bhat_2sls <- (t(A) %*% Pz %*% Y)/(t(A) %*% Pz %*% A)
+  
+  by <- sapply(1:p, function(i){
+    fy <- lm(Y ~ Z[,i])
+    c(fy$coefficients[2], vcov(fy)[2,2])
+  })
+  bx <- sapply(1:p, function(i){
+    fx <- lm(A ~ Z[,i])
+    c(fx$coefficients[2], vcov(fx)[2,2])
+  })
+  bj <- by[1,]/bx[1,]
+  wj <- 1/(by[2,]^2/bx[1,]^2)
+  f_ivw <- lm(by[1,] ~ bx[1,]-1, weights = 1/by[2,]^2)
+  bhat_ivw <- f_ivw$coefficients[1]
+  s_ivw <- sqrt(vcov(f_ivw)[1,1])
+  
+  bhat_ols <- lm(Y ~ A)$coefficients[2]
+  return(c(bhat_ols, bhat_ivw, bhat_2sls))
+}
+
+
+res1 <- purrr::map_dfr(c(0.01, 0.05, 0.1, 0.2), function(a){
+  x <- replicate(n = 100, run1(ba = rep(a, 10)))
+  return(rowMeans(x))
+})
+
+res2 <- purrr::map_dfr(c(0.01, 0.05, 0.1, 0.2), function(a){
+  x <- replicate(n = 100, run1(ba = rep(a, 10), buy = 0.2))
+  return(rowMeans(x))
+})
+
+res3 <- purrr::map_dfr(c(0.01, 0.05, 0.1, 0.2), function(a){
+  x <- replicate(n = 100, run1(ba = rep(a, 10), gamma = 0.1))
+  return(rowMeans(x))
+})
+
+res4 <- purrr::map_dfr(c(0.01, 0.05, 0.1, 0.2), function(a){
+  x <- replicate(n = 100, run1(ba = rep(a, 10), buy = 0.2, gamma = 0.1))
+  return(rowMeans(x))
+})
+```
 
 
 ---
 ## Weak Instrument Bias
+
+
+- The table below shows simulation results from Burgess and Thompson (2011). 
+
+- Relative bias is comparing the OLS and the IV estimate.
+
+- We can see that as predicted, relative bias depends on $1/F$ (approximately $1/\kappa$ in our notation). 
 
 <center> 
 ```{r, echo=FALSE, out.width="80%"}
@@ -586,7 +688,8 @@ Cons:
 - However, if we believe that the sign of the causal effect is the same in all complier groups, we still have a valid test of the strict null and the sign of the estimated effect is meaningful. 
 
 
-
+---
+# 4. Mendelian Randomization
 
 
 ---
