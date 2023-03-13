@@ -509,7 +509,7 @@ knitr::include_graphics("img/10_bound_tab1.png")
 
 <center> 
 ```{r, echo=FALSE, out.width="70%", fig.show='animate', ffmpeg.format='gif'}
-knitr::include_graphics("img/10_regression _dilution.gif")
+knitr::include_graphics("img/10_regression_dilution.gif")
 ```
 </center>
 
