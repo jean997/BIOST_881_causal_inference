@@ -36,6 +36,8 @@ editor_options:
 
 [12. Instrumental Variable Analysis Part 1](slides_2023/12_iva_part1.html)
 
+[13. Instrumental Variable Analysis Part 2](slides_2023/13_iva_part2.html)
+
 ## Lecture Slides from Past Years
 
 [2022 slides](slide_index_2022.html)
