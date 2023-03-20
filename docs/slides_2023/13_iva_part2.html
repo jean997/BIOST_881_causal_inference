@@ -30,7 +30,7 @@ Part 2
 ### University of Michigan
 ]
 .date[
-### Lecture on 2023-03-13 (updated: 2023-03-13)
+### Lecture on 2023-03-13 (updated: 2023-03-20)
 ]
 
 ---
@@ -257,7 +257,10 @@ the numerator and denominator are independent. Otherwise, they are dependent.
 ---
 ## Distribution of the IV Estimator
 
-- One estimate of the variance of `\(\hat{\beta}_{IV}\)` (recalling that `\(\hat{\beta}_{IV}\)` does not actually have a second moment) can be obtained from a first order Taylor expansion around `\(\gamma\)`:
+- We can get estimates of the mean and variance of `\(\hat{\beta}_{IV}\)` from a first order Taylor expansion around `\(\gamma\)`.
+
+- Recall that `\(\hat{\beta}_{IV}\)` does not actually have either first or second moments!
+
 
 - Define `\(f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ}) = \hat{\beta}_{YZ}/\hat{\beta}_{AZ} = \hat{\beta}_{IV}\)`. Then for any two-dimensional point `\(\boldsymbol{\theta}\)`, 
 
@@ -304,7 +307,7 @@ $$
 
 - When `\(\mu\)` is small and `\(\gamma \neq 0\)`, `\(\hat{\beta}_{IV}- \gamma\)` is, on average, lower than expected under the normal approximation. We are underestimating the causal effect. 
 
-- This is called **weak instrument bias** because it occurs when the effect of the instrument on the exposure is small.
+- This is called **weak instrument bias** because it occurs when the effect of the instrument on the exposure is small compared to the estimation error of `\(\hat{\beta}_{AZ}\)`.
 
 ---
 # 3. Multiple IV Estimators
@@ -407,7 +410,7 @@ Ference et al, Journal of American College of Cardiology (2012)
 
 - Write `\(\hat{\beta}_{YZ_k} = \gamma \mu_k + \epsilon_{Y,k}\)` and `\(\hat{\beta}_{AZ_k} = \mu_k + \epsilon_{A,k}\)`.
 
-- With independent samples, `\(\epsilon_{Y,k}\)` and `\(\epsilon_{A,k}\)` are independents.
+- With independent samples, `\(\epsilon_{Y,k}\)` and `\(\epsilon_{A,k}\)` are independent.
 
 
 ---
@@ -422,7 +425,7 @@ E[\hat{\beta}_{IVW}] =&amp; E\left[\frac{\sum_{k=1}^K \hat{\beta}_{Y,Z_k}\hat{\b
 \end{split}`
 $$
 
-where `\(\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k}{\sigma^2_{AZ_k}}\)` represents the average instrument strength. 
+where `\(\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k^2}{\sigma^2_{AZ_k}}\)` represents the average instrument strength. 
 ---
 ## Expectation of IVW Estimator
 
@@ -433,11 +436,13 @@ where `\(\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k}{\sigma^2_{AZ_k}}\)` rep
 
 - Weak instrument bias is pushing the estimate closer to zero. 
 
+- This is the same pattern we saw in the single instrument case. 
+
 
 ---
 ## Expectation of IVW Estimator
 
-- When there is sample overlap then `\(\epsilon_{A,k}\)` and `\(\epsilon_{Z_k}\)` are not independent and there is an additional term in the expression for the expected bias.
+- When there is sample overlap, `\(\epsilon_{A,k}\)` and `\(\epsilon_{Z_k}\)` are not independent and there is an additional term in the expression for the expected bias.
 
 - In the numerator of the expression for `\(E[\hat{\beta}_{IVW}]\)` we have
 `$$E\left[\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\right] = \gamma \sum_{k = 1}^K \mu_k^2 + Cov(\epsilon_{A,k},\epsilon_{Z_k})$$`
@@ -447,15 +452,31 @@ where `\(\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k}{\sigma^2_{AZ_k}}\)` rep
 - Where `\(\rho = Cor(\epsilon_{A,k},\epsilon_{Z_k})\)` and `\(c = \sigma_{Y}/\sigma_{A}\)`.
 
 ---
-## Expectation of IVW Estimator
+## Bias of the OLS Estimate
 
-`$$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma + \rho c}{\kappa}$$`
 
-- If each instrument explains a small amount of the variance of `\(A\)` then `\(\rho\)` is approximately equal to the population correlation of `\(A\)` and `\(Y\)` times the proportion of sample overlap. 
+- Let `\(\rho_{pop}\)` be the population correlation of `\(A\)` and `\(Y\)`. 
 
-- If the sample is completely overlapping, the bias of the OLS estimate (regression `\(A\)` on `\(Y\)` directly) is `\(\rho c -\gamma\)`. 
+- The expectation of the OLS estimate regressing `\(A\)` on `\(Y\)` is 
 
--  So weak instrument bias is in the direction of the unadjusted (confounded) OLS estimate. 
+$$
+`\begin{split}
+&amp;E\left[ \hat{\beta}_{OLS} \right] =  \frac{Cov(A, Y)}{Var(A)} = \rho_{pop}\sqrt{\frac{Var(Y)}{Var(A)}} \equiv \rho_{pop} c_{pop}\\
+&amp;E\left[ \hat{\beta}_{OLS} -\gamma \right] = \rho_{pop}c_{pop} - \gamma
+\end{split}`
+$$ where `\(Var(Y)\)` is the residual variance of `\(Y\)`. 
+
+---
+## Bias of the IVW Estimator
+
+- If each instrument explains a small amount of the variance of `\(A\)` and there is complete sample overlap then `\(\rho \approx \rho_{pop}\)` and `\(c \approx c_{pop}\)`.
+
+- So the bias of the IVW estimate is approximately equal to the bias of the OLS estimate divided by `\(\kappa\)`. 
+
+-  Weak instrument bias is in the direction of the unadjusted (confounded) OLS estimate. 
+
+- We have derived these expressions for the IVW estimator but the same results can be found for the 2SLS estimator. 
+
 
 
 
@@ -473,6 +494,10 @@ where `\(\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k}{\sigma^2_{AZ_k}}\)` rep
 &lt;center&gt; 
 &lt;img src="img/10_bandt_tab2.png" width="80%" /&gt;
 &lt;/center&gt;
+
+
+
+
 
 ---
 ## Weak Instrument Bias in the Education Example
@@ -604,7 +629,7 @@ Cons:
 
 --
 
-+ If we are willing to assume random mating with respect to the instruments at hand, then an individuals genetic variants are perfect randomizations.
++ If we are willing to assume random mating with respect to the instruments at hand, then an individual's genetic variants are perfect randomizations.
 
   + No associations with confounders
 
@@ -613,7 +638,7 @@ Cons:
 
 - MR is incredibly powerful because it can be applied to any pair of traits that has been studied in genetic association studies. 
 
-- Using summary based methods, MR can be applied even when individual level data are not available. 
+- Using summary statistic methods, MR can be applied even when individual level data are not available. 
 
 - However, there are major caveats to results obtained using MR.
 ---
@@ -746,6 +771,26 @@ Cons:
 &lt;img src="img/10_mrpath.png" width="50%" /&gt;
 &lt;/center&gt;
 
+
+---
+## MR Next Directions
+
+- MR is a very exciting field with many new developments happening every year. Major fields of development in MR include:
+
+- De-biasing strategies: How to reduce weak instrument bias and selection bias.
+
+- Improving robustness to violations of the no horizontal pleiotropy assumption. 
+
+- Multivariable MR: Estimating effects of many exposures simultaneously. 
+
+- Network MR: Using MR to infer causal networks for many traits. 
+
+- MR for estimating non-linear relationships. 
+
+
+
+---
+# 5. Reassessing Assumptions the SEM
 
 ---
 ## Reassessing Assumptions the SEM
