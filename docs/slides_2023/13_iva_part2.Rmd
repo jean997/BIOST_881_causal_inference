@@ -2,7 +2,7 @@
 title: "L13: Instrumental Variable Analysis\n Part 2"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2023-03-13 (updated: `r Sys.Date()`)"
+date: "Lecture on 2023-03-20\n (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -902,6 +902,76 @@ knitr::include_graphics("img/10_mrpath.png")
 - Network MR: Using MR to infer causal networks for many traits. 
 
 - MR for estimating non-linear relationships. 
+
+---
+## MR in Action: Alcohol and Stroke
+
+- Observational studies show a J-shaped relationship between alcohol consumption and heart disease.
+
+- This relationship could be confounded by socioeconomic factors. 
+
+- Millwood et al. perform MR using data from the China Kadoorie Biobank to estimate the effect of increased alcohol consumption on stroke, intracerebral haemorrhage, and myocardial infarction. 
+
+- Two genetic variants explain a large proportion of the variation in alcohol consumption among men in the study.
+
+- Authors create a 6 lelel instrument based on genotypes and geographical region and use a two stage regression approach.
+
+- Only 2% of women in the study report drinking in most weeks. This group can be used as a negative control. 
+
+
+---
+## MR in Action: Alcohol and Stroke
+
+<center> 
+```{r, echo=FALSE, out.width="70%"}
+knitr::include_graphics("img/13_alc_stroke.jpg")
+```
+</center>
+
+---
+## MR in Action: Alcohol and Stroke
+
+<center> 
+```{r, echo=FALSE, out.width="50%"}
+knitr::include_graphics("img/13_alc_mi.jpg")
+```
+</center>
+
+---
+## MR in Action: Alcohol and Stroke
+
+- Millwood et al. conclude that the J-shaped relationship seen observationally is a result of socioeconomic confounding and reverse causation. 
+
+- They find a monotonic dose-response relationship between increased alcohol consumption and increased risk of stroke and intracerebral haemorrhage. 
+
+- They find no relationship between alcohol consumption and myocardial infarction.
+
+
+- In this study, they are able to test the exclusion restriction by verifying that there is no relationship between the genetic/geographic risk categories and stroke/haemorrhage/MI risk.
+
+
+---
+## MR in Action: Covid-19 and Vitamin D
+
+- Early in the Covid-19 pandemic, vitamin D was suggested as a protective factor based on country level and patient level observational data. 
+
+- Multiple MR studies have subsequently found no relationship between genetically predicted vitamin D levels and Covid-19 infection or hospitalization. 
+
+- This does not rule out the possibility that acute changes in vitamin D levels near the time of exposure affect infection risk. 
+
+
+---
+## MR in Action: Lifecourse MR
+
+- Richardson et al. use MR to distinguish effects of childhood and adult BMI on risk of CHD, T2D, and breask cancer. 
+
+- They use multivariable MR and variants associated with childhood BMI, adult BMI, or both as instruments. 
+
+- Results suggest no direct effect effect of childhood BMI (i.e. not mediate by adult BMI) on risks of CHD and T2D.
+
+- They do find a direct protective effect of higher childhood BMI on risk of breast cancer. 
+
+
 
 
 
