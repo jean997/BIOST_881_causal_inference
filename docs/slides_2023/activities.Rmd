@@ -114,3 +114,25 @@ Match the estimator with statements that are true about it.
 
 - More accurate using estimated PS than using true PS.
 ]
+
+
+---
+## Wednesday, March 22, 2023
+
+
+Review of IVA concepts:
+
+In pairs, write down a definition for one of these terms and how it relates to IVA:
+
+- Relevance
+
+- Exclusion Restriction
+
+- Local average treatment effect
+
+- Weak instrument bias
+
+- Two Stage Least Squares
+
+- IVW Regression
+
