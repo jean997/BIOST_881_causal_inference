@@ -40,6 +40,9 @@ editor_options:
 
 [14. Machine Learning](slides_2023/14_ml.html)
 
+
+[15. Discussion](slides_2023/15_discussion.html)
+
 ## Lecture Slides from Past Years
 
 [2022 slides](slide_index_2022.html)
