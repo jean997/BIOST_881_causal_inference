@@ -290,7 +290,7 @@ $$P_n(X) = \frac{1}{n}\sum_{i = 1}^n I(O_i \in X)$$
 $$P[\vert X_n \vert > M ] < \epsilon$$ for any $\epsilon$ and $n$ large enough. 
   + $X_n$ is $O_p(r)$ if $rX_n$ is $O_p(1)$.
   
-- An estimator $\hat{\Psi}_n$ has a rate of convergence $r_n \to \infty$ if $r_n(\hat{\Psi}_n - \Psi)$ is $O_p(1)$ (i.e. $\hat{\Psi}_n - \Psi$ is $O_p(r_n)$).
+- An estimator $\hat{\Psi}_n$ has a rate of convergence $r_n \to \infty$ if $r_n(\hat{\Psi}_n - \Psi)$ is $O_p(1)$ (i.e. $\hat{\Psi}_n - \Psi$ is $O_p(1/r_n)$).
 
 ---
 ## Convergence Rates
