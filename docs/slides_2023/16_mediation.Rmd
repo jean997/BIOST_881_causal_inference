@@ -544,6 +544,7 @@ $$
 \begin{split}
 &E[Y(A = 1, M = M(0))] = \\
 &\int_m E[Y \vert A = 1, M =m, L= l] f_{M|A = 0}(m)
+\end{split}
 $$
 
 - We simply need non-parametric plug-in estimates of each component (e.g. empirical averages).
@@ -635,6 +636,7 @@ Stratum 4 (formerly Never Takers): Units with $W_i(1) = W_i( 0) = 0$
 - Gallop et al (2009) propose a hierarchical model. Within each stratum, assume that
 
 $$E[Y(a) \vert C = c] = \beta_c a + \alpha^\top X + \epsilon_{c,a}$$
+
 - The overall average direct effect is weighted sum over strata 3 and 4 (this method assumes $A$ is randomized) 
 
 $$\beta = \frac{\sum_{c = 3}^4 \pi_c E[Y \vert C = c, X = x]}{\pi_3 + \pi_4}$$
