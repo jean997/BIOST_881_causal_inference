@@ -619,7 +619,7 @@ Stratum 4 (formerly Never Takers): Units with $W_i(1) = W_i( 0) = 0$
 
 - For units in strata 3 and 4, the treatment doesn't affect the value of the mediator $W$. 
 
-- This means that any effect of treatmenton $Y$ in these strata must be a direct effect. 
+- This means that any effect of treatment on $Y$ in these strata must be a direct effect. 
 
 - So if we knew what stratum each unit belonged to, we could estimate $E[Y(a) \vert C \in (3,4)]$ where $C$ is the principal stratum. 
 
@@ -636,10 +636,11 @@ Stratum 4 (formerly Never Takers): Units with $W_i(1) = W_i( 0) = 0$
 - Gallop et al (2009) propose a hierarchical model. Within each stratum, assume that
 
 $$E[Y(a) \vert C = c] = \beta_c a + \alpha^\top X + \epsilon_{c,a}$$
+- $X$ are covariates.
 
 - The overall average direct effect is weighted sum over strata 3 and 4 (this method assumes $A$ is randomized) 
 
-$$\beta = \frac{\sum_{c = 3}^4 \pi_c E[Y \vert C = c, X = x]}{\pi_3 + \pi_4}$$
+$$\beta = \frac{\sum_{c = 3}^4 \pi_c E[Y(1)-Y(0) \vert C = c, X = x]}{\pi_3 + \pi_4}$$
 
 
 - Assume a multinomial model for $P[C = c \vert X]$
@@ -653,7 +654,7 @@ $$\beta = \frac{\sum_{c = 3}^4 \pi_c E[Y \vert C = c, X = x]}{\pi_3 + \pi_4}$$
 
 - So the likelihood of $Y_i$ given covariates is a weighted combination of the likelihood given $C_i = 2$ and the likelihood given $C_i = 3$. This completes the hierarchical model. 
 
-- Gallop et al. then use Bayesian methods with uninformtive priors to estimate posterior means for $\beta_c$ ($c = 1, \dots, 4$). 
+- Gallop et al. then use Bayesian methods with uninformtive priors to estimate posterior means for $\beta_c$ ( $c = 1, \dots, 4$ ). 
 
 - Finally the average direct effect is a weighted average over the four strata.
 
