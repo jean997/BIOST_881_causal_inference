@@ -654,9 +654,8 @@ $$\beta = \frac{\sum_{c = 3}^4 \pi_c E[Y(1)-Y(0) \vert C = c, X = x]}{\pi_3 + \p
 
 - So the likelihood of $Y_i$ given covariates is a weighted combination of the likelihood given $C_i = 2$ and the likelihood given $C_i = 3$. This completes the hierarchical model. 
 
-- Gallop et al. then use Bayesian methods with uninformtive priors to estimate posterior means for $\beta_c$ ( $c = 1, \dots, 4$ ). 
+- Gallop et al. then use Bayesian methods with uninformtive priors to estimate posterior means for $\beta_c$ ( $c = 2,3$ ). 
 
-- Finally the average direct effect is a weighted average over the four strata.
 
 ---
 ## Principal Stratification Critiques
