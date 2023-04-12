@@ -664,7 +664,7 @@ $$\beta = \frac{\sum_{c = 3}^4 \pi_c E[Y(1)-Y(0) \vert C = c, X = x]}{\pi_3 + \p
 
 - In particular, the PS framework cannot identify an indirect effect. 
 
-- The effect in strata 1 and 2, where the exposure does change the mediator is a combination of direct and indirecte effects that is not separable without assuming that the direct effect is equal in all strata. 
+- The effect in strata 1 and 2, where the exposure does change the mediator is a combination of direct and indirect effects that is not separable without assuming that the direct effect is equal in all strata. 
 
 - "As I see it, in contexts in which pathways are of interest, the only advantage in considering the principal stratification framework rather than natural direct and indirect effects is that the latter requires conceiving of interventions on the intermediate and the former does not"
 
