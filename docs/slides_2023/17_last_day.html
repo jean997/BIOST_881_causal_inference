@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L17: Odds and Ends</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+    <script src="libs/viz-1.8.2/viz.js"></script>
+    <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding-1.0.7/grViz.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# L17: Odds and Ends
+### Jean Morrison
+### University of Michigan
+### Lecture on 2023-04-12 (updated: 2023-04-12)
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+## Plan for Today
+
+1. Last mediation slides 
+
+1. Review of some homework problems
+
+1. A few slides about cross-fitting
+
+1. Open question time
+---
+
+## Homework 2, Question 2
+
+- This problem was about selection bias. In part (a) we have this graph:
+
+&lt;center&gt;
+
+<div id="htmlwidget-fa26848aa5f8b0ca60b2" style="width:40%;height:288px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-fa26848aa5f8b0ca60b2">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1,0.7!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,-0.7!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- The easiest parts of this question is (i) If there is no censoring, how do we identify the effect of `\(A\)` on `\(Y\)`. 
+
+- With no missing data, we can condition on `\(L\)` and use the standard G-formula.
+
+---
+
+## Homework 2, Homework 2, Question 2
+
+&lt;center&gt;
+
+<div id="htmlwidget-a96fd9ca4e748667f31f" style="width:40%;height:216px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a96fd9ca4e748667f31f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1,0.7!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,-0.7!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- If only `\(Y\)` is missing for censored units, the g-formula still works:
+
+$$
+`\begin{split}
+E[Y(a)] =&amp; \sum_l P[Y \vert A = a, L=l] P[L = l]\\
+= &amp; \sum_l P[Y \vert A = a, L=l, C = 0] P[L = l]
+\end{split}`
+$$
+- The first line is the usual g-formula.
+
+- The second line follows because `\(Y \ci C \vert A, L\)`, so we can condition on `\(C\)` without changing the value of the expectation. 
+
+---
+
+## Homework 2, Homework 2, Question 2
+
+&lt;center&gt;
+
+<div id="htmlwidget-ca616dba515b47c6e79f" style="width:40%;height:216px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ca616dba515b47c6e79f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1,0.7!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,-0.7!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- However, if everything is missing for censored units, we are out of luck. 
+
+- The G-formula for this problem includes a term `\(P[L = l]\)`, which we can't estimate if `\(L\)` is missing when a unit is censored. 
+
+- If we only had `\(A\)` for censored units, we could use IP weighting, weighting each non-censored unit by `\(1/P[C = 0 \vert A]\)`.
+
+
+---
+
+## Homework 2, Homework 2, Question 2
+
+- Notice that this probelm is different from the no-confounding case. 
+
+&lt;center&gt;
+
+<div id="htmlwidget-70f4d7db094a39a83e0a" style="width:40%;height:144px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-70f4d7db094a39a83e0a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,-0.7!\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- In this graph, the causal effect is identifiable even if all data is missing for censored units because there is no confounder to average over. 
+
+
+---
+
+## Homework 2, Homework 2, Question 2
+
+- Part (c) of this problem was about this graph:
+
+&lt;center&gt;
+
+<div id="htmlwidget-eecbf567bb3e31f41d86" style="width:40%;height:288px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-eecbf567bb3e31f41d86">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,-0.4!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"2,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,0.4!\"] \n  \"5\" [label = \"W\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"1\"->\"5\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"5\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- This problem is a little interesting because there are multiple ways to identify `\(E[Y(a)]\)` when only some data is missing for censored units. 
+
+- Option 1: Calculate IP weights, `\(1/P[C = 0 \vert W]\)`.
+
+
+---
+
+## Homework 2, Homework 2, Question 2
+
+&lt;center&gt;
+
+<div id="htmlwidget-36aaacb58a85689d84fd" style="width:40%;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-36aaacb58a85689d84fd">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,-0.4!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"2,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,0.4!\"] \n  \"5\" [label = \"W\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"1\"->\"5\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"5\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- Option 2: Condition on `\(L\)`
+
+$$
+`\begin{split}
+E[Y(a)] =&amp; E[Y \vert A = a] \\
+= &amp; \sum_l E[Y \vert A = a, L = l]P[L = l]\\
+= &amp; \sum_l E[Y \vert A = a, L = l, C = 0]P[L = l]
+\end{split}`
+$$
+- We use the g-formula in the second line with the justifiction that `\(Y(a)\ci A \vert L\)`.
+
+---
+
+## Homework 2, Homework 2, Question 2
+
+&lt;center&gt;
+
+<div id="htmlwidget-c17d9cd433017bdd052c" style="width:40%;height:180px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-c17d9cd433017bdd052c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,-0.4!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.5,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"2,0!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.5,0.4!\"] \n  \"5\" [label = \"W\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"1\"->\"5\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"5\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- Option 3: Average over `\(P[W \vert A]\)`
+
+$$
+`\begin{split}
+E[Y(a)] = &amp;E[Y \vert A = a] \\
+= &amp; \sum_w E[Y \vert A = a, W = w]p[W =w \vert A = a]\\
+= &amp; \sum_w E[Y \vert A = a, W = w, C = 0]p[W =w \vert A = a]
+\end{split}`
+$$
+
+- The second line is the law of total probability. The third is from `\(Y \ci C \vert A, W\)`.
+
+---
+## Dealing with Missing Data
+
+- Some folks have had to deal with missing data in their projects. 
+
+- In a real data setting you have a few choices for dealing with missing data, depending on how much and what kind of missingness you have. 
+
+- Weights: If missingness is in only the outcome or in a limited number of covariates, you may be able to use weighting. 
+
+- To use weighting, set everyone missing any values to "missing" ( `\(C = 1\)` ).
+
+- Weighting is a good choice if, after censoring all individuals with missing values, 
+  + You have a set of covariates `\(L_1\)` such that `\(Y \ci C \vert L_1\)`. 
+  + There is no missingness in `\(L_1\)`. 
+  
+  
+---
+## Dealing with Missing Data: Weighting
+
+- If you are computing the IP weighted estimate, you would multiple the censoring weights and the confounding weights together. 
+
+- You can use weights with G-computation, as well. 
+
+- To do this, you would fit the outcome model in complete cases. 
+
+- Then at standardization step, you compute the weighted average
+
+`$$E[Y(a)] = \frac{\sum_{i=1}^n w_i \hat{Y}_{a,i}}{\sum_{i=1}^n w_i}$$`
+
+- This works with survey weights as well as censoring weights. 
+
+---
+## Dealing with Missing Data: Weighting
+
+- The weighted average trick works for any estimator that is a substitution (aka standardization) estimator. 
+
+- This means that it also works for TMLE. 
+
+- In the last step of TMLE, after doing the one step update, we standardize over the updated outcome model. 
+- With survey or censoring weights, we could compute the weighted average instead of the sample average.
+
+
+---
+## Dealing with Missing Data: G-Computation
+
+- Another option using G-computation directly works when you only have missing data in `\(Y\)` and you have a set of covariates `\(L = L_1 \cup L_2\)` such that:
+  + `\(Y \ci C \vert L_1\)`
+  + `\(Y(a) \ci A \vert L_1, L_2\)`
+  
+- In this case, we can compute the outcome regression using complete-cases only conditional on `\(L_1\)` and `\(L_2\)`.
+
+- In the last step, we standardize over everyone, not just the complete cases. 
+
+- This doesn't work if there are missing value of covariates.
+
+---
+## Dealing with Missing Data: Multiple Imputation
+
+- The last option is multiple imputation. 
+
+- This may be the only option if you have sporadic missingness over many covariates. 
+
+- In multiple imputation, you estimate the conditional distribution of each variable given the other variables iteratively. 
+
+- At the end you should be able to sample values for the missing cells in your data. Sample `\(M\)` "filled-in" data sets. 
+
+- For each data set, compute the estimate you would have computed if there had been no missing data. 
+
+- Your final estimate is the average of the `\(M\)` estimates. The variance is close to being the average of the variances, there is a small correction factor.
+
+---
+## Homework 3, Question 1
+
+- In this question, you calculated several estimates of the effect of quitting smoking on blood pressure. 
+
+- A few things you might have noticed in this problem: 
+
+- Fitting the subclassification regression estimator may have been a pain. You might have gotten lots of warnings about regression estimates not converging etc. 
+
+- This can be a major limitation of the SR estimate, especially when there are many catgorical predictors. 
+
+- You might have found that when you bootstrap, you occaisionally get wild values from the Scharfstein and Bang and Robins estimates. 
+  + This happens when there are very large weights. Because the weights are in the regression model, these act as very high leverage points. 
+  
+---
+## What to Do About Giant Weights
+
+- If some of your IP weights are enormous, that means that for some people `\(P[A = A_i \vert L_i]\)` is very very small. 
+
+- This can happen if you have near positivity issues, i.e. there are regions of covariate space that have very few treated or very few control units. 
+
+- Scientifically, this could indicate a structural positivity issue so it is worth thinking about whether that could be the case. 
+
+- You may determine that you don't think there is a structural positivity issue but there is a practical issue with trying to fit some of our estimators. 
+
+---
+## What to Do About Giant Weights
+
+- Option 1: Subset the population. 
+
+- This solution works if you are able to explain your large weights with one or a small number of covariates.
+
+- For example, in an on-going project, we found that individuals who did not have English as a first language had close to zero (but not exactly zero) change of enrolling in our study. 
+
+- We didn't think that it made sense to extrapolate about all non-enrolled non-English speaking individuals from the very small number who were enrolled, so we excluded these individual. 
+
+- The downside of this choice is that it changes the population that we are making inference about. 
+
+---
+## What to Do About Giant Weights
+
+- Option 2: Weight truncation. 
+
+- In this option, you simply "trim off" (aka remove) individuals at the tails of the weight distribution. 
+
+- For example, you could remove all individuals with weight below the 1st percentile or above the 99th precentile. 
+
+- This method has the same downside as option 1, the population has changed. 
+
+- However, it is worse in this method because we can't concisely describe how the population has changed. 
+
+
+---
+## What to Do About Giant Weights
+
+- Option 3: Weight stabilization. 
+
+- We saw previously that stabilizing weights can dramatically reduce variance. To stabilize weights, we compute
+
+`$$W_i^{S} = \frac{P[A=A_i \vert L_s=L_{s,i}]}{P [A = A_i \vert L = L_i, L_s = L_{s,i}]}$$`
+- Here `\(L_s\)` is a subset of covariates. `\(L_s\)` could be the empty set so the numerator is just `\(P[A = A_i]\)`.
+
+- If you are using IP weighting + marginal structural model, your marginal structural model must now condition on `\(L_s\)`. 
+
+- This means that it may be easier to misspecify the marginal structural model.
+
+- We saw an example of this in [Cole et al. (2007)](https://pubmed.ncbi.nlm.nih.gov/17478436/).
+
+
+---
+## What to Do About Giant Weights
+
+- Option 4: Use a substititution estimator. 
+
+- G-computation and TMLE are both substitution estimators, meaning that we average over prediction of `\(\hat{Y}_{a,i}\)`. 
+
+- These methods are much more stable (lower variance) in the face of large weights. 
+
+- However, when some regions of covariate space are sparse in treated or control units, G-computation can suffer from extrapolation bias.
+
+- So just because your estimate fit and gave a reasonable, low variance, estimate, this doesn't mean it is an accurate estimate. 
+
+- TMLE will generally be more accurate than plain-vanilla G-computation. 
+
+---
+## Homework 3, Question 2
+
+- There were a few take-aways I was hoping you would find in this problem. 
+
+- In the first comparison of multiple Hajek estimators, we would expect that the estimator with incorrect PS model would not be consistent (large bias). 
+
+- We would also expect that using the estimated propensity scores with the correct model would be better than knowing the true propensity scores. 
+
+- In the second comparison, G-estimation and full exact matching had the lowest bias. 
+
+- Full exact matching is equivalent to G-computation with a saturated mean model. 
+
+- However, G-estimatino had much lower variance than the full, exact matching estimate, probably due to small group sizes for the matching estimator. 
+
+---
+# A Few Slides About Sample Splitting
+
+---
+
+## Cross-Fitting/Sample Splitting
+
+- For these slides, remember back to our lectures on machine learning and TMLE. 
+
+- In that lecture, we learned that TMLE and other double robust methods are consistent under weaker conditions than singly robust methods. 
+
+- In marticular, we can use machine learning methods that converge slower than `\(\sqrt{N}\)` and still get `\(\sqrt{N}\)`-convergence from our causal parameter estimate. 
+
+- This happens if both exposure and outcome estimates are consistent and the product of their convergence rates is `\(&lt;\sqrt{N}\)`. For example, they could both converge at rate `\(N^{1/4}\)`.
+
+---
+
+## Cross-Fitting/Sample Splitting
+
+- There was another condition to achieve `\(\sqrt{N}\)`-consistency that we didn't mention in that lecture. 
+
+- This condition is that methods used to estimate the exposure model and outcome model cannot be "too adaptive" (formally, they need to satisfy Donsker conditions which say that the class of distributions in the model is not too complex).
+
+- If the ML methods are too adaptive, there will be too much over-fitting.
+
+- Many ML estiamtors don't satisfy these conditions. For example, many random forest/tree-based methods. 
+
+- Sample splitting is a very intuitive and effective way to overcome this limitation. 
+
+---
+
+## Cross-Fitting/Sample Splitting
+
+
+- First, we consider the classic "train-test" machine learning strategy. 
+
+- We divide our data into two pieces (lets say in half). 
+
+- In the first half we train a ML model and in the second half we use the fitted model to estimate something. Often this is model performance.
+
+- For one of our double robust estimators we could do the same thing. 
+
+- Fit the outcome and exposure model in one half and then compute the estimate of `\(E[Y(a)]\)` in the second half. 
+
+- This would solve the overfitting problem.
+
+---
+
+## Cross-Fitting/Sample Splitting
+
+- However, the train-test strategy is unsatisfying because now we only have half the data to train the model and only have the data to estimate with, so we will have a higher variance. 
+
+- We can get around this problem by doing the procedure twice. 
+
+- After training in the first half and estimating in the second, we swap and train in the second half and estimate in the first.
+
+- The two estimates are close to indpendent so we can get a final estimate by averaging them. 
+
+- This gives a final estimator with very nearly the same efficiency as an estimator fit in the whole data but without the overfitting bias. 
+
+- In practice, it is generally better to split the data into `\(K\)`-folds, using each fold as the estimation fold in turn. 
+
+- This is extremely similar to cross-validation. 
+
+---
+
+## Cross-Fitting/Sample Splitting
+
+- Sample splitting is employed by the CV-TMLE method. 
+
+- It is also strongly associated with double machine learning (DML). 
+
+- DML is a double robust estimation method that is very similar (in some cases equivalent) to the AIPW (RRZ) estimator that we saw earler.
+
+- However, it also incorporates sample splitting for improved compatibility with ML methods. 
+
+- In either case, using sample splitting means that a wider range of ML methods can be used for estimation which can improve performance. 
+
+- DML Reference: [Chernozhukov et al. (2018)](https://academic.oup.com/ectj/article/21/1/C1/5056401)
+
+---
+# Questions and Last Thoughts
+
+---
+## Last Thoughts
+
+- Causal inference and the language of counterfactuals gives a formal framework to describe causality. 
+
+- I hope this framework will be useful to you in your scientific endeavours. 
+
+- Estimating causal effects (as opposed to associations) requires thinking carefully about mechansims and what your data can and can't tell you. 
+
+- The tools we learned in this class are very powerful. Don't be afraid to use them.
+
+- However, always have a critical eye. Remember the check assumptions and identifiability conditions. If one of these is badly violated, don't just keep going. 
+
+- The world of causal inference is very large and growing quickly. There is lots of room for good applications and methodological developments. 
+
+- Please feel free to keep in touch after the class and if you are willing, please fill out the course evaluation.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
