@@ -13,6 +13,8 @@ editor_options:
 
 [1. Introduction and Potential Outcomes](slides_2024/1_introduction.html)
 
+[2. DAGs, Confounding, Backdoor Criterion](slides_2024/2_dags_confounding.html)
+
 ## Lecture Slides from Past Years
 
 [2023 Slides](slide_index_2023.html)
