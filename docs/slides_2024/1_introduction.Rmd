@@ -730,8 +730,17 @@ $$\frac{1}{n_{1}}\sum_{i: A_i = 1}Y_i - \frac{1}{n_2}\sum_{i:A_i = 0}Y_i = \bar{
 + We decide on a randomization scheme in which sicker patients are more likely to receive the new treatment. We set $P(A = 1 \vert L = 0) = 0.5$ and $P(A = 1 \vert L = 1) = 0.75$.
 
 
+---
 
+## Example
 
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/1_trial1.png")
+```
+
+</center> 
 ---
 
 ## Conditional Exchangeability
@@ -762,12 +771,26 @@ $$E[Y(a) \vert L = l] = E[Y \vert A = a, L = l]$$
 
 + If we want to estimate the population level marginal counterfactual value of $Y$ under treatment $A = a$, we can simply weight our estimates
 by the population frequency of $L$:
-$$
-E[Y(a)] = \sum_{l}E[Y(a) \vert L = l]P[L = l]
-$$
+
+$$E[Y(a)] = \sum_{l}E[Y(a) \vert L = l]P[L = l] \\= \sum_{l}E[Y \vert A = a, L = l]P[L = l]$$
 --
 
 + This is called the standardized mean (standardized by population frequencies of $L$).
+
+---
+## Example
+
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/1_trial1.png")
+```
+
+</center> 
+
+$$E[Y(0)] = \sum_{l = 0, 1}E[Y \vert A = 0, L = l]P[L = l] = (1/3)\cdot (6/10) + 1 \cdot (4/10) = 0.6\\
+E[Y(1)] = \sum_{l = 0, 1}E[Y \vert A = 1, L = l]P[L = l] = 0 \cdot (6/10) + (2/3) \cdot (4/10) = 0.27\\$$
+
 
 ---
 
@@ -814,6 +837,15 @@ One member of each pair recieves treatment $A = 1$ and the other recieves treatm
 + This means that, in the pseudo-population,  $E[Y \vert A = a]$ estimates the counterfactual mean $E[Y(a)]$.
 
 ---
+# Inverse Probability Weighting
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/1_trial2.png")
+```
+
+
+---
+
 
 ## Inverse Probability Weighting 
 
@@ -824,7 +856,16 @@ One member of each pair recieves treatment $A = 1$ and the other recieves treatm
  - One quarter of participants with $A_i = 0$ and $L = 1$ 
  - Three quarters of participants with $A_i = 1$ and $L = 1$
 
---
+---
+# Inverse Probability Weighting
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/1_trial3.png")
+```
+
+
+---
+# Inverse Probability Weighting
 
 + We can recover the estimate from the pseudo-population by weighting each participant by the number of units in the larger study that they represent:
   
@@ -877,7 +918,7 @@ the treatment has discrete levels.
 
 ---
 
-## Causal Effects from in Observational Data
+## Causal Effects from Observational Data
 
 + None of our four identification conditions consistency, SUTVA, conditional exchangeability, and positivity require that our data is from a randomized trial.
 
