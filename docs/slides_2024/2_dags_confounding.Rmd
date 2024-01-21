@@ -2,7 +2,7 @@
 title: "L2: DAGs and Confounding"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2023-01-17 (updated: `r Sys.Date()`)"
+date: "Lecture on 2024-01-17 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -13,6 +13,7 @@ output:
       countIncrementalSlides: false
 ---
 $\newcommand{\ci}{\perp\!\!\!\perp}$
+$\newcommand{\nci}{\not\!\perp\!\!\!\perp}$
 ```{r xaringanExtra, echo=FALSE}
 xaringanExtra::use_tile_view()
 xaringanExtra::use_search(show_icon = TRUE)
@@ -62,6 +63,7 @@ library(DiagrammeR)
 library(dplyr)
 library(knitr)
 library(kableExtra)
+library(ggplot2)
 
 ay <- create_node_df(n = 5, label = c("A", "Y", "A", "Y", "L"), 
                      fontname = "Helvetica", 
@@ -590,10 +592,13 @@ render_graph(ayll_graph1)
 
 ## Common Effects (Colliders)
 
-+ A variable $L$ is a collider relative to $A$ and $Y$ if $L$ is a descendent of both $A$ and $Y.$ 
++ A variable $L$ is a collider relative to $A$ and $Y$ if $L$ is a descendant of both $A$ and $Y.$ 
 
-+ Conditioning on a collider introduces an association between $A$ and $Y$. 
++ The presence of a collider that is not conditioned on does not induce association between $A$ and $Y$. 
+
++ But **conditioning on a collider** introduces an association between $A$ and $Y$. 
   - This is not necessarily as intuitive as the bias introduced by a common cause. 
+  
   
 <center>
 
@@ -618,9 +623,10 @@ render_graph(ayl_graph_collider)
 + Suppose that in order to become a movie star, one must either be talented or beautiful. 
 
 + Suppose that in the population, talent and beauty are uncorrelated. 
-  - For simplicity, suppose $P(\text{talent}) = P(\text{beauty}) = 0.1$.
-  
-+ For simplicity, assume that anyone with talent or beauty has the same chance of becoming a star. 
+
++ But both talent and beauty increase a person's chance of becoming a star.
+
++ Then among those who are stars, beauty and talent will be negatively correlated.
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5, fig.align='left'}
@@ -639,42 +645,45 @@ render_graph(ayl_graph_collider)
 
 ## Collider Example: Routes to Stardom
 
-+ Tables below show the proportions of talent and beauty in the general population and among stars: 
-
-<center>
-```{r, echo = FALSE}
-library(knitr)
-library(kableExtra)
-pop <- data.frame( B_0 = c(0.81, 0.09), B_1 = c(0.09, 0.01) )
-stars <- data.frame(B_0 = c(0, round(0.09/0.19, digits = 2)), B_1 = c(round(0.09/0.19, digits = 2), round(0.01/0.19, digits = 2)))
-rownames(pop ) <- rownames(stars) <-  c("\\(T = 0\\)", "\\(T = 1\\)")
-# full <- cbind(pop, stars)
-# knitr::kable(full, row.names = TRUE, col.names =  rep(c("\\(B = 0\\)", "\\(B = 1\\)"), 2), format = 'html')%>%
-#    add_header_above(c(" " = 1, "Population" = 2, "Stars" = 2))
- knitr::kable(pop, row.names = TRUE, col.names = c("\\(B = 0\\)", "\\(B = 1\\)"), format = 'html', caption = "Population")%>%
-   kable_styling(position = "float_left", full_width = FALSE)
- knitr::kable(stars, row.names = TRUE, col.names = c("\\(B = 0\\)", "\\(B = 1\\)"), format = 'html', caption = "Stars") %>%
-  kable_styling(position = "center", full_width = FALSE)
+```{r, echo = FALSE,  fig.height=6.5, fig.width=10, fig.align='center'}
+expit <- function(x){exp(x)/(1 + exp(x))}
+set.seed(0)
+dat <- data.frame(Talent = rnorm(n = 1000), 
+                  Beauty = rnorm(1000)) %>%
+       mutate(log_odds_star =  -5 + 2*Talent + 2*Beauty, 
+              prob_star = expit(log_odds_star))
+dat$is_star <- rbinom(n = 1000, size = 1, prob = dat$prob_star)
+ggplot(dat) + geom_point(aes(x = Talent, y = Beauty, color = prob_star)) + 
+  scale_color_viridis_c(option = "H", name = "Probability of Stardom") + 
+  theme_bw() + 
+  theme(axis.title = element_text(size = 22), 
+        legend.title = element_text(size = 18), 
+        legend.text = element_text(size = 14), 
+        axis.text = element_text(size = 14))
 ```
-
-
-</center>
-
---
-
-- In the population $P[T=1] = P[ T = 1 \vert B = 1] = 0.1$
-
-- Among stars $P[T=1] = 0.1/0.19 = 0.53$, and $P[T = 1 \vert B = 1] = \frac{0.01/0.19}{0.1/0.19} = 0.1$
-
---
-
-- Among stars, talent and beauty are negatively correlated. Talent is rarer among beautiful stars than among stars as a whole. 
-  
-- This is because we have conditioned on the collider "Becoming a star". 
 
 ---
 
-## Colliders Can Block Confounding
+## Collider Example: Routes to Stardom
+
+```{r, echo = FALSE,  fig.height=6.5, fig.width=9, fig.align='center'}
+f <- lm(Beauty ~ Talent, data = dat, subset = which(dat$is_star == 1))
+ggplot(dat) + geom_point(aes(x = Talent, y = Beauty, color = factor(is_star), size = factor(is_star))) + 
+  scale_color_manual(values = c("#909090", "#CB2A04FF"), name = "Is Star") +
+  scale_size_manual(values = c(1, 2), name = "Is Star") + 
+  geom_abline(slope = f$coefficients[["Talent"]], 
+              intercept = f$coefficients[["(Intercept)"]], color = "#CB2A04FF", linetype = 2) + 
+  theme_bw() + 
+  theme(axis.title = element_text(size = 22), 
+        legend.title = element_text(size = 18), 
+        legend.text = element_text(size = 14), 
+        axis.text = element_text(size = 14))
+```
+
+
+---
+
+## Colliders Can "Block" Confounding
 
 - In the graph below, there is no confounding because there is no common cause of $A$ and $Y$.
 
@@ -737,6 +746,8 @@ render_graph(ayll_graph2)
 ---
 
 ## Examples:
+
+Are $A$ and $Y$ d-separated?
 
 <center>
 .pull-left[
@@ -859,11 +870,12 @@ then $Y(a) \ci A \vert L$.
 - The two conditions in the theorem are referred to as the *backdoor criterion*. 
 
 
+
 ---
 
 ## Examples
 
-What set of variables makes $A$ and $Y$ conditionally exchangeable?
+Find a set of variables $H \subseteq \left \lbrace U_1, L, U_2 \right \rbrace$ such that  $Y(a) \ci A \vert H$:
 
 <center>
 
@@ -881,9 +893,11 @@ render_graph(m_graph)
 
 --
 
-- $A$ and $Y$ are exchangeable unconditionally. 
+- $A$ and $Y$ are exchangeable unconditionally, $Y(a) \ci A$, $H = \emptyset$. 
 
-- Conditioning on $L$ induces bias. (M-Bias).
+- Conditioning on $L$ induces bias. (M-Bias), $Y(a) \nci} A \vert L$.
+
+- If we condition on $L$, we need to also condition on $U_1$ or $U_2$ to block the now open path.
 
 ---
 
@@ -1103,7 +1117,7 @@ $$Y(a) \ci A$$
 
 - We have a similar result for conditional exchangeability. 
 
-- IF $Y(a)$ and $A$ are $d$-separated in $\mathcal{G}(a)$ conditional on a set of nodes $L$, then 
+- If $Y(a)$ and $A$ are $d$-separated in $\mathcal{G}(a)$ conditional on a set of nodes $L$, then 
 $$Y(a) \ci A \vert \ L$$
 - NPSEM-IE is stronger than necessary to achieve this result. 
 
@@ -1163,40 +1177,21 @@ knitr::include_graphics("img/2_swig6_fig9.png")
 
 - NPSEM-IE says $$Z \ci \lbrace M(z) \text{ for all } z \rbrace \ci \lbrace Y(z, m)\ \text{for all } z, m \rbrace$$
 
-  - For example, $M(0) \ci Y(Z = 1, M = 0)$.
+  - For example, $M(Z = 0) \ci Y(Z = 1, M = 0)$.
 
 ---
 
-## Factorization Proof Sketch
+## Factorization Result
 
-- An important result is that the FFRCISTG assumption is sufficient to conclude that if  $P(\mathbf{V})$ factorizes according to $\mathcal{G}$ then  $P(\mathbf{V}(\mathbf{a}))$ factorizes according to the SWIG $\mathcal{G}(a)$. 
+- An important result is that the FFRCISTG assumption is sufficient to conclude that if  $P(\mathbf{V})$ factorizes according to $\mathcal{G}$ then  $P(\mathbf{V}(\mathbf{a}))$ factorizes according to the SWIG $\mathcal{G}(\mathbf{a})$. 
 
 
-Proof idea: Work by reverse induction
-- FFRCISTG tells us that the property holds for interventions on all variables. 
-  - This follows trivially (in a mathematical sense)
-  - CI properties for of the SWIG for an intervention on all variables say that $P(\mathbf{V}(\mathbf{a})) = \prod_j P(V_j(\mathbf{a}))$.
-  - This is exactly the FFRCISTG independence assumption. 
+- This result is saying that the SWIG is an accurate representation of the world of intervention $\mathbf{a}$.
+
+- The proof of this result works by reverse induction. 
+
+- We won't prove this in class but there is a nice illustration in Appendix B1 of Richardson and Robins (2013).
   
-  
----
-## Factorization Proof Sketch 
-
-
-- Suppose we have an intervention on a set of variables $A \subset \mathbf{V}$ and that the property holds for all (strict) supersets of $A$. 
-
-- We can find a single variable $C$ to add to $A$ and prove the factorization result only for terms involving $C$.
-
-<center> 
-
-```{r, echo=FALSE, out.width="75%", fig.height=3}
-knitr::include_graphics("img/2_factorization.png")
-```
-
-</center>
-
-- See appendix B1 of Richardson and Robins (2013).
-
 ---
 
 ## SWIGs, Exchangeability, and d-Separation
@@ -1207,13 +1202,13 @@ knitr::include_graphics("img/2_factorization.png")
 
 - $d$-separation in the SWIG is equivalent to satisfying the backdoor criterion. 
 
-- So this proof also shows that the FFRCISTG assumptions imply the backdoor criterion. 
+- So the proof of the factorization result also implies that proof also shows that the FFRCISTG assumptions are sufficient for the backdoor backdoor criterion theorem to hold
 
-- Since NPSEM-IE is strictly stronger than FFRCISTG, NPSEM-IE assumptions also imply the backdoor criterion. 
+- Since NPSEM-IE is strictly stronger than FFRCISTG, NPSEM-IE assumptions also imply that the backdoor criterion theorem holds. 
 
 ---
 
-## Descendents of $A$ in the Backdoor Criterion
+## Descendents of $A$ 
 
 + Using SWIGs helps show why the backdoor criterion excludes descendants of $A$. 
 
@@ -1224,11 +1219,11 @@ knitr::include_graphics("img/2_swig3.png")
 
 </center>
 
-+ The SWIG on the right shows that, $Y(x) \ci X \vert L_1, L_2(x)$.
++ From the SWIG on the right we can conclude that $Y(x) \ci X \vert L_1, L_2(x)$.
 
 + However, we cannot conclude that $Y(x) \ci X \vert L_1, L_2$ because $L_2$ is not on the graph. 
 
-+ If there is a causal effect of $X$ on $Y$, then conditioning on $L_2$ introduces a type of selection bias (more on this in the future).
++ In fact, the second statement is false. Conditioning on $L_2$ introduces a type of selection bias (more on this in L4).
 
 ---
 
