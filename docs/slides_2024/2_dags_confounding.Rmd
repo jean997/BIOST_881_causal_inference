@@ -770,6 +770,7 @@ render_graph(ayll_graph3)
 
 </center>
 
+square = is conditioned on 
 ---
 
 ## d-Separation and the Causal Markov Property
@@ -798,7 +799,7 @@ $$A \ci B \vert C \Rightarrow\ A \text{ is } d\text{-separated from }B\text{ giv
 
 ## Example
 
-Which pairs of variables are d-Separated? 
+Which pairs of variables are d-Separated unconditionally? 
 
 <center>
 ```{r, echo = FALSE, fig.width = 6, fig.height = 5, fig.align='center'}
@@ -894,9 +895,9 @@ render_graph(m_graph)
 
 --
 
-- $A$ and $Y$ are exchangeable unconditionally, $Y(a) \ci A$, $H = \emptyset$. 
+- $A$ and $Y$ are exchangeable unconditionally, $Y(a) \ci A$, ( $H$ is the emptyset). 
 
-- Conditioning on $L$ induces bias. (M-Bias), $Y(a) \nci} A \vert L$.
+- Conditioning on $L$ induces bias. (M-Bias), $Y(a) \nci A \vert L$.
 
 - If we condition on $L$, we need to also condition on $U_1$ or $U_2$ to block the now open path.
 
@@ -904,7 +905,7 @@ render_graph(m_graph)
 
 ## Examples
 
-What set of variables makes $A$ and $Y$ conditionally exchangeable?
+What set of variables can we condition on to make $A$ and $Y$ conditionally exchangeable?
 
 <center>
 
@@ -922,16 +923,18 @@ render_graph(m_graph)
 
 --
 
+-  $\lbrace U_1, L\rbrace$ and $\lbrace U_2, L \rbrace$ are both sufficient adjustment sets. 
+
 - If $U_1$ and $U_2$ are unobserved, there is no available set of variables we can condition on to remove bias. 
 
-- If we can measure either, $\lbrace U_1, L\rbrace$ and $\lbrace U_2, L \rbrace$ are both sufficient adjustment sets. 
+
 
 
 ---
 
 ## Examples
 
-What set of variables makes $A$ and $Y$ conditionally exchangeable?
+What set of variables can we condition on to make $A$ and $Y$ conditionally exchangeable?
 
 <center>
 ```{r, echo = FALSE, out.width='60%', fig.height = 3, fig.align='left'}
