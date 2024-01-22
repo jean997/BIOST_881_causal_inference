@@ -491,11 +491,12 @@ $$
 - One sufficient assumption is that $\epsilon_1, \dots, \epsilon_n$ are mutually independent of each other and
 the other variables in the model. 
 
-- Richardson and Robins call this the NPSEM-IE (IE = Indepement Errors) model. They also propose a weaker set of assumptions that is also sufficient. 
+- Richardson and Robins call this the NPSEM-IE (IE = Independent Errors) model. They also propose a weaker set of assumptions that is also sufficient. 
 
 - We will come back to this later.
 
 ---
+
 # 4. The Backdoor Criterion
 
 - Using DAGs to identify conditioning sets. 
