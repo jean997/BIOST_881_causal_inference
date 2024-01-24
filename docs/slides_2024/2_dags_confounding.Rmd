@@ -270,10 +270,10 @@ $$
 
 ## Example
 
-Conditional independence statements in the disease tratment graph:
+Conditional independence statements in the disease treatment graph:
 
 $$S\ci A \qquad S\ci Ad \qquad A \ci Ad$$
-$$T \ci Ad\ \vert A, S \qquad O \ci A \ \vert S, T, Ad$$
+$$T \ci Ad\ \vert A, S $$
 <center>
 
 ```{r, echo = FALSE, fig.width = 6, fig.height = 5,  fig.align='center'}
