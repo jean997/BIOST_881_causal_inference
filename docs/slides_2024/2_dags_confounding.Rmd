@@ -118,7 +118,7 @@ elements of $E$ are un-ordered.
 
 ## Graph Definitions
 
-- A *path* is a sequence of edges in which each edge contains one node from the previous edge.
+- A *path* is a sequence of nodes connected by edges that does not intersect itself (a node cannot appear in a path twice).
 
 - In a directed path, all of the edges are oriented in the same direction: i.e. each edge starts at last node of the previous edge. 
 
