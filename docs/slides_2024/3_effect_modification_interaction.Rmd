@@ -411,8 +411,8 @@ ex_node <- create_node_df(n = 4, label = c("V", "A", "Y", "L"),
                      color = "black", 
                      x = c(1, 0, 1, 0.5), 
                      y = c(1, 0, 0, 0.8))
-ex_edge <- create_edge_df(from = c(1, 4, 4),
-                          to = c(3, 2, 3),
+ex_edge <- create_edge_df(from = c(1, 4, 4, 2),
+                          to = c(3, 2, 3, 3),
                           minlen = 1, 
                           color = "black", 
                           )
@@ -428,7 +428,7 @@ A \sim Bern(0.6-0.3L)\\\
 Y(0) \sim Bern(0.5 + 0.2L)\\\
 Z \sim Bern(0.2 + 0.3V)\\\
 Y(1) = \begin{cases} 0 &  \ \ Y(0) = 0 \\\ 
-1- Z & \ \  Y(1) =1 
+1- Z & \ \  Y(0) =1 
 \end{cases}\\\
 $$
 

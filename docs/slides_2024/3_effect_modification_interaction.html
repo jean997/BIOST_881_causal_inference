@@ -35,7 +35,7 @@ class: center, middle, inverse, title-slide
 ### University of Michigan
 ]
 .date[
-### Lecture on 2024-01-24 (updated: 2024-01-21)
+### Lecture on 2024-01-24 (updated: 2024-01-29)
 ]
 
 ---
@@ -443,7 +443,7 @@ I simulated 1000 units from the model
 &lt;center&gt;
 
 <div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-1dce438bf14852d4e1d9" style="width:576px;height:216px;"></div>
-<script type="application/json" data-for="htmlwidget-1dce438bf14852d4e1d9">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"V\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,1!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.8!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-1dce438bf14852d4e1d9">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"V\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,1!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.8!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 $$
@@ -452,7 +452,7 @@ A \sim Bern(0.6-0.3L)\\\
 Y(0) \sim Bern(0.5 + 0.2L)\\\
 Z \sim Bern(0.2 + 0.3V)\\\
 Y(1) = \begin{cases} 0 &amp;  \ \ Y(0) = 0 \\\ 
-1- Z &amp; \ \  Y(1) =1 
+1- Z &amp; \ \  Y(0) =1 
 \end{cases}\\\
 $$
 
