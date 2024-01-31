@@ -1,0 +1,1249 @@
+---
+title: "L4: Selection Bias"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "2024-01-31 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+## Lecture Outline
+
+1. Selection Bias and Censoring
+1. Non-Compliance
+1. Measurement Error
+---
+
+# 1. Selection Bias and Censoring
+
+---
+## Example
+
+
+- Drug $A$, is an HIV treatment. We are interested in measuring its effect on disease progression. 
+
+- We assess disease progression using CD4 count. The outcome, $Y$, is binary and is 1 if CD4 count falls below a threshold within one year of starting treatment (bad) or is 0 if CD4 count stays above the threshold. 
+
+- Some patients drop out of the study before the one year mark and we cannot observe their outcome.
+
+- Patients may drop out if they are in poor health due to disease progression. 
+
+- They also might drop out if they are in poor health due to side effects of treatment, $L$.
+
+- Use a variable $C$ (for censoring) to represent whether a patient drops out of the study before one year ( $C = 1$ ) or stays in the study ( $C = 0$).
+
+- With a partner, draw a DAG representing this scenario.
+
+---
+
+## HIV Treatment Example
+
+<center>
+```{r, echo = FALSE, out.width='90%', fig.align='left', message = FALSE, warning=FALSE}
+library(DiagrammeR)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+hiv_node0 <- create_node_df(n = 4, label = c("A", "Y", "L", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(3, 1)),
+                     x = c(0, 1, 1, 2)*0.8, 
+                     y = c(0, 0, 1, 0)*0.8)
+hiv_edge0 <- create_edge_df(from = c(1, 1, 2, 3 ), to = c(2, 3, 4, 4),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+hiv_graph0 <- create_graph(nodes_df = hiv_node0, edges_df = hiv_edge0)
+
+render_graph(hiv_graph0)
+```
+</center>
+
+---
+
+## HIV Treatment Example
+
+- If there had been no censoring, could we identify $E[Y(a)]$? (i.e. is there a set of variables $\mathcal{V}$ such that $Y(a) \ci A \vert\ \mathcal{V}$)?
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+
+hiv_graph_noc <- create_graph(nodes_df = hiv_node0[-4,], edges_df = hiv_edge0[-c(3, 4),])
+
+render_graph(hiv_graph_noc)
+```
+</center>
+
+
+- With some data unobserved, can we identify the effect of $A$ on $Y$?
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+render_graph(hiv_graph0)
+```
+</center>
+
+---
+
+## HIV Treatment Example
+
+- Once we condition on the collider, $C$, we open the path $A \to L \to C \leftarrow Y$, inducing non-causal association between $A$ and $Y$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+render_graph(hiv_graph0)
+```
+</center>
+
+- This is one type of **selection bias**
+
+
+
+---
+
+## HIV Treatment Example
+
+- Suppose that treatment has no side effects. 
+
+- Treatment can only influence selection *through* its effect on $Y$.
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+hiv_node <- create_node_df(n =3 , label = c("A", "Y", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(2, 1)),
+                     x = c(0, 1, 2)*0.8, 
+                     y = c(0, 0, 0)*0.8)
+hiv_edge <- create_edge_df(from = c(1, 2), to = c(2, 3),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+hiv_graph <- create_graph(nodes_df = hiv_node, edges_df = hiv_edge)
+
+render_graph(hiv_graph)
+```
+</center>
+
+- Do we still have selection bias if only the outcome affects censoring?
+
+---
+
+## Example Continued
+
+- Suppose that $A$ is effective:
+
+$$E[Y(1)] = E[Y \vert A = 1] = 0.1 \qquad E[Y(0)] = E[Y \vert A = 0] =  0.8$$
+
+ 
+- And patients with $Y = 0$ are more likely to remain in the study than patients with $Y = 1$.
+
+
+$$P[C = 0 \vert Y = 0] = 1 \qquad P[C = 0 \vert Y = 1] = 0.5$$
+
+- With your partner, compute the average causal effect of $A$ on $Y$ and compute the associational 
+effect in the sub-population with $C = 0$, 
+$E[Y \vert A = 1, C = 0] - E[Y \vert A = 0, C = 0]$.
+
+
+<center>
+```{r, echo = FALSE, fig.height = 2}
+render_graph(hiv_graph)
+```
+</center>
+
+---
+
+## Example Continued
+
+Use Bayes' Theorem:
+
+$$
+\begin{split}
+P( Y = 1 \vert A = 1, C = 0) = & \frac{P(C = 0 \vert Y = 1,  A = 1)P(Y = 1 \vert A = 1)}{P(C = 0 \vert A = 1)}\\
+P( Y = 1 \vert A = 0, C = 0) = & \frac{P(C = 0 \vert Y = 1,  A = 0)P(Y = 1 \vert A = 0)}{P(C = 0 \vert A = 0)}
+\end{split}
+$$
+
+$$
+\begin{split}
+P(C = 0 \vert A = 1) = & P(C =  0 \vert A = 1, Y = 0) P(Y = 0 \vert A = 1) + \\
+                       & P(C = 0 \vert A = 1, Y = 1) P(Y = 1 \vert A = 1)\\
+ = & 1 \cdot 0.9 + 0.5 \cdot 0.1 = 0.95\\
+ P(C = 0 \vert A = 0) = & P(C =  0 \vert A = 0, Y = 0) P(Y = 0 \vert A = 0) + \\ 
+                       & P(C = 0 \vert A = 0, Y = 1) P(Y = 1 \vert A = 0)\\
+ = & 1 \cdot 0.2 + 0.5 \cdot 0.8 = 0.6
+\end{split}
+$$
+ 
+---
+
+## Example Continued
+
+$$
+\begin{split}
+P( Y = 1 \vert A = 1, C = 0) = & \frac{0.5 \cdot 0.1 }{0.95} \approx 0.053 \\
+P( Y = 1 \vert A = 0, C = 0) = & \frac{0.5 \cdot 0.8 }{0.6} \approx 0.67
+\end{split}
+$$
+$$E[Y \vert A = 1, C  =0] - E[Y \vert A = 0, C = 0] \approx -0.61$$
+
+$$E[Y(1)] - E[Y(0)] = -0.7$$
+
+- The associational value is not equal to the ATE so there is selection bias.
+
+---
+
+## Example Continued
+
+- Now assume there is no effect of $A$ on $Y$:
+
+$$E[Y(1)] = E[Y \vert A = 1] = p \qquad E[Y(0)] = E[Y \vert A = 0] =  p$$
+
+ 
+- And patients with $Y = 0$ are more likely to remain in the study than patients with $Y = 1$.
+
+
+$$P[C = 0 \vert Y = 0] = 1 \qquad P[C = 0 \vert Y = 1] = 0.5$$
+- Repeat your calculation of  $E[Y \vert A = 1, C = 0] - E[Y \vert A = 0, C = 0]$.
+
+---
+
+## Example Continued
+
+$$
+\begin{split}
+P(C = 0 \vert A = 1) = P(C = 0 \vert A = 0) = (1-p) + 0.5 p = \frac{2-p}{2}\\
+\end{split}
+$$
+
+$$
+\begin{split}
+P( Y = 1 \vert A = 1, C = 0) = & \frac{0.5 p}{\frac{2-p}{2}} = \frac{p}{2-p}\\
+P( Y = 1 \vert A = 0, C = 0) = & \frac{0.5 p}{\frac{2-p}{2}} = \frac{p}{2-p}
+\end{split}
+$$
+
+- $E[Y \vert A =a, C = 0] \neq E[Y(a)]$, however, there is no bias in the estimate of the ATE.
+
+---
+
+## Selection Bias Under the Null
+
+- In both examples we have selection bias because $C$ is a common effect of both $A$ and $Y$.
+
+- In the first case, this condition is true whether or not $A$ has a non-zero effect on $Y$ (*selection bias under the null*).
+
+<center>
+```{r, echo = FALSE, fig.height = 1.5}
+render_graph(hiv_graph0)
+```
+</center>
+
+- In the second case (all of the effect of $A$ on $C$ is mediated by $Y$), this condition *only* occurs when there is a non-zero causal effect of $A$ on $Y$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 0.75}
+render_graph(hiv_graph)
+```
+</center>
+
+- Selection bias under the null always implies selection bias in non-null settings.
+
+- The reverse is not true (as we have seen).
+
+---
+## Colliding Creates Selection Bias
+
+- Conditioning on a variable that is a child of both the outcome and the exposure creates selection bias.
+
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+#render_graph(hiv_graph)
+ndf6 <- create_node_df(n =3 , label = c("A", "Y", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(2, 1)),
+                     x = c(0, 1, 0.5)*0.8 + 2.8, 
+                     y = c(1, 1, 0)*0.8)
+edf6 <- create_edge_df(from = c(1, 2, 1)+4, to = c(3, 3, 2)+4,
+                          minlen = 1, 
+                          color = "black", 
+                          )
+ndf7 <- create_node_df(n = 5, label = c("A", "Y", "L", "U", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(4, 1)),
+                     x = c(0, 1, 1, 2, 3)*0.8 + 1.5, 
+                     y = c(0, 0, 1, 0, 0)*0.8 - 1.5)
+edf7<- create_edge_df(from = c(1, 1, 2, 3, 4 ) , to = c(2, 3, 4, 4, 5) ,
+                          minlen = 1, 
+                          color = "black", 
+                          )
+g6 <- create_graph(nodes_df = combine_ndfs(hiv_node0, ndf6), edges_df = combine_edfs(hiv_edge0, edf6))
+render_graph(g6)
+```
+</center>
+
+
+---
+
+## Children of Colliders are Colliders
+
+- Conditioning on a child of a confounder opens the path the confounder is on. 
+
+- In the graph below, conditioning on $C$ opens the $A \to L \to U \leftarrow Y$ path. 
+
+- Conditioning on $C$ is the same as conditioning on a noisy measurement of $U$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2}
+g7 <- create_graph(nodes_df = ndf7, edges_df = edf7)
+render_graph(g7)
+```
+</center>
+---
+
+## Selection Bias without Colliding
+
+- In our previous HIV treatment example, suppose that low CD4 count does not directly cause censoring.
+
+- Instead there is a variable $U$ representing health which is a common cause of both $Y$ and $S$. 
+
+- We still have selection bias in this case, but $C$ is not a descendant of $Y$ and is not a collider.
+
+<center>
+```{r, echo = FALSE, fig.height = 3.5}
+hiv_node2 <- create_node_df(n =4 , label = c("A", "Y", "U", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(3, 1)),
+                     x = c(0, 2, 1, 2)*0.8, 
+                     y = c(0, 1, 0, -1)*0.5)
+hiv_edge2 <- create_edge_df(from = c(1, 3, 3), to = c(3, 2, 4),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+hiv_graph2 <- create_graph(nodes_df = hiv_node2, edges_df = hiv_edge2)
+
+render_graph(hiv_graph2)
+```
+</center>
+
+---
+## Selection Bias Definition
+
+
+- **Selection bias** is bias that occurs due the presence of selection. 
+  - An estimator that would be unbiased if all data were observed is biased due to conditioning on $C = 0$. 
+
+
+- Selection bias occurs when we condition on a variable, $C$, which is a common effect of two variables, $X_1$ and $X_2$ and
+
+- $X_1$ is either the treatment or *associated* with the treatment.
+
+- $X_2$ is either the exposure or *associated* with the exposure. 
+
+
+- Equivalently, conditioning on $C$ leads to selection bias **unless** $Y \ci C \vert A$ (i.e. $Y$ is $d$-separated from $C$ by $A$).
+
+---
+
+## Selection Could Happen Before the Outcome 
+
+
+<center>
+```{r, echo = FALSE, fig.height = 5}
+ndf8 <- create_node_df(n =5 , label = c("A", "L", "C", "Y", "U"),
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square", "circle"), c(2, 1, 2)),
+                     x = c(0, 1, 2, 3, 2)*0.8, 
+                     y = c(0, 0, 0,0,1)*0.5)
+edf8 <- create_edge_df(from = c(1, 2, 5, 5), to = c(2, 3, 2, 4),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr8 <- create_graph(nodes_df = ndf8, edges_df = edf8)
+
+render_graph(gr8)
+```
+</center>
+
+
+---
+
+## Selection Could Happen Before the Exposure 
+
+
+<center>
+```{r, echo = FALSE, fig.height = 5}
+ndf9 <- create_node_df(n =5 , label = c("L", "U", "C", "A", "Y"),
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square", "circle"), c(2, 1, 2)),
+                     x = c(0, 1,1,2,  3)*0.8, 
+                     y = c(0, 1, -2, 0, 0)*0.5)
+edf9 <- create_edge_df(from = c(1, 1, 2, 2), to = c(3, 4, 1, 5),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr9 <- create_graph(nodes_df = ndf9, edges_df = edf9)
+
+render_graph(gr9)
+```
+</center>
+
+
+<!-- --- -->
+
+<!-- Extended Backdoor Criterion -->
+
+
+<!-- --- -->
+
+
+---
+# Augmenting DAGs
+
+- The DAGs we have been drawing are harboring a hidden counterfactual. 
+
+- If there is no effect of selection on $Y$, he node $Y$ could be written as $Y(C = 0)$, the value of $Y$ that we would observe if nobody was censored.
+
+- Our DAGs are missing the value of $Y$ that we actually observe, $Y^{obs}$ which is determined by $Y(C = 0)$ and $C$.
+
+<center> 
+
+```{r, echo=FALSE, fig.height  =3.5}
+ndf10 <- create_node_df(n =6 , label = c("A", "L", "C", "Y(C=0)", "U", "Y@^{obs}"),
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     fixedsize =FALSE,
+                     shape = c("circle", "circle", "square", "ellipse", "circle", "ellipse"),
+                     x = c(0, 1, 2, 3, 2, 2.5)*0.8, 
+                     y = c(0, 0, 0,0,1, -1.5)*0.5)
+edf10 <- create_edge_df(from = c(1, 2, 5, 5, 4, 3), to = c(2, 3, 2, 4, 6, 6),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr10 <- create_graph(nodes_df = ndf10, edges_df = edf10)
+
+render_graph(gr10)
+```
+
+</center>
+
+
+
+
+
+
+---
+## Adjusting for Selection
+
+- In some cases we can recover from selection bias. 
+
+- This will generally require information about the distribution of some variables without selection. 
+
+---
+## Example
+
+
+- In this graph, if we were did not have censoring (no conditioning on $C$), $Y(a) \ci A$ (unconditionally)
+
+- With no censoring, it is also true that $Y(a) \ci A \vert L$ so $E[Y(a) \vert L = l] = E[ Y \vert L = l, A = a]$.
+
+- From the causal markov property, $Y \ci C \vert L, A$, so $E[Y \vert L = l, A = a] = E[Y \vert L = l, A = a, C = 0]$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+ndf15 <- create_node_df(n =4 , label = c("A", "Y", "L", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     fixedsize= TRUE,
+                     shape = c("circle", "circle", "circle", "square"),
+                     x = c(0, 3, 2, 1)*0.6, 
+                     y = c(0, 0, 2, 1)*0.5)
+edf15 <- create_edge_df(from = c(1, 3, 3, 1), to = c(2, 2, 4, 4),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr15 <- create_graph(nodes_df = ndf15, edges_df = edf15)
+
+render_graph(gr15)
+```
+</center>
+
+---
+## Example
+
+- We can identify the causal effect using the formula 
+
+$$
+\begin{split}
+E[ Y(a) ] = \sum_l E[Y(a) \vert L = l] P[L = l]\\
+= \sum_{l} E[ Y \vert L = l, A = a, C = 0] P[L = l]
+\end{split}
+$$
+- But this requires an estimate of $P[L = l]$, not $P[L = l \vert C = 0]$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr15)
+```
+</center>
+
+
+---
+
+## Selection Backdoor Criterion
+
+- Barenboim, Tian, and Pearl (2014) give an extension of the backdoor criterion for settings with selection. 
+
+- Let $\mathbf{Z}$ be a set of conditioning variables with $\mathbf{Z}^{+}$ non-descendents of $A$ and $\mathbf{Z}^{-}$ descendents of $A$. 
+
+- $\mathbf{Z}$ satisfies the s-backdoor criterion relative to $A$ and $Y$ if:
+
+1. $\mathbf{Z}^{+}$ blocks all backdoor paths from $A$ to $Y$.
+1. $Y \ci \mathbf{Z}^{-} \vert A, \mathbf{Z}^{+}$ ( $Y$ is $d$-separated from $\mathbf{Z}^{-}$ by $A$ and $\mathbf{Z}^{+}$)
+1. $Y \ci C \vert A, \mathbf{Z}$ ( $Y$ is $d$-separated from $C$ by $A$ and $\mathbf{Z}$)
+1. $P(\mathbf{Z})$ can be measured without selection.
+
+---
+
+## Selection Backdoor Criterion
+
+- If $\mathbf{Z}$ satisfies the s-backdoor criterion, then $E[Y(a)]$ can be identified by 
+
+$$P[Y(a)] = \sum_{z} P(Y \vert A, \mathbf{Z}, C = 0) P(\mathbf{Z})$$
+
+
+- We need $P(A = a, Z = z, C = 0) > 0$ for all $a$ and $z$.
+  - Or equivalently, $P[C = 0 \vert A = a, Z = z] > 0$. 
+---
+## Example
+
+- In this example, we can satisfy the s-backdoor criterion with $\mathbf{Z} = \left\lbrace L \right \rbrace$ with $\mathbf{Z}^{+} = \left\lbrace L \right \rbrace$ and $\mathbf{Z}^{-} = \left\lbrace  \right \rbrace$:
+
+1. There are no backdoor paths from $A$ to $Y$.
+1. $\mathbf{Z}^{-}$ is the empty set so the second condition is satisfied.
+1.  $Y \ci C \vert A, L$
+1. So we must be able to observe $L$ without censoring. 
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr15)
+```
+</center>
+
+
+---
+## IP Weighting for Selection Bias
+
+- There is an alternative IP weighting approach to selection bias. 
+
+- First, we want to weight the data to look like a population with no selection. We need a set of variables $L_1$ such that
+
+$$Y( C = 0) \ci C \vert\ L_1, A$$
+
+- We then weight the data by $W^{c} = \frac{1}{P(C = 0 \vert L_1, A)}$
+
+- Second, we need a set of variables $L_2$ such that 
+
+$$Y(a, C = 0) \ci A \vert\ L_2$$
+- The second stage weights are $W^{A} = \frac{1}{f(A \vert L_2)}$
+
+- The total weights are $W = W^{C} W^{A}$
+
+
+---
+
+## IP Weighting Example 1
+
+- The graph we saw earlier is a modified verison of  HR Fig 8.3:
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+ndf15$label[2] <- "Y(C = 0)"
+ndf15$fixedsize[2] <- FALSE
+ndf15$shape[2] <- "ellipse"
+gr15 <- create_graph(nodes_df = ndf15, edges_df = edf15)
+
+render_graph(gr15)
+```
+</center>
+
+
+- $L$ represents pre-existing heart disease. 
+
+- $A$ is random assignment to a diet containing wasabi. 
+
+- $Y$ indicates death by the end of the trial. 
+
+- Some participants are lost to follow-up ( $C = 1$ ) due either to heart disease or the treatment assignment.
+
+
+---
+## IP Weighting Example 1
+
+
+- We must condition on $L$ to block the path between $Y(C = 0)$ and $C.$
+
+- $Y(a, C = 0)$ is independent of $A$ unconditionally. 
+
+- Since there is no confounding, we only need to compute $W^{C} = 1/P[C = 0 \vert L, A]$ for all levels of $L$ and $A$. 
+
+- We can do this as long as only $Y$ is censored.
+
+- To use the stratification strategy, we only needed uncensored estimates of $P(L)$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr15)
+```
+</center>
+
+---
+## IP Weighting Example 1
+
+- The table shows $P[C = 0 \vert A, L]$ from the HR example.
+<center> 
+```{r, echo = FALSE}
+ opts <- options(knitr.kable.NA = "")
+X <- data.frame(A0 = c(1, 0.6), A1 = c(0.5, 0.2))
+
+row.names(X) <- c("\\(L=0\\)", "\\(L=1\\)")
+kable(X, col.names = c( "\\(A=0\\)", "\\(A=1\\)"), 
+      format = 'html', row.names = TRUE, digits = 2)
+```
+</center>
+
+- Individuals with $A = 0$ and $L = 0$ get weight 1 because they were never censored. 
+
+- Individuals with $A = 1$ and $L =1$ get weight 5 because $4/5$ of this stratum is censored.
+
+---
+
+## Positivity and Consistency 
+
+- In order to use IP weighting, we need $P[C = 0 \vert A, L] > 0$ in all strata of $A$ and $L$.
+
+- We do not need $P[C = 1 \vert A, L] > 0$.
+
+- We also need the the counterfactual outcome $Y(a, C = 0)$ to be well-defined. 
+  + If $C$ is loss to follow-up, it makes sense to suppose that all patients were followed. 
+
+- Suppose that $C$ is censoring due to death resulting from causes other than $A$. 
+  + HR argue that it doesn't make sense to propose an intervention that that eliminates all other causes of death.
+  
+---
+## IP Weighting Example 2
+
+- In the previous example, we saw that both IP weighting and stratification on $L$ could be used to identify the treatment effect. 
+
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+ndf2 <- create_node_df(n =5 , label = c("A", "Y(C = 0)", "L", "C", "U"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     fixedsize = FALSE,
+                     shape = c("circle", "ellipse", "circle", "square", "circle"),
+                     x = c(0, 3, 1,2, 2)*0.8, 
+                     y = c(0, 0, 0, 0, 1)*0.8)
+edf2 <- create_edge_df(from = c(1, 3, 5, 5), to = c(3, 4, 3, 2),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+gr2 <- create_graph(nodes_df = ndf2, edges_df = edf2)
+
+render_graph(gr2)
+```
+</center>
+
+
+- In this case, stratifying by $L$ induces confounding through the path $A \rightarrow L \leftarrow U \rightarrow Y$.
+
+- In this graph, there is no way to satisfy the s-backdoor criterion without observing $U$:
+  - To $d$-separate $Y$ from $C$, we must condition on $L$. 
+  - But $L$ is a child of $A$, so in $\mathbf{Z}^{-}$ and there is no way to $d$-separate $L$ from $Y$ without $U$. 
+
+
+---
+## IP Weighting Example 2
+
+
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+ndf2 <- create_node_df(n =5 , label = c("A", "Y(C = 0)", "L", "C", "U"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     fixedsize = FALSE,
+                     shape = c("circle", "ellipse", "circle", "square", "circle"),
+                     x = c(0, 3, 1,2, 2)*0.8, 
+                     y = c(0, 0, 0, 0, 1)*0.8)
+edf2 <- create_edge_df(from = c(1, 3, 5, 5), to = c(3, 4, 3, 2),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+gr2 <- create_graph(nodes_df = ndf2, edges_df = edf2)
+
+render_graph(gr2)
+```
+</center>
+
+
+- Without $U$, there is no stratification strategy recover $E[Y(a)]$, even with uncensored observations of $A$ and $L$. 
+
+- However, weighting by $1/P[C = 0 \vert A, L]$ works. 
+  - We must be able to observe $A$, $L$ and $C$ without censoring.
+
+
+---
+
+## Sources of Selection Bias
+
+- Differential loss to follow-up: Participants may drop out of the study for reasons related to the treatment or outcome.
+
+- Non-response: Social stigmas may make people more likely to omit some kinds of information than others.
+  
+- Self-selection/volunteer bias: Some individuals may be more likely to volunteer for a study than others. 
+  <!-- + For example, healthy people with a family history of cancer may be more likely to participate in a cancer study.  -->
+  <!-- + If the study is advertised in particular places (e.g. on public transport), some people will be more likely to know about the study than others.  -->
+  
+- Healthy worker bias: Participants for a study of an occupational exposure on an outcome are recruited from among those who are at work on the day the exposure is measured.
+  + People may be more likely to miss work for reasons directly related to the outcome or for 
+  reasons that are associated with both outcome and exposure (e.g. SES).
+
+---
+
+## Case-Control Studies
+
+- The graph from our first example could have described a case-control study. 
+
+<center>
+```{r, echo = FALSE, fig.height = 1.5}
+render_graph(hiv_graph)
+```
+</center>
+
+- Individuals are selected into the study based on their value of $Y$. 
+
+- In this case, we are no longer able estimate the average counterfactuals or the causal risk ratio. 
+- However, in this DAG, we can estimate the causal odds ratio due to cancellation. 
+---
+## Case-Control Studies
+
+- Without censoring, $Y(a)$ and $A$ are exchangeable so $E[Y(a)]= E[Y \vert A]$.
+
+- We only get to observe $E[Y \vert A, C = 0]$
+$$
+\text{OR} = \frac{P[Y = 1 \vert A ]}{P[Y = 0 \vert A ]}\\\
+= \frac{P[Y = 1\vert A, C = 0]P[C = 0 \vert A]}{P[Y = 0\vert A, C = 0]P[C = 0 \vert A]} \\\
+= \frac{P[Y = 1\vert A, C = 0]}{P[Y = 0\vert A, C = 0]}
+$$
+- So the association odds ratio is equal to the causal odds ratio. 
+
+<center>
+```{r, echo = FALSE, fig.height = 1.5}
+render_graph(hiv_graph)
+```
+</center>
+
+---
+## Case-Control Studies
+
+- If $Y$ is the only cause of selection, we can recover $E[Y(a)]$ by using outside information, even though there is no way to satisfy the s-backdoor criterion.
+
+- If we know $P[Y = 1] = \alpha$ in the target population, we can compute the value of $P[Y \vert A]$ that we would have observed in the full population.
+
+$$
+\begin{split}
+P[Y(a)=1] = & P[Y =1 \vert A = a] = \frac{P[A = a \vert Y = 1]P[Y = 1]}{P[A = a]} \\
+= &\frac{\alpha P[A = a \vert Y = 1]}{\alpha P[A = a \vert Y = 1] + (1-\alpha)P[A = a \vert Y = 0]}\\
+= & \frac{\alpha P[A = a \vert Y = 1, C= 0]}{\alpha P[A = a \vert Y = 1, C = 0] + (1-\alpha)P[A = a \vert Y = 0, C = 0]}
+\end{split}
+$$
+<center>
+```{r, echo = FALSE, fig.height = 1}
+render_graph(hiv_graph)
+```
+</center>
+
+---
+
+## Selection Bias and Hazard Ratios
+
+- Suppose we have a single treatment $A$ and then individuals are followed over time. 
+
+- We are interested in estimating the counterfactual risk of death under treatment $a$ (or the RR comparing treatment $a$ and $a^\prime$ ). 
+
+- For simplicity, assume we have two discrete time points and know 
+  + $Y_1$: death  by time point 1
+  + $Y_2$: death by time point 2
+  
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+ndf3 <- create_node_df(n =4 , label = c("A", "Y@_{2}", "Y@_{1}", "U"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     
+                     shape = "circle",
+                     x = c(0, 2, 1, 1.5)*0.8, 
+                     y = c(0, 0, 0, 1)*0.5)
+edf3 <- create_edge_df(from = c(1, 4, 4, 3), to = c(3, 3, 2, 2),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+gr3 <- create_graph(nodes_df = ndf3, edges_df = edf3)
+
+render_graph(gr3)
+```
+</center>
+  
+
+---
+
+## Hazard Ratios
+
+- In this DAG, we can estimate the total causal effect of $A$ on both $Y_1$ and $Y_2$ since we have exchangeability for both. 
+  - In both cases, the causal risk ratio is equal to the association risk ratio.
+
+
+- The *hazard* at time 2 is the probability of dying by time 2 conditional on being alive at time 1 (for discrete time). 
+
+- Based on our DAG, conditional on $Y_1$, there is no effect of $A$ on $Y_2$. 
+
+- However, conditioning on $Y_1$ induces a non-causal association between $Y_2$ and $A$ through $U$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+ndf4 <- ndf3
+ndf3$shape[3] <- "square"
+gr3 <- create_graph(nodes_df = ndf3, edges_df = edf3)
+render_graph(gr3)
+```
+</center>
+
+---
+## Hazard Ratios Example
+
+- Suppose that $U$ is an indicator for being high-risk or low-risk. 
+
+- With no treatment, half of the high-risk individuals would die at each time and most of the low-risk individuals would survive.
+
+- Suppose that the treatment kills all high-risk individuals by time 1 and has no effect for low-risk individuals.
+
+- At time 2, the treatment group contains only low-risk individuals, but the control group contains a mix of low and high-risk individuals.
+
+- At time 2, a greater proportion of  individuals in the control group will die than in the treatment group, so the hazard ratio at time 2 will be less than 1.
+  - Even though the treatment is not beneficial for any patients at any time point! 
+
+
+---
+# 2. Non-Compliance
+
+---
+## Non-Compliance
+
+- We perform a randomized trial of smoking cessation. 
+
+- A population of current smokers with no immediate plans to quit are recruited. 
+
+- Half the participants are assigned to quit smoking for six weeks, the other half are assigned to continue smoking as usual ( $Z$ ).
+
+- We measure cardiovascular endurance at the beginning and end of the study. 
+
+- Our outcome, $Y$, represents the change in endurance over 6 weeks. 
+
+
+---
+## Non-Compliance
+
+- Suppose that both treatment groups have some rate of non-adherence to the treatment plan. 
+
+  + There are some people who are assigned to quit and don't. 
+  + Some people assigned to continue smoking are inspired by their study particpation and decide to quit anyway. 
+
+- Let $A$ represent the actual treatment each person receives (quitting or not). 
+
+- Let $U$ be a confounder that affects both adherence and change in endurance. 
+
+- Draw a DAG of this scenario. 
+
+---
+## Non-Compliance
+
+<center>
+```{r, echo = FALSE, fig.height = 4}
+ndf4$label[1:3] <- c("Z", "Y", "A")
+ndf4$y[4] <- -0.5
+ndf4$y[1] <- 0.5
+ndf4$x[1] <- 0.2
+ndf4$x <- ndf4$x*1.5
+edf4 <- create_edge_df(from = c(1, 4, 4, 3,1), to = c(3, 3, 2, 2, 2),
+                          minlen = 1, 
+                          color = rep(c("black", "blue"), c(4, 5)) 
+                          )
+gr4 <- create_graph(nodes_df = ndf4, edges_df = edf4)
+render_graph(gr4)
+```
+</center>
+
+- The blue arrow may exist if knowledge of the treatment assignment alters participants behavior. 
+  + People who are assigned to quit and don't may exercise more to "make up" for not quitting. 
+  
+- The blue arrow might be eliminated if it is possible to conceal the treatment from participants (*blinding*).
+
+---
+
+## Non-Compliance
+
+- We would like to estimate $E[Y(a)]$ and 
+   + $E[Y(A=1)] - E[Y(A = 0)]$, the *per-protocol (PP) effect*.
+   + In this graph, the presence of $U$ means that $E[Y(a)]$ is not identifiable.
+
+- We can identify $E[Y(z)]$. 
+  + $E[Y(z =1)] - E[Y(z = 0)]$ is the *intention-to-treat (ITT) effect*. 
+<center>
+```{r, echo = FALSE, fig.height = 3.5}
+render_graph(gr4)
+```
+</center>
+---
+
+## Pros of the ITT
+
+- The ITT can be measured from the data without confounding and is therefore often preferred. 
+
+- If we further assume that the blue arrow does not exist, then the following arguments are in favor of the ITT.
+
+- The ITT preserves the null: If there is no effect of $A$ on $Y$ then there is no effect of $Z$ on $Y$. 
+
+- If we further assume *monotonicity* ( $Y_i(1) \geq Y_i(0)$ for all individuals $i$ ), then the ITT effect is closer to zero than the PP effect, making the estimate conservative.
+
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr4)
+```
+</center>
+
+---
+
+## Cons of the ITT
+
+- Conservativeness is not always good. 
+
+  + For example, if we are looking for adverse effects of a medication, a conservative estimate is dangerous. 
+  
+- If montonicity does not hold, the ITT may be anti-conservative:
+
+  + Suppose individuals who benefit from the treatment are more likely to comply than individuals who would be harmed by it.
+  
+- In some cases, assuming the blue arrow is not present is unreasonable. 
+  + If the blue arrow is present the ITT may differ from the PP in any direction. 
+
+---
+
+## "As-Treated" Analysis to Estimate the PP Effect
+
+- If we can measure confounding factors between $A$ and $Y$, we can estimate the PP effect using IP weighting or standardization. 
+
+- In this case we are treating our trial data like observational data. 
+  
+- This is the "as-treated" analysis. 
+
+<center>
+```{r, echo = FALSE, fig.height = 3.5}
+render_graph(gr4)
+```
+</center>
+
+---
+## "Per-Protocol" Analysis to Estimate the PP Effect
+
+- Another commonly used alternative is to exclude all non-compliers from the analysis.  
+
+- This approach introduces selection bias unless the the confounders $U$ are measured.
+
+- So either way, we need to measure $U$. 
+
+- Later we will see an alternative method, instrumental variable analysis, which requires some additional assumptions.
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+ndf5 <- create_node_df(n =5 , label = c("Z", "Y", "A", "U", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = rep(c("circle", "square"), c(4, 1)),
+                     x = c(0.25, 2, 1, 1.5, 1.5)*1.2, 
+                     y = c(0, 0, 0, -1, 1)*0.5)
+edf5 <- create_edge_df(from = c(1, 4, 4, 3, 1, 3), to = c(3, 3, 2, 2, 5, 5),
+                          minlen = 1, 
+                          color = "black"
+                          )
+gr5 <- create_graph(nodes_df = ndf5, edges_df = edf5)
+
+render_graph(gr5)
+```
+</center>
+
+---
+# 3. Measurment Error
+
+---
+## Measurement Error
+
+- The non-compliance problem is similar to a measurement error problem. 
+
+  + $Z$ is like a mis-measured version of $A$. 
+
+- More generally, measurements of $A$, $Y$, or other variables could be inaccurate. 
+
+- We won't cover methods for accounting for measurement error, but it is important to be aware of. 
+
+
+---
+
+## Measurement Error in DAGs
+
+- To represent measurement error in a DAG, we can use different nodes for measured values ( $A^*$ and $Y^*$ below) and true values ( $A$ and $Y$).
+
+- Add in other variables that might affect the measured value.
+
+
+<center>
+```{r, echo = FALSE, fig.height = 3.5}
+ndf11 <- create_node_df(n =6 , label = c("U@_{A}", "A@^{*}", "A", "Y", "Y@^{*}", "U@_{Y}"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "circle",
+                     x = c(0, 0, 0, 1, 1, 1)*1, 
+                     y = c(2, 1, 0, 0, 1,2)*0.5)
+edf11 <- create_edge_df(from = c(1, 3, 3, 4, 6), to = c(2, 2,4, 5, 5 ),
+                          minlen = 1, 
+                          color = "black"
+                          )
+gr11 <- create_graph(nodes_df = ndf11, edges_df = edf11)
+
+render_graph(gr11)
+```
+</center>
+
+---
+
+## Independent, Non-Differential Measurement Error
+
+- The graph below represents **independent**, **non-differential** measurement error. 
+
+- It is **independent** because $U_A$ is independent of $U_Y$.
+
+- It is **non-differential** because $U_A$ and $U_Y$ are independent of $A$ and $Y$. 
+
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr11)
+```
+</center>
+
+
+---
+
+## Independent, Non-Differential Measurement Error
+
+- Even though $Y(a) \ci A$ unconditionally, $E[Y^* \vert A^*] \neq E[Y(a)]$. 
+
+- If the strict null holds, then $E[Y^*\vert A^* = 1] - E[Y^* \vert A^* = 0]$ is an unbiased estimate of the ATE (which is 0). 
+
+- However, if the strict null does not hold, bias could be in any direction. The associational estimate may even be opposite sign from the true value. 
+
+  - This can occur if $E[A^* \vert A]$ is not monotonic in $A$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr11)
+```
+</center>
+
+---
+
+## Differential Measurement Error
+
+
+- $Y$ might affect $U_A$ if $A$ is measured after some effect of $Y$ has already occurred, creating the appearance of reverse causation.
+
+- $A$ might affect $U_Y$ if observation of $A$ affects measurement of $Y$, e.g. closer monitoring of those with $A = 1$. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+edf11 <- create_edge_df(from = c(1, 3, 3, 4, 6, 4), to = c(2, 2,4, 5, 5, 1 ),
+                          minlen = 1, 
+                          color = "black")
+
+ndf12 <- ndf11 %>% mutate(x = x + 3.5)
+edf12 <- create_edge_df(from = c(1, 3, 3, 4, 6, 3) + 6, to = c(2, 2,4, 5, 5, 6) + 6,
+                          minlen = 1, 
+                          color = "black")
+gr12 <- create_graph(nodes_df = combine_ndfs(ndf11, ndf12), edges_df = combine_edfs(edf11, edf12))
+
+render_graph(gr12)
+```
+</center>
+  
+---
+
+## Non-Independent Measurement Error
+
+- Non-independent measurement error occurs if measurement errors for $A$ and $Y$ are associated. 
+
+- For example, if both $A$ and $Y$ are measured by patient recall, some patients might have generally bad recall and their memory of $A$ could affect their memory of $Y$.
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+
+ndf13 <- create_node_df(n =7 , label = c("U@_{A}", "A@^{*}", "A", "Y", "Y@^{*}", "U@_{Y}", "U@_{AY}"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "circle",
+                     x = c(0, 0, 0, 1, 1, 1, 0.5)*1 , 
+                     y = c(2, 1, 0, 0, 1,2, 3)*0.5)
+edf13 <- create_edge_df(from = c(1, 3, 3, 4, 6, 7, 7) , to = c(2, 2,4, 5, 5, 1, 6 ) ,
+                          minlen = 1, 
+                          color = "black"
+                          )
+gr13 <- create_graph(nodes_df = ndf13, edges_df = edf13)
+
+render_graph(gr13)
+```
+</center>
+
+---
+
+## Measurment Error in Confounders
+
+- If a confounder, $L$, is measured with error, it will generally not be true that $Y(a) \ci A \vert L^*$ even if $Y(a) \ci A \vert L$. 
+
+- Conditioning on $L^*$ rather than $L$ will leave residual confounding. 
+
+- Dichotomizing or coarsening confounders can introduce measurement error. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+
+ndf14 <- create_node_df(n =4 , label = c("A", "Y", "L", "L@^{*}"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "circle",
+                     y = c(0, 0, 1, 1) , 
+                     x = c(0, 2, 1, 2))
+edf14 <- create_edge_df(from = c(1,  3, 3, 3) , to = c(2, 1, 2, 4) ,
+                          minlen = 1, 
+                          color = "black"
+                          )
+gr14 <- create_graph(nodes_df = ndf14, edges_df = edf14)
+
+render_graph(gr14)
+```
+</center>
+
+---
+
+## Dealing with Measurment Error
+
+- Accounting for measurement error generally requiires outisde information. 
+
+- For example, with some "gold standard" samples, we could estimate a model for $E[A^* \vert A]$ and $E[Y^* \vert Y]$.
+
+- For the rest of this class, we will generally not worry about measurment error (or optimistically assume there is none).
