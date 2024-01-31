@@ -646,9 +646,9 @@ $$
 
 
 $$
-E[Y(1) \vert A = 1] = `r round(Ta$Y[2], digits = 2)`\cdot `r plgivena$pr[2] ` + 
+\hat{E}[Y(1) \vert A = 1] = `r round(Ta$Y[2], digits = 2)`\cdot `r plgivena$pr[2] ` + 
 `r round(Ta$Y[4], digits = 2)`\cdot `r plgivena$pr[4] ` = `r round((Ta$Y[2]*plgivena$p[2]) +(Ta$Y[4]*plgivena$p[4])  , digits = 2)`\\\
-E[Y(0) \vert A = 1] = `r round(Ta$Y[1], digits = 2)`\cdot `r plgivena$pr[2] ` + 
+\hat{E}[Y(0) \vert A = 1] = `r round(Ta$Y[1], digits = 2)`\cdot `r plgivena$pr[2] ` + 
 `r round(Ta$Y[3], digits = 2)`\cdot `r plgivena$pr[4] ` = `r round((Ta$Y[1]*plgivena$p[2]) +(Ta$Y[3]*plgivena$p[4])  , digits = 2)`
 $$
 
