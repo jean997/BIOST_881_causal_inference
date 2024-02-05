@@ -1,0 +1,102 @@
+---
+title: "In Class Acitivites"
+date: "Last updated: `r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+
+---
+
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+
+## Monday, February 5, 2024
+
+- We are interested in the effect of a genetic variant, $G$ on an outcome $Y$. 
+
+- Participants who require surgery, either for $Y$ or a different condition are recruited into a genetic study. 
+
+- The variant $G$ could affect $Y$ and could also affect other medical conditions that require surgery. 
+
+- Draw a DAG of this scenario.
+
+- Would you expect selection bias to affect the estimate of $G$ on $Y$? Why/why not?
+
+
+---
+## Monday, (Date)
+
+Match the estimator with statements that are true about it. 
+.pull-left[
+**Estimator**
+
+- Hajek Estimator
+
+- G-Computation
+
+- AIPW estimator from Robins, Rotnitzky and Zhao (1994)
+
+- Subclassification estimator
+
+- Bang and Robins estimator
+
+- Adjusting for propensity score as a linear covariate. 
+]
+
+.pull-right[
+
+** Statements**
+
+- Consistent if PS model is correct
+
+- Consistent if outcome model is correct
+
+- Not consistent 
+
+- These two are asymptotically equivalent
+
+- More accurate using estimated PS than using true PS.
+]
+
+
+---
+## Wednesday, (Date)
+
+
+Review of IVA concepts:
+
+In pairs, write down a definition for one of these terms and how it relates to IVA:
+
+- Relevance
+
+- Exclusion Restriction
+
+- Local average treatment effect
+
+- Weak instrument bias
+
+- Two Stage Least Squares
+
+- IVW Regression
+
