@@ -19,6 +19,8 @@ editor_options:
 
 [4. Selection Bias, Non-Compliance, and Measurement Error](slides_2024/4_selection_bias.html)
 
+[5. IP Weighting and G-Computation](slides_2024/5_modeling1.html)
+
 ## Lecture Slides from Past Years
 
 [2023 Slides](slide_index_2023.html)
