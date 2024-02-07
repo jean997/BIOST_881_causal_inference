@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L5: IP Weighting and G-Computation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# L5: IP Weighting and G-Computation
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### Lecture on 2024-02-07
+(updated: 2024-02-07)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+
+
+## Lecture Plan 
+
+1. Intro
+
+2. Inverse Probability Weighting 
+  - IP weighting for binary and continuous treatment
+  - Marginal structural models
+  - Censoring weights
+
+3. G-Computation
+
+---
+# 1. Introduction
+
+---
+## Modeling
+
+- So far we have learned two strategies for estimating `\(E[Y(a)]\)` from data when we need to adjust for
+confounding or selection bias. 
+
+- In IP weighting we re-weight our observations by `\(1/P[A = A_i \vert L_i]\)`, the probability that 
+they received the treatment that they got given confounderts `\(L_i\)`. 
+
+- In standardization, we first stratify the data by `\(L\)`, compute `\(E[Y \vert A = a, L]\)` within each stratum, and then take a weighted sum of these averages. 
+
+---
+
+## Models
+
+
+- Formally, a **model** is a class of probability distributions `\(\mathcal{M} = \lbrace P_\theta : \theta \in \Theta \rbrace\)`. 
+
+- `\(\theta\)` is a (possibly infinite) vector of parameters and `\(\Theta\)` is the parameter space. 
+
+- A model is called **parametric** when `\(\theta\)` is finite dimensional and `\(\mathcal{M}\)` is not the set of all possible probability distributions. 
+
+- If `\(\theta\)` is infinite dimensional, `\(\mathcal{M}\)` may be called **non-parametric** or **semi-parametric**.
+  + Semi-parametric models have a finite, structured component, and an infinite component. 
+  
+- In this  lecture we will talk about parametric models. 
+
+---
+
+## Our Models So Far
+
+- So far in examples, we have always used **saturated** models. 
+  + Saturated models contain all possible probability distributions for the observed data. 
+  
+
+- We assume that `\(A\)`, `\(Y\)`, and any confounders have a discrete number of levels and that we have 
+enough data to estimate quantities like `\(E[Y \vert A, L]\)` in each stratum of `\(A\)` and `\(L\)`. 
+  
+
+- This has allowed us to focus on **identification**, i.e. could we estimate a parameter with infinite data. 
+
+- However, in the real world, we don't get infinite data and it is impractical to assume we can always estimate `\(E[Y \vert A, L]\)` in every stratum of `\(A\)` and `\(L\)`.
+
+- We will need **modeling** to go further. 
+
+
+---
+
+## G-Formula
+
+- The formula we saw previously as the "stratification" formula is also called the g-formula
+
+$$
+E[Y(a)] = \sum_l E[Y \vert A = a, L = l]P[L = l]
+$$
+
+- We showed in L1 that an alternate expression of the g-formula is 
+
+$$
+E[Y(a)] = E\left[ \frac{I(A = a) Y}{f(A \vert L)}\right]
+$$
+
+- We can use either of these expressions to obtain parametric estiamtes of `\(E[Y(a)]\)`. 
+
+- In G-computation (also called standardization) we estimate `\(E[Y \vert A, L]\)` and plug into the first expression. 
+
+- In IP weighting we estimate `\(f(A \vert L)\)` (the propensity score) and use the second expression. 
+
+---
+# 2. Inverse Probabilty Weighting 
+
+---
+## NHEFS Data
+
+- Cigarette smokers aged 25-74 were recruited around 1971 and given a survey. 
+
+- Ten years later, participants were given a followup survey. 
+
+- We are interested in estimating the effect of quitting smoking on weight change on the additive scale. 
+
+
+---
+
+## Variables
+
+- Our exposure is binary (whether or not a person quit smoking between the first and second survey).
+
+- The outcome is the change in weight in kg. 
+
+
+- What other features would you want to know in order to estimate the causal effect?
+
+--
+
+- For now we will assume that the following variables are sufficient: 
+
++ Sex (0: male, 1: female)
++ Age (in years)
++ Race (0: white, 1: other)
++ Education (5 categories)
++ Intensity of smoking (cigarettes per day)
++ Duration of smoking (years)
++ Physical activity in daily life (3 categories)
++ Recreational exercise (3 categories)
++ Weight (kg)
+
+---
+## Limitations
+
+- For now we will focus on individuals with complete data. 
+  + There are some people who did not fill in the second survey. 
+  + For these people we know covariates but don't know either the exposure or the outcome. 
+  + Additionally, there are 63 people who did fill in the second survey but who's weight is unknown. 
+  + More on this later. 
+
+- Individuals may have quit at different times. 
+
+  + We could think of `\(A\)` as a time-varying treatment (coming up later). 
+
+---
+## Simple Analysis
+
+- The simplest analysis is to simply compare the mean weight change between quitters and non-quitters. 
+
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; Quit Smoking &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Average Weight Change &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.98 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1163 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.53 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 403 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- On average, quitters gained about 5kg over the 10 year period while non-quitters only gained about 2kg. 
+
+---
+## Quitters v Non-Quitters
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Variable &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Did Not Quit Smoking &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Quit Smoking &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1163 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 403 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Age, years &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 42.8 (11.8) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 46.2 (12.2) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Female &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 53.4% (621) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 45.4% (183) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Non-White &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 14.6% (170) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 8.9% (36) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cigarettes/day &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 21.2 (11.5) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 18.6 (12.4) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Years smoking &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 24.1 (11.7) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 26 (12.7) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Weight, kg &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 70.3 (15.2) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 72.4 (15.6) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; College &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 9.9% (115) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 15.4% (62) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Little exercise &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 37.9% (441) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 40.7% (164) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Inactive life &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 8.9% (104) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 11.2% (45) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+---
+## Estimating Weights
+
+- In our data, `\(L\)` is a vector of nine measurements. 
+
+- We cannot compute `\(P[A = 1 \vert L ]\)` among every (or any) stratum of `\(L\)` because every
+participant has their own unique value of `\(L\)`. 
+
+- We have to fit a parametric model. 
+
+- What would you do? 
+
+---
+
+## Weights Estimated by Logistic Regression 
+
+- We will use a logistic regression model to predict `\(P[A \vert L]\)`
+
+- The goal is to get the best possible estimate of the probability of treatment given `\(L\)`, so 
+we should fit a flexible model. 
+
+- Once we fit the model, we can estimate the probability of quitting for each person as  `\(\pi_i = P[A = 1 \vert L = L_i]\)`. These are the probability-scale fitted values from the logistic model. 
+
+- The weight for individual `\(i\)` will be equal to `\(\frac{1}{\pi_i}\)` if `\(A_i = 1\)` (the person actually did quit) or `\(\frac{1}{1-\pi_i}\)` if `\(A_i = 0\)` (the person did not quit). 
+
+---
+
+## Weights Estimated by Logistic Regression 
+
+
+```r
+fit &lt;- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = dat)
+
+dat$w &lt;- ifelse(dat$qsmk == 0, 
+                1/(1 - predict(fit, type = "response")), 
+                1/(predict(fit, type = "response")))
+```
+
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   1.054   1.230   1.373   1.996   1.990  16.700
+```
+
+
+- Why is the mean value close to 2?
+
+---
+
+## Positivity 
+
+- *Structural violations* of positivity occur when it is impossible for people with some 
+levels of confounders to receive a particular level of treatment. 
+
+  + If we have structural violations, we cannot use IP weighting or standardization. 
+  + We need to restrict our inference to relevant strata of `\(L\)`. 
+
+- *Random violations* of positivity occur when certain combinations of `\(L\)` and `\(A\)` 
+are missing from our data by chance. 
+
+  + We are using a parametric model, so we are able to smooth over unobserved covariate values. 
+  + We are able to predict for strata that were not observed in our data. 
+  + We should be careful about predicting outside the range of the observed data. 
+
+
+---
+
+## Assessing Positivity in Propensity Scores
+
+- If positivity holds, propensity scores should be bounded away from 0 and 1:
+  
+  + Scores very close to 0 or very close to 1 suggest that there are some strata of `\(A\)` and `\(L\)` that have no chance to receive one of the two treatments.
+  + We might get scores close to 0 or 1 if there is perfect separation by one or a combination of confounders.
+  + Scores close to 0 or 1 suggest there could be structural positivity violations. 
+
+- Propensity scores should have approximately the same range in both groups. 
+
+  + Non-overlapping ranges indicate that there are some regions of confounder space with only cases or only controls in our study. 
+  + If we believe the PS model, we can trust the weights and assume this is due to random positivity violations. 
+  + In some approaches based on propensity scores, this will cause a problem (matching and subclassification). 
+  
+
+---
+# Propensity Scores and Positivity
+
+&lt;img src="5_modeling1_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+## Horvitz-Thompson Estimator
+
+- The *Horvitz-Thompson estimator* is one of two options for estimating `\(E[Y(a)]\)` using our 
+estimated weights.
+
+- The Horvitz-Thompson estimator just plugs our estimated weights into our previous formula.
+
+$$
+\hat{E}[Y(a)] = \hat{E}\left[\frac{I(A = a)Y}{f(A\vert L)} \right] = \frac{1}{n}\sum_{i = 1}^n I(A_i = a)Y_i W_i
+$$
+
+---
+
+## Hajek Estimator
+
+- The *Hajek estimator* fits the linear model 
+$$
+E[Y \vert A] = \theta_0 + \theta_1 A
+$$
+by weighted least squares, weighting individuals by our estimated IP weights. 
+
+- It is is equivalent to
+
+
+`$$\frac{ \hat{E}\left[\frac{I(A = a)Y}{f(A\vert L)} \right]}{ \hat{E}\left[\frac{I(A = a)}{f(A\vert L)} \right]} = \frac{\sum_{i = 1}^n I(A_i = a)Y_i W_i}{\sum_{i = 1}^n I(A_i = a) W_i}$$`
+---
+
+## Hajek Estimator
+
+- Hajek estimator is unbiased for 
+
+`$$\frac{ E\left[\frac{I(A = a)Y}{f(A\vert L)} \right]}{ E\left[\frac{I(A = a)}{f(A\vert L)} \right]}$$`
+- If positivity holds, then  
+
+$$
+E\left[\frac{I(A = a)}{f(A\vert L)} \right] = 1
+$$
+
+- The Hajek estimator is guaranteed to be between 0 and 1 for dichotomous outcomes. The Horvitz-Thompson estimator is not. 
+
+
+---
+
+## IP Weighted Effect Estimate in NHEFS
+
+- This code computes the Hajek estimator:
+
+
+```r
+f_w_lm &lt;- lm(wt82_71 ~ qsmk, data = dat, weights  = w)
+f_w_lm
+```
+
+```
+## 
+## Call:
+## lm(formula = wt82_71 ~ qsmk, data = dat, weights = w)
+## 
+## Coefficients:
+## (Intercept)         qsmk  
+##       1.780        3.441
+```
+
+- We estimate that if nobody had quit smoking, the average weight gain would have been 1.8 kg. 
+
+- If everyone had quit smoking, the average weight gain would have been 5.2 kg.
+
+- The average causal effect of quitting smoking on weight gain is 3.4 kg. 
+
+---
+## Estimating the Variance of the Estimate
+
+- The raw variance estimate from weighted least squares does not account for uncertainty in the weights. 
+
+- We need to account for having estimated the IP weights. 
+
+- Options: 
+
+  1. Derive the variance analytically
+  2. Bootstrap the variance
+  3. Use a robust sandwich variance estimate.
+  
+- Option 3 is conservative but easier than options 1 and 2. 
+
+- Option 3 can be achieved by fitting with GEE using and independent working correlation matrix or using the `HC0` option in `vcovHC`.
+
+---
+
+## Variance Estiamte in the NHEFS Data
+
+
+```r
+library("geepack")
+f_w_gee &lt;- geeglm(wt82_71 ~ qsmk, data = dat,weights = w,
+                id = seqn,corstr = "independence")
+beta &lt;- coef(f_w_gee)
+SE &lt;- coef(summary(f_w_gee))[, 2]
+lcl &lt;- beta - qnorm(0.975) * SE
+ucl &lt;- beta + qnorm(0.975) * SE
+cbind(beta, lcl, ucl)
+```
+
+```
+##                 beta      lcl      ucl
+## (Intercept) 1.779978 1.339514 2.220442
+## qsmk        3.440535 2.410587 4.470484
+```
+
+
+```r
+library(sandwich)
+# Equivalent alternative using sandwich
+v_wlm_robust &lt;- vcovHC(f_w_lm, type = "HC0")
+  
+all.equal(v_wlm_robust, vcov(f_w_gee))
+```
+
+```
+## [1] TRUE
+```
+
+
+---
+## Stabilized Weights
+
+- Using weights `\(W^{A} = 1/f(A \vert L)\)` we create a pseudo-population in which (heuristically), each person is matched by someone exactly like them who received the opposite treatment. 
+
+
+- Our pseudo-population is twice as big as our actual sample so the mean of `\(W^A\)` is 2. 
+
+- In the pseudo-population, the frequency of treatment `\(A = 1\)` is 50%. 
+
+- We could have created other pseudo-populations. 
+
+---
+## Stabilized Weights
+
+- Our requirements are that, in the pseudo-population, probability of treatment is independent of `\(L\)`. 
+
+- But different people could have different probabilities of treatment. 
+
+
+- To create stabilized weights, we construct a pseudo-population in which the probability of receiving 
+each treatment is the same as the frequency of the treatment in our original sample. 
+
+$$
+SW^A = \frac{f(A)}{f(A \vert L)}
+$$
+---
+
+## Stabilized Weights
+
+- In our data, `\(A\)` is binary, so we can compute `\(f(1)\)` as the proportion of quitters in the data. 
+
+
+```r
+p1 &lt;- mean(dat$qsmk); p1
+```
+
+```
+## [1] 0.2573436
+```
+
+- In the pseudo-population created by the stabilized weights, each person in our data set corresponds to  26% of a treated person and 74% of an untreated person. 
+
+
+```r
+dat &lt;- dat %&gt;% mutate(pa = ifelse(dat$qsmk == 0, 1-p1,  p1),
+              sw= pa*w)
+summary(dat$sw)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.3312  0.8665  0.9503  0.9988  1.0793  4.2977
+```
+
+- The expected value of `\(SW^A\)` is 1 because the pseudo-population is the same size as
+the observed data. 
+
+---
+
+## Estimation Using the Stabilized Weights
+
+
+```r
+f_sw_gee &lt;- geeglm(wt82_71 ~ qsmk,data = dat,
+  weights = sw, id = seqn,corstr = "independence")
+beta &lt;- coef(f_sw_gee)
+SE &lt;- coef(summary(f_sw_gee))[, 2]
+lcl &lt;- beta - qnorm(0.975) * SE
+ucl &lt;- beta + qnorm(0.975) * SE
+cbind(beta, lcl, ucl)
+```
+
+```
+##                 beta      lcl      ucl
+## (Intercept) 1.779978 1.339514 2.220442
+## qsmk        3.440535 2.410587 4.470484
+```
+
+- These are exactly the results we saw with the unstabilized weights. 
+
+---
+## Why Use Stabilized Weights
+
+- Differences between stabilized and non-stabilized weights only occur when the model for `\(E[Y \vert A]\)` is not saturated. 
+
+
+- When the model is not saturated, stabilized weights typically result in greater efficiency. 
+
+---
+
+## Marginal Structural Models
+
+- In the IP weighting strategy we create a population in which `\(A\)` is indepedent of `\(L\)` and then fit the model 
+`$$E_{ps}[Y \vert A ] = \theta_0 + \theta_1 A$$`
+
+- If we believe our conditional exchangeability assumption `\(Y(a) \ci A \vert L\)` and the propensity score model, then in the pseudo-population, `\(E_{ps}[Y \vert A] = E[Y(a)]\)`. 
+
+- So the parameter `\(\theta_1\)` is interpretable as the causal risk difference. 
+
+--
+
+- We have proposed a model for the average counterfactual: 
+
+`$$E[Y(a)] = \beta_0 + \beta_1 a$$`
+--
+
+- This model is *marginal* because we have marginalized (averaged) over the values of all
+other covariates. 
+
+- It is structural because it is a model for a counterfactual `\(E[Y(a)]\)`.
+
+---
+## Modeling Continuous Treatments
+
+- With a binary exposure, we could construct a saturated model. 
+
+- For continuous (or highly polytomous) exposures, we can't do that and will have to use 
+a parametric model instead. 
+
+- In the NHEFS data, let `\(A\)` be the change in smoking intensity ( `\(A = 10\)` indicates that a person increased their smoking by 10 cigarettes).
+
+- We will limit to only those who smoked 25 or fewer cigarettes per day at baseline ( `\(N = 1,162\)` )
+
+- We can propose a model for our *dose-response curve*
+
+$$
+E[Y(a)] = \beta_0  + \beta_1 a + \beta_2 a^2
+$$
+
+---
+## Estimating Weights for the Continuous Treatment
+
+- To use stabilized weights, we need to estimate `\(f(A \vert L)\)` and `\(f(A)\)`. 
+
+- Both of these are PDFs which are hard to estimate!
+
+- We will assume that both `\(f(A \vert L)\)` and `\(f(A)\)` are normal with constant variance across participants.
+  + These assumptions are almost certainly wrong. 
+  
+- We will estimate the mean of `\(f(A \vert L)\)` via linear regression. 
+
+- IP weighted estimates of continuous variables can be very sensitive to choice of weights.
+
+---
+## Estimating Weights for the Continuous Treatment
+
+- We fit a linear model for change in smoking intensity including:
+
+  + sex, race, education, exercise, life activity
+  + age and age squared 
+  + baseline smoking intensity and baseline smoking intensity squared
+  + baseline weight and baseline weight squared
+  
+- The fitted values of this model give us `\(E[A \vert L]\)`.
+
+- We can use the variance of the residuals as an estimate of the variance of `\(A \vert L\)`
+
+- We then compute `\(f(A \vert L)\)` using `dnorm`. 
+
+
+---
+## Estimating Weights for the Continuous Treatment
+
+
+
+```r
+dat.s &lt;- filter(dat, smokeintensity &lt;= 25)
+fal_fit&lt;- lm(smkintensity82_71 ~ as.factor(sex) +
+    as.factor(race) + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity + I(smokeintensity ^ 2) +
+    smokeyrs + I(smokeyrs ^ 2) + as.factor(exercise) + as.factor(active) + wt71 +
+    I(wt71 ^ 2), data = dat.s)
+fal_mean &lt;- predict(fal_fit, type = "response")
+fal  &lt;- dnorm(dat.s$smkintensity82_71, fal_mean,
+        summary(fal_fit)$sigma)
+```
+
+---
+## Estimating Weights for the Continuous Treatment
+
+- To estimate `\(f(A)\)` we use the same procedure, except that the mean of `\(E[A]\)` is is just the average change in smoking intensity. 
+
+
+```r
+fa_fit &lt;- lm(smkintensity82_71 ~ 1, data = dat.s)
+fa_mean &lt;- predict(fa_fit, type = "response")
+fa &lt;- dnorm(dat.s$smkintensity82_71, fa_mean,
+            summary(fa_fit)$sigma)
+dat.s$sw_cont &lt;- fa / fal
+dat.s$w_cont &lt;- 1/fal
+```
+
+---
+## Estimating Weights for the Continuous Treatment
+
+- For comparison, we compute both the stabilized weights and the non-stabilized weights
+
+
+```r
+summary(dat.s$sw_cont)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.1938  0.8872  0.9710  0.9968  1.0545  5.1023
+```
+
+```r
+summary(dat.s$w_cont)
+```
+
+```
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##     25.4     26.4     30.0   1078.1     47.5 428611.4
+```
+
+- The non-stabilized weights are much more variable!
+---
+## Fitting the Continuous Treatment Model
+
+- We then fit the marginal structural model $$ E[Y(a)] = \beta_0 + \beta_1 a + \beta_2 a^2$$ using exactly the same strategy we used before. 
+
+
+
+&lt;table&gt;
+ &lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="empty-cells: hide;border-bottom:hidden;" colspan="1"&gt;&lt;/th&gt;
+&lt;th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2"&gt;&lt;div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; "&gt;Stabilized Weights&lt;/div&gt;&lt;/th&gt;
+&lt;th style="empty-cells: hide;border-bottom:hidden;" colspan="1"&gt;&lt;/th&gt;
+&lt;th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2"&gt;&lt;div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; "&gt;Non-Stabilized Weights&lt;/div&gt;&lt;/th&gt;
+&lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; 95% CI &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; 95% CI &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Intercept &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (1.4, 2.6) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 7.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (1, 14) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Smk Int &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.11 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (-0.17, -0.047) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (-0.21, 0.42) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Smk Int Squared &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.0027 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (-0.002, 0.0074) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.01 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (-0.024, 0.0039) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+---
+## Continuous Model Results
+
+
+&lt;img src="5_modeling1_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+## Issues with the Continuous Treatment Model
+
+- We had to make strong assumptions about the distribution of `\(A \vert L\)`. 
+
+- There are structural positivity issues -- it is not possible for everyone to reduce their smoking by 80 cigarettes per day. 
+
+---
+## Effect Modification in Marginal Structural Models
+
+- We might be interested in estimating the causal effect within strata of `\(V\)`. 
+
+- We can propose a marginal structural model that includes `\(V\)`
+
+$$
+E[Y(a) \vert V] = \beta_0 + \beta_1 a + \beta_2 a V + \beta_3 V
+$$
+
+- If `\(V\)` and `\(A\)` are both dichotomous, this model is saturated. 
+
+- It is not really fully marginal any more, but we still call it a marginal structural model. 
+
+---
+## Interpreting Parameters in the Effect Modification Model
+
+- Suppose that `\(V\)` is sex (0: Male, 1: Female) and `\(A\)` is quitting/not quitting. 
+
+$$
+E[Y(a) \vert V] = \beta_0 + \beta_1 a + \beta_2 a V + \beta_3 V
+$$
+
+- `\(\beta_1\)` is the causal effect of quitting for men. 
+
+- `\(\beta_1+ \beta_2\)` is the causal effect of quitting for women. 
+
+- What is `\(\beta_3\)`?
+
+--
+
+- `\(\beta_3\)` is not a causal parameter because we haven't made any exchangeability assumptions about `\(V\)`. 
+
+- `\(\beta_3\)` is the difference between `\(E[Y(0)]\)` in females and `\(E[Y(0)]\)` in males but is not the causal effect of sex. 
+
+---
+## Stablilized Weights for the EM Model
+
+
+- We have two choices for stabilized weights
+
+$$
+\frac{f(A)}{f(A \vert L)} \qquad \text{or} \qquad  \frac{f(A\vert V)}{f(A \vert L)}
+$$
+
+- Which will be more efficient?
+
+--
+
+- Conditioning on `\(V\)` in the numerator will make the numerator closer to the denominator. 
+
+- The second choice of weights will be less variable. 
+
+- So the second choice of weights is more efficient. 
+
+---
+## Stablilized Weights for the EM Model
+
+- We need to compute `\(f(A \vert V)\)` in our data. 
+
+- We can just use the stratified means. 
+
+
+```r
+fav_fit &lt;- lm(qsmk ~ sex, data = dat)
+dat$pav &lt;- ifelse(dat$qsmk == 0,
+                  1-predict(fav_fit, type = "response"), 
+                  predict(fav_fit, type = "response"))
+dat &lt;- mutate(dat, sw_em = pav*w)
+summary(dat$sw_em)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.2930  0.8751  0.9554  0.9989  1.0803  3.8011
+```
+
+---
+## Fitting the Effect Modification Model
+
+
+```r
+msm_em &lt;- geeglm(
+  wt82_71 ~ qsmk*sex, data = dat, weights = sw_em, id = seqn,
+  corstr = "independence")
+beta &lt;- coef(msm_em)
+SE &lt;- coef(summary(msm_em))[, 2]
+lcl &lt;- beta - qnorm(0.975) * SE
+ucl &lt;- beta + qnorm(0.975) * SE
+cbind(beta, lcl, ucl)
+```
+
+```
+##                     beta        lcl       ucl
+## (Intercept)  1.784446876  1.1771686 2.3917252
+## qsmk         3.521977634  2.2341453 4.8098100
+## sex         -0.008724784 -0.8883884 0.8709389
+## qsmk:sex    -0.159478525 -2.2097583 1.8908013
+```
+
+- We have no strong evidence of effect modificaiton by sex. 
+
+---
+
+## Unweighted Regression vs IP Weighting 
+
+- What if we had conditioned on every variable in `\(L\)`? 
+
+- The stabilized weights would be 1, so we would just be running a regular 
+regression. 
+
+- If we believe in the model for `\(E[Y(a) \vert L]\)`, then the regression coefficient
+is interpretable as a (conditional) causal parameter. 
+
+- Using the marginal model with IP weighting, we need to believe that our estimates of `\(f(A \vert L)\)` are accurate. 
+
+- In some cases, solving a prediction problem is easier than guessing the correct structural model for all confounders.
+
+---
+
+## Censoring and Missing Data With IP Weights
+
+- In our analysis, we have removed 63 individuals who filled in the survey in 1982 but 
+who have a missing value for weight. 
+
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; Quit Smoking &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Number Missing &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Percent Missing &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 38 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5.8 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- We have more missing data for people who quit smoking than people who did not, so we could have selection bias. 
+
+
+---
+
+## Weights for Censoring
+
+- We learned in L4 that, to correct for selection bias, we need to find a set of variables `\(L_c\)` such that `\(Y(C = 0) \ci C \vert L_c\)`. 
+
+- We then need to estimate `\(W^C = 1/P[C = 0 \vert A, L_c]\)`, or the stabilized version `$$SW^C = \frac{P[C = 0 \vert A]}{P[C = 0 \vert A, L_c]}$$`
+
+- We will use the same set of variables, we used to compute weights for confounding. 
+
+- The total weights will be `\(SW^C \cdot SW^A\)`
+
+
+---
+
+## Weights for Censoring
+
+- We will estimate `\(f(C=0 \vert A, L)\)` using a logistic model adjusting for
+  + the exposure
+  + sex, race age, education, exercise, life activity
+  + linear and quadratic terms for smoking intensity, duration, and baseline weight. 
+
+- The `dat.u` data frame includes data for all participants. 
+
+
+```r
+dat.u$cens &lt;- ifelse(is.na(dat.u$wt82), 1, 0)
+fcal_fit &lt;- glm(
+  cens ~ as.factor(qsmk) + as.factor(sex) +
+    as.factor(race) + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+  family = binomial(),
+  data = dat.u
+)
+fc0al &lt;- 1 - predict(fcal_fit, type = "response")
+```
+
+---
+
+## Weights for Censoring
+
+- We can estimate the numerator of the stablilized weight, `\(f(C = 0 \vert A)\)` using the average within levels of `\(A\)`. 
+
+
+```r
+fca_fit &lt;-glm(cens ~ as.factor(qsmk), family = binomial(), data = dat.u)
+fc0a &lt;- 1 - predict(fca_fit, type = "response")
+sw.c &lt;- fc0a/fc0al
+dat$sw.c &lt;- sw.c[!is.na(dat.u$wt82)]
+dat$sw.comb &lt;- dat$sw*dat$sw.c
+```
+
+
+
+```r
+summary(dat$sw.c)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.9442  0.9782  0.9858  0.9990  1.0035  1.7180
+```
+
+```r
+summary(dat$sw.comb)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.3390  0.8593  0.9442  0.9974  1.0749  4.1829
+```
+
+---
+## Combined Weights Results
+
+- Below are results using the combined weights for both censoring and confounding
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; 95% CI &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Intercept &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.69 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (1.23, 2.14) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Quit Smoking &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (2.36, 4.45) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- Compared with the previous results
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; 95% CI &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Intercept &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.78 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (1.34, 2.22) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Quit Smoking &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3.44 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (2.41, 4.47) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+## Survey Weights
+
+- Typically, nationally representative surveys won't use a completely random sampling scheme. 
+  + They will try to over-sample smaller groups. 
+  + This allows them to get better estimates for less common covariate values. 
+  
+- Over-sampling introduces selection bias that needs to be corrected.
+
+- If the survey was done well, a specific over-sampling rule was used. 
+  + For example, you might select census tracts randomly according to a covariate informed probability and then select housees randomly within census tract. 
+  
+- This allows the survey administers to compute `\(P[C = 0 \vert L]\)` for every participant. 
+
+
+---
+## Survey Weights
+
+
+- If `\(L\)` includes every factor affecting study inclusion, then `\(P[C = 0 \vert A, L] = P[C = 0 \vert L]\)` for any exposure `\(A\)`. 
+
+- So we could use the same set of weights regardless of what exposure we are looking at. 
+
+- Usually, survey administers will compute `\(P[ C = 0 \vert L]\)` and distribute `\(1/P[C = 0 \vert L]\)` as "survey weights". 
+  + Survey weights are censoring weights!
+
+- If you have survey data that come with survey weights, be sure to read about how these are calculated. 
+  + Most likely, if you want to estimate a parameter for the larger population, you will need to use the survey weights. 
+
+
+---
+# 3. G-Computation (Standardization)
+---
+
+## Standardization
+
+- In standardarization, we compute an estimate of `\(E[Y \vert A = a, L = l]\)` and plug it into the g-formula:
+
+$$
+E[Y(a)] = \sum_l E[Y \vert A = a, L = l]P[L = l]
+$$
+
+- If `\(L\)` is continuous, we need to integrate
+
+$$
+E[Y(a)] = \int_l P[Y \vert A = a, L = l]f(l) dl
+$$
+
+---
+
+## Outcome Modeling
+
+- In the standardization formula, we need to estimate `\(P[Y \vert A = a, L = l]\)`.
+
+- To do this we fit a linear regression
+
+
+```r
+f_y &lt;-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(education)
+    + smokeintensity + I(smokeintensity * smokeintensity) + smokeyrs
+    + I(smokeyrs * smokeyrs) + as.factor(exercise) + as.factor(active)
+    + wt71 + I(wt71 * wt71) + qsmk * smokeintensity,
+    data = dat.u)
+summary(fit)$coefficients %&gt;% head()
+```
+
+```
+##                            Estimate   Std. Error    z value     Pr(&gt;|z|)
+## (Intercept)           -2.2425190870 1.3808360404 -1.6240300 1.043694e-01
+## sex                   -0.5274781689 0.1540496370 -3.4240793 6.168862e-04
+## race                  -0.8392636264 0.2100665490 -3.9952274 6.463219e-05
+## age                    0.1212052168 0.0512662762  2.3642290 1.806764e-02
+## I(age^2)              -0.0008245656 0.0005361152 -1.5380382 1.240393e-01
+## as.factor(education)2 -0.0287755026 0.1983506350 -0.1450739 8.846525e-01
+```
+---
+## Outcome Modeling
+
+- This first step of fitting the outcome model is just fitting a regular linear regression. 
+
+- Like we said when talked about MSMs, if we believe the model then we can use the coefficients to calculate a *conditional* causal effect of treatment within strata of `\(L\)`. 
+
+- If there were no interactions between `\(A\)` and `\(L\)` in the model, the coefficient on `\(A\)` would give the marginal treatment effect. 
+
+  + This is true using a linear model but would not be true in a model with a non-linear link.
+
+
+- An outcome model with no interactions assumes **homogeneity**, i.e. the average treatment effect is the same in every level of `\(L\)`. 
+
+  + Typiclly, homogeneity is considered to be a very strong assumption.
+
+---
+
+## Outcome Modeling
+
+
+- Our outcome model included an interaction between `\(A\)` and smoking intensity.
+
+- In this model, the coefficient on `\(A\)` is the average treatment effect within strata of smoking intensity. 
+
+- To estimate the average (marginal) treatment effect, we need to average over the distribution of smoking intensity, or more generally the distribution of `\(L\)`. 
+
+
+---
+## Standardizing (G-Computation)
+
+- Fortunately, we do not need to compute `\(f(L)\)`.
+
+
+- Using the definition of expectation, we can write
+$$
+ \int_l P[Y \vert A = a, L = l]f(l)dl = E\left[ E\left[Y \vert A = a, L = l \right]\right]
+$$
+- So we can estimate the standardized mean as
+
+$$
+\frac{1}{n}\sum_{i=1}^n\hat{E}[Y \vert A = a, L_i]
+$$
+---
+
+## Standardizing
+
+- For each person, we need to compute two values `\(\hat{E}[Y \vert A = 0, L_i]\)` and `\(\hat{E}[Y\vert A = 1, L_i]\)`
+
+- These are predicted values that we can get out of our previous regression. 
+
+- We predict each person's outcome with `\(A = 0\)` and with `\(A = 1\)`. 
+
+
+```r
+# Make two copies of the data
+dat0 &lt;- dat1 &lt;- dat.u 
+# In one copy everyone got treatment 0
+dat0$qsmk &lt;- 0
+# In the second copy everyone got treatment 1
+dat1$qsmk &lt;- 1
+
+Y0 &lt;- predict(f_y, newdata = dat0, type = "response") %&gt;% mean()
+Y1 &lt;- predict(f_y, newdata = dat1, type = "response") %&gt;% mean()
+cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits = 2))
+```
+
+```
+## 5.18 - 1.66 = 3.52
+```
+
+---
+## Censoring
+
+- If the set of variables in our model for `\(E[Y \vert A, L]\)` are sufficient to adjust for censoring (meaning that they block all paths between `\(Y(C = 0)\)` and `\(C\)`), then we don't need to do anything extra to adjust for censoring.
+
+- The trick is to predict `\(Y(a)\)` for **all individual** with covariate data, not just those with non-missing outcomes. 
+
+- If `\(L\)` is not sufficient to adjust for censoring, we may need to add additional variables specifically to deal with censoring. 
+
+- Recall that the s-backdoor criterion gives us a way to select variables to condition on. 
+
+---
+
+## Estimating the Variance 
+
+- To compute the variance of the estimate, we need to bootstrap. 
+
+- We will repeatedly re-sample our data with replacement. 
+
+- Each time, we recompute the standardized effect we just computed in the observed data. 
+
+- The standard deviation of our bootstrap samples consistently estimates the standard error of our estimate. 
+
+---
+## Bootstrapping the Variance 
+
+- Step 1: Write a function to compute the standardized mean
+
+```r
+# Step 1: Write a function compute the standardized mean
+std_mean_func &lt;- function(d){
+   boot_fit &lt;-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(education)
+    + smokeintensity + I(smokeintensity * smokeintensity) + smokeyrs
+    + I(smokeyrs * smokeyrs) + as.factor(exercise) + as.factor(active)
+    + wt71 + I(wt71 * wt71) + qsmk * smokeintensity, data = d)
+  d0 &lt;- d1 &lt;- d
+  d0$qsmk &lt;- 0 
+  d1$qsmk &lt;- 1
+  Y0 &lt;- predict(boot_fit, newdata = d0, type = "response") %&gt;% mean()
+  Y1 &lt;- predict(boot_fit, newdata = d1, type = "response") %&gt;% mean()
+  return(Y1-Y0)
+}
+```
+
+
+---
+## Bootstrapping the Variance 
+
+- Step 2: Repeatedly re-sample the data and compute the standardized mean in the re-sampled data set. 
+
+
+```r
+set.seed(1)
+samples &lt;- replicate(n = 500, expr = sample(seq(nrow(dat.u)), size = nrow(dat.u), replace = TRUE))
+res &lt;- apply(samples, 2, FUN = function(ix){
+  boot_dat &lt;- dat.u[ix,]
+  boot_est &lt;- std_mean_func(boot_dat)
+  return(boot_est)
+})
+se &lt;- sd(res)
+eff &lt;- Y1-Y0
+ci &lt;- eff + c(-1, 1)*qnorm(0.975)*se 
+cat(round(eff, digits = 2), "(", round(ci, digits = 2), ")")
+```
+
+```
+## 3.52 ( 2.58 4.46 )
+```
+
+
+
+---
+## Effect Modification in G-Computation
+
+- If we want to estimate the average causal effect stratified by `\(V\)`, we can simply stratify by `\(V\)` before averaging our predicted values. 
+
+
+```r
+dat.u$Y0 &lt;- predict(fit, newdata = dat0, type = "response") 
+dat.u$Y1 &lt;- predict(fit, newdata = dat1, type = "response")
+dat.u %&gt;% group_by(sex) %&gt;% 
+      summarize(Y0 = mean(Y0), Y1 = mean(Y1))
+```
+
+```
+## # A tibble: 2 × 3
+##     sex    Y0    Y1
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1     0 0.291 0.291
+## 2     1 0.228 0.228
+```
+
+
+---
+
+## IP Weighting vs G-Computation
+
+- If all of our models are fully saturated, IP weighting and standardization give exactly the same result (recall HW1). 
+
+- With parametric models, the two methods rely on different assumptions and so are not the same.
+
+- In the IP weighted analysis, we need to trust our model for `\(f(A \vert L)\)`.
+
+- In the standardized analysis, we need to trust our model for `\(E[Y \vert A, L]\)`. 
+
+- In either case, if our our parametric models are wrong, our predictions will be biased and so our estimators will be biased. 
+
+- May be wise to compute both and compare.
+
+
+---
+
+## IP Weighting vs G-Computation
+
+- Chatton et al (2020) present simulation results comparing IPW, G-computation, and two methods we haven't talked about yet. 
+
+- In their simulation scenario, G-computation always had a lower MSE than IPW 
+
+- For IPW, they calculated variance using robust SEs (as we did earlier) and found slight over coverage (~97% for a 95% target). 
+
+- They used parametric simulation to compute the variance of the G-computation estimate. This gave close to target coverage but slightly under in some cases (~94%). 
+
+
+---
+
+## Chatton et al Results
+
+
+
+&lt;img src="5_modeling1_files/figure-html/unnamed-chunk-30-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## IP Weighting vs G-Computation
+
+- Snowden et al (2010) describe G-Computation as rarely used in epidemiology due to lack of awareness. 
+
+- However, G-Computation can be more precise than IP weighting in some circumstances. 
+
+  + IP weighting can be inefficient when weights are very large. 
+  
+  
+- Vansteelandt and Keiding note that IPW performs better when the covariate distribution is very different in cases and controls. 
+  + Depending on the model used fo G-Computation, the dominant group may have too much influence over estimates in these regions. 
+  + G-Computation may under-estimate the uncertainty about the counterfactuals in these regions. 
+  
+  
+- Some people suggest that we shouldn't be trying to estimate the countefactuals in these regions at all, since this requires extrapolating into regions with low density of data points. 
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
