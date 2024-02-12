@@ -21,6 +21,8 @@ editor_options:
 
 [5. IP Weighting and G-Computation](slides_2024/5_modeling1.html)
 
+[6. More PS Estimators and Double Robustness](slides_2024/6_propensity_scores.html)
+
 ## Lecture Slides from Past Years
 
 [2023 Slides](slide_index_2023.html)
