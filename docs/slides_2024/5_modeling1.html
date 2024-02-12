@@ -32,7 +32,7 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### Lecture on 2024-02-07
-(updated: 2024-02-07)
+(updated: 2024-02-12)
 ]
 
 ---
@@ -1084,7 +1084,7 @@ summary(dat$sw.comb)
 
 ## Standardization
 
-- In standardarization, we compute an estimate of `\(E[Y \vert A = a, L = l]\)` and plug it into the g-formula:
+- In standardization, we compute an estimate of `\(E[Y \vert A = a, L = l]\)` and plug it into the g-formula:
 
 $$
 E[Y(a)] = \sum_l E[Y \vert A = a, L = l]P[L = l]
@@ -1128,7 +1128,7 @@ summary(fit)$coefficients %&gt;% head()
 
 - This first step of fitting the outcome model is just fitting a regular linear regression. 
 
-- Like we said when talked about MSMs, if we believe the model then we can use the coefficients to calculate a *conditional* causal effect of treatment within strata of `\(L\)`. 
+- If we believe the model, then the coefficient for treatment gives a *conditional* causal effect estimate within strata of `\(L\)`. 
 
 - If there were no interactions between `\(A\)` and `\(L\)` in the model, the coefficient on `\(A\)` would give the marginal treatment effect. 
 
@@ -1137,7 +1137,7 @@ summary(fit)$coefficients %&gt;% head()
 
 - An outcome model with no interactions assumes **homogeneity**, i.e. the average treatment effect is the same in every level of `\(L\)`. 
 
-  + Typiclly, homogeneity is considered to be a very strong assumption.
+  + Typically, homogeneity is considered to be a very strong assumption.
 
 ---
 
@@ -1199,7 +1199,7 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 
 - If the set of variables in our model for `\(E[Y \vert A, L]\)` are sufficient to adjust for censoring (meaning that they block all paths between `\(Y(C = 0)\)` and `\(C\)`), then we don't need to do anything extra to adjust for censoring.
 
-- The trick is to predict `\(Y(a)\)` for **all individual** with covariate data, not just those with non-missing outcomes. 
+- The trick is to predict `\(Y(a)\)` for **all individuals** with covariate data, not just those with non-missing outcomes. 
 
 - If `\(L\)` is not sufficient to adjust for censoring, we may need to add additional variables specifically to deal with censoring. 
 
@@ -1213,7 +1213,7 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 
 - We will repeatedly re-sample our data with replacement. 
 
-- Each time, we recompute the standardized effect we just computed in the observed data. 
+- Each time, we re-fit the outcome model and recompute the standardized effect. 
 
 - The standard deviation of our bootstrap samples consistently estimates the standard error of our estimate. 
 
@@ -1247,7 +1247,9 @@ std_mean_func &lt;- function(d){
 
 ```r
 set.seed(1)
-samples &lt;- replicate(n = 500, expr = sample(seq(nrow(dat.u)), size = nrow(dat.u), replace = TRUE))
+samples &lt;- replicate(n = 500,
+                     expr = sample(seq(nrow(dat.u)), 
+                                   size = nrow(dat.u), replace = TRUE))
 res &lt;- apply(samples, 2, FUN = function(ix){
   boot_dat &lt;- dat.u[ix,]
   boot_est &lt;- std_mean_func(boot_dat)
@@ -1293,7 +1295,7 @@ dat.u %&gt;% group_by(sex) %&gt;%
 
 - If all of our models are fully saturated, IP weighting and standardization give exactly the same result (recall HW1). 
 
-- With parametric models, the two methods rely on different assumptions and so are not the same.
+- With parametric models, the two methods rely on different assumptions and are not the same.
 
 - In the IP weighted analysis, we need to trust our model for `\(f(A \vert L)\)`.
 
@@ -1337,12 +1339,12 @@ dat.u %&gt;% group_by(sex) %&gt;%
   + IP weighting can be inefficient when weights are very large. 
   
   
-- Vansteelandt and Keiding note that IPW performs better when the covariate distribution is very different in cases and controls. 
+- Vansteelandt and Keiding find that IPW performs better when the covariate distribution is very different in cases and controls. 
   + Depending on the model used fo G-Computation, the dominant group may have too much influence over estimates in these regions. 
   + G-Computation may under-estimate the uncertainty about the counterfactuals in these regions. 
   
   
-- Some people suggest that we shouldn't be trying to estimate the countefactuals in these regions at all, since this requires extrapolating into regions with low density of data points. 
+- Some  suggest that we shouldn't be trying to estimate the countefactuals in these regions at all, since this requires extrapolating into regions with low data density. 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
