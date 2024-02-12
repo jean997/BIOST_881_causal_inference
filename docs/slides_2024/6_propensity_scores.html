@@ -84,8 +84,8 @@ $$
 - The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-dfa8d673d59eada8a8ea" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-dfa8d673d59eada8a8ea">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-50e472ca4ff281d6aed9" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-50e472ca4ff281d6aed9">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -95,7 +95,7 @@ $$
 
 - Because `\(\pi(L)\)` is sufficient to control confounding, we know that `\(E[Y \vert A, L ] = g(\pi(L), A)\)` for some function `\(g\)`.
 
-- Rather than using IP weighting or G-computation, we could try to fit this function. 
+- We could try to estimate `\(g()\)` rather than specifying `\(E[ Y \vert A, L]\)` as a function directly of `\(L\)`. 
 
 
 - Valid inference will depend on 
@@ -122,7 +122,7 @@ $$
 
 ## Subclassification
 
-- Subclassification is a specific version of outcome regression with propensity scores strategy. 
+- Subclassification is a specific version of outcome regression with propensity scores. 
 
 - Idea: Break the data into quantiles based on propensity score and compute the difference of means within each quantile. 
 
@@ -134,18 +134,19 @@ $$
 
 - This corresponds to the model
 
-`$$E[Y_i \vert A_i, L_i] = \sum_{k = 1}^K \beta_{\pi,k} 1_{\hat{\pi}_i \in C_k} + \sum_{k = 1}^K \beta_{A\pi,k} A_i 1_{\hat{\pi}_i \in C_k}$$`
+`$$E[Y_i \vert A, L_i] = \sum_{k = 1}^K \beta_{\pi,k} 1_{\hat{\pi}_i \in C_k} + \sum_{k = 1}^K \beta_{A\pi,k} A 1_{\hat{\pi}_i \in C_k}$$`
 
 - `\(\beta_{A\pi,k}\)` is the causal effect for individuals in quantile `\(k\)` of the empirical propensity score distribution. 
 
 - The marginal causal effect is 
-`$$\hat{\Delta}_S = E[Y(1)] - E[Y(0)] = \sum_{k = 1}^K \beta_{A\pi, k}P[\hat{\pi} \in C_k] = \frac{1}{k} \sum_{i = 1}^K \beta_{A \pi, k}$$`
+`$$\hat{\Delta}_S = E[Y(1)] - E[Y(0)] = \sum_{i = 1}^n\sum_{k = 1}^K \beta_{A\pi, k}1_{\hat{\pi}_i \in C_k} = \frac{1}{k} \sum_{i = 1}^K \beta_{A \pi, k}$$`
 ---
 ## Propensity Score Regression in NHEFS
 
-- Calculated propensity scores in the same way as L5
+- We first calculate propensity scores in the same way as in L5 (not shown here).
 
-- If there is no interaction between treatment and propensity score, we can read the causal effect directly from the coefficient estimate. 
+- Next we fit a model for `\(E[Y \vert A, \pi(L)]\)`.
+
 
 
 
@@ -418,8 +419,8 @@ good ranking.
 ## Predictors of Treatment
 
 - Should we include `\(L_1\)` in in the predictive model of `\(A\)`? 
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-aa7bbb484ebd4ea1070f" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-aa7bbb484ebd4ea1070f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-9b22ac30fe3ea255c13c" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-9b22ac30fe3ea255c13c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 --
 
 - Suppose that `\(P[A = 1 \vert L = 0] = 0.01\)` and `\(P[A = 1 \vert L_1 = 1]= 0.99\)` and we condition on `\(L_1\)` to compute `\(\hat{\pi}(L)\)`.
@@ -435,8 +436,8 @@ good ranking.
 
 - Should we include `\(L_2\)` in in the predictive model of `\(A\)`? 
 
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-20c0b1133a534c6679fc" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-20c0b1133a534c6679fc">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-24ee73b07062a75682ea" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-24ee73b07062a75682ea">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 
 
@@ -446,8 +447,8 @@ good ranking.
 ## Simulations 
 
 - Data are generated from the graph: 
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-894e4ad52e5aefae6a5e" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-894e4ad52e5aefae6a5e">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-f881d053728769c63dbb" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-f881d053728769c63dbb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 - A randomized trial with `\(N/2\)` units each in treatment and control groups. 
 

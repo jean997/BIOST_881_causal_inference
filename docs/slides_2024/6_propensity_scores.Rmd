@@ -111,7 +111,7 @@ render_graph(gr0)
 
 - Because $\pi(L)$ is sufficient to control confounding, we know that $E[Y \vert A, L ] = g(\pi(L), A)$ for some function $g$.
 
-- Rather than using IP weighting or G-computation, we could try to fit this function. 
+- We could try to estimate $g()$ rather than specifying $E[ Y \vert A, L]$ as a function directly of $L$. 
 
 
 - Valid inference will depend on 
@@ -138,7 +138,7 @@ $$E[Y_i \vert A_i, L_i] = \beta_0 + \beta_1 A_i + \sum_{k = 1}^K \beta_{\pi,k} \
 
 ## Subclassification
 
-- Subclassification is a specific version of outcome regression with propensity scores strategy. 
+- Subclassification is a specific version of outcome regression with propensity scores. 
 
 - Idea: Break the data into quantiles based on propensity score and compute the difference of means within each quantile. 
 
@@ -150,18 +150,19 @@ $$E[Y_i \vert A_i, L_i] = \beta_0 + \beta_1 A_i + \sum_{k = 1}^K \beta_{\pi,k} \
 
 - This corresponds to the model
 
-$$E[Y_i \vert A_i, L_i] = \sum_{k = 1}^K \beta_{\pi,k} 1_{\hat{\pi}_i \in C_k} + \sum_{k = 1}^K \beta_{A\pi,k} A_i 1_{\hat{\pi}_i \in C_k}$$
+$$E[Y_i \vert A, L_i] = \sum_{k = 1}^K \beta_{\pi,k} 1_{\hat{\pi}_i \in C_k} + \sum_{k = 1}^K \beta_{A\pi,k} A 1_{\hat{\pi}_i \in C_k}$$
 
 - $\beta_{A\pi,k}$ is the causal effect for individuals in quantile $k$ of the empirical propensity score distribution. 
 
 - The marginal causal effect is 
-$$\hat{\Delta}_S = E[Y(1)] - E[Y(0)] = \sum_{k = 1}^K \beta_{A\pi, k}P[\hat{\pi} \in C_k] = \frac{1}{k} \sum_{i = 1}^K \beta_{A \pi, k}$$
+$$\hat{\Delta}_S = E[Y(1)] - E[Y(0)] = \sum_{i = 1}^n\sum_{k = 1}^K \beta_{A\pi, k}1_{\hat{\pi}_i \in C_k} = \frac{1}{k} \sum_{i = 1}^K \beta_{A \pi, k}$$
 ---
 ## Propensity Score Regression in NHEFS
 
-- Calculated propensity scores in the same way as L5
+- We first calculate propensity scores in the same way as in L5 (not shown here).
 
-- If there is no interaction between treatment and propensity score, we can read the causal effect directly from the coefficient estimate. 
+- Next we fit a model for $E[Y \vert A, \pi(L)]$.
+
 
 ```{r, echo = FALSE}
 fit <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
