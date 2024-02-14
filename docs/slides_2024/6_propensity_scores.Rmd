@@ -1077,49 +1077,93 @@ knitr::include_graphics("img/6_ksfig2.png")
 
 
 ---
-## IP Weighting
-
-- Kang and Schaffer look at two IP Weighting estimators. 
-
-- IPW-POP is the Hajek estimator we saw in L5. 
-
-- IPW-NR is a variation in which we first estimate the mean weighted to the population of non-respondants and then compute a weighted average with the observed mean in the respndants. 
-
-<center> 
-
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab1.png")
-```
-
-</center>
-
----
-## Subclassification
+## IP Weighting and Subclassification
 
 - The subclassification estimator has higher bias but lower RMSE than IPW for correctly specified models. 
 
-- It has lower error for the incorrect model at the larger sample size. 
+- It has lower RMSE for the incorrect model at the larger sample size. 
 
-<center>
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab2.png")
+
+<center> 
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results2.png")
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, eval = FALSE}
+ks_res <- readr::read_csv("6_ks_results.csv")
+ks_res <- ks_res %>%
+  mutate(pos = method_num,
+         pos = case_when(pi_model == "incorrect" ~pos + 0.4, 
+                          TRUE ~ pos), 
+         pos = case_when(y_model == "incorrect" ~ pos + 0.2, 
+                            TRUE ~ pos), 
+         labels = case_when(pi_model == "correct" & y_model == "correct" ~ "C/C", 
+                            pi_model == "incorrect" & y_model == "correct" ~ "I/C", 
+                            pi_model == "correct" & y_model == "incorrect" ~ "C/I", 
+                            pi_model == "incorrect" & y_model == "incorrect" ~ "I/I", 
+                            pi_model == "correct" | y_model == "correct" ~ "C", 
+                            pi_model == "incorrect" | y_model == "incorrect" ~ "I")) 
+for(i in 2:7){
+  methods <- unique(ks_res$Method)[1:i]
+p1 <- ks_res %>% 
+  #filter(sample_size == 200) %>% 
+  mutate(bias_percent = case_when(Method %in% methods ~ bias_percent, 
+                               TRUE ~ NA_real_)) %>%
+  ggplot() + 
+  geom_point(aes(x = pos, y = bias_percent, color = Method, shape = as.factor(sample_size)), size = 3) +
+  geom_label(data = filter(ks_res, pos %in% 1:7), 
+             aes(x = pos, y = 120, label = Method)) +
+  scale_x_continuous(breaks = ks_res$pos, labels = ks_res$labels) + 
+  geom_hline(yintercept = 0, linetype = 2) +
+  scale_color_discrete(guide = FALSE) +
+  scale_shape(name = "Sample Size") +
+  xlab("Method") + 
+  ylab("Bias Percent") +
+  ylim(c(min(ks_res$bias_percent-0.3), max(ks_res$bias_percent) + 0.3)) + 
+  theme_bw() + 
+  theme(panel.grid.minor = element_blank())
+
+p2 <- ks_res %>% 
+  #filter(sample_size == 200 ) %>% 
+  mutate(rmse = case_when(rmse > 100 ~ NA, 
+                          TRUE ~ rmse),
+         rmse = case_when(Method %in% methods ~ rmse, 
+                                  TRUE ~ NA_real_)) %>%
+  ggplot() + 
+  geom_point(aes(x = pos, y = rmse, color = Method, shape = as.factor(sample_size)), size = 3) +
+  geom_label(data = filter(ks_res, pos %in% 1:7), 
+             aes(x = pos, y = 9, label = Method)) +
+  scale_x_continuous(breaks = ks_res$pos, labels = ks_res$labels) + 
+  scale_color_discrete(guide = FALSE) +
+  scale_shape(name = "Sample Size") +
+  xlab("Method") + 
+  ylab("RMSE") + 
+  ylim(c(0, max(ks_res$rmse[ks_res$rmse < 100]) + 0.3)) + 
+  theme_bw() + 
+  theme(panel.grid.minor = element_blank())
+p <- grid.arrange(p1, p2, ncol = 1)
+ggsave(p, file = paste0("~/Dropbox/teaching/BIOST881_causal_inference/docs/slides_2024/img/6_ks_results", i, ".png"), width = 13, 
+       height = 5, units = "in", dpi = 300)
+}
 ```
 
 </center>
+
 
 ---
 ## G-computation
 
-- For their "OLS" estimator, Kang and Schaffer fit the model for $E[Y \vert Z]$ or $E[Y \vert X]$ and then average the fitted values for all samples (censored and not). 
+-  Kang and Schaffer refer to the method we have called G-computation as "OLS".
 
-- This is the same as what we called G-computation or standardization before. 
+- In this simulation, G-computation is quite robust to model misspecification.
 
-- Should be un-biased for correctly specified outcome model. 
+- GC under the incorrect outome model has lower RMSE than IPW with the correct model.
 
 <center> 
 
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab3.png")
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results3.png")
 ```
 
 ---
@@ -1132,8 +1176,8 @@ knitr::include_graphics("img/6_kstab3.png")
 - "This estimate is indeed highly efficient when the $\pi$ -model is true and the $y$ -model is highly predictive. In our experience, however, if the π -model is misspecified, it is not difficult to find DR estimators that outperform this one by venturing outside the AIPW class."
 
 <center>
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab5.png")
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results4.png")
 ```
 
 </center>
@@ -1145,8 +1189,8 @@ knitr::include_graphics("img/6_kstab5.png")
 - "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate (8) when one of the models is true, but much better when both models are misspecified"
 
 <center>
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab9.png")
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results5.png")
 ```
 
 </center>
@@ -1165,8 +1209,8 @@ knitr::include_graphics("img/6_kstab9.png")
 - Best of the DR methods when both models are wrong. Worse than OLS with incorrect $y$ model. 
 
 <center> 
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab7.png")
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results6.png")
 ```
 </center>
 
@@ -1175,10 +1219,12 @@ knitr::include_graphics("img/6_kstab7.png")
 
 - "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified $\pi$ -model (Table 8). The performance of this method is disastrous when some of the estimated propensities are small."
 
+- RMSE with incorrect PS model > 1e5.
+
 <center>
 
-```{r, echo=FALSE, out.width="80%"}
-knitr::include_graphics("img/6_kstab8.png")
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results7.png")
 ```
 </center>
 
