@@ -45,7 +45,7 @@ style_mono_accent(
 
 
 ---
-## Monday, (Date)
+## Monday, February 19
 
 Match the estimator with statements that are true about it. 
 .pull-left[
@@ -57,7 +57,7 @@ Match the estimator with statements that are true about it.
 
 - AIPW estimator from Robins, Rotnitzky and Zhao (1994)
 
-- Subclassification estimator
+- Subclassification estimator with fixed $K$
 
 - Bang and Robins estimator
 
