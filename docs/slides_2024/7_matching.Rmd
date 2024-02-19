@@ -40,7 +40,7 @@ library(gridExtra)
 library(viridis)
 library(Matching)
 library(MatchIt)
-#source("stat_ecdf_weighted.R")
+source("stat_ecdf_weighted.R")
 dat.u <- read_csv("../../data/nhefs.csv") 
 dat <- dat.u %>%
        filter(!is.na(wt82))
@@ -716,7 +716,7 @@ grid.arrange(p1, p2, p3, ncol = 3)
 ```{r, echo = FALSE, fig.width=12, fig.height=4, fig.align='center', warning = FALSE}
 p1 <- dat %>% 
   mutate(qsmk = as.factor(qsmk)) %>% 
-  ggplot(weight = w) + 
+  ggplot(aes(weight = w)) + 
   stat_ecdf(aes(x = age, group = qsmk , color = qsmk),  geom = "step") + ylab("Cumulative Density") + xlab("Age") + #ggtitle("Age Distribution") + 
   theme_bw() + 
   theme(axis.text = element_text(size = 14), 
