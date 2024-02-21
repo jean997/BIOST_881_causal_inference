@@ -25,6 +25,8 @@ editor_options:
 
 [7. Matching](slides_2024/7_matching.html)
 
+[8. G-Estimation](slides_2024/8_g_estimation.html)
+
 ## Lecture Slides from Past Years
 
 [2023 Slides](slide_index_2023.html)
