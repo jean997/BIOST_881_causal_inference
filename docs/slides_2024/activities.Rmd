@@ -79,6 +79,33 @@ Match the estimator with statements that are true about it.
 - More accurate using estimated PS than using true PS.
 ]
 
+---
+## Wednesday, February 21, 2024
+
+-Multiple choice questions to do together.
+
+- When you first begin thinking about a causal question you should:
+
+  A. Draw a DAG containing all confounders of the exposure and outcome that you can think of, along with any sources of censoring that might affect your study. 
+  
+  B. Draw a DAG that only contains variables that are already measured and in your data.
+  
+  C. Draw a DAG containing both variables that are measured and variables that you think that you could measure.
+
+---
+## Wednesday, February 21, 2024
+
+
+- When looking at your DAG, you find that there are confounders that you cannot measure. You should:
+
+  A. Remove these variables from the DAG, go ahead with your analysis as though they did not exist and report your estimated causal effect. 
+  
+  B. Go ahead with your analysis but do a sensitivity analysis to understand how much bias your unmeasured confounders could be causing.
+  
+  C. Look for an alternative way to measure the causal effect like instrumental variable analysis. 
+  
+  D. Give up on measuring a causal effect and do a descriptive analysis describing associations.
+
 
 ---
 ## Wednesday, (Date)
