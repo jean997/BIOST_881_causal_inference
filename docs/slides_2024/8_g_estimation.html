@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L8: G-Estimation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# L8: G-Estimation
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### Lecture on 2024-02-21
+(updated: 2024-02-20)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+
+
+## Lecture Plan
+
+1. G-Estimation
+
+Lecture materials from HR Chapter 14 and from Vansteelandt and Joffe (2014). 
+
+---
+## G-Estimation
+
+- This is the last causal estimation method we will see for non-time varying data. 
+
+- It is also the "weirdest". Because of this weirdness (and lack of great software), G-estimation is fairly uncommon in applied literature.
+
+- However G-estimation has several advantages:
+  + For a continuous treatment, we only have to specify `\(E[A \vert L]\)` instead of `\(f(A \vert L)\)`.
+  + Potentially more efficient than IP weighting.
+  + Less extrapolation bias than G-computation.
+
+- G-Estimation is also useful for time-varying data, which we will see later.
+
+---
+## Marginal Structural Models
+
+- In IP weighting, we estimate weights `\(f(A \vert L)\)` and propose a **marginal structural model** (MSM) such as
+
+`$$E[Y(a)] = \beta_0 + \beta_1 a$$`
+
+- We then estimate the parameters of the MSM by fitting a regression, weighting each observation by `\(\frac{1}{f(A_i \vert L_i)}\)`. 
+
+- The model above is **marginal** because we marginalized over the distribution of `\(L\)`. 
+
+- We needed to get the propensity model (model for `\(f(A | L)\)`) right.
+
+- We also need to get the MSM right (only hard if `\(A\)` is not binary).
+
+---
+## Conditional Outcome Models
+
+- In G-Computation, we propose a model for `\(E[Y \vert A, L]\)`. 
+
+- This model is also structural because we are assuming that `\(E[Y \vert A, L] = E[Y(a) \vert L]\)`. 
+
+- However, it is a **conditional** structural model because we are conditioning on `\(L\)`. 
+
+
+---
+## Semiparametric Structural Mean Models
+
+- Suppose we have a single, continuous confounder `\(L\)`, a binary treatment `\(A\)`, and a continuous outcome `\(Y\)`.
+
+- We are interested in estimating the ATE, `\(E[Y(1)] - E[Y(0)]\)`. 
+
+- Suppose we specify a conditional structural model,
+`$$E[Y \vert A = a, L ] = E[Y(a) \vert L] = \beta_0 + \beta_1 a + \beta_2 L + \beta_3 a L$$`
+
+- We could think of this as really specifying two structural models:
+`$$E[Y(0) \vert L] = \beta_0 + \beta_2 L$$`
+`$$E[Y(1) \vert L] = (\beta_0 + \beta_1) + (\beta_2 + \beta_3) L = E[Y(0) \vert L ] + \beta_1 + \beta_3L$$`
+---
+## Semiparametric Structural Mean Models
+
+- Since we are only interested in the ATE, we really only care about the second formula,
+`$$E[Y(1) \vert L] =  E[Y(0) \vert L ] + \beta_1 + \beta_3L$$`
+- In order to estimate the ATE, we need to estimate `\(\beta_1\)` and `\(\beta_3\)`. 
+
+- The parameters in the formula for `\(E[Y(0) \vert L]\)` are nuisance parameters. 
+
+- If we are using G-computation, we need to estimate them, but they don't tell us anything about the causal effect.
+
+---
+## Semiparametric Structural Mean Models
+
+- A semiparametric structural mean model only specifies a model for the target contrast (in our case difference in counterfactual means).
+
+`$$E[Y(1) \vert  L] - E[Y(0) \vert L] = \beta_1  + \beta_3 L$$`
+- This model is **semiparametric** because we don't specify a functional for for `\(E[Y(0) \vert L]\)`.
+
+- It is **not** marginal because we are conditioning on `\(L\)`. 
+
+- If we know `\(\beta_1\)` and `\(\beta_3\)`, we can calculate the ATE by standardizing over `\(L\)`, just as we would in G-computation
+
+`$$E[Y(1)] - E[Y(0)] = \beta_1 + \frac{1}{n}\sum_{i = 1}^n \beta_3 L_i$$`
+---
+## Semi-Parametric Structural Mean Models
+
+&lt;img src="img/8_semiparametric2.png" width="100%" /&gt;
+
+---
+## G-Estimation
+
+- Suppose we have a semiparametric structural mean model (SMM)
+$$
+E[Y(a)-Y(0) \vert L] = \beta a
+$$
+
+- How do we estimate `\(\beta_1\)` if we can never observe both `\(Y(a)\)` and `\(Y(0)\)` for the same person? 
+
+
+---
+
+## G-Estimation
+
+- To motivate the method, first assume the causal effect is **homogeneous**, meaning it is exactly the same for everyone.
+
+- This means that for each person, 
+$$
+Y_i(1)- Y_i(0) =  \beta
+$$
+
+- Validity of G-estimation doesn't actually require homogeneity but it is a convenient place to start. 
+
+
+---
+
+## G-Estimation
+
+- Re-write as $$ Y_i(0) = Y_i(1) - \beta$$.
+
+- By consistency, if `\(A_i = a\)` then `\(Y_i = Y_i(a)\)` so $$ Y_i(0) = Y_i - \beta A_i$$
+
+- This means that if we know `\(\beta\)`, we can fill in each unit's missing counterfactual.
+
+- Let `$$H_i(x) = Y_i - x A_i$$`. 
+
+- We want to find the value of `\(x\)` that will make `\(H_i(x)\)` equal to `\(Y_i(0)\)`. 
+  
+  
+  
+---
+
+## G-Estimation
+
+
+- Now we will use exchangeability. Exchangeability says that 
+`\(Y(0) \ci A \vert L\)`
+aka, `\(H(\beta) \ci A \vert L\)`.
+
+- For any given value of `\(x\)`, we can compute `\(H(x)_i = Y_i - x A_i\)` for every person in the study. 
+
+- We can estimate `\(\beta\)` as  `\(\hat{\beta} = x^*\)` where `\(H(x^*)\)` is statistically independent of `\(A\)` conditional on `\(L\)`, in our sample. 
+
+
+
+---
+## Example with Categorical `\(L\)`
+
+&lt;table class="table" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; L &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; A &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y(0) = H(x)\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y(1)\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; L &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; A &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y(0) = H(x)\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y(1)\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.27 &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; 0.27\(+x\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.1\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.31 &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; -0.31\(+x\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.29\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.29 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.1 &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; -0.1\(+x\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.48\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.48 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.71\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; 0.71 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.45\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.45 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.2\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; -0.2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.03 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.03\(+x\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.88\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; 0.88 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.14 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.14\(+x\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; -1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.53\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; 0.53 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.24 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.24\(+x\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.05 &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; 0.05\(+x\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.42\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.42 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.13 &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; 0.13\(+x\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.68\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 1.68 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.77 &lt;/td&gt;
+   &lt;td style="text-align:left;border-right: solid;"&gt; 0.77\(+x\) &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.95\(-x\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.95 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- The best estimate of `\(\beta\)` is the value of `\(x\)` that makes `\(H(x)\)` as close to independent of `\(A \vert L\)` as possible.
+
+---
+## G-Estimation
+
+- How would we know if `\(H(x)\)` were independent of `\(A \vert L\)`?
+
+- If you knew `\(H(x)\)`, we could fit a regression like
+$$
+logit \left( P[A = 1 \vert H(x), L] \right) = \alpha_0 + \alpha_1 H(x) + \alpha_2 L
+$$
+
+- If `\(\alpha_1\)` is equal to 0, we could conclude that `\(H(x) \ci A \vert L\)`. 
+
+- We could find the value of `\(x\)` that makes this true by doing a grid search, repeatedly fitting the regression and choosing the value of `\(x\)` that gives `\(\hat{\alpha}_1(x)\)` closest to 0. 
+
+---
+## G-Estimation
+
+- Alternatively, we know that if `\(H(x) \ci A \vert L\)` then `\(E[H(x) (A - E[A \vert L])] = 0\)`.
+
+- So we have an estimating equations formulation. 
+
+- We want to find the value of `\(x\)` such that 
+
+`$$\sum_{i = 1}^n  H_i(x)(A_i - E[A \vert L_i]) = 0$$`
+
+- If `\(H(x) = Y_i - xA_i\)`, this is solved by 
+
+`$$x^* = \frac{\sum_{i=1}^n Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n  A_i (A_i - E[A \vert L_i])}$$`
+
+- This will give the same answer as the grid search method if we use the same model for `\(E[A \vert L]\)`.
+
+---
+## Variance of the Estimate
+
+- Suppose that `\(\hat{x}\)` is the solution to `\(\min_{x} \vert \hat{\alpha}_1(x) \vert\)` found via grid search.
+
+- For every value of `\(x\)` we try, we get a regression fit including a `\(p\)`-value for `\(\hat{\alpha}_1(x) = 0\)`. Call this `\(p\)`-value `\(p_1(x)\)`.
+
+- We can get a confidence interval for `\(\hat{x}\)` by inverting this `\(p\)`-value. 
+
+- The 95% confidence interval for `\(\hat{x}\)` is the set of values 
+`\(\lbrace x : p_1(x) &gt; 0.05 \rbrace\)`.
+
+- Alternatively, we can bootstrap using the estimating equations version. 
+
+
+---
+## Example with Categorical `\(L\)`
+
+- In our categorical `\(L\)` example, to perform the grid search method, we first write a function to calculate `\(\alpha_1(x)\)`.
+
+
+```r
+grid = seq(0.4, 0.6, by = 0.01)
+
+Hx_coefs &lt;- purrr::map_dfr(grid, function(x){
+  dat$Hx &lt;- dat$Y - x * dat$A
+  # Using GEE for robust SEs
+  ea_fit &lt;- geeglm(A ~ as.factor(L) + Hx, 
+                  family=binomial(), data=dat, 
+                  id=id, corstr="independence")
+  res &lt;- data.frame("Est" = summary(ea_fit)$coefficients["Hx", "Estimate"], 
+                    "SE" = summary(ea_fit)$coefficients["Hx", "Std.err"], 
+                    "p" = summary(ea_fit)$coefficients["Hx", "Pr(&gt;|W|)"])
+})
+
+Hx_coefs &lt;- Hx_coefs %&gt;% mutate(ci_lower = Est - 1.96*SE, 
+                                ci_upper = Est + 1.96*SE, 
+                                pns = p &gt; 0.05)
+```
+
+---
+## G-Estimation in Catgorical Example
+
+&lt;img src="8_g_estimation_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+## Estimating Equations in Categorical Example
+
+
+```r
+gest_func &lt;- function(dat){
+  ps_model &lt;- glm(A ~ as.factor(L),
+                  family=binomial(), data=dat)
+  dat$ea &lt;- predict(ps_model, type = "response")
+  est &lt;- with(dat, sum(Y*(A-ea))/sum(A*(A -ea)))
+  return(est)
+}
+boot_samps &lt;- replicate(n = 500,
+                       expr = {gest_func(dat[sample(seq(nrow(dat)), 
+                                     size = nrow(dat), replace = TRUE),])})
+est &lt;- gest_func(dat)
+round(est, digits = 2)
+```
+
+```
+## [1] 0.49
+```
+
+```r
+round(est + c(-1, 1)*qnorm(0.975)*sd(boot_samps), digits = 2)
+```
+
+```
+## [1] 0.45 0.52
+```
+
+---
+## Censoring
+
+- When there is censoring, we want to estimate `\(E[Y(A = 1, C =0) - Y(A =0, C =0)]\)`.
+
+- To do this, we can estimate censoring weights `\(W^C = \frac{1}{P[C = 0 \vert A, L]}\)`, weight the population by these, and then apply G-estimation.
+
+- Using the grid search method, this means using `\(W^{C}\)` as weights when we fit the model for `\(P[A \vert H(x), L]\)`.
+
+- Using the estimating equations version, we add weights to the sums in numerator and denominator,
+
+`$$x^* = \frac{\sum_{i: C = 0} W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i:C = 0}^n W^C_i A_i (A_i - E[A \vert L_i])}$$`
+
+---
+## G-Estimation in NHEFS
+
+Step 1: Compute censoring weights
+
+
+```r
+dat &lt;- read_csv("../../data/nhefs.csv") 
+dat$cens &lt;- ifelse(is.na(dat$wt82), 1, 0)
+
+cw_fit &lt;- glm(cens==0 ~ qsmk + sex + race + age + I(age^2) 
+                     + as.factor(education) + smokeintensity + I(smokeintensity^2) 
+                     + smokeyrs + I(smokeyrs^2) + as.factor(exercise) 
+                     + as.factor(active) + wt71 + I(wt71^2), 
+                     data = dat, family = binomial())
+
+dat$wc &lt;- 1/predict(cw_fit, type="response")
+```
+
+---
+## Grid Search G-Estimation in NHEFS
+
+Step 2: Estimate `\(x\)` by grid search. 
+
+
+
+```r
+grid = seq(2, 5, by = 0.1)
+
+Hx_coefs &lt;- purrr::map_dfr(grid, function(x){
+  dat$Hx &lt;- dat$wt82_71 - x * dat$qsmk
+  # Using GEE for robust SEs
+  gest_fit &lt;- geeglm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+                  + smokeintensity + I(smokeintensity*smokeintensity) + smokeyrs
+                  + I(smokeyrs*smokeyrs) + as.factor(exercise) + as.factor(active)
+                  + wt71 + I(wt71*wt71) + Hx, 
+                  family=binomial(), data=dat, weights=wc, 
+                  id=seqn, corstr="independence", 
+                  subset = which(!is.na(wt82_71)))
+  res &lt;- data.frame("Est" = summary(gest_fit)$coefficients["Hx", "Estimate"], 
+                    "SE" = summary(gest_fit)$coefficients["Hx", "Std.err"], 
+                    "p" = summary(gest_fit)$coefficients["Hx", "Pr(&gt;|W|)"])
+})
+
+Hx_coefs &lt;- Hx_coefs %&gt;% mutate(ci_lower = Est - 1.96*SE, 
+                                    ci_upper = Est + 1.96*SE, 
+                                    pns = p &gt; 0.05)
+```
+
+---
+## G-Estimation in NHEFS
+
+&lt;img src="8_g_estimation_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+## Estimating Equations in NHEFS
+
+
+```r
+ps_model &lt;- glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+                  + smokeintensity + I(smokeintensity*smokeintensity) + smokeyrs
+                  + I(smokeyrs*smokeyrs) + as.factor(exercise) + as.factor(active)
+                  + wt71 + I(wt71*wt71),
+                  family=binomial(), data=dat)
+dat$ea &lt;- predict(ps_model, type = "response")
+
+g_est_num &lt;- with(dat, sum((1-cens)*wc*wt82_71*(qsmk-ea), na.rm=T))
+g_est_denom &lt;- with(dat, sum((1-cens)*wc*qsmk*(qsmk-ea)))
+
+round(g_est_num/g_est_denom, digits = 2)
+```
+
+```
+## [1] 3.51
+```
+
+---
+## Assumptions
+
+- In order for the G-estimation estimate to be consistent, we need to get two things right:
+
+- The structural mean model, `$$E[Y(a) \vert A = a, L] - E[Y(0) \vert A = a, L]$$`
+
+- The model for `\(E[A \vert L]\)`.
+
+
+---
+## Closer Look At Estimating Eqns Solution
+
+`$$x^* = \frac{\sum_{i=1}^n 1_{C=0}W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n 1_{C=0}W^C_i A_i (A_i - E[A \vert L_i])}$$`
+
+- In the numerator, there is a term `\((A_i - E[A \vert L_i])\)`. Units with `\(A_i = E[A \vert L_i]\)` don't contribute to the sum. 
+
+- This means we are basing our inference on units in the overlap space, units that have a chance of either treatment. 
+
+- When there are regions of covariate space with only cases or only controls, G-Computation suffers from extrapolation bias because it is basing too much of its estimation on only one group. 
+
+- IP weighting on the other hand can have very high variance due to enormous weights. 
+
+- G-estimation remains efficient and doesn't suffer from overlap bias. 
+
+---
+## Effect Modification
+
+- In G-estimation, we are estimating `\(E[Y(a)-Y(0) \vert L, A = a]\)`, the treatment effect *conditional* on `\(L\)`. 
+   - If there is any effect modification by variables in `\(L\)`, we **have** to include that in the model. 
+   - To get the marginal effect, we need to standardize as in G-computation.
+
+
+- This is different from the MSMs we use for IP weighting. 
+  - In that case, we only put in effect modifiers if we find them interesting. 
+  
+
+---
+
+## Effect Modification
+
+- Vansteelandt and Joffe argue that, in the binary `\(A\)` case, mis-specifying the model as `\(E[Y(1) \vert L] - E[Y(0) \vert L ] = \beta_1\)` when there is effect modification, still gives interpretable results.
+
+- Suppose the true model is `\(E[Y(1) \vert L] - E[Y(0) \vert L ] = \omega(L)\)`
+
+- Then the G-estimator using the incorrect model with no effect modification converges to 
+`$$\frac{E\left \lbrace Var(A \vert L)\omega(L)\right \rbrace}{E\left \lbrace Var(A \vert L)\right \rbrace}$$` which is a weighted average of treatment effects, giving the most weight to strata with higher values of `\(Var(A \vert L)\)`, or strata with the most overalp between treated and control.
+
+---
+## Multi-Parameter Structural Mean Models
+
+
+- Suppose we propose the model
+
+$$E[Y(a)-Y(0) \vert  L] = \beta_1 a + \beta_2 a L $$
+
+- The corresponding "H" model is 
+
+`$$H_i(x_1, x_2) = Y_i - x_1 A_i - x_2 A_i L_i$$`
+- We are looking for values `\(x_1^*\)` and `\(x_2^*\)` such that `\(H(x_1^*, x_2^*) \ci A \vert L\)`
+
+---
+## Multi-Parameter Structural Mean Models
+
+
+- We now have two parameters to estimate, so we need to perform a search over a two dimensional grid. 
+
+- At `\(x_1 = \beta_1\)` and `\(x_2 = \beta_2\)`, the `\(\alpha_1\)` and `\(\alpha_2\)` terms will both be 0.  
+
+$$
+logit\left( P[A = 1 \vert H(x_1, x_2), L] \right) = \alpha_0 + \alpha_1 H(x_1, x_2) + \alpha_2 H(x_1, x_2) L + \alpha_3 L
+$$
+
+---
+## Multi-Parameter Structural Mean Models
+
+- We have some choices about how we put `\(H(x_1, x_2)\)` into the exposure model.
+
+- For example, we could use
+
+$$
+logit\left( P[A = 1 \vert H(x_1, x_2), L] \right) = \alpha_0 + \alpha_1 H(x_1, x_2) + \alpha_2 H(x_1, x_2) L + \alpha_3 L
+$$
+
+or 
+
+$$
+logit\left( P[A = 1 \vert H(x_1, x_2), L] \right) = \alpha_0 + \alpha_1 H(x_1, x_2) + \alpha_2 H(x_1, x_2) L^2 + \alpha_3 L
+$$
+
+- It turns out that the choice only affects efficiency and not consistency, and we can derive the (locally) most efficient choice. 
+
+---
+## General Formulation
+
+- In general we start with a structural mean model 
+
+$$g\left \lbrace E[Y(a) \vert A =a, L]\right \rbrace - g\left \lbrace E[Y(0) \vert A =a, L]\right \rbrace = \gamma(a, l ; x^*)  $$
+
+- From this, we define
+
+$$
+`\begin{split}
+&amp;H(x) = Y - \gamma(L, A; x) \qquad &amp;g\ \text{identity}\\
+&amp;H(x) = Y\exp[-\gamma(L, A; x)]\qquad &amp;g\ \text{log}\\
+&amp;H(x) = expit \left( logit(E[Y \vert L, A])- \gamma(L, A; x)  \right)
+) \qquad &amp;g\ \text{logit}
+\end{split}`
+$$
+- The fact that `\(E[Y \vert L, A]\)` shows up in the definition of `\(H(x)\)` if `\(g\)` is logit makes the odds ratio formulation more difficult to deal with. 
+  + There is no consistent G-estimator for the causal odds ratio. 
+
+---
+## General Formulation
+
+- Next we either grid search for a value of `\(x\)` such that `\(H(x)\)` is statistically independent of `\(A - E[A \vert L]\)` or we solve the estimating equations
+
+`$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(x^*)(d(A_i) - d(E[A \vert L_i])) = 0$$` where `\(d\)` is a function of `\(A\)` and `\(L\)` with dimension equal to the dimension of `\(x\)`. 
+
+
+- For example, using the model `\(E[Y(a) \vert L ] - E[Y(0) \vert L ] = \beta_1 a + \beta_2 a L\)`, we could use the estimating equation
+
+`$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i  H_i(x) \begin{pmatrix}A_i - E[A \vert L_i]\\L_i(A_i - E[A \vert L_i]) \end{pmatrix}= 0$$` 
+
+- The `\(d\)` function corresponds to the choice of how to put `\(H(x)\)` into the exposure model.
+
+---
+## Efficient choice of `\(d\)`
+
+- Under homoskedasticity, meaning that the variance of `\(H(x)\)` is constant given `\(A\)` and `\(L\)`, the best choice of `\(d\)` is
+
+$$
+d(A, L) = E\left\lbrace \frac{\partial H(x)}{dx} \Big\vert A, L\right\rbrace
+$$
+- Under the two parameter model from a few slides ago where we had
+
+`$$H_i(x_1, x_2) = Y_i - x_1 A_i - x_2 A_i L_{1,i}$$`
+- The best choice of `\(d\)` is `\(d(A,L) = \begin{pmatrix}A \\ A L_1 \end{pmatrix}\)`.
+  + We dropped the minus sign since we can just multiply both sides of the estimating equations by -1. 
+
+---
+## Multi-Parameter Model in NHEFS
+
+- Suppose we believe there is effect modification by smoking intensity. Let `\(V\)` be smoking intensity and `\(L\)` the remaining confounders. We could use the SMM
+`$$E[Y(a) \vert L, V] - E[Y(0) \vert L, V] = \beta_1 a + \beta_2 a V$$`
+
+- We need to solve the estimating equations
+
+`$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i \begin{pmatrix}1\\V_i \end{pmatrix}(A_i - E[A \vert L_i, V_i]) H_i(x)= 0$$` 
+---
+## Multi-Parameter Model in NHEFS
+
+- By plugging in `\(H_i(x) = Y_i -x_1 A_i - x_2 A_i V_i\)`, we obtain
+
+`$$\begin{pmatrix}x_1 \\ x_2 \end{pmatrix} = R^{-1} S$$`
+with 
+`$$S = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i D_i\\
+\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i V_i D_i\end{pmatrix}$$`
+
+`$$R = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i D_i &amp; \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i\\
+\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i &amp; \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i^2 D_i\end{pmatrix}$$`
+
+where `\(D_i = A_i - E[A \vert L_i]\)`. 
+
+
+---
+## Multi-Parameter Model in NHEFS
+
+
+
+```r
+dat$wc[dat$cens != 0] &lt;- 0
+dat$rem_w &lt;- with(dat, wc*(qsmk - ea))
+S &lt;- with(dat, c(sum(wt82_71*rem_w, na.rm=T), 
+                 sum(smokeintensity*wt82_71*rem_w, na.rm=T)))
+R &lt;- with(dat, c(sum(qsmk*rem_w), sum(smokeintensity*qsmk*rem_w), 
+                 sum(smokeintensity*qsmk*rem_w), sum(smokeintensity^2*qsmk*rem_w)))
+R &lt;- matrix(R, nrow = 2, byrow = T)
+x &lt;- solve(R) %*% S
+round(x, digits = 2)
+```
+
+```
+##      [,1]
+## [1,] 2.92
+## [2,] 0.03
+```
+
+```r
+ate &lt;- x[1] + mean(dat$smokeintensity*x[2])
+round(ate, digits = 2)
+```
+
+```
+## [1] 3.54
+```
+
+
+
+---
+## Doubly Robust G-Estimation
+
+- To make the estimator more robust, we can replace `\(H(x)\)` with `\(H(x) - E[H(x) \vert L]\)`. 
+  - This works using either the estimating equation approach or the grid search approach.
+
+- To do this, we first fit an outcome model for `\(E[Y \vert L, A = 0]\)`. 
+
+- If `\(H(x)_i = Y_i - xA_i\)`, then `\(H(x) - E[H(x) \vert L] = (Y_i - \hat{Y}_i) - xA_i\)`.
+
+- The resulting estimator will be consistent if either the outcome model in the untreated or the propensity model are correct. 
+
+
+
+---
+## Continuous Treatments
+
+
+- One nice feature of G-estimation for continuous treatments is that we only need a model for `\(E[A \vert L]\)`. 
+
+- For IP weighting, we need a model for `\(f(A \vert L)\)` which is much harder to get right. 
+
+---
+
+## Summary 
+
+- In G-Estimation we propose a semiparametric structural mean model for the causal contrast of interest **conditional** on `\(L\)`. 
+
+- We also propose a model for `\(E[A \vert L]\)`. 
+
+- We then obtain a function `\(H(x)\)` such that `\(E[H(x^*)] = Y(0)\)` for some value of `\(x^*\)`.
+
+- Finally, we search for the value of `\(x\)` that makes `\(H(x)\)` statistically independent of `\(A \vert L\)`.
+
+---
+
+## Summary 
+
+- G-Estimation avoids some of the problems of G-Computation and IP Weighting
+  + Extrapolation bias (G-Computation)
+  + Large variance (IP Weighting)
+  
+- The `gesttools` R package came out in 2022.
+  - Primarily focused on time-varying exposures and outcomes but also works for single time point data.
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
