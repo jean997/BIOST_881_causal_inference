@@ -47,9 +47,9 @@ Lecture materials from HR Chapter 14 and from Vansteelandt and Joffe (2014).
 
 - This is the last causal estimation method we will see for non-time varying data. 
 
-- It is also the "weirdest". Because of this weirdness (and lack of great software), G-estimation is fairly uncommon in applied literature.
+- It is also probably the least familiar. 
 
-- However G-estimation has several advantages:
+- G-estimation is fairly uncommon in applied lit but has several advantages:
   + For a continuous treatment, we only have to specify $E[A \vert L]$ instead of $f(A \vert L)$.
   + Potentially more efficient than IP weighting.
   + Less extrapolation bias than G-computation.
@@ -111,7 +111,7 @@ $$E[Y(1) \vert L] =  E[Y(0) \vert L ] + \beta_1 + \beta_3L$$
 - A semiparametric structural mean model only specifies a model for the target contrast (in our case difference in counterfactual means).
 
 $$E[Y(1) \vert  L] - E[Y(0) \vert L] = \beta_1  + \beta_3 L$$
-- This model is **semiparametric** because we don't specify a functional for for $E[Y(0) \vert L]$.
+- This model is **semiparametric** because we don't specify a parametric form for for $E[Y(0) \vert L]$.
 
 - It is **not** marginal because we are conditioning on $L$. 
 
@@ -133,7 +133,7 @@ $$
 E[Y(a)-Y(0) \vert L] = \beta a
 $$
 
-- How do we estimate $\beta_1$ if we can never observe both $Y(a)$ and $Y(0)$ for the same person? 
+- How do we estimate $\beta$ if we can never observe both $Y(a)$ and $Y(0)$ for the same person? 
 
 
 ---
@@ -154,13 +154,13 @@ $$
 
 ## G-Estimation
 
-- Re-write as $$ Y_i(0) = Y_i(1) - \beta$$.
+- Re-write as $$ Y_i(0) = Y_i(1) - \beta$$
 
 - By consistency, if $A_i = a$ then $Y_i = Y_i(a)$ so $$ Y_i(0) = Y_i - \beta A_i$$
 
 - This means that if we know $\beta$, we can fill in each unit's missing counterfactual.
 
-- Let $$H_i(x) = Y_i - x A_i$$. 
+- Let $$H_i(x) = Y_i - x A_i$$ 
 
 - We want to find the value of $x$ that will make $H_i(x)$ equal to $Y_i(0)$. 
   
@@ -243,31 +243,27 @@ t
 
 - How would we know if $H(x)$ were independent of $A \vert L$?
 
-- If you knew $H(x)$, we could fit a regression like
+- If we have a guess for $x$, we could fit a regression like
 $$
 logit \left( P[A = 1 \vert H(x), L] \right) = \alpha_0 + \alpha_1 H(x) + \alpha_2 L
 $$
 
-- If $\alpha_1$ is equal to 0, we could conclude that $H(x) \ci A \vert L$. 
+- If $\alpha_1$ is not statistically different from 0, then our data are consistent with $H(x) \ci A \vert L$. 
 
-- We could find the value of $x$ that makes this true by doing a grid search, repeatedly fitting the regression and choosing the value of $x$ that gives $\hat{\alpha}_1(x)$ closest to 0. 
+- We could find the values of $x$ that make this true by doing a grid search, repeatedly fitting the regression for multiple candidate $x$'s. 
+
+- A good point estimate of $\beta$ is the value of $x$ that gives $\hat{\alpha}_1(x)$ closest to 0. 
 
 ---
 ## G-Estimation
 
-- Alternatively, we know that if $H(x) \ci A \vert L$ then $E[H(x) (A - E[A \vert L])] = 0$.
-
-- So we have an estimating equations formulation. 
-
-- We want to find the value of $x$ such that 
+- Alternatively, minimizing the association between $H(x)= Y_i - xA_i$ and $A$ conditional on $L$ is equivalent to solving the estimating equation:
 
 $$\sum_{i = 1}^n  H_i(x)(A_i - E[A \vert L_i]) = 0$$
 
-- If $H(x) = Y_i - xA_i$, this is solved by 
+- This is solved by 
 
 $$x^* = \frac{\sum_{i=1}^n Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n  A_i (A_i - E[A \vert L_i])}$$
-
-- This will give the same answer as the grid search method if we use the same model for $E[A \vert L]$.
 
 ---
 ## Variance of the Estimate
@@ -346,17 +342,31 @@ round(est + c(-1, 1)*qnorm(0.975)*sd(boot_samps), digits = 2)
 ```
 
 ---
+## Beyond Homogeneous Effects
+
+- We have motivated G-estimation under the very strong assumption that $Y_i(1)-Y_i(0) = \beta$ for everyone.
+
+- If this is the case, then $H_i(\beta) = Y_i - \beta A_i$ is equal to $Y_i(0)$. 
+
+- However, we are only making use of mean exchangeability: $E[Y(0) \vert L, A] = E[Y(0) \vert L]$.
+
+- So we only need $H(\beta)$ to have the same conditional mean as $Y(0)$, i.e.
+$$E[H(\beta) \vert L] = E[Y(0) \vert L]$$
+
+- This is true as long as we get the semiparametric structural mean model for $E[Y(1)]-E[Y(0)]$ correct.
+
+---
 ## Censoring
 
 - When there is censoring, we want to estimate $E[Y(A = 1, C =0) - Y(A =0, C =0)]$.
 
-- To do this, we can estimate censoring weights $W^C = \frac{1}{P[C = 0 \vert A, L]}$, weight the population by these, and then apply G-estimation.
+- We can estimate censoring weights $W^C = \frac{1}{P[C = 0 \vert A, L]}$, weight the population by these, and then apply G-estimation.
 
-- Using the grid search method, this means using $W^{C}$ as weights when we fit the model for $P[A \vert H(x), L]$.
+- Using the grid search method, this means using $W^{C}$ as weights when we fit the model for $E[A \vert H(x), L]$.
 
 - Using the estimating equations version, we add weights to the sums in numerator and denominator,
 
-$$x^* = \frac{\sum_{i: C = 0} W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i:C = 0}^n W^C_i A_i (A_i - E[A \vert L_i])}$$
+$$x^* = \frac{\sum_{i: C = 0} W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i:C = 0} W^C_i A_i (A_i - E[A \vert L_i])}$$
 
 ---
 ## G-Estimation in NHEFS
@@ -445,7 +455,7 @@ round(g_est_num/g_est_denom, digits = 2)
 
 - In order for the G-estimation estimate to be consistent, we need to get two things right:
 
-- The structural mean model, $$E[Y(a) \vert A = a, L] - E[Y(0) \vert A = a, L]$$
+- The semiparametric structural mean model, $$E[Y(a) \vert A = a, L] - E[Y(0) \vert A = a, L]$$
 
 - The model for $E[A \vert L]$.
 
@@ -530,7 +540,7 @@ $$
 logit\left( P[A = 1 \vert H(x_1, x_2), L] \right) = \alpha_0 + \alpha_1 H(x_1, x_2) + \alpha_2 H(x_1, x_2) L^2 + \alpha_3 L
 $$
 
-- It turns out that the choice only affects efficiency and not consistency, and we can derive the (locally) most efficient choice. 
+- It turns out that the choice only affects efficiency and not consistency, and we can derive the locally most efficient choice. 
 
 ---
 ## General Formulation
@@ -557,7 +567,7 @@ $$
 
 - Next we either grid search for a value of $x$ such that $H(x)$ is statistically independent of $A - E[A \vert L]$ or we solve the estimating equations
 
-$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(x^*)(d(A_i) - d(E[A \vert L_i])) = 0$$ where $d$ is a function of $A$ and $L$ with dimension equal to the dimension of $x$. 
+$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(x)(d(A_i, L_i) - d(E[A \vert L_i], L_i)) = 0$$ where $d$ is a function with dimension equal to the dimension of $x$. 
 
 
 - For example, using the model $E[Y(a) \vert L ] - E[Y(0) \vert L ] = \beta_1 a + \beta_2 a L$, we could use the estimating equation
@@ -634,7 +644,7 @@ round(ate, digits = 2)
 
 - To do this, we first fit an outcome model for $E[Y \vert L, A = 0]$. 
 
-- If $H(x)_i = Y_i - xA_i$, then $H(x) - E[H(x) \vert L] = (Y_i - \hat{Y}_i) - xA_i$.
+- If $H_i(x) = Y_i - xA_i$, then $H_i(x) - E[H_i(x) \vert L] = (Y_i - \hat{Y}_{i,0}) - xA_i$.
 
 - The resulting estimator will be consistent if either the outcome model in the untreated or the propensity model are correct. 
 
@@ -652,11 +662,11 @@ round(ate, digits = 2)
 
 ## Summary 
 
-- In G-Estimation we propose a semiparametric structural mean model for the causal contrast of interest **conditional** on $L$. 
+- In G-Estimation we propose a semiparametric structural mean model for the causal contrast of interest **conditional** on $L$, with parameters $\boldsymbol{\beta}$. 
 
 - We also propose a model for $E[A \vert L]$. 
 
-- We then obtain a function $H(x)$ such that $E[H(x^*)] = Y(0)$ for some value of $x^*$.
+- We then obtain a function $H(x)$ such that $E[H(\boldsymbol{\beta}) \vert L] = E[Y(0) \vert L]$.
 
 - Finally, we search for the value of $x$ that makes $H(x)$ statistically independent of $A \vert L$.
 
