@@ -27,6 +27,8 @@ editor_options:
 
 [8. G-Estimation](slides_2024/8_g_estimation.html)
 
+[10. Time-Varying Treatment Part 1](slides_2024/10_time_varying_treatment_pt1.html)
+
 ## Lecture Slides from Past Years
 
 [2023 Slides](slide_index_2023.html)
