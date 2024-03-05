@@ -763,10 +763,10 @@ render_graph(gr2)
 </center>
 
 
-- Without $U$, there is no stratification strategy recover $E[Y(a)]$, even with uncensored observations of $A$ and $L$. 
+- Without $U$, we cannot apply the selection backdoor criterion to estimate $E[Y(a)]$, even with uncensored observations of $A$ and $L$. 
 
 - However, weighting by $1/P[C = 0 \vert A, L]$ works. 
-  - We must be able to observe $A$, $L$ and $C$ without censoring.
+  - We must be able to observe $A$, and $L$ without censoring.
 
 
 ---
