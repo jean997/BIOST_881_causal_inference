@@ -1329,7 +1329,8 @@ $$E[Y \vert L_1, A_1, A_0] = m(L_1, A_1, A_0; \theta) = \theta_0 + \theta_1 L_1 
 $$P(L_1 = 1 \vert a_0) = e(L_1 = 1, A_0; \beta)  = \frac{\exp(\beta_0 + \beta_1 A_0)}{1 + \exp(\beta_0 + \beta_1 A_0)}$$
 - Plugging into the g-formula
 
-$$E[Y(a_0, a_1)] = \sum_{l = 0}^1 m(l, a_1, a_0; \theta)e(l, a_0; \beta)  =\\\ \theta_0 + \theta_2 a_1 + \theta_3 a_0 + \theta_1 \frac{\exp(\beta_0 + \beta_1 a_0)}{1 + \exp(\beta_0 + \beta_1 a_0)}$$
+$$E[Y(a_0, a_1)] = \sum_{l = 0}^1 m(l, a_1, a_0; \theta)e(l, a_0; \beta)  =\\\ 
+(\theta_0 + \theta_2 a_1 + \theta_3 a_0 + \theta_1) \frac{\exp(\beta_0 + \beta_1 a_0)}{1 + \exp(\beta_0 + \beta_1 a_0)}$$
 
 
 ---
@@ -1343,18 +1344,22 @@ $$E[Y(a_0, a_1)] = \sum_{l = 0}^1 m(l, a_1, a_0; \theta)e(l, a_0; \beta)  =\\\ \
 - If we had access to $U$ and could model it correctly, this wouldn't be a problem.
 
 
-- Essentially, our parametric model does not include the strict null.
+- In our graph, conditioning on $L$ satisfies sequential exchangeability. 
+
+- Our models for $E[Y \vert L_1, A_1, A_0]$ and $P[L_1 = 1 \vert A_0]$ may also be exactly correct.
+
+- And yet, the combined model used implicitly by the parametric G-formula method does not include the strict null!
 
 ---
 ## Beyond the Strict Null
 
 - It may be impossible to correctly specify the parametric G-formula even when the strict null does not hold.
 
-- For example, the problem occurs in the DAG below where there is an effect only of $A_1$ on $Y$ using the same model we've been using. 
+- In the DAG below where there is an effect only of $A_1$ on $Y$ using the same model we've been using. 
 
 - McGrath, Young, and Hernán (2022) show that non-negligible bias can occur in some non-null models *even* using flexible model specifications. 
 
-- Previous results showed that in at least some settings, bias from the g-null paradox is negligible. 
+- Previous results showed that in some settings, bias from the g-null paradox is negligible. 
 
 
 <center>
@@ -1373,7 +1378,8 @@ render_graph(gr2)
 ---
 ## Beyond the Strict Null
 
-- The figure below shows simulation results from McGrath, Young, and Hernán (2022).
+- Simulation results below are from McGrath, Young, and Hernán (2022).
+  + Darker shades = more time points, "Benchmark" includes $U$.
 
 - More flexible models reduce the amount of bias but bias can still be substantial.
 
@@ -1387,13 +1393,13 @@ knitr::include_graphics("img/9_gnull.png")
 ---
 ## G-Null Paradox
 
-- By contrast, using marginal structural models with IP weighting,
+Using marginal structural models with IP weighting:
 
-- Under the strict null, $E[Y(\bar{a})]$ does not depend on $\bar{a}$. 
+- Under the strict null, $E[Y(\bar{a})]$ does not depend on $\bar{a}$.
 
-- Under the strict null, the marginal structural mean model will never be mis-specified (as long as it contains an intercept parameter). 
+- So, under the strict null, the marginal structural mean model will never be mis-specified (as long as it contains an intercept parameter). 
 
-- So the IP weighting method does not suffer from the g-null paradox. 
+- This means that IP weighting method does not suffer from the g-null paradox. 
 
 
 ---
