@@ -1,0 +1,714 @@
+---
+title: "L11: Time Varying Treatment\n Part 2"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "2023-02-22\n(updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanthemer, include=FALSE, warning=FALSE, echo = FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+library(tidyverse)
+library(DiagrammeR)
+```
+
+## Lecture Outline
+
+1. G-Estimation for Time-Varying Treatments
+1. Iterated Conditional Expectation Estimators
+1. Repeated Outcome Measures
+---
+## G-Estimation For Time-Varying Exposures
+
+---
+## G-Estimation
+
+- Recall from L8, in G-estimation for a single time-point, we start by writing a semiparametric structural mean model for the contrast of interest, 
+
+$$E[Y(a) \vert A = a, L=l]-E[Y(0)\vert A = a, L=l] = \gamma(a, l; \beta)$$
+- We then define the $H$ function, $H_i(x) = Y_i - \gamma(A_i, L_i; x)$.
+
+- Finally, we find the value of $x$ that makes $H(x)$ orthogonal to $A \vert L$ by either solving an estimating equation doing a grid search.
+
+
+---
+## G-Estimation
+
+- Starting with the two time-point model, we will use the same strategy as in L8 but we will write two semiparametric structural mean models.
+
+$$
+\begin{split}
+&E[Y(a_0, 0) - Y(0, 0) &\vert A_0 = a_0, L_0= l_0] = \gamma_0(a_0, l_0; \beta_0) = \beta_0 a_0\\
+&E[Y(a_0, a_1) - Y(a_0, 0) &\vert L_1(a_0) = l_1, L_0 = l_0, A_0 = a_0, A_1(a_0) = a_1] \\
+&&= \gamma_1(a_0, a_1, l_1, l_0; \beta_1) \\
+\end{split}
+$$
+
+- For example, if we had no $L_0$, we could use
+
+$$
+\begin{split}
+\gamma_0(a_0; \beta_0) = \beta_0 a_0\\
+\gamma_1(a_0, a_1, l_1, l_0; \beta_1) = a_1(\beta_{1,1} + \beta_{1,2}l_1 + \beta_{1,3}a_0 + \beta_{1,4}a_0l_1)
+\end{split}
+$$
+- By consistency, we can re-write the second equation as 
+
+$$
+\begin{split}
+&E[Y(a_0, a_1) - Y(a_0, 0) &\vert L_1 = l_1, L_0 = l_0, A_0 = a_0, A_1 = a_1] \\
+&&= \gamma_1(a_0, a_1, l_1, l_0; \beta_1) \\
+\end{split}
+$$
+---
+## G-Estimation
+
+
+- From $Y(a_1, a_0) \ci A_0 \vert L_0$ we have
+
+$$
+E[Y(a_0, 0) - Y(0, 0) \vert A_0 = a_0, L_0= l_0] = E[Y(a_0, 0) - Y(0, 0) \vert L_0= l_0]
+$$
+
+- From $Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_0, L_1$, we have
+$$
+\begin{split}
+&E[Y(a_0, a_1) - Y(a_0, 0) &\vert L_1 = l_1, L_0= l_0,  A_0 = a_0, A_1 = a_1] =\\
+&& E[Y(a_0, a_1) - Y(a_0, 0) \vert L_1 = l_1, L_0= l_0, A_0 = a_0]
+\end{split}
+$$
+---
+## G-Estimation
+
+- Combining these results with our previous model we now have
+
+$$
+\begin{split}
+&E[Y(a_0, 0) - Y(0, 0) &\vert L_0= l_0] = \gamma_0(a_0, l_0; \beta_0) \\
+&E[Y(a_0, a_1) - Y(a_0, 0) &\vert L_1 = l_1, L_0= l_0, A_0 = a_0, ] \\
+&&= \gamma_1(a_0, a_1, l_1, l_0; \beta_1)
+\end{split}
+$$
+- Now we need to link this model to the data. We will use consistency!
+
+- By consistency, $Y_i(a_0, a_1) = Y_i$ if $A_{0,i} = a_0$ and $A_{1,i} = a_1$ so
+
+$$
+\begin{split}
+&E[Y_i(A_{0,i}, 0) \vert L_{1,i}, L_{0,i}, A_{0, i}= a_0, A_{1,i}] = Y_i - \gamma_1(\bar{A}_{i,1}, \bar{L}_{1,i}; \beta_1)\\
+&E[Y_i(0, 0) \vert L_{0,i}, A_{0, i}] = E[Y_i(A_{0,i}, 0) \vert L_{0,i}, A_{0, i}] - \gamma_0(A_{0,i}, L_{0,i}; \beta_0)\\
+\end{split}
+$$
+- Note the top statement applies only to units with $A_{0,i} = a_0$.
+
+- These are structural **nested** mean models because the left side of the top equation appears in the bottom equation.
+
+---
+## G-Estimation
+
+- We can now define two "H" functions
+
+$$
+\begin{split}
+H_{1,i}(x) = Y_i - \gamma_1(\bar{A}_{1,i}, \bar{L}_{1,i}; x)\\
+H_{0,i}(x) = H_{1,i}(x) - \gamma_0(A_{0,i}, L_{0,i}; x)
+\end{split}
+$$
+- Here $x$ is a combined vector of parameters in both equations.
+
+- Just as before, our goal is to find a value for $x$ that makes mean sequential exchangeability true. 
+
+---
+## G-Estimation
+
+- We want to find the value of $x$ such that $H_{k}(x)$ and $A_k$ are mean independent conditional on $\bar{A}_{k-1}$ and $\bar{L}_k$.
+
+- This means that we need models for $E[A_k \vert \bar{A}_{k-1}, \bar{L}_k]$ for each time point. 
+
+
+- We have two options: 
+
+- Fit a model for $E[A_{k} \vert \bar{A}_{k-1}, \bar{L}_k, H_k(x)]$ including $H_k$ as one or more linear covariates and find a value of $x$ such that all coefficients for $H_k(x)$ are 0.
+
+- Solve estimating equations. 
+
+---
+## Considerations
+
+- Remember, in G-Estimation we are working with structural nested mean models **not** structural marginal models, these models are conditional on covariates.
+
+- This means we need to get the effect modification model right.
+
+- In the time-varying case, we also need to think about effect modification by past treatment. 
+
+- We could quickly acquire many coefficients, so using the grid search method will become infeasible, we will have to use the estimating equations.
+
+---
+## Estimation
+
+- Once we have estimated all the parameters of the structural nested mean models, we need to estimate $E[Y(\bar{a})]$.
+
+- $E[H_0(x^\star)] = E[Y(\bar{0})]$ at the true value of $x^\star$, so we can estimate $E[Y(\bar{0})]$ as the sample average of $H_{0, i}(\hat{x})$.
+
+- For other values, we can plug into our nested models.
+
+- However, if the $\gamma$ functions include covariates, we will need to simulate these covariates the same way we did for the parametric G-formula method. 
+
+---
+## Estimation
+
+- Suppose we want to estimat $E[Y(a_0, a_1)]$. 
+
+- We know that we can estimate $E[Y(0, 0)]$ as $\frac{1}{N}\sum_{i = 1}^N H_{0, i}(\hat{x})$.
+
+- From our first equation, we know that 
+
+$$E[Y(a_0, 0) \vert L_0 = l_0] = E[Y(0, 0) \vert L_0 = l_0] + \gamma_0(a_0, l_0; \beta)$$
+so we can find $\hat{E}[Y(a_0, 0)]$ as
+
+$$
+\begin{split}
+\hat{E}[Y(a_{0}, 0) ] &= \hat{E}_{L_0}[Y(a_0, 0) \vert L_{0} = l_0] \\
+&= \hat{E}_{L_0}[Y(0, 0)] + E_{L_0}[\gamma_0(a_0, l_0; \hat{x})]\\
+&= \frac{1}{N}\sum_{i = 1}^N H_{0, i}(\hat{x}) + \frac{1}{N}\sum_{i = 1}^N \gamma_0(a_0, l_{0, i}; \hat{x})
+\end{split}
+$$
+---
+## Estimation
+
+- From the second equation we know that
+
+$$
+\begin{split}
+E[Y(a_0, a_1) &\vert L_1 = l_1, L_0 = l_0, A_0 = a_0] =\\
+ &E[Y(a_0, 0) \vert L_0 = l_0, L_1 = l_1, A_0 = a_0] + \gamma_1(a_0, a_1, l_0, l_1; \hat{x})
+\end{split}
+$$
+
+- So we can estimate $E[Y(a_0, a_1)]$ as
+
+$$
+\begin{split}
+\hat{E}[Y(a_{0}, a_1) ] &= \hat{E}_{\bar{L}_1}[Y(a_0, a_1) \vert \bar{L}_1, A_{0}= a_0] \\
+&= \hat{E}[Y(a_0, 0)] + \frac{1}{N}\sum_{i = 1}^N \gamma_1(\bar{a}_1, l_{0, i}, l_{1,i}(a_0); \hat{x})
+\end{split}
+$$
+
+- In the last step, we need to average over the counterfactual distribution of $L_1$, so we need to simulate from an estimated distribution of $L_1 \vert L_0, A_0$.
+
+---
+## General Estimation Procedure
+
+- Suppose we want to estimate $E[Y(\bar{a})]$. 
+
+- Step 1: Estimate $E[Y(\bar{0})]$ as the sample average of $H_{0, i}(\hat{x})$.
+
+- Step 2: Fit parametric models for $f(l_k \vert \bar{a}_{k-1}, \bar{l}_{k-1})$.
+
+- Step 3: Simulate a covariate history for everyone under the target treatment history (just like G-computation).
+
+- Step 4: Compute $\hat{E}[Y(\bar{a})] = \hat{E}[Y(\bar{0})] + \sum_{k = 0}^K \frac{1}{N}\sum_{i = 1}^{N}\gamma_k(\bar{a}_k, \bar{l}_{i,k}(\bar{a}_{k-1}; \hat{x}))$
+
+- Just as in G-computation, we don't have to limit our simulated data size to the orignal data size. We can resample many times.
+
+---
+## Iterated Conditional Expectation Estimators
+
+---
+## Iterated Conditional Expectation (ICE)
+
+- Recall that we can express the G-formula is as a nested series of expectations.
+
+
+- For two time-points the G-formula is
+
+$$E[Y(\bar{a})] = \int_{l_0, l_1} E[Y \vert \bar{A}_1 = \bar{a}, L_0 = l_0, L_1 = l_1] dF_1(l_1 \vert A_0 = a_0, L_0 = l_0) dF_0(l_0)$$
+- Previously, we showed that we could derive the G-formula from sequential exchangeability as an expression of iterated expectations. 
+
+$$
+\begin{split}
+&Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_0, L_1\\
+&Y(a_0, a_1) \ci A_0 \vert L_0
+\end{split}
+$$
+---
+
+## Iterated Conditional Expectation (ICE)
+
+$$
+\begin{split}
+&Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_0, L_1\\
+&Y(a_0, a_1) \ci A_0 \vert L_0
+\end{split}
+$$
+- From the second relation, we determine that
+$$E[Y(\bar{a})] = \color{purple}{E_{L_0}\bigg[ } E[Y(a_1) \vert A_0 = a_0, L_0] \color{purple}{\bigg]} $$
+- From the first relation, we have 
+
+$$E[Y(a_1) \vert A_0 = a_0, L_0]  = \color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{E\big[\color{red}{Y} \vert \bar{A}_1 = \bar{a}, L_0, L_1\big] } \color{blue}{\Big \vert A_0 = a_0, L_0\Big]}$$
+- Putting these parts together,
+$$E[Y(\bar{a})] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{E\big[\color{red}{Y} \vert \bar{A}_1 = \bar{a}, L_0, L_1\big] } \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$
+
+---
+## ICE Estimation
+
+- The idea of ICE estimation is to fit models for each expectation iteratively. 
+
+- The first step is to define $\hat{Q}_3 = Y$ and plug this into the G-formula expression. 
+
+$$E[Y(\bar{a})] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{E\big[\color{red}{\hat{Q}_3} \vert \bar{A}_1 = \bar{a}, L_0, L_1\big] } \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$
+
+- Next, define a model for $\hat{Q}_2(L_1, L_0) = \hat{E}[\hat{Q}_3 \vert \bar{A}_1 = \bar{a}, \bar{L}_1]$. For example,
+
+$$E[\hat{Q}_3 \vert \bar{L}_{1}, \bar{A}_{1} = \bar{a}] = \theta_{0, 1} +  \theta_{1,1} L_{1} + \theta_{2,1}L_0$$
+- We can fit this as a regular regression fit only among those with $\bar{A}_1 = \bar{a}$.
+
+- Think of $\hat{Q}_2$ as an estimate of $E[Y(a_1) \vert A_0 = a_0, L_0, L_1]$. 
+
+---
+## ICE Estimation
+
+- Now we plug $\hat{Q}_2(L_1, L_0)$ into the expression 
+
+$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{\hat{Q}_2(L_0, L_1)} \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$
+
+- Now we estimate the blue part. This will be a regression model with $\hat{Q}_2$ as the outcome and $L_0$ as predictors fit amongst those with $A_0 = a_0$.
+
+- To find the outcome, at this stage, we compute $\hat{Q}_{2,i}$ for each person with $A_{0,i} = a_0$ by plugging $L_{1,i}$, $L_{0,i}$ into the fitted model from the previous stage.
+
+
+---
+## ICE Estimation
+
+- Use these fitted values to fit a model for $\hat{Q}_1(L_0) = E[\hat{Q}_{2} \vert A_0 = a_0, L_0]$, for example
+
+
+$$\hat{Q}_1(L_0) = E[\hat{Q}_2 \vert L_{0}, A_{0} = a_0] = \theta_{0, 0} + \theta_{1,0} L_{0}$$
+- Fit this model using only those with $A_0 = a_0$. 
+
+- Plugging this into the formula, we have 
+$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{\hat{Q}_1(L_0)} \color{purple}{\bigg]}$$
+
+- Now we compute $\hat{Q}_{1,i}$ for each person in the study by plugging $L_{0,i}$ into the fitted model. 
+
+- Finally we estimate $\hat{E}[Y(\bar{a})] = \frac{1}{N}\sum_{i =1}^N\hat{Q}_{1,i}$ using everyone in the sample.
+
+
+---
+## ICE Estimation General Procedure
+
+
+- Define
+
+$$Q_{K+2} = Y\\\
+Q_{K+1} = E[Y \vert  \bar{A}_K = \bar{a}_K,  \bar{L}_{K}]\\\
+\vdots\\\
+Q_m = E[Q_{m+1} \vert \bar{A}_m = \bar{a}_m, \bar{L}_{m-1} ]\\\
+\vdots\\\
+Q_0 = E[Q_1 \vert A_0 = a_0, L_0]$$
+
+- Propose models for $E[Q_{m+1} \vert \bar{L}_{m-1}, \bar{A}_{m} = \bar{a}_m]$.
+
+- At each stage, fit the next model using fitted values from the previous model as the outcome. Fit each model only among those with $\bar{A}_m = \bar{a}_m$.
+
+- When we get all the way down to 0, $Q_0 = E[Q_1 \vert A_0 = a_0, L_0]$ is an estimator of $Y(\bar{a})$. 
+
+---
+## ICE Estimation
+
+- The ICE estimator will be valid if the outcome regression was correct at each time point. 
+
+- An advantage over the parametric G-formula approach is that we didn't have to estimate the joint distribution of $L$. 
+
+
+
+---
+## Doubly Robust Estimator
+
+
+- We can turn the ICE estimator into a doubly robust estimator by adding a special covariate based on the propensity score to each regression. 
+
+- Below is a variation of the Scharfstein et al "special covariate" regression strategy for estimating $Y(a)$ that we saw previously:
+
+1. Estimate $P[A = a \vert L]$ and compute $W^{A}_i  = \frac{1}{\hat{P}[A = A_i \vert L]}$ 
+
+2. Propose an outcome model $E[Y \vert A = a, L] = m(A = a, L; \theta)$
+
+3. Fit the model $E[Y_i \vert A_i, L_i] = m(A_i, L_i; \theta) + \phi W^{A}_i$, only among those with $A_i = a$. 
+
+4. Compute the standardized estimate 
+
+$$E[Y(a)] = \frac{1}{N}\sum_{i=1}^N \left(m(a, L_i; \hat{\theta}) + \hat{\phi}\frac{1}{\hat{P}[A = a \vert L_i]} \right)$$
+---
+## Doubly Robust Estimator for Time Varying Treatment
+
+- We will use the same strategy in combination with the ICE estimation strategy. 
+
+- Just as in IP weighting, we need to fit a model for $f(A_k \vert \bar{A}_{k-1}, \bar{L}_k)$ at each time point.
+
+- For each time point compute
+
+$$W^{\bar{A}_m}_i = \prod_{k=0}^m \frac{1}{\hat{f}(A_k = A_{k,i}\vert \bar{A}_{k-1,i}, \bar{L}_{k,i})}$$
+and
+
+$$W^{\bar{A}_m, a_m }_i =  \frac{W^{\bar{A}_{m-1}}_i}{f(A_m = a_m \vert \bar{A}_{i,m-1}, \bar{L}_{i,m})}$$
+---
+## Doubly Robust Estimator for Time Varying Treatment
+
+- In each regression step, we add $\hat{W}^{\bar{A}_m}$ as a covariate in the regression. 
+
+- In the estimation step, we replace $A_m$ with $a_m$ *and* $W^{\bar{A}_m}$ with $W^{\bar{A}_m, a_m = 1}$.
+
+<!-- --- -->
+<!-- # Doubly Robust Estimator for Time Varying Treatment -->
+
+<!-- - We will use a similar procedure with some modifications.  -->
+
+<!-- 1a. Estimate time-varying weights (one per each person-time point) -->
+
+
+<!-- 1b. Compute the modified time-varying weight corresponding to the treatment strategy. We will use "always treated" so $A_m = 1$ -->
+
+<!-- $$W^{\bar{A}_m, a_m = 1} = W^{\bar{A}_{m-1}} \frac{1}{f(A_m = 1 \vert \bar{A}_{m-1}, \bar{L}_m)}$$ -->
+
+<!-- --- -->
+<!-- # Doubly Robust Estimator for Time Varying Treatment -->
+
+<!-- 2a. Start at time $K$ and fit an outcome model for $E[Y \vert \bar{A}_{K}, \bar{L}_{K}]$ including $\hat{W}^{\bar{A}_K}$ as a covariate. For example,  -->
+
+<!-- $$E[ Y \vert \bar{A}_K, \bar{L}_K] = \theta_{0, K} + \theta_{1,K}cum(\bar{A}_K) + \theta_{2,K} L_K + \theta_{3,K} \hat{W}^{\bar{A}_K}$$ -->
+<!-- Define $\hat{T}_{K+1} = Y$.  -->
+
+<!-- 2b. Estimate $\hat{T}_{K}$ under the treatment strategy in which $A_{K}$ was set to 1.  -->
+<!--   + To do this, we replace $A_K$ in our data with 1 and $\hat{W}^{\bar{A}_K}$ with $\hat{W}^{\bar{A}_{K-1}, a_K = 1}$ -->
+<!--   + And then take the average of the predicted values with the new data.  -->
+
+<!-- --- -->
+<!-- # Doubly Robust Estimator for Time Varying Treatment -->
+
+<!-- 2c. Proceed backwards to the next time point. Fit the same model, except now $\hat{T}_{K}$ rather than $Y$ is the outcome.  -->
+
+<!-- $$E[ \hat{T}_{K} \vert \bar{A}_{K-1}, \bar{L}_{K-1}] = \theta_{0, K} + \theta_{1,K-1}cum(\bar{A}_{K-1}) + \theta_{2,K-1} L_{K-1} + \theta_{3,K-1} \hat{W}^{\bar{A}_{K-1}}$$ -->
+
+<!-- 2d. Estimate $\hat{T}_{K-1}$ as the fitted values from this model, replacing $A_{K-1}$ with the intervention value $a_{K-1} = 1$ and $\hat{W}^{\bar{A}_{K-1}}$ with $\hat{W}^{\bar{A}_{K-2}, a_{K-1} = 1}$. -->
+
+<!-- --- -->
+<!-- # Doubly Robust Estimator for Time Varying Treatment -->
+
+<!-- 2e. Keep going all the way back to time point 0.  -->
+
+<!-- -  When we get all the way back to time 0, the average $\frac{1}{N}\sum_{i = 1}^N \hat{T}_{0,i}$ is a doubly robust estimator of $Y(\bar{a})$. -->
+
+---
+## $K+1$ Robustness
+
+Our estimator is valid if:
+
+1) The $f(A_k \vert \bar{A}_{k-1}, \bar{L}_k)$ is correct at all times 
+
+OR
+
+2) The outcome model is correct at all time points.
+
+OR
+
+3) The treatment model is correct for times 0 to $k$ and the outcome model is correct for times $k+1$ to $K$ for any $k < K$
+
+
+
+---
+
+## Other Multiply Robust Estimators
+
+- Just as in the point treatment case, there are other multiply robust estimators for time-varying treatments. 
+
+- For example, there is a version of the AIPW estimator $\hat{\Delta}_{DR}$ for multiple time-points. 
+  + There is also an extension of this estimator that gives $2^{K+1}$ robustness, meaning that only one of the treatment or outcome model must be correct at each time point. 
+  + See Technical Point 21.4 in HR for more details.
+
+
+
+---
+## Repeated Outcome Measurements
+
+---
+## Repeated Outcome Measurements
+
+- Until now, we have considered:
+
+1. Point interventions and single outcomes. 
+1. Point interventions and survival outcomes. 
+1. Time-varying interventions and single outcomes. 
+
+- Now we will consider the case when the outcome of interest is a value that varies over time. The treatment may also vary over time. 
+
+
+---
+
+## Cole et al (2007)
+
+- Cole et al are interested in the effect of highly active antiretroviral therapy (HAART), a treatment for HIV, on viral load. 
+
+- They are using two longitudinal AIDS and HIV study's, the Multicenter AIDS Cohort Study (all men) and the Women's Interacency HIV Study (all women). 
+
+- Participants of both studies complete questionnaires and have blood work taken  every 6 months. 
+
+- HAART therapy became available in April 1996, so the study population is 918 individuals who were alive, HIV positive, and not using antiretroviral therapy at this time. 
+
+- Baseline visit: First visit after April 1996 or first visit after April 1996 with complete data (whichever is later).
+
+
+---
+
+## Challenges in Cole et al (2007)
+
+- The technology used to measure HIV viral load changed over time and differed between study cohorts. 
+
+  + Each technology has a different lower limit of detection, i.e. viral load is "left censored" at a different value for different measurements. 
+  
+- The exposure of interest is the cumulative time on HAART, a continuous value. 
+  + Because patients are only measured every 6 months, we don't know exactly how much time a patient has spent on HAART. 
+  + Authors will approximate cumulative exposure as time since HAART initiation. 
+  + Will deal with having a continuous outcome by creating categories supported by exploratory analysis. 
+
+---
+
+## Censoring in Cole et al (2007)
+
+- The authors are interested in comparing HAART with no antiretroviral therapy but there are non-HAART forms of ART that some participants used. 
+
+- Additionally, some people dropped out of the study or died. 
+
+- Cole et al treat death, dropping out, and initiation of non-HAART therapy all as censoring.
+
+- This means that the target parameter is $E[Y_{i,j}(Cum_{i,j}= c, C_{ij} = 0)]$, i.e. the counterfactual expected viral load at time $j$ if everyone had had a cumulative HAART exposure of $c$ at time $j$ and nobody had been censored. 
+
+
+---
+
+## Exercise
+
+- Consider a generic version of the Cole et al study with three time points (0, 1, and 2) and no censoring. 
+
+- There are three treatment variables $A_0$, $A_1$, $A_2$. 
+
+- Confounders are measured at each time $L_0$, $L_1$, and $L_2$. These could be affected by past treatment.
+
+- An outcome is measured at each time $Y_0$, $Y_1$, $Y_2$. The outcome could be affected by past treatment and past confounders. 
+
+- Confounders $L_k$ could be affecte by treatment $A_{k-1}$.
+
+- Draw a DAG for this scenario. 
+
+
+---
+## Exercise 
+
+
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/9_timevarying3.png")
+```
+
+</center>
+
+- Here is a simplified solution leaving out arrows from $L_0$ to $Y_1$ and $Y_2$ and from $L_1$ to $Y_2$.
+
+---
+## Analyzing the Repeated Outcomes Data
+
+- If our goal is to estimate $E[Y_k(\bar{A}_k)]$, one thing we could do is treat each outcome separately. 
+
+- For each $k$, consider a study that ends at time $k$ in which we are only interested in the outcome $Y_k$. 
+
+- All previous outcomes are treated simply as confounders. 
+
+- We can use our previous machinery (e.g. IP weighting, parametric G-formula, or structural nested models) to estiamte $E[Y_k(\bar{A}_k)]$
+
+
+---
+## Combining Information Across Time-Points
+
+- In some cases, we can combine information across time-points.
+
+- This is possible when we can use the same marginal structural model for every time point.
+
+- We might potentially allow effect modification. 
+
+- We can then fit a **common** marginal structural model across all time points using time-varying weights. 
+
+---
+## Combining Information Across Time-Points
+
+- For example, suppose that only treatment at the two most recent time-points affects $Y_k$. 
+
+- We could propose the MSM
+
+$$
+\begin{split}
+E[Y_{k}(\bar{A}_k)] = &\beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1} \\
+ = & \sum_{j = 1}^K \beta_{0,j}1_{t_j = j} +  \beta_1 A_k + \beta_2 A_{k-1} 
+\end{split}
+$$
+- In this MSM, we have a time-specific intercept but the causal differences are shared. This means we are assuming that the effect of changing from a treatment course with the last two time points untreated to a treatment course with the final time point treated is the same at every time point. 
+
+- Because our MSM includes the last two treatments, we can only fit this model for $k \geq 1$. We could either fit a separate model for $Y_0$ or ignore this outcome. 
+
+
+---
+## Combining Information Across Time-Points
+
+
+- If we had a study that only included two time-points and one measured outcome at time 1, $Y_1$, we would estimate the parameters of the MSM using IP weighting for time-varying treatments (L10). 
+
+$$E[Y_{1}(\bar{a}_1)] = \beta_{0,1} +  \beta_1 a_1 + \beta_2 a_0$$
+- We would first propose and fit models for $f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k-1})$ and $f(A_k \vert \bar{A_k})$ for $k = 0$ and $k=1$ . 
+
+- Then we would calculate weights $$W_{i,1} = \prod_{k = 0}^{k = 1} \frac{f(A_k = A_{k, i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i})}{f(A_k = A_{k,i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i}, \bar{L}_{k-1})}$$
+
+- Finally we would fit the MSM by fitting a linear regression weighted by the IP weights. 
+
+---
+## Combining Information Across Time-Points
+
+- If we would like to combine all time-points together to estimate $\beta_1$ and $\beta_2$, we use the same procedure. 
+
+- The idea is to think of our data as $K$ shorter studies that all include the same people. 
+
+- For each person-time combination, we compute the time-varying stabilized weight 
+$$W_{i,j} = \prod_{k = 0}^{k = j} \frac{f(A_k = A_{k, i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i})}{f(A_k = A_{k,i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i}, \bar{L}_{k-1})}$$
+
+
+---
+## Combining Information Across Time-Points
+
+- We then fit the MSM using all person-time observations weighted by the time-varying weights. 
+
+- We need to use robust standard errors for clustered data (e.g. fit the model with GEE). 
+  + Any working covariance matrix will give valid estimates. 
+
+
+---
+## Back to Cole et al (2007)
+
+
+- Cole et al use exactly this strategy to analyze the viral load data. 
+
+- They fit the MSM
+
+$$E[Y_{ij}(\bar{a}) \vert V_{i,0}] = \beta_{0, j} \beta_1^{\top} V_{i,0} + \beta_2^\top g(Cum_{i,j})$$
+- $V_{i,0}$ are baseline CD4 count and viral load categories. 
+
+- They include these variables in the MSM because they want to use them in the numerator of the stabilized weights. Since the MSM is conditional on $V_{i,0}$, the are assuming no effect modification by $V_{i,0}$.
+
+- $g(Cum_{i,j})$ is a four level categorical variable categorizing the total time since beginning HAART treatment as $0$, $>0-1$, $>1-3$ and $>3-9$ years. 
+
+- There are three counterfactual contrasts given by $\beta_2$ comparing each category to no ART. 
+
+---
+## Censoring in Cole et al (2007)
+
+- Because there is censoring, Cole et al also need to calculate censoring weights, 
+
+$$W_{ij}^{C} = \prod_{k = 1}^{j + 1}\frac{P(C_{ik} = 0 \vert \bar{C}_{ik} = 0, \bar{A}_{ik}, V_{i,0})}{P(C_{ik} = 0 \vert \bar{C}_{ik} = 0, \bar{A}_{ik}, \bar{L}_{ik})}$$
+
+- The total weights are the product of the confounding weights and the censoring weights. 
+
+- The analysis now also relies on the assumption of non-informative censoring. That is, people with high viral loads were not more (or less) likely to be censored than other people with the same covariate and treatment history. 
+
+
+---
+## Limit of Detection in Viral Load Measurements
+
+- The final tricky piece of the Cole et al analysis is left censoring of viral load measurements. 
+
+
+- They deal with this by assuming that $Y_{ij}$ is (marginally) normally distributed with mean $\mu_{ij}$ determined by the MSM. 
+
+- This allows them to write a likelihood for the observed viral loads as a function of the person-time specific limit of detection and the parameters of the MSM. 
+
+
+- They can then estimate the parameters by maximizing the weighted likelihood with weights being the time-varying weights we've described previously.
+
+
+---
+## Cole et al Results
+
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/9_cole_results.png")
+```
+
+</center>
+
+---
+## Standard Analysis
+
+- Cole et al also compute estimates using the the more common regression approach. 
+
+- In this model all weights are set to 1 and baseline and time-varying covariates are added to the model. 
+
+- As we saw in L10, this approach can result in selection bias. 
+
+- The results of this analysis are strongly attenuated to the null. 
+
+---
+## Sensitivity Analysis
+
+- This paper is a nice example of using sensitivity analyses to explore data. 
+
+- They consider effect modification by sex and by baseline CD4 count. 
+
+- They consider an MSM that also includes a linear effect for time on treatment. 
+
+- They consider multiple other covariate models.
+
+- Discussion is a great example of clearly explaining assumptions required for valid inference.
+
+
+---
+## Time to Event Outcomes
+
+- Previously, we discussed analysis of time-to-event outcomes with a single point treatment. 
+
+- With a time-varying treatment, we can treat these outcomes in the same way that we treat other repeated outcome measurements. 
+
+- In the case of a survival outcome, we have repeated measurements of death by time $k$, $D_k$.
+
+
+- The only difference between survival and non-survival outcomes is the issue of right censoring. We can deal with this using the same hazards "trick" we used in L8. 
+
+
+---
+## Time to Event Outcomes
+
+- We need a marginal structural model for the counterfactual hazard at time $k$. 
+  + Could be either use the Cox RR model or the logistic approximation
+  
+- If we are using the Cox model, time-varying weights are used to adjusted each individuals contribution to the "at risk" set at time $k$. 
+
+- The logistic model is fit using pooled data. 
+
+- Good examples of this are in Hernán et al (2001) and Hernán et al (2008) (see Related Reading page). 
+
+
+
