@@ -27,6 +27,8 @@ editor_options:
 
 [8. G-Estimation](slides_2024/8_g_estimation.html)
 
+[9. Survival](slides_2024/9_survival.html)
+
 [10. Time-Varying Treatment Part 1](slides_2024/10_time_varying_treatment_pt1.html)
 
 [11. Time-Varying Treatment Part 2](slides_2024/11_time_varying_treatment_pt2.html)
