@@ -483,10 +483,11 @@ $$\theta_{0, k} = \alpha_0 + \alpha_1 k + \alpha_2 k^2$$
 
 ```{r, message = FALSE, warning = FALSE}
 ## This model is for no event
-fit <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
+fit_logistic <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
                        time + timesq, family=binomial(), 
            data=newdat)
 ```
+
 
 
 ---
@@ -516,14 +517,14 @@ qsmk0$qsmk <- 0
 qsmk1$qsmk <- 1
 
 ## Fitted values are 1-hazard
-qsmk0$p_noevent0 <- predict(fit, qsmk0, type="response")
-qsmk1$p_noevent1 <- predict(fit, qsmk1, type="response")
+qsmk0$p_noevent <- predict(fit_logistic, qsmk0, type="response")
+qsmk1$p_noevent <- predict(fit_logistic, qsmk1, type="response")
 
 ## Survival = prod (1 - hazard)
-qsmk0$surv0 <- cumprod(qsmk0$p_noevent0)
-qsmk1$surv1 <- cumprod(qsmk1$p_noevent1)
+qsmk0$surv <- cumprod(qsmk0$p_noevent)
+qsmk1$surv <- cumprod(qsmk1$p_noevent)
 
-surv_data <-full_join(qsmk0, qsmk1, by = c("time", "timesq"))
+surv_data <-bind_rows(qsmk0, qsmk1)
 ```
 
 ---
@@ -532,11 +533,11 @@ surv_data <-full_join(qsmk0, qsmk1, by = c("time", "timesq"))
 ```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center', fig.width=9, fig.height=7}
 ## plot
 ggplot(surv_data, aes(x=time, y=surv)) + 
-  geom_line(aes(y = surv0, colour = "0")) + 
-  geom_line(aes(y = surv1, colour = "1")) + 
+  geom_line(aes(group = qsmk, color = as.factor(qsmk))) + 
   xlab("Months") + 
   scale_x_continuous(limits = c(0, 120), breaks=seq(0,120,12)) +
   scale_y_continuous(limits=c(0.6, 1)) +
+  scale_color_discrete(name = "qsmk") + 
   ylab("Survival") + 
   ggtitle("Survival from hazards model") + 
   labs(colour="Quit smoking") +
@@ -547,15 +548,74 @@ ggplot(surv_data, aes(x=time, y=surv)) +
 ```
 
 ---
+## Semi-Parametric Survival Curves
+- We can use the `coxph` function to fit the time-dependent coefficients instead of using logistic regression.
+- Since we have time-dependent coefficients, we need to use the long form data.
+
+```{r}
+fit_cox <- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(qsmk*timesq), data = newdat)
+fit_cox$coefficients
+```
+
+- The coefficients from the CoxPH model are comparable to the coefficients involving the `qsmk` term in the logistic regression model.
+
+```{r}
+fit_logistic$coefficients
+```
+
+
+---
+## Semi-Parametric Survival Curves
+
+- We can obtain predicted survival from the CoxPH fit using the `survfit` function.
+
+```{r}
+surv_data$id <- 1
+surv_data$id[surv_data$qsmk==1] <- 2
+surv_data <- surv_data %>% 
+          mutate(tstart = time,
+                 survtime = time + 1, 
+                 death = 0) 
+x <- survfit(fit_cox, newdata = surv_data, id = id, se.fit = FALSE)
+surv_data2 <- surv_data
+surv_data2$surv <- x$surv
+
+# some bookkeeping
+surv_data$type <- "logistic"
+surv_data2$type <- "cox"
+surv_data2$id <- surv_data2$id + 2
+surv_data <- bind_rows(surv_data, surv_data2)
+```
+
+---
+## Semi-Parametric Survival Curves
+
+```{r, echo = FALSE, fig.align='center', fig.width=9, fig.height=7}
+ggplot(surv_data, aes(x=time, y=surv)) + 
+  geom_line(aes(group = id, color = as.factor(qsmk), linetype = type)) + 
+  xlab("Months") + 
+  scale_x_continuous(limits = c(0, 120), breaks=seq(0,120,12)) +
+  scale_y_continuous(limits=c(0.6, 1)) +
+  ylab("Survival") + 
+  ggtitle("Survival from hazards models") + 
+  labs(colour="Quit smoking") +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 14), 
+        legend.title =  element_text(size = 12),
+        legend.text = element_text(size = 14),
+        plot.title = element_text(size = 18))
+```
+
+---
 ## Censoring
 
 - In the NHEFS data, we only have administrative censoring. 
 
-- If we have censoring throughout the study, then the logistic model we fit will estimate 
+- If we have censoring throughout the study, then the hazards model will be estimating
 
 $$P[D_k = 1 \vert D_{k-1} = 0, \bar{C}_k = 0, A]$$
 
-- If $\bar{C}_k \ci D_k \vert D_{k-1} = 0, A$, then this is fine, the quantity above is equal to $$P[D_k = 1\vert D_{k-1} = 0, A]$$
+- If $\bar{C}_k \ci D_k \vert D_{k-1} = 0, A$, then the quantity above is equal to $$P[D_k = 1\vert D_{k-1} = 0, A]$$, so nothing has changed.
 
 - If censoring is informative, we need to condition on variables $L$ such that $\bar{C}_k \ci D_k \vert D_{k-1} = 0, A, L$. 
 
@@ -645,7 +705,7 @@ newdat <- survSplit(Surv(survtime, death) ~ qsmk + sw_a,
                  timesq = time^2)
 
 # fit of weighted hazards model
-ipw_fit <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
+ipw_fit_logistic <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
                    time + timesq, family=binomial(), weight=sw_a,
                  data=newdat)
 ```
@@ -657,44 +717,150 @@ ipw_fit <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) +
 ```{r}
 qsmk0 <- qsmk1 <- data.frame(time = seq(120)-1)%>% 
   mutate(timesq = time^2)
-qsmk0$qsmk <- 0
-qsmk1$qsmk <- 1
+qsmk0$qsmk <- 0; qsmk0$id <- 1;
+qsmk1$qsmk <- 1; qsmk1$id <- 2;
 
 # Fitted values are 1-hazard
-qsmk0$p_noevent0 <- predict(ipw_fit, qsmk0, type="response")
-qsmk1$p_noevent1 <- predict(ipw_fit, qsmk1, type="response")
+qsmk0$p_noevent <- predict(ipw_fit_logistic, qsmk0, type="response")
+qsmk1$p_noevent <- predict(ipw_fit_logistic, qsmk1, type="response")
 
 # computation of survival for each person-month
-qsmk0$surv0 <- cumprod(qsmk0$p_noevent0)
-qsmk1$surv1 <- cumprod(qsmk1$p_noevent1)
+qsmk0$surv <- cumprod(qsmk0$p_noevent)
+qsmk1$surv <- cumprod(qsmk1$p_noevent)
 
 # some data management to plot estimated survival curves
-surv_data <-full_join(qsmk0, qsmk1, by = c("time", "timesq"))
+surv_data <- bind_rows(qsmk0, qsmk1)
 ```
 
 
 ---
-## IP Weighted Estimates in NHEFS
+## Alternative Semi-Parametric Approach
 
-```{r, echo = FALSE, fig.align='center', fig.width=9, fig.height=5.5}
+- Instead of logistic regression, we could use CoxPH to fit a semi-parametric marginal structural model for the hazard.
+
+```{r}
+ipw_fit_cox <- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(qsmk*timesq), 
+                     data = newdat, weights = sw_a)
+```
+
+```{r, echo = FALSE}
+surv_data <- surv_data %>% 
+          mutate(tstart = time,
+                 survtime = time + 1, 
+                 death = 0) 
+surv_data2 <- surv_data
+surv_data2$surv <- survfit(ipw_fit_cox, newdata = surv_data, id = id, se.fit = FALSE)$surv
+
+
+# some bookkeeping
+surv_data$type <- "logistic"
+surv_data2$type <- "cox"
+surv_data2$id <- surv_data2$id + 2
+surv_data <- bind_rows(surv_data, surv_data2)
+```
+
+---
+## IP-Weighted Survival Curves
+
+```{r, echo = FALSE, fig.align='center', fig.width=9, fig.height=5}
 ggplot(surv_data, aes(x=time, y=surv)) + 
-  geom_line(aes(y = surv0, colour = "0")) + 
-  geom_line(aes(y = surv1, colour = "1")) + 
+  geom_line(aes(group = id, color = as.factor(qsmk), linetype = type)) + 
   xlab("Months") + 
   scale_x_continuous(limits = c(0, 120), breaks=seq(0,120,12)) +
   scale_y_continuous(limits=c(0.6, 1)) +
   ylab("Survival") + 
-  ggtitle("Survival from hazards model") + 
+  ggtitle("Survival from IP-Weighted Hazards Models") + 
   labs(colour="Quit smoking") +
   theme_bw() + 
   theme(axis.title = element_text(size = 14), 
         legend.title =  element_text(size = 12),
+        legend.text = element_text(size = 14),
         plot.title = element_text(size = 18))
 ```
 
-120 month survival estimate: $A = 0: 80.5\%$, $A = 1: 80.7\%$
+```{r, echo = FALSE, eval = FALSE}
+surv_func <- function(dat){
+  #denominator
+  fit_ps <- glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+                 + smokeintensity + I(smokeintensity*smokeintensity)
+                 + smokeyrs + I(smokeyrs*smokeyrs) + as.factor(exercise)
+                 + as.factor(active) + wt71 + I(wt71*wt71), 
+                 data=dat, family=binomial())
+  dat$ps <- predict(fit_ps, dat, type="response")
+  
+  #numerator
+  fit_pa <- glm(qsmk ~ 1, data=dat, family=binomial())
+  dat$pa1 <- predict(fit_pa, dat, type="response")
+  
+  # computation of estimated weights
+  dat <- dat %>% mutate(sw_a = case_when(qsmk == 1 ~ pa1/ps, 
+                                         TRUE ~ (1-pa1)/(1-ps)))
+  dtime <- seq(120)
+  newdat <- survSplit(Surv(survtime, death) ~ qsmk + sw_a, 
+                      data = dat, cut = dtime) %>%
+            mutate(time = survtime-1, 
+                   timesq = time^2)
+  
+  # fit of weighted hazards model
+  ipw_fit_logistic <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
+                     time + timesq, family=binomial(), weight=sw_a,
+                   data=newdat)
+  ipw_fit_cox <- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(qsmk*timesq), 
+                     data = newdat, weights = sw_a)
+  qsmk0 <- qsmk1 <- data.frame(time = seq(120)-1)%>% 
+  mutate(timesq = time^2)
+  qsmk0$qsmk <- 0; qsmk0$id <- 1;
+  qsmk1$qsmk <- 1; qsmk1$id <- 2;
+  
+  # Fitted values are 1-hazard
+  qsmk0$p_noevent <- predict(ipw_fit_logistic, qsmk0, type="response")
+  qsmk1$p_noevent <- predict(ipw_fit_logistic, qsmk1, type="response")
 
-95% CI for difference at 120 months from bootstrapping: $(-4.1\%, 3.7\%)$
+  # computation of survival for each person-month
+  qsmk0$surv <- cumprod(qsmk0$p_noevent)
+  qsmk1$surv <- cumprod(qsmk1$p_noevent)
+
+  # some data management to plot estimated survival curves
+  surv_data <- bind_rows(qsmk0, qsmk1)
+  surv_data <- surv_data %>% 
+          mutate(tstart = time,
+                 survtime = time + 1, 
+                 death = 0) 
+  surv_data2 <- surv_data
+  surv_data2$surv <- survfit(ipw_fit_cox, newdata = surv_data, id = id, se.fit = FALSE)$surv
+  
+  
+  # some bookkeeping
+  surv_data$type <- "logistic"
+  surv_data2$type <- "cox"
+  surv_data2$id <- surv_data2$id + 2
+  surv_data <- bind_rows(surv_data, surv_data2)
+  ests <- with(surv_data, c(surv[qsmk==0 & type == "logistic" & time == 119], 
+                            surv[qsmk==1 & type == "logistic" & time == 119], 
+                            surv[qsmk==0 & type == "cox" & time == 119], 
+                            surv[qsmk==1 & type == "cox" & time == 119]))
+  return(ests)
+}
+boot_ests <- replicate(n = 500, expr = {
+  ix <- sample(1:nrow(dat), size = nrow(dat), replace = TRUE)
+  surv_func(dat[ix,])
+})
+ests <- surv_func(dat)
+est_diff <- c(ests[2]-ests[1], ests[4]-ests[3])
+#[1] 0.8046516 0.8066673 0.8047777 0.8067029
+boot_diff <- rbind(boot_ests[2,]-boot_ests[1,], 
+                   boot_ests[4,]-boot_ests[3,])
+sd <- apply(boot_diff, 1, sd)
+est_diff + qnorm(0.975)*sd
+#[1] 0.04186884 0.04177637
+est_diff - qnorm(0.975)*sd
+#[1] -0.03783763 -0.03792582
+```
+
+
+- Logistic regression 120 month survival estimates: $A = 0: 80.5\%$, $A = 1: 80.7\%$
+  + 95% CI for difference at 120 months from bootstrapping: $(-3.8%, 4.2\%)$
+  + Nearly identical results from Cox model
 
 ---
 ## IP Weighting Assumptions
@@ -848,8 +1014,8 @@ $$T_{i}(A = 0) = T_i \exp(\psi_1 A_i + \psi_2 A_i L_i)$$
 ## G-estimation
 
 - Following our previous strategy, we would define 
-$$H(\psi_1^\dagger, \psi^\dagger_2) = T_i\exp(\psi_1^\dagger A_i + \psi_2^\dagger A_i L_i)$$
-- We would then search for a solution pair $(\hat{\psi}_1^\dagger, \hat{\psi}^\dagger_2)$ such that $H(\hat{\psi}_1^\dagger, \hat{\psi}^\dagger_2)$ is independent of $A$ in a regression model. 
+$$H(x_1, x_2) = T_i\exp(x_1 A_i + x_2 A_i L_i)$$
+- We would then search for a solution pair $(\hat{x}_1, \hat{x}_2)$ such that $H(\hat{x}_1, \hat{x}_2)$ is independent of $A$ in a regression model. 
 
 --
 
@@ -887,14 +1053,14 @@ $$H(\psi_1^\dagger, \psi^\dagger_2) = T_i\exp(\psi_1^\dagger A_i + \psi_2^\dagge
 
 - If we knew the value of $\psi$, we could identify these individuals because we could calculate both $T_i(A = 0)$ and $T_i(A  = a).$ 
 
-- We introduce a new indicator $\Delta_i(\psi^\dagger)$ which is 0 if unit $i$ should be excluded given $\psi^\dagger$.
+- We introduce a new indicator $\Delta_i(x)$ which is 0 if unit $i$ should be excluded if $\psi = x$.
 
 ---
 ## Estimation
 
-- Once we have the artificial censoring indicator, $\Delta_i(\psi^\dagger)$, we can fit a logistic regression model in only data with $\Delta_i(\psi^\dagger) = 1$. 
+- Once we have the artificial censoring indicator, $\Delta_i(x)$, we can fit a logistic regression model in only data with $\Delta_i(x) = 1$. 
 
-- We do a grid search for values of $\psi^\dagger$ which make $H(\psi^\dagger)$ independent of $A.$
+- We do a grid search for values of $x$ which make $H(x)$ independent of $A.$
 
 
 - In the NHEFS data, using the model $$T_i(A = 0) = T_i \exp(\psi A_i)$$ the resulting estimate of $\psi$ is  $-0.05 (95\%\ \text{CI:} -0.22 \text{ to } 0.33)$.
