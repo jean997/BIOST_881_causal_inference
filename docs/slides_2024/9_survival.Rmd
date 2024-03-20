@@ -1192,7 +1192,7 @@ knitr::include_graphics("img/8_ysthfig2.png")
 ---
 ## Option 3: Condition on competing events
 
-+ Estimate $E[Y_{k}(a, \bar{C}_k =0) \vert D_{k-1}(a, \bar{C}_{k-1} =0) = 0, Y_{k-1}(a, \bar{C}_{k-1} =0) = 0]$
++ Estimate $E[D_{k}(a, \bar{C}_k =0) \vert D_{k-1}(a, \bar{C}_{k-1} =0) = 0, Y_{k-1}(a, \bar{C}_{k-1} =0) = 0]$
 
 + This is the **cause-specific hazard**.
 
