@@ -2,7 +2,7 @@
 title: "L9: Time to Event Outcomes"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2023-02-14\n(updated: `r Sys.Date()`)"
+date: "Lecture on 2024-03-20\n(updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
