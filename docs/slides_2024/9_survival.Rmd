@@ -858,8 +858,8 @@ est_diff - qnorm(0.975)*sd
 ```
 
 
-- Logistic regression 120 month survival estimates: $A = 0: 80.5\%$, $A = 1: 80.7\%$
-  + 95% CI for difference at 120 months from bootstrapping: $(-3.8%, 4.2\%)$
+- LR 120 month survival estimates: $A = 0: 80.5\%$, $A = 1: 80.7\%$
+  + 95% CI for difference at 120 months from bootstrapping: $(-3.8\%, 4.2\%)$
   + Nearly identical results from Cox model
 
 ---
