@@ -2,7 +2,7 @@
 title: "L13: Instrumental Variable Analysis\n Part 2"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2023-03-20\n (updated: `r Sys.Date()`)"
+date: "Lecture on 2024-03-27\n (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
