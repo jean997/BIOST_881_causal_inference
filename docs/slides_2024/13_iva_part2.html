@@ -4,7 +4,7 @@
     <title>L13: Instrumental Variable Analysis Part 2</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -19,10 +19,20 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# L13: Instrumental Variable Analysis Part 2
+.title[
+# L13: Instrumental Variable Analysis
+Part 2
+]
+.author[
 ### Jean Morrison
+]
+.institute[
 ### University of Michigan
-### Lecture on 2023-03-20 (updated: 2024-03-26)
+]
+.date[
+### Lecture on 2023-03-20
+(updated: 2024-03-27)
+]
 
 ---
 
@@ -320,7 +330,7 @@ Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 - In the second stage regress `\(Y\)` on `\(\hat{A} = \hat{\boldsymbol{\beta}}_{AZ}^\top Z\)`. 
 
 - Angrist and Kruger (1991) also examine the problem using quarter of birth interacted with year-of-birth. 
-  + This gives multiple instruments could affect total years of education differently. 
+  + This gives multiple instruments that could affect total years of education differently. 
 
 
 ---
@@ -339,11 +349,10 @@ Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 ---
 ## Inverse Variance Weighted Regression
 
-- IVW regression is usually used in the case when only the estimates `\(\hat{\beta}_{YZ_k}\)` and `\(\hat{\beta}_{AZ_k}\)` are available but the individual level data is not. 
+- IVW regression is often used when only the estimates `\(\hat{\beta}_{YZ_k}\)` and `\(\hat{\beta}_{AZ_k}\)` are available, but the individual level data is not. 
+  - This is often the case in Mendelian randomization. 
 
-- This is the case in Mendelian randomization which is coming up in the later half of this lecture. 
-
-- If `\(\hat{\beta}_{YZ_k}\)` and `\(\hat{\beta}_{AZ_k}\)` are obtained from marginal regressions of `\(Y\)` on each instrument separately and `\(A\)` on each instrument separately, then our instruments need to be marginally approximately indpendent. 
+- In MR, `\(\hat{\beta}_{YZ_k}\)` and `\(\hat{\beta}_{AZ_k}\)` are obtained from marginal regressions on each instrument separately (GWAS), so our instruments need to be marginally approximately independent. 
 
 - If we use dependent instruments, we will under-estimate the variance of `\(\hat{\beta}_{IVW}\)`. 
 
@@ -522,7 +531,7 @@ $$ where `\(Var(Y)\)` is the residual variance of `\(Y\)`.
 - Uncertainty in `\(\hat{\beta}_{AZ}\)` leads to regression dilution, causal estimate biased towards the null. 
 
 &lt;center&gt; 
-
+&lt;img src="img/10_regression_dilution.gif" width="70%" /&gt;
 &lt;/center&gt;
 
 Animation from Robert Östling
@@ -844,78 +853,6 @@ Cons:
 
 
 
-
-
----
-# 5. Reassessing Assumptions the SEM
-
----
-## Reassessing Assumptions the SEM
-`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
-Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
-
-- We started this section with a very strong model that required complete homogeneity and linearity of effects for the `\(A\)` and `\(Y\)` models. 
-
-- It turns out that we can relax this model.
-
-
----
-## Assumptions for the `\(A-Z\)` Relationship
-
-`$$A_i  = \beta_{A0} + \beta_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
-Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
-
-- The 2SLS and IVW estimation strategies are valid even if the first equation is not structural.
-
-- `\(A\)` and `\(Z\)` do need to be linearly associated.
-  - i.e. `\(Cov(Z, \epsilon_A)  = 0\)`
-
-
-
-
----
-## Assumptions for the `\(A-Y\)` Relationship
-
-`$$A_i  = \beta_{A0} + \beta_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
-Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
-
-- The second equation does need to be structural, however, it is sufficient that
-
-`$$E[Y(a)] = \beta_{Y0} + \gamma a$$`
-
-
-- The requirement that `\(Cov(Z, \epsilon_Y) = 0\)` can't be relaxed. 
-  + This assumption ensures that the exclusion restriction and exchangeability hold.
-
----
-## Consequences of Non-Linearity
-
-- Non-linearity could occur in either the `\(A-Z\)` relationship or in the `\(Y(a)-a\)` relationship. 
-
-- If the relationship betwen `\(E[Y \vert Z]\)` is non-linear in `\(Z\)`, the first stage regression is mis-specified.  
-  + We will have a violation of the requirement `\(Cov(Z, \epsilon_A) = 0\)`. 
-  + A non-linear relationship between `\(Z\)` and `\(A\)` has the same effect as confounding between `\(Z\)` and `\(A\)`.
-  + Our estimate of `\(\hat{A}\)` will be bad. 
-  
-- The good news is we have a chance to correct this. 
-  + Using model diagnositcs, we can evaluate the linearity assumption. 
-  + We could additional terms, like a quadratic term, to the regression. 
-  + Or we could use a flexible method like smoothing splines. 
-  
----
-## Non-Linear Exposure Outcome Relationship
-
-- `\(E[Y(a)] = g(a)\)` is non-linear in `\(a\)`, then the 2SLS estimate does not estimate the ATE.
-
-- However, the parameter that we do estimate is not meaningless. 
-
-- If every IV is binary and has equal effect size, `\(\gamma\)`, then we estimate the local average causal effect
-
-`$$LACE(a) \frac{E[Y(a + \gamma) - Y(a)]}{\gamma}$$`
-
-- There are IV extensions that allow us to estimate the non-linear relationship between `\(Y(a)\)` and `\(a\)`. 
-  
-
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
@@ -963,6 +900,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
