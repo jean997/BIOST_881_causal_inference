@@ -30,13 +30,12 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### Lecture on 2024-04-01
-(updated: 2024-04-01)
+(updated: 2024-04-02)
 ]
 
 ---
 
 `\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
-
 
 
 ## Introduction
@@ -102,8 +101,6 @@ class: center, middle, inverse, title-slide
 
 `\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
 `\(\newcommand{\nci}{\not\!\perp\!\!\!\perp}\)`
-
-
 
 ---
 ## Machine Learning Methods Search Large Model Spaces
@@ -623,6 +620,94 @@ Extensions of TMLE have been developed for
 
 - [Mediation analysis](https://tlverse.org/tmle3mediate/)
 
+---
+## TMLE for NHEFS Data
+
+- As before, our first steps are to fit a propensity and outcome model.
+  + Here we first transform the outcome to have range `\([0, 1]\)`.
+
+
+
+
+```r
+## transform outcome to range [0, 1]
+r &lt;- range(dat$wt82_71)
+dat$wt82_71_transformed &lt;- (dat$wt82_71 - r[1])/(r[2]-r[1])
+##
+
+fit_ps &lt;- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = dat)
+
+
+fit_or &lt;-glm( wt82_71_transformed ~ qsmk + sex + race + age + 
+                  I(age^2) + as.factor(education) + 
+                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
+                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
+                  qsmk * smokeintensity, 
+                  data = dat)
+```
+
+---
+## TMLE for NHEFS Data
+
+- Next we fit the fluctuation parameter
+
+
+```r
+logit &lt;- function(x){log(x)- log(1-x)}
+dat$logitbhat0 &lt;- logit(predict(fit_or))
+dat$pihat &lt;- predict(fit_ps, type = "response")
+dat &lt;- mutate(dat, H = as.numeric(qsmk ==1)/pihat,
+                        -as.numeric(qsmk==0)/(1-pihat))
+fit_fluctuation &lt;- glm(wt82_71_transformed ~ H -1, 
+                       offset = logitbhat0, 
+                       data = dat, family = "binomial")
+```
+
+```
+## Warning in eval(family$initialize): non-integer #successes in a binomial glm!
+```
+
+```r
+summary(fit_fluctuation)$coefficients
+```
+
+```
+##        Estimate Std. Error     z value  Pr(&gt;|z|)
+## H -0.0004606057 0.02320262 -0.01985145 0.9841619
+```
+
+---
+## TMLE for NHEFS Data
+
+- Finally we compute the standardized means.
+
+
+```r
+dat0 &lt;- dat1 &lt;- dat
+dat0$qsmk &lt;- 0
+dat1$qsmk &lt;- 1
+### Important! Make sure bhat and H are correct
+dat0$logitbhat0 &lt;- logit(predict(fit_or, newdata = dat0))
+dat1$logitbhat0 &lt;- logit(predict(fit_or, newdata = dat1))
+dat0$H &lt;- -1/(1-dat0$pihat)
+dat1$H &lt;-  1/dat1$pihat
+EY0 &lt;- predict(fit_fluctuation, newdata = dat0, type ="response") %&gt;% mean()
+EY1 &lt;- predict(fit_fluctuation, newdata = dat1, type ="response") %&gt;% mean()
+
+## Transform back to original scale
+EY0 &lt;- EY0*(r[2]-r[1]) + r[1]
+EY1 &lt;- EY1*(r[2]-r[1]) + r[1]
+cat(round(EY0, digits =2), " ", round(EY1, digits = 2), "ATE: ", round(EY1-EY0, digits = 2))
+```
+
+```
+## 1.77   5.22 ATE:  3.45
+```
+
 
 ---
 # 1. Super Learning
@@ -818,8 +903,177 @@ Extensions of TMLE have been developed for
 &lt;center&gt; 
 &lt;img src="img/11_sltab4.png" width="95%" /&gt;
 &lt;/center&gt;
+
 ---
-## Super Learner with TMLE
+## Super Learner in R
+
+- There are a few implementations of Super Learner in R. We will look at `SuperLearner`
+
+
+```r
+library(SuperLearner)
+listWrappers()
+```
+
+```
+##  [1] "SL.bartMachine"      "SL.bayesglm"         "SL.biglasso"        
+##  [4] "SL.caret"            "SL.caret.rpart"      "SL.cforest"         
+##  [7] "SL.earth"            "SL.gam"              "SL.gbm"             
+## [10] "SL.glm"              "SL.glm.interaction"  "SL.glmnet"          
+## [13] "SL.ipredbagg"        "SL.kernelKnn"        "SL.knn"             
+## [16] "SL.ksvm"             "SL.lda"              "SL.leekasso"        
+## [19] "SL.lm"               "SL.loess"            "SL.logreg"          
+## [22] "SL.mean"             "SL.nnet"             "SL.nnls"            
+## [25] "SL.polymars"         "SL.qda"              "SL.randomForest"    
+## [28] "SL.ranger"           "SL.ridge"            "SL.rpart"           
+## [31] "SL.rpartPrune"       "SL.speedglm"         "SL.speedlm"         
+## [34] "SL.step"             "SL.step.forward"     "SL.step.interaction"
+## [37] "SL.stepAIC"          "SL.svm"              "SL.template"        
+## [40] "SL.xgboost"         
+## [1] "All"
+## [1] "screen.corP"           "screen.corRank"        "screen.glmnet"        
+## [4] "screen.randomForest"   "screen.SIS"            "screen.template"      
+## [7] "screen.ttest"          "write.screen.template"
+```
+
+---
+## Super Learner in R
+
+- We will use `SuperLearner` to search for the best predictor of `wt82_71` in the NHEFS data.
+
+- For the sake of comparison, as one of our models, we will use exactly the linear regression we used in our parametric analysis. 
+
+- We will also use random forest (`SL.ranger`), XGboost (`SL.xgboost`), LASSO (`SL.glmnet`), and the simple mean (`SL.mean`).
+
+- Including the mean gives a nice reference point.
+
+---
+## Super Learner in R
+
+
+
+```r
+myX &lt;- data.frame(model.matrix(fit_or))
+sl_result &lt;- SuperLearner(Y = dat$wt82_71, 
+                          X = myX, 
+                          SL.library = c("SL.mean", "SL.glm", 
+                                         "SL.glmnet", "SL.xgboost", 
+                                         "SL.ranger"))
+```
+
+---
+## Super Learner in R
+
+- Our original linear model and LASSO have the lowest cross-validated risk. XGBoost is doing poorly on this data.
+
+- Super Learner puts most of its weight on the linear regression, but also gives weight to the other learners.
+
+
+
+```r
+sl_result
+```
+
+```
+## 
+## Call:  
+## SuperLearner(Y = dat$wt82_71, X = myX, SL.library = c("SL.mean", "SL.glm",  
+##     "SL.glmnet", "SL.xgboost", "SL.ranger")) 
+## 
+## 
+##                    Risk       Coef
+## SL.mean_All    62.14887 0.04181436
+## SL.glm_All     54.69951 0.37171938
+## SL.glmnet_All  54.67849 0.37794323
+## SL.xgboost_All 71.02259 0.00000000
+## SL.ranger_All  56.56769 0.20852303
+```
+
+
+---
+## Super Learner in R
+
+- The `SuperLearner` function also gives us predictions from each model and from the Super Learner weighted model.
+
+
+```r
+head(sl_result$library.predict)
+```
+
+```
+##   SL.mean_All SL.glm_All SL.glmnet_All SL.xgboost_All SL.ranger_All
+## 1      2.6383   4.143747     3.8938449      -4.233520    -3.4048543
+## 2      2.6383   6.328048     6.3390124       4.254411     3.8968751
+## 3      2.6383   1.980843     1.8542447       2.223978     4.3249198
+## 4      2.6383  -4.064697    -3.5463481       3.828495     0.1833968
+## 5      2.6383   2.281337     2.0316869       3.320465     4.0852400
+## 6      2.6383  -0.701358    -0.8301459       4.549352     2.9889503
+```
+
+```r
+head(sl_result$SL.predict)
+```
+
+```
+##         [,1]
+## 1  2.4122917
+## 2  5.6709520
+## 3  2.4492810
+## 4 -2.7026838
+## 5  2.5780650
+## 6  0.1591274
+```
+
+---
+## Super Learner in R
+
+- If we want an estimate of how well Super Learner is doing, we need an external layer of cross-validation.
+  + Split data into folds. In each fold, fit SuperLearner, predict in the held out fold.
+  
+
+```r
+cv.sl_result &lt;- CV.SuperLearner(Y = dat$wt82_71, 
+                          X = myX, 
+                          V = 5, # five-folds
+                          SL.library = c("SL.mean", "SL.glm", 
+                                         "SL.glmnet", "SL.xgboost", 
+                                         "SL.ranger"))
+```
+
+```
+## Loading required namespace: glmnet
+```
+
+```
+## Loading required namespace: ranger
+```
+
+---
+## Super Learner in R
+
+- In this case, the original linear regression and Super Learner have very similar performance.
+
+- Discrete SL is the learner that just picks the single learner with best CV-error.
+
+
+```r
+summary(cv.sl_result)$Table
+```
+
+```
+##        Algorithm      Ave       se      Min      Max
+## 1  Super Learner 55.05713 3.387456 47.23400 62.37359
+## 2    Discrete SL 55.04040 3.383664 47.54619 61.73830
+## 3    SL.mean_All 62.12819 3.756279 52.52722 69.50817
+## 4     SL.glm_All 54.75644 3.357717 47.78225 61.92608
+## 5  SL.glmnet_All 54.98642 3.381380 47.54619 61.73830
+## 6 SL.xgboost_All 74.33056 3.966513 64.20331 83.68772
+## 7  SL.ranger_All 57.09943 3.387529 47.94921 66.84681
+```
+
+
+---
+##  TMLE with Super Learner
 
 - The super learner is an ML method -- it could be used for any sort of prediction task. 
 
@@ -843,7 +1097,7 @@ Extensions of TMLE have been developed for
 
 
 ---
-## TMLE in R
+## TMLE with SuperLearner in R
 
 - There are several R packages which implement TMLE and the super learner. 
   - tmle, tmle3, drtmle
@@ -858,6 +1112,117 @@ Tutorials:
 
 [Estimation Tutorial by Miguel Angel Luque Fernandez](https://migariane.github.io/TMLE.nb.html#1_introduction)
 
+---
+## TMLE with SuperLearner in R
+
+- I will use the `drtmle` package because it computes multiple estimators:
+  + Regular TMLE, as we saw before
+  + DR-TMLE: TMLE with iterative updates, provides double robustness with ML estimators.
+  + AIPW
+  + AIPW with iterative updates
+  + G-computation
+
+---
+## TMLE with Parametric Models
+
+- First, we will use `drtmle` to fit TMLE with the same parametric models we were using previously.
+
+
+```r
+library(drtmle)
+## note use A for the exposure in the outcome formula
+outcome_formula &lt;- "A + sex + race + age + 
+                  I(age^2) + 
+                  as.factor(education) + 
+                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
+                  as.factor(exercise) + 
+                  as.factor(active) + wt71 + I(wt71 * wt71) +
+                  A * smokeintensity"
+exposure_formula &lt;- "sex + race + age + I(age ^ 2) +
+    as.factor(education) +
+    smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise)  + as.factor(active) + wt71 + I(wt71 ^ 2)"
+```
+
+---
+## TMLE with Parametric Models
+
+- All estimates are very similar for these data.
+
+
+```r
+mydat &lt;- dat[, c("sex", "race", 
+                 "age", "education", "smokeintensity", 
+                 "smokeyrs", "exercise", "active", "wt71")]
+tmle_fit_parametric &lt;- drtmle(Y = dat$wt82_71, 
+                              A = dat$qsmk, 
+                              W = mydat,
+                              glm_Q = outcome_formula,
+                              glm_g = exposure_formula, 
+                              SL_Qr = "SL.glm", 
+                              SL_gr = "SL.glm")
+
+tmle_fit_parametric$tmle
+```
+
+```
+## $est
+## [1] 1.767261 5.223986
+## 
+## $cov
+##             [,1]        [,2]
+## [1,] 0.048040971 0.005489295
+## [2,] 0.005489295 0.201554639
+```
+
+
+---
+## TMLE with SuperLearner in R
+
+- Rather than specifying models, we can use Super Learner. 
+
+- We will apply Super Learner to the raw matrix of covariates.
+
+- `SL_Qr` and `SL_gr` specify super learner libraries for secondary update steps.
+
+
+```r
+tmle_fit_SL &lt;- drtmle(Y = dat$wt82_71, 
+                        A = dat$qsmk, 
+                        W = mydat,
+                        SL_Q = c("SL.glm", "SL.mean", "SL.glm.interaction"),
+                        SL_g = c("SL.glm", "SL.mean", "SL.glm.interaction"), 
+                        SL_Qr = "SL.glm", 
+                        SL_gr = "SL.glm", 
+                        returnModels = TRUE)
+```
+
+```
+## Loading required package: quadprog
+```
+
+```
+## Loading required package: nloptr
+```
+
+---
+## TMLE with SuperLearner in R
+
+
+```r
+tmle_fit_SL$drtmle
+```
+
+```
+## $est
+## [1] 1.748978 5.040747
+## 
+## $cov
+##             [,1]        [,2]
+## [1,] 0.047787508 0.005479479
+## [2,] 0.005479479 0.233093135
+```
 
 ---
 ## Limits of Variable Selection
@@ -898,7 +1263,6 @@ Tutorials:
 - TMLE can have better finite sample properties than some other DR estimators we have seen. 
 
 - TMLE and some of its extensions pair very nicely with ML estimators. 
-
 
 
     </textarea>
