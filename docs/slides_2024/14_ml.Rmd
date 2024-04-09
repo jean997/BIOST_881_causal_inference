@@ -953,7 +953,7 @@ sl_result <- SuperLearner(Y = dat$wt82_71,
 
 - Our original linear model and LASSO have the lowest cross-validated risk. XGBoost is doing poorly on this data.
 
-- Super Learner puts most of its weight on the linear regression, but also gives weight to the other learners.
+- Super Learner splits most of its weight between the linear model and LASSO.
 
 
 ```{r}

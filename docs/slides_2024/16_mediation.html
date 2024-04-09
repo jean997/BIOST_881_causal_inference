@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L16: Mediation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+    <script src="libs/viz-1.8.2/viz.js"></script>
+    <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding-1.0.10/grViz.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# L16: Mediation
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### Lecture on 2024-04-10
+(updated: 2024-04-09)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+
+## Mediation
+
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-a1ef958c44eeaa7209c2" style="width:40%;height:144px;"></div>
+<script type="application/json" data-for="htmlwidget-a1ef958c44eeaa7209c2">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"M\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.8,0.4!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- In the graph above, `\(M\)` is *mediating* part of the effect of `\(A\)` on `\(Y\)`. 
+
+- We first encountered mediation in Lecture 2.
+
+- Mediation also came up in our discussion of instrumental variables. For IVA, we needed to assume that there were no direct effects of the IV on Y. 
+  + In other words, we assumed that the exposure fully mediated the effect of the IV on `\(Y\)`. 
+
+---
+## Mediation
+
+- Mediation questions arise frequently and naturally in science. 
+
+- We may be interested in mediation when we want to understand a mechanism. 
+
+- Example: in genetics, the "central dogma" says that DNA is translated into RNA which is then translated into proteins but some RNA molecules also do other things. We may want to know if the amount of RNA for a particular gene has a direct effect on a trait beyond the effect mediated by protein level. 
+
+- Example: Ten Have and Joffe (2012) consider a clinical trial of a therapeutic intervention for depression. They want to know how much of the effect of the intervention is mediated by use of anti-depressant medication. 
+
+
+
+---
+
+## Mediation
+
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-0f8207d7577361d37894" style="width:40%;height:144px;"></div>
+<script type="application/json" data-for="htmlwidget-0f8207d7577361d37894">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"M\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.8,0.4!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- From the graph above, it seems like it should be easy to disentangle the "direct effect" (the `\(A\to Y\)` arrow) from the mediated or indirrect effect effect (the `\(A \to M \to Y\)` path). 
+
+- It turns out that it is not easy even to define the direct and indirect effect. 
+
+- Once defined, direct and indirect effects may only be identifiable if we make strong, untestable assumptions. 
+
+- However, mediation effects are important scientifically, so this is still a worthwhile field. 
+
+
+---
+
+## Linear Structural Equations
+
+- Before we jump into identification conditions and definitions of causal effects, let's consider a simple linear SEM. 
+
+- Even though it is highly parametric, this is probably the most common way that people think about mediation. 
+
+- Suppose we believe that our data follow the DAG below. 
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-94173a711352d6b8db91" style="width:60%;height:216px;"></div>
+<script type="application/json" data-for="htmlwidget-94173a711352d6b8db91">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"M\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"0.8,0.4!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", color = \"black\", fillcolor = \"#FFFFFF\", fontcolor = \"#000000\", pos = \"1.6,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+---
+
+## Linear Structural Equations
+
+- A linear SEM for this system looks like:
+
+$$
+`\begin{split}
+&amp;M = \beta_{M,0} + \beta_{M,A}A + \epsilon_M\\
+&amp;Y = \beta_{Y,0} + \beta_{Y,M}M + \beta_{Y,A}A + \epsilon_{Y}\\
+&amp;\epsilon_Y \ci \epsilon_M
+\end{split}`
+$$
+
+- How would you define the direct and mediated effects of `\(A\)`?
+
+&lt;center&gt;
+&lt;img src="img/16_med2.png" width="40%" /&gt;
+&lt;/center&gt;
+
+---
+
+## Linear Structural Equations
+
+
+$$
+`\begin{split}
+&amp;M = \beta_{M,0} + \beta_{M,A}A + \epsilon_M\\
+&amp;Y = \beta_{Y,0} + \beta_{Y,M}M + \beta_{Y,A}A + \epsilon_{Y}\\
+&amp;\epsilon_Y \ci \epsilon_M
+\end{split}`
+$$
+
+
+&lt;center&gt;
+&lt;img src="img/16_med2.png" width="40%" /&gt;
+&lt;/center&gt;
+
+- In this model, the direct effect of `\(A\)` on `\(Y\)` is `\(\beta_{Y,A}\)`, the effect that is left over after controlling for `\(M\)`. 
+
+- The total effect of `\(A\)` on `\(Y\)` is `\(\beta_{Y,A} + \beta_{M,A}\beta_{Y,M}\)`. 
+
+- So the indirect effect is `\(\beta_{M,A}\beta_{Y,M}\)`.
+
+---
+
+## Linear Structural Equations
+
+
+$$
+`\begin{split}
+&amp;M = \beta_{M,0} + \beta_{M,A}A + \epsilon_M\\
+&amp;Y = \beta_{Y,0} + \beta_{Y,M}M + \beta_{Y,A}A + \epsilon_{Y}\\
+&amp;\epsilon_Y \ci \epsilon_M
+\end{split}`
+$$
+
+- How would you estimate the direct and indirect effects in this model?
+
+--
+
+- One option would be to simply fit the two regressions shown above. We can estimate the indirect effect as `\(\hat{\beta}_{Y,A}\hat{\beta}_{M,A}\)`. This is the Baron and Kenny (1986) method. 
+
+- Alternatively, we could also fit the unadjusted regression of `\(Y\)` on `\(A\)` to estimate the total effect, `\(\hat{\beta}_T\)` and then estimate the indirect effect as `\(\hat{\beta}_{T} - \hat{\beta}_{Y,A}\)`.
+
+- In either case, we can get standard errors from the delta method and Wald tests for non-zero direct or indirect effects. 
+
+
+---
+
+## Linear Structural Equations
+
+- Now consider a slightly more complicated linear SEM. We add an interaction between `\(M\)` and `\(A\)`.
+
+$$
+`\begin{split}
+&amp;M = \beta_{M,0} + \beta_{M,A}A + \epsilon_M\\
+&amp;Y = \beta_{Y,0} + \beta_{Y,M}M + \beta_{Y,A}A + \beta_{Y,MA}MA + \epsilon_{Y}\\
+&amp;\epsilon_Y \ci \epsilon_M \qquad E[\epsilon_M] = E[\epsilon_Y] = 0
+\end{split}`
+$$
+
+- How would you define the direct effect of `\(A\)` in this case?
+
+--
+
+- In this case it seems like the direct effect of `\(A\)` depends on what `\(M\)` is.
+
+
+---
+## Controlled Direct Effect
+
+- The **controlled direct effect** (CDE) is the causal effect of `\(A\)` when we intervene and set `\(M\)` to a particular reference value, `\(m\)`.
+
+- For binary `\(A\)`, the CDE is
+
+$$
+\theta_{CD,m} = E[Y(A = 1, M = m)] - E[Y(A = 0, M = m)]
+$$
+
+- Note that the CDE depends on what `\(m\)` is.
+
+
+---
+## Natural Direct Effect
+
+- The **natural direct effect** (NDE) is like the controlled direct effect except that `\(M\)` is set to `\(M(a)\)`, the value that `\(M\)` would take on if `\(A\)` had been set to `\(a\)`.
+
+$$
+\theta_{ND,a} = E[Y(A = 1, M = M(a))] - E[Y(A= 0, M = M(a))]
+$$
+- Sometimes NDE is used specifically for `\(\theta_{ND,0}\)` and "total direct effect" is used for `\(\theta_{ND,1}\)`. 
+
+- We will use NDE to mean `\(\theta_{ND,a}\)` for any value of `\(a\)`.
+
+---
+## Indirect Effects
+
+- For both CDE and NDE, there are complimentary definitions of indirect effects.
+
+- The **controlled mediated effect** (CME) is the effect of changing `\(M\)` while holding `\(A\)` at a particular value, `\(a\)`.
+
+- For binary `\(M\)`,
+
+`$$\theta_{CM,a} = E[Y(A = a, M = 1)]-E[Y(A = a, M = 0)]$$`
+- The **natural indirect effect** (NIE) is 
+
+$$
+\theta_{NI,a} = E[Y(A = a, M = M(1))]-E[Y(A = a, M=M(0) )]
+$$
+
+
+---
+## Total Effect
+
+- The total effect has a nice decomposition in terms of the NDE and NIE.
+
+$$
+`\begin{split}
+\theta_{ATE} =&amp; E[Y(A = 1)] - E[Y(A = 0)]\\
+= &amp; E[Y(A = 1, M = M(1))] - E[Y(A = 0, M = M(0))]\\
+ = &amp;  E[Y(A = 1, M = M(1))] - E[Y(A = 0, M = M(1))] + \\
+ &amp;E[Y(A = 0, M = M(1))]-E[Y(A = 0, M=M(0) )]\\
+= &amp; \theta_{ND,1} + \theta_{NI,0} 
+\end{split}`
+$$
+
+- We could also write `\(\theta_{ATE} = \theta_{ND,0} + \theta_{NI,1}\)`.
+
+
+---
+## Direct and Indirect Effects in the SEMs
+
+- To keep things simple, lets assume the intercept terms are 0.
+
+
+$$
+`\begin{split}
+&amp;M = \beta_{M,A}A + \epsilon_M\\
+&amp;Y = \beta_{Y,M}M + \beta_{Y,A}A + \epsilon_{Y}\\
+&amp;\epsilon_Y \ci \epsilon_M
+\end{split}`
+$$
+- In the SEM above, which has no interaction, we can calculate
+
+$$
+`\begin{split}
+&amp;E[Y(A = 1, M = M(0))] =  \beta_{Y,A}\\
+&amp;E[Y(A = 1, M = M(1))] =  \beta_{Y,A}+  \beta_{Y,M} \beta_{M,A}\\
+&amp;E[Y(A = 0, M = M(0))] = 0 \\
+&amp;E[Y(A = 0, M = M(1))] =  \beta_{Y,M} \beta_{M,A}\\
+\end{split}`
+$$
+
+- From these definitions, what are `\(\theta_{ND,a}\)`, `\(\theta_{NI, a}\)` and `\(\theta_{CD,m}\)`?
+
+---
+## Direct and Indirect Effects in the SEMs
+
+
+
+$$
+`\begin{split}
+&amp;E[Y(A = 1, M = M(0))] =  \beta_{Y,A}\\
+&amp;E[Y(A = 1, M = M(1))] =  \beta_{Y,A}+  \beta_{Y,M} \beta_{M,A}\\
+&amp;E[Y(A = 0, M = M(0))] = 0 \\
+&amp;E[Y(A = 0, M = M(1))] =  \beta_{Y,M} \beta_{M,A}\\
+\end{split}`
+$$
+
+- `\(\theta_{ND,1} = \theta_{ND,0} = \beta_{Y,A}\)` and `\(\theta_{NI,1} = \theta_{NI,0} = \beta_{Y,M}\beta_{M,A}\)`. 
+
+- We can also see that `\(\theta_{CD,m} = \beta_{Y,A}\)` for all `\(m\)`. So the NDE and the CDE are equal.
+
+
+
+---
+## Direct and Indirect Effects in the SEMs
+
+- With a partner, work out the NDE, CDE, and NIE in the model with an interaction
+
+$$
+`\begin{split}
+&amp;M =  \beta_{M,A}A + \epsilon_M\\
+&amp;Y = \beta_{Y,M}M + \beta_{Y,A}A + \beta_{Y,MA}MA + \epsilon_{Y}\\
+&amp;\epsilon_Y \ci \epsilon_M \qquad E[\epsilon_M] = E[\epsilon_Y] = 0
+\end{split}`
+$$
+
+- Before you start, make a prediction. Do you think the NDE and the CDE are the same?
+
+---
+## Direct and Indirect Effects in the SEMs
+
+- In the interaction model, we have
+
+$$
+`\begin{split}
+&amp;\theta_{ND,a} = \beta_{Y,A} + \beta_{Y,MA}\beta_{M,A}a\\
+&amp;\theta_{NI,a} = \beta_{M,A}(\beta_{Y,M} + \beta_{Y,MA}a)\\
+&amp;\theta_{CD,m} = \beta_{Y,A} + \beta_{Y,MA}m
+\end{split}`
+$$
+- Here the NDE and the CDE are not the same and both values are dependent on `\(a\)` or `\(m\)`. 
+  + However, if `\(\beta_{Y,A} = \beta_{Y,MA} = 0\)`, both the CDE and the NDE will be 0. 
+
+- If the NDE is non-zero for at least one value of `\(a\)`, `\(\theta_{CD,m}\)` will be non-zero for at least one value of `\(m\)`. 
+
+- We could estimate these parameters by using the same regression approach followed by plugging coefficient estimates into the expression above. (VanderWeele and Vansteelandt (2009))
+
+---
+## Confounding in the Linear SEM
+
+- So far our regression models haven't included confounders. We have been assuming that there are no confounders of `\(A\)` and `\(Y\)` or of `\(M\)` and `\(Y\)`. 
+
+
+- The SEM approach extends straight forwardly to the setting where there are confounders of the `\(A\)` to `\(Y\)` relationship. We can simply include these in the regression model for `\(Y\)`. 
+
+- It is not so straight forward to include confounders of the `\(M\)` to `\(Y\)` relationship. Why do you think this is?
+
+---
+## Confounding in the Linear SEM
+
+- If there are confounders of the `\(M-Y\)` relationship, we need to include them in the regression model for `\(Y\)` in order to get an unbiased estimate of `\(\beta_{Y,M}\)`, the effect of `\(M\)` on `\(Y\)`. 
+
+- However, if confounders occur after `\(A\)`, it is possible that conditioning on these induces bias in the estimate of `\(\beta_{Y,A}\)`. They could be considers or children of `\(A\)`. We will come back to this point.
+
+---
+## Natural vs Controlled Effects
+
+- The NDE and NIE are more naturally interesting parameters than the CDE. 
+
+- The NDE tells us how much `\(A\)` would have changed `\(Y\)` if we had prevented the intervention on `\(A\)` from changing `\(M\)`.
+
+- The CDE tells us how much `\(A\)` would have changed `\(Y\)` if we had intervened and held `\(M\)` at a predetermined value. 
+
+---
+## Natural vs Controlled Effects
+
+- Although NDE and NIE are more scientifically interesting than the CDE, there is a conceptual issue with these parameters.
+
+- The NDE and NIE involve cross-world counterfactuals, like `\(E[Y(A = 1, M = M(0))]\)`. 
+
+- When we think about a single world intervention, say `\(Y(a)\)`, consistency tells us that `\(Y_i(a)\)` is observable for some units.
+
+- However, we can't observe `\(Y_i(A_i = 1, M_i = M_i(0))\)` for any units(unless `\(M_i(0) \neq M_i(1)\)`). 
+  + This means `\(Y_i(A_i = 1, M_i = M_i(0))\)` could be unobserved for all units. 
+
+
+---
+## Natural vs Controlled Effects
+
+- You might recall from Lecture 2 that we discussed the FFRCISTG and NPSEM-IE assumptions. 
+
+- These were alternative assumptions that we could make about the distributions of counterfactuals in DAGs.
+
+- In Lecture 2, we found that FFRCISTG is strictly weaker than NPSEM-IE. 
+
+- In particular, NPSEM-IE allows us to make statements about cross-world counterfactual distributions while FFRCISTG doesn't. 
+- The NDE and NIE cannot be identified under the FFRCISTG assumptions without additional assumptions. 
+  + NPSEM-IE is one way to get to identification, but not the ony way.
+
+---
+## (Non)-Identification of the NDE
+
+- The fact that NDE is not identifiable without additional assumptions isn't just theoretical.
+
+- Robins and Greenland (1992) give a concrete example where identification fails. 
+
+- In their scenario, `\(A\)`, `\(M\)`, and `\(Y\)` are all binary. 
+
+---
+## (Non)-Identification of the NDE
+
+- The table shows types of people that might be in an obseravational (or interventional) study. 
+
+&lt;center&gt;
+&lt;img src="img/16_RandG.png" width="90%" /&gt;
+&lt;/center&gt;
+
+- Notice that type 4 and 5 will have the same outcome for both hyperlipidemia and disease regardless of the intervention on smoking. 
+
+
+---
+## (Non)-Identification of the NDE
+
+&lt;center&gt;
+&lt;img src="img/16_RandG.png" width="90%" /&gt;
+&lt;/center&gt;
+
+- There is no way to tell the difference between a Type 4 and a Type 5, even in a randomized trial or in a crossover trial. 
+
+- However, for Type 5, smoking is a direct cause of disease while, for Type 4, smoking only causes disease because it causes hyperlipidemia.
+
+---
+## Identification of the NDE
+
+- There are a few alternative conditions under which we *can* identify the NDE and NIE. 
+
+- The NDE, NIE, and CDE all involve joint counterfactuals, `\(E[Y(a,m)]\)`. 
+
+- Which of our past lectures does this remind you of? 
+
+--
+
+- We can think of this like our time-varying exposure problems, with `\(A\)` being "treatment 1" and `\(M\)` being "treatment 2". 
+
+
+---
+## Identification of the NDE
+
+- In the time-varying exposure problem, we needed sequential exchangeability for identification.
+
+- To identify the NDE and NIE, we need a stronger, cross-world version of sequential exchangeability.
+
+- For a single set of confounders, `\(L\)`,
+
+$$
+Y(a,m), M(a^\prime) \ci A \vert L \qquad \forall a, a^\prime
+$$
+and
+$$
+Y(a,m) \ci M(a^\prime) \vert L \qquad \forall a, a^\prime
+$$
+
+- These follow automatically from the NPSEM-IE assumptions if 
+  + `\(Y(a,m) \ci A \vert L\)`, `\(M(a) \ci A \vert L\)` and `\(Y(a,m) \ci M \vert A = a^\prime, L\)` for all `\(a\)` and `\(a^\prime\)`. 
+
+
+- Notice that we had to assume these conditions simultaneously for the same set of confounders `\(L\)`.
+
+- This means that there are no effects of the exposure that confound the mediator-outcome relationship. 
+
+
+---
+## Identification of the NDE
+
+- An alternative would be to assume our usual single world sequential exchangeability. 
+
+$$
+`\begin{split}
+&amp;Y(a,m) \ci A \vert L_1\\
+&amp;Y(a, m) \ci M \vert A = a, L_1, L2
+\end{split}`
+$$
+- And then also make an assumption that makes the NDE equal to the CDE. 
+
+- One option is an individual level no-interaction assumption, that
+
+$$
+Y_i(a,m)-Y_i(a^\prime,m) = Y_i(a,m^\prime)-Y_i(a^\prime,m^\prime) = B_i(a,a^\prime)
+$$
+does not depend on `\(m\)`. 
+
+
+---
+
+## Identification Formula for NDE
+
+- If the NDE and NIE are identifiable, we can use an analog of the g-formula. 
+
+- Start with the law of total probability:
+
+$$
+`\begin{split}
+&amp;E[Y(A = 1, M = M(0))] = \\
+&amp;\int_l \int_m E[Y(A = 1, m) \vert M(0) = m, L = l]f_{M(0)|L=l}(m)f_{L}(l)dm\ dl
+\end{split}`
+$$
+---
+
+## Identification Formula for NDE
+
+- Use `\(Y(a,m) \ci M(a^\prime)\vert L\)` for all `\(a, a^\prime\)`
+
+$$
+`\begin{split}
+&amp;E[Y(A = 1, M = M(0))] = \\
+&amp;\int_l \int_m E[Y(A = 1, m) \vert M(0) = m, L = l]f_{M(0)|L=l}(m)f_{L}(l)dm\ dl = \\
+&amp;\int_l \int_m E[Y(A = 1, m) \vert L = l]f_{M(0)|L=l}(m)f_{L}(l)dm\ dl
+\end{split}`
+$$
+---
+
+## Identification Formula for NDE
+
+- Use `\(Y(a,m),M(a^\prime) \ci A \vert L\)` for all `\(a, a^\prime, m\)` and consistency
+
+$$
+`\begin{split}
+&amp;E[Y(A = 1, M = M(0))] = \\
+&amp;\int_l \int_m E[Y(A = 1, m) \vert M(0) = m, L = l]f_{M(0)|L=l}(m)f_{L}(l)dm\ dl = \\
+&amp;\int_l \int_m E[Y(A = 1, m) \vert L = l]f_{M(0)|L=l}(m)f_{L}(l)dm\ dl = \\
+&amp;\int_l \int_m E[Y\vert A = 1, M = m, L = l]f_{M|L=l, A = 0}(m)f_{L}(l)dm\ dl
+\end{split}`
+$$
+
+---
+## Non-Parametric Estimation
+
+- In principal, we could use the identification formula to non-parametrically estimate `\(E[Y(1, M(0))]\)`
+
+$$
+`\begin{split}
+&amp;E[Y(A = 1, M = M(0))] = \\
+&amp;\int_l \int_m E[Y\vert A = 1, M = m, L = l]f_{M|L=l, A = 0}(m)f_{L}(l)dm\ dl
+\end{split}`
+$$
+
+- We need non-parametric plug-in estimates of each component (e.g. empirical averages).
+
+- However, estimating the density `\(f_{M|A = 0, L= l}(m)\)` could be very hard.
+
+
+
+---
+## Estimating the CDE
+
+- Alternatively, we can make assumptions that the NDE is equal to the CDE or only focus on the CDE.
+
+- Thinking back to previous lectures, how would you estimate the CDE?
+
+
+--
+
+- Since `\(E[Y(a,m)]\)` is a joint counterfactual, all of the strategies we learned in Lectures 10 and 11 apply.
+
+- G-computation, IP weighting, and G-estimation with structural nested mean models are all valid approaches. 
+
+---
+## Estimating the CDE
+
+- A review of some of the challenges of our previous methods:
+
+- To use G-computation for a two-time point exposure, we need a model for the joint density of any confounders that confound the `\(M-Y\)` relationship because we need to simulate these covariates. 
+
+- On the other hand, for IP weighting, we need to estimate the density of the exposure. This isn't bad when the exposure is binary, but often mediators are continuous. 
+  + This means we need to rely on a parametric density model.
+  + We could also run into issues of very large weights.
+  
+- These factors may push us to using G-estimation with structural nested mean models. 
+
+- Vansteelandt (2009) discusses using G-estimation to estimate the CDE as well as interaction terms between exposure and mediator. 
+
+
+---
+## Estimationg the CDE
+
+&lt;center&gt;
+&lt;img src="img/16_vanst1.png" width="90%" /&gt;
+&lt;/center&gt;
+
+
+---
+## Principal Stratification
+
+- Principal stratification is an alternative method to estimating direct effects. 
+
+
+- Recall from our IVA lecture that we had a discussion about compliance types. These were never takers, always takers, compliers, and defiers. 
+
+- If both treatment and mediator are binary, we can make these same divisions, though the names we used before don't really make sense. 
+
+
+Stratum 1 (formerly Compliers): Units with `\(W_i(1) = 1\)` and `\(W_i(0) = 0\)`
+
+Stratum 2 (formerly Defiers): Units with `\(W_i(1) = 0\)` and `\(W_i(1) = 1\)`
+
+Stratum 3 (formerly Always Takers): Units with `\(W_i(1) = W_i(0) = 1\)`
+
+Stratum 4 (formerly Never Takers): Units with `\(W_i(1) = W_i( 0) = 0\)`
+
+---
+## Principal Stratification
+
+
+- For units in strata 3 and 4, the treatment doesn't affect the value of the mediator `\(W\)`. 
+
+- This means that any effect of treatment on `\(Y\)` in these strata must be a direct effect. 
+
+- So if we knew what stratum each unit belonged to, we could estimate `\(E[Y(a) \vert C \in (3,4)]\)` where `\(C\)` is the principal stratum. 
+
+- This would estimate the direct effect in strata 3 and 4. 
+
+- In particular, finding a non-zero direct effect in strata 3 and 4 would indicate that there is a direct effect in at least some units. 
+
+
+---
+## Principal Stratification Estimation
+
+- There are many PS estimation methods. 
+
+- Gallop et al (2009) propose a hierarchical model. Within each stratum, assume that
+
+`$$E[Y(a) \vert C = c] = \beta_c a + \alpha^\top X + \epsilon_{c,a}$$`
+- `\(X\)` are covariates.
+
+- The overall average direct effect is weighted sum over strata 3 and 4 (this method assumes `\(A\)` is randomized) 
+
+`$$\beta = \frac{\sum_{c = 3}^4 \pi_c E[Y(1)-Y(0) \vert C = c, X = x]}{\pi_3 + \pi_4}$$`
+
+
+- Assume a multinomial model for `\(P[C = c \vert X]\)`
+
+---
+## Principal Stratification Estimation
+
+- For any unit, we get to observe `\(A\)` and `\(W\)` but not their principal stratum. However, seeing `\(A\)` and `\(W\)` narrows the possibilities to two. 
+
+- For example, if `\(A_i = 0\)` and `\(W_i = 1\)`, we know the unit is in Stratum 2 (defiers) or Stratum 3 (always takers).
+
+- So the likelihood of `\(Y_i\)` given covariates is a weighted combination of the likelihood given `\(C_i = 2\)` and the likelihood given `\(C_i = 3\)`. This completes the hierarchical model. 
+
+- Gallop et al. then use Bayesian methods with uninformtive priors to estimate posterior means for `\(\beta_c\)` ( `\(c = 2,3\)` ). 
+
+
+---
+## Principal Stratification Critiques
+
+- Vanderweele (2011) argues that principal stratification is only useful for ruling out no direct effect in any stratum. 
+
+- In particular, the PS framework cannot identify an indirect effect. 
+
+- The effect in strata 1 and 2, where the exposure does change the mediator is a combination of direct and indirect effects that is not separable without assuming that the direct effect is equal in all strata. 
+
+- "As I see it, in contexts in which pathways are of interest, the only advantage in considering the principal stratification framework rather than natural direct and indirect effects is that the latter requires conceiving of interventions on the intermediate and the former does not"
+
+---
+## Summary
+
+- Mediation effects are surprisingly difficult to define in a way that is conceptually coherent. 
+
+- Identification of the natural direct and indirect effects requires very strong assumptions.
+
+- We must either assume cross-world independences and no effects of `\(A\)` on confounders of `\(M\)` and `\(Y\)` or we need to assume no interaction between `\(A\)` and `\(M\)` so that the CDE is equal to the NDE. 
+
+- Estimating the CDE uses tools we are already familiar with from our time-varying exposure lectures. 
+
+- Principal stratification is an alternative strategy for targeting the NDE for binary `\(A\)` and `\(M\)`, making differerent assumptions. 
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
