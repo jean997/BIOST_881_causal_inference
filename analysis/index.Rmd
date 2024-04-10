@@ -39,6 +39,8 @@ editor_options:
 
 [14. Machine Learning](slides_2024/14_ml.html)
 
+[16. Mediation](slides_2024/16_mediation.html)
+
 ## Lecture Slides from Past Years
 
 [2023 Slides](slide_index_2023.html)
