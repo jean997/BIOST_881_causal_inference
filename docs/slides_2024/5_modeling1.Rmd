@@ -954,7 +954,7 @@ f_y <-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(educatio
     + I(smokeyrs * smokeyrs) + as.factor(exercise) + as.factor(active)
     + wt71 + I(wt71 * wt71) + qsmk * smokeintensity,
     data = dat.u)
-summary(fit)$coefficients %>% head()
+summary(f_y)$coefficients %>% head()
 ```
 ---
 ## Outcome Modeling
@@ -1095,8 +1095,8 @@ cat(round(eff, digits = 2), "(", round(ci, digits = 2), ")")
 - If we want to estimate the average causal effect stratified by $V$, we can simply stratify by $V$ before averaging our predicted values. 
 
 ```{r}
-dat.u$Y0 <- predict(fit, newdata = dat0, type = "response") 
-dat.u$Y1 <- predict(fit, newdata = dat1, type = "response")
+dat.u$Y0 <- predict(f_y, newdata = dat0, type = "response") 
+dat.u$Y1 <- predict(f_y, newdata = dat1, type = "response")
 dat.u %>% group_by(sex) %>% 
       summarize(Y0 = mean(Y0), Y1 = mean(Y1))
 ```
