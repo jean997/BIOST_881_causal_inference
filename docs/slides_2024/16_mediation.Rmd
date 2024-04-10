@@ -393,7 +393,7 @@ $$
 
 - When we think about a single world intervention, say $Y(a)$, consistency tells us that $Y_i(a)$ is observable for some units.
 
-- However, we can't observe $Y_i(A_i = 1, M_i = M_i(0))$ for any units(unless $M_i(0) \neq M_i(1)$). 
+- However, we can't observe $Y_i(A_i = 1, M_i = M_i(0))$ for any units (unless $M_i(0) = M_i(1)$). 
   + This means $Y_i(A_i = 1, M_i = M_i(0))$ could be unobserved for all units. 
 
 
@@ -476,12 +476,22 @@ and
 $$
 Y(a,m) \ci M(a^\prime) \vert L \qquad \forall a, a^\prime
 $$
-
 - These follow automatically from the NPSEM-IE assumptions if 
   + $Y(a,m) \ci A \vert L$, $M(a) \ci A \vert L$ and $Y(a,m) \ci M \vert A = a^\prime, L$ for all $a$ and $a^\prime$. 
 
+---
+## Identification of the NDE
 
-- Notice that we had to assume these conditions simultaneously for the same set of confounders $L$.
+- Cross-World Sequential Exchangeability:
+$$
+\begin{split}
+&Y(a,m), M(a^\prime) \ci A \vert L \qquad \forall a, a^\prime\\
+&Y(a,m) \ci M(a^\prime) \vert L \qquad \forall a, a^\prime
+\end{split}
+$$
+
+
+- Notice that all of the statements in these conditions use the same set of confounders $L$.
 
 - This means that there are no effects of the exposure that confound the mediator-outcome relationship. 
 
