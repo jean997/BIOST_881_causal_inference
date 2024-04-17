@@ -580,7 +580,7 @@ $$
 ---
 ## Estimating the CDE
 
-- Alternatively, we can make assumptions that the NDE is equal to the CDE or only focus on the CDE.
+- Alternatively, we can make assumptions that the NDE is equal to the CDE, or only focus on the CDE.
 
 - Thinking back to previous lectures, how would you estimate the CDE?
 
