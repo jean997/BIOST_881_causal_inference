@@ -1,0 +1,315 @@
+---
+title: "Discussion"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "2024-04-17\n(updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanthemer, include=FALSE, warning=FALSE, echo = FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+library(tidyverse)
+library(DiagrammeR)
+```
+
+
+## What Kinds of Questions Can Causal Inference Answer?
+
+
+- We have often talked about the idea of the target trial to guide design of causal inference studies. 
+
+- This restricts the realm of causal inference to a fairly narrow range of questions: 
+  
+  + E.g. Should we treat this disease with drug A or drug B. 
+  
+- In particular, it leaves out states that are hard to intervene on like race, gender and complex multifactoral conditions like obesity. 
+
+- Today we will talk about some different persepectives on this issue.
+
+---
+## References
+
+Glymour and Glymour (2014). Commentary: Race and Sex Are Causes. *Epidemiology*
+
+Hernán and Taubman (2008). Does obesity shorten life? The importance of well-defined interventions to answer causal questions. *International Journal of Obesity*
+
+Kaufman (2019). Commentary: Causal Inference for Social Exposures. *Annual Review of Public Health*
+
+---
+## Questions
+
+Consider the following causal questions:
+
++ Will administering drug B instead of drug A reduce mortality?
+
++ Does obesity cause heart disease?
+
++ Was she denied the job because she is female?
+
+
+For each question:
+  
+  + Why are we (or the asker) asking the question?
+  
+  + Is there a well-defined intervention related to the question?
+  
+  + How would you try to answer the question?
+  
+---
+## Do We Need a Hypothetical Intervention?
+
+- Glymour and Glymour are addressing hesitence in the causal inference community to address causal effects of race due to a lack of plausible intervention for altering race. 
+
+- Glymour and Glymour argue that a hypothetical intervention is unnecessary: 
+
+<center> 
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/12_gandg2.png")
+```
+</center>
+
+---
+## Do We Need a Hypothetical Intervention?
+
+- Glymour and Glymour make a philosophical distinction between attempting to identify a useful intervention and attempting to identify the cause of a problem.
+
+- These are both potential uses for causal inference. We might use the same tools, but the motivation is different. 
+
+<center> 
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/12_gandg1.png")
+```
+</center>
+
+
+---
+## Susan
+
+- A hypothetical scenario. 
+
+<center> 
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/12_gandg3.png")
+```
+</center>
+
+---
+## Etiological Causation
+
+<center> 
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/15_gandg4.png")
+```
+</center>
+
+
+---
+## Hernán and Taubman
+
+- Hernán and Taubman argue that we **do** need a well defined intervention to make sensible causal statements. 
+
+- They consider trying to answer the question "How many deaths are attributable to obesity."
+
+- They argue that this question is not really answerable. 
+
+---
+## Hypothetical Obesity Studies
+
+- Hernán and Taubman describe three hypothetical randomized trials, each using different mechanisms to reduce BMI in treated participants. 
+
+  + In one trial participants are forced to exercise every day for 30 years. 
+  
+  + In another participants' diets are restricted. 
+  
+  + In a third both interventions are combined but in less extreme forms. 
+
+- All three treatments have the same effect on BMI. 
+
+- But the trials observe different effects on mortality. 
+
+<center> 
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/12_handt1.png")
+```
+</center>
+
+---
+## Consequences of Vague Interventions
+
+- H and T argue that vague counterfactuals violate consistency. 
+
+<center> 
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/12_handt2.png")
+```
+</center>
+
+- Different methods to intervene on BMI may have dramatically different affects on mortality.
+
+---
+## Consequences of Vague Interventions
+
+<center> 
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/12_handt3.png")
+```
+</center>
+
+---
+# Consequences of Vague Interventions
+
+- They go on to argue that vague interventions also lead to violations of exchangeability, since complex traits like obesity have many component causes. 
+
+- And possibly also violations of positivity: There may be some levels of confounders at which individuals have zero probability of some range of the exposure. 
+
+  + This is especially problematic when the proposed contrast is large (e.g. BMI of 20 vs BMI of 30). 
+  
+---
+## Consequences of Vague Interventions
+  
+<center> 
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/12_handt4.png")
+```
+</center>
+
+
+
+---
+## Race and Social Variables
+
+- Jay Kaufman discusses strategies to disambiguate the causal effect of race.
+
+<center> 
+```{r, echo=FALSE, out.width="95%"}
+knitr::include_graphics("img/12_k1.png")
+```
+</center>
+
+---
+## Race and Social Variables
+
+<center> 
+```{r, echo=FALSE, out.width="95%"}
+knitr::include_graphics("img/12_k2.png")
+```
+</center>
+</br>
+
+</br>
+
+<center> 
+```{r, echo=FALSE, out.width="95%"}
+knitr::include_graphics("img/12_k4.png")
+```
+</center>
+
+---
+## Discussion: Etiological Causation
+
+- G and G argue that etiological causation is useful because it allows us to "identify a problem".
+
+- H and T argue that questions of etiological causation (aka "vague intervention")  are ill-posed because it does not allow us to identify the mechanism explaining the observed "cause". 
+
+- G and G use the example of sex and hiring. H and T use the example of obesity and lifespan. What are the philosphical differences between these examples? 
+
+- What do you think? Is etiological causation useful?
+
+---
+## Discussion: Mechanism of Action
+
+Consider two studies:
+
+- The first study is attempting to measure a causal effect of gender on heart disease risk. It has been observed that men have higher rates of heart disease than women of the same age. The researchers want to know if this relationship is causal.
+
+- The second study is attempting to measure the causal effect of gender on income. Does being female cause a person to earn less money?
+
+
+
+Questions:
+
+- What are the possible mechanisms by which gender could be causal in each scenario?
+
+- What are the merits or down-sides of trying to answer each question?
+
+- Are there alternative ways of asking these questions that may avoid some of the vagueness that Hernán and Taubman warn us away from?
+
+
+---
+## Risk of Vaguely Defined Causes
+
+
+- If we estimate a cause associated with a vague intervention, we are inviting our audience/readers to fill in a mechanism based on their current beliefs. 
+
+- To continue the obesity example used by H and T, it is a short step from identifying a ``causal effect'' of BMI on mortality or disease to conclude that weight loss programs will reduce disease risk and extend life. 
+
+- From Powell-Wiley et al (2021), clinical trials of dietary interventions have not shown significant effects on cardiovascular outcomes and different clinical interventions on obesity have shown dramatically different effects. 
+
+
+---
+## Risk of Vaguely Defined Causes
+
+- There are successful interventions (e.g. cholesterol reduction drugs) that reduce modrtality without modifying body size.
+
+- Some interventions on body size have had negative, sometimes fatal side effects (e.g. fen-phen). 
+
+- From Tomiyama et al (2018),  weight stigma and anti-fat bias in medical care may be a major contributor to risk factors associated with obesity. 
+  + Studies which describe causal effects of body size on disease without describing a mechanism or clear intervention can exacerbate this bias.
+
+---
+## Risk of Vaguely Defined Causes
+
+- Race is another exposure for which there is high risk of allowing readers to fill in causal mechanisms.
+
+- Some genetic studies have shown significant differences in genetically predicted values of educational attainment and other social outcomes between groups defined by either self-identified race or genetic ancestry. 
+  + Subsequent studies have shown that this effect can be explained by household effects and social stratification (Schork et al (2022)).
+
+- Highly publicized articles and debates that dealt sloppily with "causes" like race, ancestry, and even genetics provided fodder for white supremacists. 
+
+- Genetic studies of educational attainment have also led to suggestions for "genetic tracking" in schools, despite having no identified mechanism by which some variants affect educational attainment. 
+
+
+---
+## Utility of Vaguely Defined Causes
+
+- Using Mendelian randomization and observational studies, we can find causal effects of LDL cholesterol on both heart disease and gall stone risk. 
+
+- However, different lipid lowering medications have different effects on the risks of these two diseases. 
+
+- One hypothesis is that heart disease is caused by high levels of circulating LDL cholesterol while gall stones are caused by high levels in the liver.
+  + There may be further nuances involving distinctions between sizes of LDL particles. 
+  
+- In our studies, we only measure serum levels of LDL cholesterol which proxy many different biological processes.
+
+- The effects identified by MR and other studies are still useful. They suggest that lipid lowering medications might affect disease risk, leading us to perform more precise, interventional trials.
+
+---
+## Utility of Vaguely Defined Causes
+
+- To some extent, all biological processes are vaguely defined because our measurement tools are imperfect.
+
+- Identification of specific effective interventions or precise mechanisms often occurs after years of accumulating less precise evidence.
+
+- However, we need to be careful and conscious when we are measuring vaguely defined causes. It is the statistician/scientist's job to clearly discuss 
+  + the limits of our conclusions
+  + the motivation for conducting the study
+  + potential mechanisms that could be involved
+  + follow up work that is necessary to sharpen our conclusions
+  
