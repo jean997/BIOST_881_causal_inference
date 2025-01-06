@@ -2,7 +2,7 @@
 title: "L1: Getting Started"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2024-01-08\n (updated: `r Sys.Date()`)"
+date: "Lecture on 2025-01-08\n (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
