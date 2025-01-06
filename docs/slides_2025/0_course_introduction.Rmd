@@ -1,0 +1,185 @@
+---
+title: "L0: Course Orientation"
+
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "Lecture on 2025-01-08\n (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+## Welcome + Course Basics
+
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+
++ We will meet Monday and Wednesday 1-2:30 opm in G850 SPH I. 
+
++ Textbook: 
+  - ["What If?" By Miguel Hernán and James Robins](https://miguelhernan.org/whatifbook) 
+  - Other readings will be provided as pdfs
+
+
++ Office Hours:
+  - Monday 3-4pm in-person in Jean's office (M4148) or the Conference Room (M4034)
+  - You can request to join by Zoom. I won't run Zoom if there are no requests.
+  - By appointment
+  
+---
+
+## Course Structure
+
+Tour of [Canvas site](https://umich.instructure.com/courses/727344)
+
+---
+
+## What is Causal Inference?
+
+
+
++ Causal inference is the art and science of using statistical tools to answer causal questions. 
+
+--
+
+
++ Interpreting statistical parameters as causal parameters requires:
+
+  - A language and philosophy of causality.
+  - A model of the system you are studying.
+
+
+---
+
+## What We Will Learn in this Class
+
+--
+
++ Languages of causality:
+
+  - Counterfactuals and Potential Outcomes
+  - Graphical models
+  - Structural Equation Models
+
+--
+
++ Identifiability conditions: When would a parameter be 
+estimable with infinite data?
+
+--
+
++ Estimation strategies:
+  - Weighting, standardization, G-estimation
+  - Propensity scores and matching
+  - Instrumental variable analysis
+  - Methods for time-varying treatment
+  - $\dots$
+
+
+---
+
+## About Me
+
+- Jean Morrison (call me Jean, Dr. Morrison is also ok) (they/them).
+
+--
+
+- Research Interests:
+
+  + Statistical genetics
+  + Instrumental variable analysis with genetic instruments
+  + High dimensional biological data
+  + Data integration (combining multiple sources of Hi-D data)
+  + Applications of  ML tools in causal inference.
+
+--
+
+- I like animals and outdoor activities (hiking, biking, kayaking, etc). 
+
+
+
+---
+
+## About This Class
+
+- My goal is to create an active, collaborative, learning environment. 
+
+- Ground rules: 
+  + Be engaged, ask questions, and contribute to discussions.
+  + Complete assignments on schedule. 
+  + Be respectful of me and your classmates. 
+  
+- Please feel free to contact me if something is not working for you or you are struggling.
+
+
+---
+
+## Attendance and Recording
+
+- I will run Zoom during class, so you may attend remotely if you cannot be here in person.
+   + I will not monitor the chat.
+   + You cannot receive points for the in-class activities remotely. 
+
+- All classes will be recorded and available on the Canvas site. 
+
+- Recordings will be available only to other students in this course.
+
+---
+
+## Due Dates and Late Policy
+
+- You are strongly encouraged to meet the deadlines laid out in the course schedule.
+
+- However, if something prevents you from meeting these deadlines, you will not be 
+penalized as long as you contact me ahead of time to arrange an alternate deadline. 
+  + Please email at least two days in advance (not counting weekends). E.g. if the
+  deadline is on Monday, email me by Thursday. 
+  
+- There are three exceptions to this policy: 
+  + The progress report must be handed in on time because it will be 
+  reviewed by your peers. Allowing late submissions would not be 
+  fair to others who need time to read your work. 
+  
+  + The final project report is due on 4/17. I have limited flexibility on 
+  this date due to end of semester grading constraints.
+  
+  + Final presentations occur on 4/22 and 4/29, the last two days of class. 
+  
+
+  
+
+---
+
+## Intro Survey
+
+Please fill out [the introductory survey](https://forms.gle/Hc8oKxEz8FmMHxEQ7) by Friday 1/10. 
+
+
+

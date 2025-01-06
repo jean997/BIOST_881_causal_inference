@@ -1,0 +1,42 @@
+---
+title: "BIOST 881: Advance Topics in Causal Inference"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+## Lecture Slides
+
+[0. Course Overview](slides_2024/0_course_introduction.html) 
+
+[1. Introduction and Potential Outcomes](slides_2024/1_introduction.html)
+
+[2. DAGs, Confounding, Backdoor Criterion](slides_2024/2_dags_confounding.html)
+
+[3. Effect Modification, Interaction, and Collapsibility](slides_2024/3_effect_modification_interaction.html)
+
+[4. Selection Bias, Non-Compliance, and Measurement Error](slides_2024/4_selection_bias.html)
+
+[5. IP Weighting and G-Computation](slides_2024/5_modeling1.html)
+
+[6. More PS Estimators and Double Robustness](slides_2024/6_propensity_scores.html)
+
+[7. Matching](slides_2024/7_matching.html)
+
+[8. G-Estimation](slides_2024/8_g_estimation.html)
+
+[9. Survival](slides_2024/9_survival.html)
+
+[10. Time-Varying Treatment Part 1](slides_2024/10_time_varying_treatment_pt1.html)
+
+[11. Time-Varying Treatment Part 2](slides_2024/11_time_varying_treatment_pt2.html)
+
+[12. Instrumental Variable Analysis Part 1](slides_2024/12_iva_part1.html)
+
+[13. Instrumental Variable Analysis Part 2](slides_2024/13_iva_part2.html)
+
+[14. Machine Learning](slides_2024/14_ml.html)
+
+[16. Mediation](slides_2024/16_mediation.html)

@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L10: Time Varying Treatment Part 1</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+    <script src="libs/viz-1.8.2/viz.js"></script>
+    <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding-1.0.10/grViz.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# L10: Time Varying Treatment
+Part 1
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### Lecture on 2024-03-04
+(updated: 2024-03-06)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+## Lecture Outline
+
+1. Introduction
+1. Sequential Exchangeability 
+1. G-Formula For Time-Varying Treatments
+1. IP Weighting for Time-Varying Treatments
+1. G-Computation for Time-Varying Treatments, G-Null Paradox
+
+---
+# 1. Introduction
+
+---
+## Example 
+
+- Patients are treated for a disease over time. 
+
+- At each appointment, the treatment decision for the next period is made, possibly based on current or past symptoms or treatments. 
+
+- We observe a single outcome `\(Y\)` after all of the treatments are delivered. 
+
+
+---
+## Example 
+
+- A simple possible DAG for a setting with two time-points is below. 
+
+- `\(L_1\)` represents symptoms, or perhaps how symptoms have changed since time 0.
+
+&lt;center&gt; 
+&lt;img src="img/9_dag2s.png" width="45%" /&gt;
+&lt;/center&gt;
+
+---
+## Notation and Conventions
+
+- Bar notation indicates the history of a variable `\(\bar{A}_k = (A_0, \dots, A_k)\)`.
+
+- By convention, `\(A_k\)` is the last variable at time `\(k\)`. 
+  + Covariates `\(L_k\)` are measurements that are taken after treatment `\(A_{k-1}\)` is given but before treatment `\(A_k\)` is given. 
+  
+- Timing aligns for all units. 
+  + We will often talk about time points as though they are evenly spaced (e.g. every month), but this is not required. 
+
+- Time starts at 0. 
+
+---
+## Treatment Programs
+
+- We might be interested in the effect of an entire course of treatment `\(\bar{A} = (A_0, A_1, \dots, A_K)\)`. 
+  - i.e. we are interested in the effect of a joint intervention on treatment at all time-points. 
+  
+- With 2 time points and a binary treatment, there are only four possible courses of treatment. 
+
+- With `\(K\)` time points there are `\(2^K\)` treatment courses. 
+
+- In fact, there are even more treatments that we could consider than these `\(2^K\)`!
+
+---
+## Treatment Strategies
+
+- A treatment strategy, `\(g\)` is a rule for determining `\(A_k\)` from a unit's past covariate values
+
+`$$g = (g_0(\bar{a}_{-1}, l_0), \dots, g_K(\bar{a}_{K-1}, \bar{l}_K))$$`
+
+- A treatment strategy is static if it **does not** depend on any covariates, only past treatments. 
+  + In a static strategy, we could write out the entire program at the beginning of the study. 
+  + Ex: Treat every other month
+  + Ex: Treat for only the first two time points. 
+  
+- A treatment strategy is dynamic if it **does** depend on covariates. 
+  + Ex: Treat if `\(L_{k-1}\)` was high. 
+  + Ex: If `\(L_{k-1}\)` is high, switch treatment, so `\(A_{k} = 1-A_{k-1}\)`. Otherwise set `\(A_k = A_{k-1}\)`. 
+
+---
+## Sequentially Randomized Trials
+
+- In a sequentially randomized trial, treatment `\(A_{k,i}\)` is assigned randomly with `\(P[A_{k,i} = a]\)` possibly depending on `\(\bar{A}_{k-1}\)` and `\(\bar{L}_{k-1}\)`. 
+
+--
+
+- Example: Every patient starts on treatment 0. Every month a random set of patients are assigned to switch to treatment 1 and stay on that treatment for the rest of the study. 
+      - Patients with high values of `\(L_{k}\)` may have a higher probability of starting treatment. 
+      
+- Example: Treatment is assigned randomly at every time point. 
+      - Patients with high values of `\(L_{k}\)` have a higher probability of switching treatments. 
+
+---
+## Sequentially Randomized Trials
+
+- A random strategy will never be as good as the optimal deterministic strategy.
+
+
+- We would never recommend a random strategy for general treatment of patients.
+
+- But random strategies are necessary when the optimal strategy is unknown. 
+
+---
+## Causal Contrasts
+
+- The causal contrast we choose to look at will depend on the study. 
+
+- We might be interested in comparing specific fixed programs, `\(E[Y(\bar{A} = \bar{a})] - E[Y(\bar{A} = \bar{a}^\prime)]\)` such as 
+  + Always treat vs never treat: `\(\bar{a} = (0, 0, \dots, 0)\)`, `\(\bar{a}^\prime = (1, 1, \dots, 1)\)`
+  + Treat early and continue vs begin treatment later and continue: `\(\bar{a} = (1, 1, \dots, 1)\)`, `\(\bar{a}^\prime = (0,\dots, 0, 1, \dots, 1)\)`.
+  
+- Or we could compare one or more dynamic strategies `\(g\)`, `\(E[Y(g)]\)` such as:
+  + Always treat vs treat only when symptoms are present. 
+
+- In this lecture and the next, we will always assume that the causal contrast of interest is defined a priori. 
+  + There are also fields of research on determining the optimal treatment regime from observational or trial data (e.g. Q-learning). 
+
+
+---
+# 2. Sequential Exchangeability
+
+---
+## Example
+
+- Consider the DAG we saw earlier:
+
+&lt;center&gt; 
+&lt;img src="img/9_dag2sw.png" width="55%" /&gt;
+&lt;/center&gt; 
+
+- With your partner, propose a method to estimate `\(E[Y(a_0)]\)` and a method to estimate `\(E[Y(a_1)]\)`.
+
+---
+## Example
+
+
+&lt;center&gt; 
+&lt;img src="img/9_dag2sw.png" width="55%" /&gt;
+&lt;/center&gt; 
+
+
+- We would like to estimate `\(E[Y(a_0, a_1)]\)`. 
+- In this example, we are going to determine if we can treat `\((A_0, A_1)\)` like a single intervention.
+
+---
+## Example
+
+- Data below were aggregated from a trial of 320,000 units conforming to our previous DAG. 
+  
+&lt;table class="table" style="width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4800 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3200 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- Take a minute to calculate an estimate of the average effect of `\(A_0\)` and the average effect of `\(A_1\)`.
+
+---
+# Example
+&lt;table class="table" style="width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4800 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3200 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
++ There is no average effect of `\(A_0\)`: 
+  + `\(E[Y \vert A_0 = 0] = \frac{4000\cdot 84 + 12000 \cdot 52}{16000} = 60\)`
+  + `\(E[Y \vert A_0 = 1] = \frac{8000\cdot 76 + 8000 \cdot 44}{16000} = 60\)`
+
+---
+# Example
+&lt;table class="table" style="width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4800 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3200 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
++ Within each stratum of `\((A_0, L_1)\)`, the expected value of `\(Y\)` is equal for those with `\(A_1 = 1\)` and `\(A_1 = 0\)`. 
+
++ Therefore there is no average effect of `\(A_1\)` on `\(Y\)` *and* there is no effect modification by `\(A_0\)`. 
+
++ This means the average effect of a joint intervention on `\(A_0\)` and `\(A_1\)` must be 0. 
+
+
+
+---
+# Example
+&lt;table class="table" style="width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4800 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3200 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- We want to estimate `\(E[Y(1,1)] - E[Y(0, 0)]\)`. We've seen that our answer should be 0.
+
+- We could try computing `\(E[Y \vert A_0 = 1, A_1 = 1] - E[Y \vert A_0 = 0, A_1 = 0]\)`:
+
+  + `\(E[Y \vert A_0 = 1, A_1 = 1] = \frac{3200\cdot 76 + 6400 \cdot 44}{9600} = 54.67\)` 
+  + `\(E[Y \vert A_0 = 0, A_1 = 0] = \frac{2400 \cdot 84 + 2400 \cdot 52}{4800} = 68\)`
+  
+--
+
+- Problem: Confounding from `\(L_1\)`. 
+
+---
+# Example
+&lt;table class="table" style="width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4800 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3200 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- Let's try stratifying by `\(L_1\)` and then standardizing: 
+
+`$$E[Y \vert A_0 = 1, A_1 = 1, L_1 = 0]  - E[Y \vert A_0 = 0, A_1 = 0, L_1 = 0] = 76-84 = -8$$`
+`$$E[Y \vert A_0 = 1, A_1 = 1, L_1 = 1]  - E[Y \vert A_0 = 0, A_1 = 0, L_1 = 1] = 44-52 = -8$$`
+
+--
+
+- Problem: `\(L_1\)` is a collider between `\(A_0\)` and `\(U\)`.
+
+
+---
+
+## Estimating the Effect of the Joint Intervention
+
+- To estimate the effect of the joint intervention in our example, we can start by looking at the SWIG
+
+&lt;center&gt; 
+
+&lt;img src="img/9_swig2s.png" width="85%" /&gt;
+
+&lt;/center&gt;
+
+---
+## Estimating the Effect of the Joint Intervention
+
+- First step: Use the law of total probability
+
+$$
+E[Y(a_0, a_1)] = \sum_l E[Y(a_0, a_1)  \vert L_1(a_0) = l]P[L_1(a_0) = l]
+$$
+
+- Next, we will use consistency and conditional independence in the SWIG to write each part in terms of variables that we can actually observe.
+
+---
+## Estimating the Effect of the Joint Intervention
+
+
+- From the SWIG, we can see that `\(L_1(a_0) \ci A_0\)`, so `\(P[L_1(a_0) = l] = P[L_1 = l \vert A_0 = a_0]\)`.
+
+&lt;center&gt; 
+
+&lt;img src="img/9_swig2s.png" width="55%" /&gt;
+
+&lt;/center&gt;
+
+
+---
+## Estimating the Effect of the Joint Intervention
+
+- For the `\(E[Y(a_0, a_1) \vert L_1(a_0) = l]\)` term, we need two conditional independence relations:
+
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1(a_0) \vert A_0, L_1(a_0)\\
+&amp;Y(a_0, a_1) \ci A_0 \vert L_1(a_0)
+\end{split}`
+$$
+
+&lt;center&gt; 
+
+&lt;img src="img/9_swig2s.png" width="55%" /&gt;
+
+&lt;/center&gt;
+
+---
+## Estimating the Effect of the Joint Intervention
+
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1(a_0) \vert A_0, L_1(a_0)\\
+&amp;Y(a_0, a_1) \ci A_0 \vert L_1(a_0)
+\end{split}`
+$$
+By consistency, if `\(A_0 = a_0\)` then `\(A_1 = A_1(a_0)\)` and `\(L_1 = L_1(a_0)\)`, so the first statement implies that
+
+`$$Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1$$`
+---
+## Estimating the Effect of the Joint Intervention
+
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
+&amp;Y(a_0, a_1) \ci A_0 \vert L_1(a_0)
+\end{split}`
+$$
+
+
+
+$$
+`\begin{split}
+E[Y(a_0, a_1) &amp;\vert L_1(a_0)] \\
+= &amp;E[Y(a_0, a_1) \vert A_0 = a_0, L_1(a_0)] \qquad \text{(Second Statement)}\\
+= &amp; E[Y(a_0, a_1) \vert A_0 = a_0, L_1] \qquad \text{(Consistency)}\\
+= &amp; E[Y \vert A_1 = a_1, A_0 = a_0, L_1] \qquad \text{(First Statement)}
+\end{split}`
+$$
+---
+## Estimating the Effect of the Joint Intervention
+
+
+Putting it all together we have
+
+$$
+`\begin{split}
+E[Y(a_0, a_1)] = &amp;\sum_l E[Y(a_0, a_1)  \vert L_1(a_0) = l]P[L_1(a_0) = l]\\
+= &amp; \sum_l E[Y \vert A_1 = a_1, A_0 = a_0, L_1 = l]P[L_1 = l \vert A_0 = a_0]
+\end{split}`
+$$
+
+- This is an instance of the **time-varying G-formula**
+
+
+---
+## Estimating the Effect in Example
+&lt;table class="table" style="width: auto !important; float: left; margin-right: 10px;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 2400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 52 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; \(\bar{Y}\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4800 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3200 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1600 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6400 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 44 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- We can now apply our formula: 
+$$
+E[Y(a_0, a_1)] = \sum_l E[Y \vert A_1 = a_1, A_0 = a_0, L_1 = l]P[L_1 = l \vert A_0 = a_0]
+$$
+
+$$
+`\begin{split}
+&amp;E[Y(0, 0)] = 84 \cdot \frac{40000}{16000} + 52 \cdot \frac{120000}{160000} = 60\\
+&amp;E[Y(1, 1)] = 76 \cdot \frac{80000}{160000} + 44 \cdot \frac{80000}{160000} = 60
+\end{split}`
+$$
+
+---
+## Sequential Exchangeability
+
+- The conditional independence statements we used to derive our estimator are a variation of **sequential exchangeability**.
+
+- For time-varying treatments, sequential exchangeability is the condition that will allow us to identify treatment effects. 
+
+- We will also need updated concepts of positivity and consistency. 
+
+- The **time-varying G-formula** is the formula that identifies these effects. 
+  + We applied the time-varying G-formula in our example. 
+  + Formal definition coming in the next section.
+
+
+
+---
+## Static Sequential Exchangeability 
+
+- Static sequential exchangeability says that
+
+`$$Y(\bar{a}) \ci A_k \vert\ \bar{A}_{k-1} = \bar{a}_{k-1}, \bar{L}_k\qquad k = 0, 1, \dots K$$`
+
+- The joint counterfactual outcome is conditionally independent of each treatment **given** all previous treatments and all previous confounders.
+
+---
+## Static Sequential Exchangeability in the Example
+
+- In our example, we have two time points so there are two CI relations required to satisify sequential exchangeability: 
+
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
+&amp;Y(a_0, a_1) \ci A_0
+\end{split}`
+$$
+- From the SWIG we can show that
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1(a_0)\\
+&amp;Y(a_0, a_1) \ci A_0
+\end{split}`
+$$
+
+- We can then conclude that `\(Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\)` using consistency.
+
+---
+## Static Sequential Exchangeability in the Example
+
+- When we derived our result, we also used that `\(Y(a_0, a_1) \ci A_0 \vert L_1(a_0)\)`.
+
+- This let us determine that `\(E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l] = E[Y(a_0, a_1) \vert L_1(a_0)]\)`.
+
+- This conditional independence was necessary to give a counterfactual interpretation to `\(E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]\)`. 
+
+- However, this is not necessary to identify the causal effect. 
+
+- The time-varying G-formula will work when only 
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
+&amp;Y(a_0, a_1) \ci A_0
+\end{split}`
+$$
+are true and `\(E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]\)` does not have a counterfactual interpretation.
+
+
+---
+## Static Sequential Exchangeability
+
+- Does static sequential exchangeability hold in the SWIG below?
+
+&lt;center&gt; 
+&lt;img src="img/9_swig3.png" width="80%" /&gt;
+&lt;/center&gt;
+
+---
+## Static Sequential Exchangeability
+
+- Does static sequential exchangeability hold in the SWIG below?
+
+&lt;center&gt; 
+&lt;img src="img/9_swig4.png" width="80%" /&gt;
+&lt;/center&gt;
+
+
+
+---
+## Sequential Exchangeability for Dynamic Treatment Strategies
+
+- Sequential exchangeability for `\(Y(g)\)` holds if 
+
+`$$Y(g) \ci A_k \vert \bar{A}_{k-1} = g(\bar{A}_{k-2}, \bar{L}_{k-1}), \bar{L}_k \qquad  k = 0, 1, \dots, K$$`
+- This definition applies if `\(g\)` is static or dynamic, random or deterministic. 
+
+
+- Also called **sequential conditional exchangeability**
+
+---
+
+## SWIGS for Dynamic Treatment Strategies
+
+- Suppose that we want to estimate the counterfactual `\(E[Y(g)]\)` where `\(g\)` is a dynamic treatment strategy "treat only if `\(L_k = 1\)`".
+  
++ Recall that the SWIG represents the hypothetical world of the intervention, not the observational world. 
+
+- Our intervention **introduces an arrow** from `\(L_1(g_0)\)` to the value of `\(A_1\)` in the interventional world. 
+
+&lt;center&gt; 
+&lt;img src="img/9_swig2dyn.png" width="65%" /&gt;
+&lt;/center&gt; 
+
+---
+
+## SWIGS for Dynamic Treatment Strategies
+
+- The dotted arrow is created by the proposed intervention.
+
+  + It is not a result of the experimental design or underlying causal structure. 
+
+- The dotted arrow functions just like a solid arrow for computing d-separation. 
+
+  + It is dotted so that we know it was introduced by the intervention.
+  
+
+&lt;center&gt; 
+&lt;img src="img/9_swig2dyn.png" width="75%" /&gt;
+&lt;/center&gt; 
+
+
+
+---
+
+## Sequential Exchangeability for Dynamic Treatment Strategies
+
+- Does sequential exchangeability hold for `\(Y(g)\)` in the dynamic intervention?
+
+&lt;center&gt; 
+&lt;img src="img/9_swig2dyn.png" width="75%" /&gt;
+&lt;/center&gt; 
+
+--
+
+
+- We can see that `\(Y(g) \ci A_0\)` and `\(Y(g) \ci A_1(g_0) \vert\ L_1(g_0), A_0 = g_0\)`
+
+- Using consistency `\(Y(g) \ci A_1 \vert L_1, A_0 = g_0\)`
+
+---
+
+## Sequential Exchangeability for Dynamic Treatment Strategies
+
+&lt;center&gt; 
+&lt;img src="img/9_swig3dyn.png" width="75%" /&gt;
+&lt;/center&gt; 
+
+--
+
+- We don't have `\(Y(g) \ci A_0\)`
+
+  + They are connected by the `\(A_0 - W_0 - L_1(g_0) - g_1 - Y(g)\)` path
+  + The `\(g_1\)` node does not block the path because it's not fixed.
+  
+---
+
+## Positivity 
+
+- Let `\(f_{\bar{A}_{k-1}, \bar{L}_k}\)` be the joint pdf for the treatment history before point `\(k\)` and the covariate history. 
+
+- For time-varying treatment, positivity requires that
+
+`$$f_{\bar{A}_{k-1}, \bar{L}_k}(\bar{a}_{k-1}, \bar{l}_k) &gt; 0 \Rightarrow f_{A_{k} \vert \bar{A}_{k-1}, \bar{L}_k}(a_k \vert \bar{a}_{k-1}, \bar{l}_k) &gt; 0$$`
+- If we are interested in a particular strategy, `\(g\)`, the condition only needs to hold for treatment histories compatible with `\(g\)` ( `\(a_k = g(\bar{a}_{k-1}, \bar{l}_k)\)` ).
+
+- This condition says that given past treatment history and covariates, any treatment consistent with the strategy should be possible.
+
+---
+## Consistency 
+
+- For a point treatment, consistency requires that `\(A = a \Rightarrow Y(a) = Y\)`. 
+
+- For a static strategy, the condition `\(\bar{A} = \bar{a} \Rightarrow Y(\bar{a}) = Y\)` is sufficient.
+
+- For dynamic strategies, if `\(A_k = g_k(\bar{A}_{k-1}, \bar{L}_k)\)` for all `\(k\)` then `\(Y(g) = Y\)`. 
+
+
+
+---
+# 3. Time-Varying G-Formula
+
+
+---
+## G-Formula
+
+- The g-formula for point treatments has been the basis of IPW, standardization, and double robust methods we have seen so far:
+
+--
+
+`$$E[Y(a)] = \sum_l E[Y \vert A = a, L = l]f_L(l)$$`
+- Integral version for continuous `\(L\)`, 
+
+`$$E[Y(a)] = \int_{l} E[Y \vert A = a, L = l] d F_L(l)$$`
+
+
+
+---
+## G-Formula for Static Treatment Strategies
+
+
+- The G-Formula for two time points is
+`$$E[Y(a_0, a_1)] = \sum_l E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]f_{L_1 \vert A_0}(l \vert a_0)$$`
+
+- Because the treatment happens at two time points and `\(L_1\)` could happen after `\(A_0\)`, we need to condition on `\(a_0\)` in the density term.
+
+---
+## G-Formula for Static Treatment Strategies
+
+- We saw earlier that static sequential exchangeability holds in this graph.
+
+&lt;center&gt; 
+&lt;img src="img/9_swig3.png" width="65%" /&gt;
+&lt;/center&gt;
+
+- However, `\(E[Y \vert A_0=a_0, A_1 = a_1, L_1 = l] \neq E[Y(a_0, a_1) \vert L_1(a_0)]\)` and `\(P[L_1 = l \vert A_0 = a_0] \neq P[L_1(a_0) = l]\)`.
+
+- Nevertheless, the G-formula still holds.
+
+
+---
+
+## G-Formula as Iterated Expectations
+
+- Suppose that we have two time points and static sequential exchangeability holds:
+
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
+&amp;Y(a_0, a_1) \ci A_0
+\end{split}`
+$$
+
+- Think of `\(Y(a_0, a_1)\)` as `\(\left(Y(a_1)\right)(a_0)\)`. 
+
+- Re-write the second relation as `\(\left(Y(a_1)\right)(a_0) \ci A_0\)`. 
+
+- If we knew `\(Y(a_1)\)`, then using the single time-point G-formula, we could calculate
+
+`$$E[\left(Y(a_1)\right)(a_0)] = E[Y(a_0, a_1) = E[Y(a_1) \vert A_0 = a_0]$$`
+
+---
+
+## G-Formula as Iterated Expectations
+
+$$
+`\begin{split}
+&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
+&amp;Y(a_0, a_1) \ci A_0
+\end{split}`
+$$
+
+- Now re-write the first relation as `\(Y(a_1) \ci A_1 \vert A_0 = a_0, L_1\)` using consistency. 
+
+- Then,
+
+$$
+`\begin{split}
+E[Y(a_0, a_1)] = &amp;E[Y(a_1) \vert A_0 = a_0]\\
+=&amp; \sum_l E[Y \vert A_1 = a_1, A_0 = a_0, L_1 = l]P[L_1 = l\vert A_0 = a_0]
+\end{split}`
+$$
+
+- The first line is our result from the last slide.
+
+- The second line follows from the point-treatment G-formula.
+
+---
+
+## General Version of G-Formula for Static Treatments
+
+- The `\(G\)`-formula for a static treatment strategy generalizes to 
+
+`$$E[Y(\bar{a})] = \sum_\bar{l} E[Y \vert \bar{A} = \bar{a},\bar{L}= \bar{l}]\prod_{k = 0}^Kf(l_k \vert \bar{a}_{k-1}, \bar{l}_{k-1})$$`
+or
+
+`$$\int_l E[Y \vert \bar{A} = \bar{a},\bar{L}= \bar{l}] \prod_{k = 0}^K dF (l_k \vert \bar{a}_{k-1}, \bar{l}_{k-1})$$`
+
+---
+## G-Formula for Dynamic Treatment Strategies
+
+- In a static deterministic strategy `\(a_k\)` can be completely determined ahead of time. 
+
+- For dynamic or random strategies, we need to add a term to the G-formula.
+
+`$$E[Y(\bar{a})] = \sum_\bar{l} E[Y \vert \bar{A} = \bar{a},\bar{L}= \bar{l}]\prod_{k = 0}^Kf(l_k \vert \bar{a}_{k-1}, \bar{l}_{k-1})\prod_{k=0}^K f^{int}(a_k \vert \bar{a}_{k-1}, \bar{l}_k)$$`
+
+- `\(f^{int}\)` is the conditional probability of `\(a_k\)` given the history *under the proposed intervention*.
+
+---
+# 3. IP Weighting for Time-Varying Treatments
+
+
+---
+## Inverse Probability Weighting
+
+- We can generalize the IPW strategy we have been using for a point treatment to the time-varying regime. 
+
+`$$W^A = \prod_{k = 0}^{K} \frac{1}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k})}$$`
+
+--
+
+- As before, we can stabilize the weights as 
+
+`$$SW^A = \prod_{k = 0}^{K} \frac{f(A_k \vert \bar{A}_{k-1})}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k})}$$`
+
+- If there are baseline covariates, `\(L_0\)`, we can condition on `\(L_0\)` in both numerator and denominator
+
+`$$SW^A = \prod_{k = 0}^{K} \frac{f(A_k \vert \bar{A}_{k-1}, L_0)}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k}, L_0)}$$`
+
+- Only the model for the denominator needs to be correct. 
+
+---
+## Inverse Probability Weighting
+
+- Just like before, weighting subjects creates a pseudo-population in which treatment and confounders are independent. 
+
+- So we can compute the counterfactual as simply the conditional mean in the pseudo-population
+
+`$$E[Y(a_0, a_1)] = E_{ps}[Y \vert A_0 = a_0, A_1 = a_1]$$`
+
+
+---
+## IP Weighting Example
+
+&lt;center&gt; 
+
+&lt;img src="img/9_fig211.png" width="60%" /&gt;
+
+&lt;/center&gt;
+
+- Compute unstabilized weights in the example
+
+- Compute the sample size in each stratum. How big is the pseudo-population?
+
+---
+
+## IP Weighting Example
+
+&lt;center&gt; 
+
+&lt;img src="img/9_fig211.png" width="60%" /&gt;
+&lt;/center&gt;
+
+- Compute stabilized weights in the example
+
+- How big is the pseudo-population created by the stabilized weights?
+
+---
+## IP Weighting Example
+
+
+&lt;center&gt; 
+
+&lt;img src="img/9_fig213.png" width="80%" /&gt;
+&lt;/center&gt;
+
+---
+## Using IP Weights Non-Parametrically
+
++ Once we have computed `\(W^{\bar{A}}\)` or `\(SW^{\bar{A}}\)` we can compute `\(Y(\bar{a})\)` as
+
+`$$\frac{\hat{E}\left[W_i^{\bar{A}}Y_i I(\bar{A}_i = \bar{a}) \right]}{\hat{E}[W^{\bar{A}}_i I(\bar{A}_i = \bar{a})]}= \frac{\sum_{i = 1}^{N} W^{\bar{A}}_i Y_i I(\bar{A}_i = \bar{a})}{\sum_{i =1}^N W_i^{\bar{A}}I(\bar{A}_i = \bar{a})}$$`
+- We could have used either stabilized or non-stabilized weights. 
+  + With non-stabilized weights, the denominator will always equal `\(N\)`. 
+
+- Notice that we are only making use of samples with observed treatment history identical to the proposed intervention. 
+
+---
+## Weights for Dynamic Treatments
+
+&lt;center&gt; 
+&lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
+&lt;/center&gt;
+
+- To compute the non-parametric IP weighted estimate for `\(E[Y(0, 0)]\)` we only need the data for the units that received treatment `\((0, 0)\)`. 
+
+- Using the non-standardized weights:
+
+`$$E[Y(0, 0)] =84 \frac{8000}{32000} + 52 \frac{24000}{32000} = 60$$`
+---
+## Using IP Weights Non-Parametrically
+
+- An equivalent way to think of IP weights used non-parametrically is as censoring weights for "non-adherence". 
+
+
+- Suppose we want to compare "always treat" and "never treat" strategies.
+
+- We first censor anyone who did not adhere to one of these strategies and think of our study as now a study of the effect of the point treatment at time 1 and full adherence. 
+
+- We first compute the censoring weights
+
+`$$W^{C}_i = \frac{1}{P[A_1 = A_{0,i} \vert A_0 = A_{0,i}, L_1, L_0]}$$`
+
+- And then compute the confounding weights
+
+`$$W_i^{L} = \frac{1}{P[A_0 = A_i \vert L_0]}$$`
+
+- So the total weights are the product of `\(W^{L}\)` and `\(W^{C}\)`.
+
+---
+## Weights for Dynamic Treatments
+
+&lt;center&gt; 
+&lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
+&lt;/center&gt;
+
+- Suppose we want to compare dynamic regimes `\(g = (0, L_1)\)` and `\(g^{\prime} = (0, 1-L_1)\)`.
+
+- We can see that, conditional on `\(A_0\)` and `\(L_1\)`, treatment choice at `\(A_1\)` doesn't matter so we should find that `\(E[Y(g)] - E[Y(g^{\prime})] = 0\)`.
+
+---
+## Weights for Dynamic Treatments
+
+&lt;center&gt; 
+&lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
+&lt;/center&gt;
+
+- Using the `\(W^{\bar{A}}\)` we can compute `\(E[Y(g)]\)` and `\(E[Y(g^\prime)]\)` using the non-parametric approach. 
+
+- The first and fourth row follow the `\((0, L_1)\)` treatment plan while the second and third row follow `\((0, 1-L_1)\)`.
+
+---
+## Weights for Dynamic Treatments
+
+&lt;center&gt; 
+&lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
+&lt;/center&gt;
+
+- Computing the counterfactual means for two dynmaic treatments:
+
+`$$E[Y(g)] = \frac{1}{N}\sum_{i = 1}^N Y_i W_i^{\bar{A}} I(\bar{A}_i = g) =   \frac{8000\cdot 84 + 24000 \cdot 52}{32000} = 60$$`
+
+`$$E[Y(g^{\prime})] = \frac{1}{N}\sum_{i = 1}^N Y_i W_i^{\bar{A}} I(\bar{A}_i = g^\prime) = \frac{8000\cdot 84 + 24000 \cdot 52}{32000} = 60$$`
+---
+## Weights for Dynamic Treatments
+&lt;center&gt; 
+&lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
+&lt;/center&gt;
+
+- We can do the same calculation using `\(SW^{\bar{A}}\)`, but we get the wrong answer.
+
+
+`$$E[Y(g)] = \frac{1200 \cdot 84 + 8400 \cdot 52}{1200 + 8400} = 56$$`
+
+`$$E[Y(g^{\prime})] = \frac{2800\cdot 84 + 3600 \cdot 52}{2800 + 3600} = 66$$`
+---
+## Weights for Dynamic Treatments
+
+- The problem is the numerator of the standardized weights.
+
+- We calculated the numerator as `\(f(A_1 = A_{1,i} \vert A_{0} = A_{0,i})\)`, but `\(A_1\)` isn't fixed under the dynamic intervention. 
+
+
+-  This means that we cannot use stabilized weights for dynamic interventions.
+
+
+---
+## Estimating Weights
+
+- If `\(L_k\)` is high dimensional or there are many time points, we will need to assume a parametric model for `\(f(A_k \vert \bar{A}_{k-1}, \bar{L}_k)\)`. 
+  + We might assume that `\(A_k\)` depends only on the most recent treatment and covariates. 
+  + Or some summary of the past history. 
+
+- We can fit one model (e.g. logistic regression) at each time point. 
+
+`$$E[A_k  \vert \bar{A}_{k-1}, \bar{L}_{k-1}] = \beta_{0,k} + \beta_{1,k} A_{k-1} + \beta_{2,k} cum_{-5}(\bar{A}_{k-1}) + \beta_{3,k} L_{k-1}$$`
+
+  + `\(cum_{-5}(\bar{A}_{k})\)` is the number of times treated out of the previous five treatment times. 
+
+---
+## Estimating Weights
+
+- Alternatively, we could assume that some coefficients are shared across time points and fit a pooled model, possibly with some time effects.
+
+`$$E[A_k  \vert \bar{A}_{k-1}, \bar{L}_{k-1}] = \beta_{0,k} + \beta_1 A_{k-1} + \beta_2 cum_{-5}(\bar{A}_{k-1}) + \beta_3 L_{k-1} + \beta_4 A_{k-1} k$$`
+
+- This is a more commonly used approach than fitting one model at every time point.
+
+- To fit this model, convert the data into "long" format with one row per person-time combination. 
+  + Add columns for any time-dependent covariates.
+  
+- We now want to fit a marginal model with repeated measures, so we can use GEE. 
+
+---
+## Non-Parametric Estimation
+
+- If we are totally non-parametric and there is no effect of treatment on confounders, then estimating the effect of a treatment strategy `\(\bar{a}\)` or `\(g\)` is very similar to estimating the effect of a point treatment of assignment to a particular regime. 
+
+- If there is no effect of treatment history on time-varying confounders, `\(f(L_k \vert \bar{A}_{k-1}) = f(L_k)\)` and the G-formula for time-varying treatment reduces to the regular point-treatment G-formula. 
+
+ - HR call effects of treatment on confounders "treatment-confounder feedback". 
+ 
+- Whether or not there is treatment-confounder feedback, if we are willing to make parametric assumptions, we can borrow information from units with similar treatment histories.
+
+
+---
+## Marginal Structural Models
+
+- Just as we did before, we can use our IP weights to fit parametric marginal structural models. 
+
+- For example, we might assume that the total treatment effect of `\(\bar{a}\)` only depends on the total number of times treated and not on the timing of the treatment. 
+
+
+`$$E[Y(\bar{a})] = \beta_0 + \beta_1 cum(\bar{a})$$`
+
+---
+## Marginal Structural Models
+
+
+- Once we have proposed a marginal structural mean model, we can fit it using the pseudo-population created by weighting the data.
+
+
+`$$E_{ps}[Y \vert \bar{A}] = \beta_0 + \beta_1 cum(\bar{A})$$`
+
+- `\(\hat{\beta}_1\)` estimates the causal effect of increasing the number of treated periods by one. 
+
+- Variance from bootstrap or, conservatively, from robust sandwich estimator. 
+
+- Testing that `\(\hat{\beta}_1 = 0\)` gives a test of the strong null that treatment at any time is unrelated to outcome, `\(Y(\bar{a}) = Y\)` for all `\(\bar{a}\)`.
+
+---
+## Marginal Structural Models for Effect Modification
+
+- We could propose a marginal structural model that includes effect modification 
+
+`$$E_{ps}[Y \vert \bar{A}, V] = \beta_0 + \beta_1 cum(\bar{A}) + \beta_2 V + \beta_3 cum(\bar{a}) V$$`
+
+- What are `\(\beta_1\)`, `\(\beta_2\)` and `\(\beta_3\)`?
+
+---
+## Assumptions
+
+- For correct inference using IP weighting + a marginal structural model we need:
+
+--
+
+- Consistency, sequential positivity, sequential conditional exchangeability
+
+- Correct propensity-score model
+
+- Correct marginal structural model
+
+---
+# 4. G-Computation and the G-Null Paradox
+
+
+---
+## Parametric G-Formula
+
+- When we only had a single point intervention, we could use outcome regression plus standardization as a plug-in estimator of the g-formula.
+
+- We needed to estimate `\(E[Y \vert A, L]\)` but not `\(f_L(l)\)`, the density of covariates.
+
+- To estimate `\(E[Y(a)]\)` we replaced each persons treatment value with `\(a\)` and then estimated `\(\hat{Y}_i(a) = \hat{E}[Y \vert A = a_0, L = L_i]\)`. 
+
++ We then approximated the integral 
+    
+      `$$\int_l E[Y \vert A, L = l]f_L(l) dl$$`
+with the sum `$$\frac{1}{N} \sum_{i = 1}^N \hat{Y}_i(a)$$`
+
+---
+## Parametric G-Formula
+
+- There is an analog of this strategy for time-varying treatments. 
+
+- Recall the (integral form) of the G-formula for static time-varying treatments:
+
+`$$\int E[Y \vert \bar{A} = \bar{a},\bar{L}= \bar{l}] \prod_{k = 0}^K dF (l_k \vert \bar{a}_{k-1}, \bar{l}_{k-1})$$`
+
+- In the time-varying g-formula, we clearly need to estimate `\(E[Y \vert \bar{A}, \bar{L}]\)`. 
+
+- Can we use our same standardization trick to avoid estimating the covariate density?
+
+--
+
+- No
+
+---
+## Parametric G-Formula
+
+- Imagine we try the standardization trick with two time points: 
+
+- We first set `\(A_0 = a_0\)` and `\(A_1 = a_1\)` for everyone in the data set.
+
+- What is the problem?
+
+--
+
+- The value of the covariates `\(L_1\)` depends on `\(A_0\)`. 
+  + We need to replace `\(L_1\)` with `\(L_1(a_0)\)` but these values are not observed.
+ 
+---
+## Simulating Covariates
+
+- We need to propose a parametric model for the density `\(f(l_k \vert \bar{a}_{k-1}, \bar{l}_{k-1})\)`. 
+
+- We can then simulate covariate histories conditional on the intervention of interest from our estimated model. 
+
+&lt;!-- - Finally, we compute `\(E[Y(\bar{a})]\)` by standardizing over the data set with simulated covariates replaced. --&gt;
+
+---
+## Parametric G-Formula Algorithm
+
+Step 1. Fit parametric models for
+
++ `\(m(\bar{A}, \bar{L}; \theta) = E[Y \vert \bar{A}, \bar{L}]\)` 
+
++ `\(e_{L_k}(\bar{A}_{k-1}, \bar{L}_{k-1}; \beta) = f(L_k \vert \bar{A}_{k-1}, \bar{L}_{k-1})\)`
+  + `\(e_{L_k}\)` is a `\(p\)`-dimensional density, where `\(p\)` is the dimension of `\(L_{k}\)`.
+  + We might propose a component-wise model for `\(e_{L_k}\)`.
+  + Note that `\(e_{L,k}\)` is an estimate of a density, not just the expectation.
+
+---
+## Parametric G-Formula Algorithm
+
+Step 2: 
+
+- Start with the original data and delete everything after time 0
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; ID &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 1}\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 2}\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, N}\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+## Parametric G-Formula Algorithm
+
+Step 2: 
+
+- Fill `\(A_0\)` in with the value dictated by the intervention, `\(g\)`
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; ID &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 1}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,1})\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 2}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,2})\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, N}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,N})\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+## Parametric G-Formula Algorithm
+
+Step 2: 
+
+- Simulate values for `\(L_1\)` by sampling `\(\tilde{l}_{1,i}(g)\)` from  `\(e_{L_1}(g_1(L_{0,i}), L_{0,i}; \hat{\beta})\)`
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; ID &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 1}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,1})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,1}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 2}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,2})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,2}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, N}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,N})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,N}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+## Parametric G-Formula Algorithm
+
+Step 2: 
+
+- Repeat for all subsequent time-points
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; ID &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 1}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,1})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,1}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_1(g_0(l_{0,1}), \bar{\tilde{l}}_{1,1}(g))\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 2}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,2})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,2}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_1(g_0(l_{0,2}), \bar{\tilde{l}}_{1,2}(g))\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, N}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,N})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,N}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_1(g_0(l_{0,N}), \bar{\tilde{l}}_{1,N}(g))\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+## Parametric G-Formula Algorithm
+
+Step 3: 
+
+- Fill in `\(\hat{Y}_i\)` by plugging previous values of treatment and covariates into the fitted outcome model `\(m\)`.
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; ID &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{0}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(L_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(A_{1}\) &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; \(Y\) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 1}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,1})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,1}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_1(g_0(l_{0,1}), \bar{\tilde{l}}_{1,1}(g))\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\hat{Y}_1(g)\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, 2}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,2})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,2}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_1(g_0(l_{0,2}), \bar{\tilde{l}}_{1,2}(g))\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\hat{Y}_2(g)\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\vdots\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(l_{0, N}\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_0(l_{0,N})\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\tilde{l}_{1,N}(g)\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(g_1(g_0(l_{0,N}), \bar{\tilde{l}}_{1,N}(g))\) &lt;/td&gt;
+   &lt;td style="text-align:left;color: red !important;"&gt; \(\hat{Y}_N(g)\) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+--
+
+Step 4: 
+
++ Compute the mean `\(\frac{1}{N} \hat{Y}_i(g)\)`
+
+---
+## Simulating Covariates
+
+- Since we are simulating, we might as well create more data. 
+
+- Rather than starting with the original data set, resample with replacement, a large number of observations, `\(S\)`,
+from the original data. 
+
+  + In the resampled data, the procedure is the same: keep `\(L_0\)` and generate all subsequent data from fitted models. 
+  + Since we are sampling covariates from a distribution, this procedure helps reduce the variance of our estimate.
+  
+- Alternatively, instead of resampling, we could replicate the original data several times.
+  
+---
+## Assumptions
+
+- For valid inference using the parametric g-formula we need:
+
+- Consistency, sequential positivity, sequential conditional exchangeability
+
+- Correct model for `\(E[Y \vert \bar{A}, \bar{L}]\)`
+
+- Correct model for the density of `\(L_k\)` given covariate and treatment history. 
+
+---
+## Parametric G-Formula Implementation
+
+- The R package `gfoRmula` implements the estimation and simulation procedure we have described. 
+
+- Can handle:
+  
+  + Binary and continuous outcomes
+  + Time to event outcomes
+
+- Can estimate effects of both static and dynamic treatments.
+
+- Allows a variety of specifications for outcome model and covariate models including lagged effects and cumulative effects. 
+
+
+&lt;!-- --- --&gt;
+&lt;!-- # Example --&gt;
+&lt;!-- - Built in data `binary_eofdata` contains data for 2,500 individuals measured at 7 time points.  --&gt;
+&lt;!-- - There are 3 time-varying covariates.  --&gt;
+&lt;!--   + `cov1` is binary  --&gt;
+&lt;!--   + `cov2` is continuous --&gt;
+&lt;!--   + `cov3` is categorical with 6 values.  --&gt;
+&lt;!--   + Treatment is continuous. --&gt;
+
+
+
+
+---
+## G-Null Paradox 
+
+- In the DAG below, the strict null holds - there is no effect of treatment at any time on `\(Y\)`. 
+
+- However `\(Y\)` is correlated with `\(A_0\)` and `\(A_1\)` due to the confounder `\(U\)`. 
+
+- So `\(h_Y = E[Y \vert L_1, A_0, A_1]\)` will not be constant across values of `\(A_0\)` and `\(A_1\)`.
+
+- Our estimate of `\(f(L_1 \vert A_0)\)` will also not be a constant function of `\(A_0\)`.
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-a6b63972847bc4aaf765" style="width:504px;height:252px;"></div>
+<script type="application/json" data-for="htmlwidget-a6b63972847bc4aaf765">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+
+
+---
+## G-Null Paradox 
+
+- Robins and Wasserman (1997) show that unless the parametric models are saturated, parametric models cannot correctly represent the g-formula under the null. 
+
+- Suppose `\(L_1\)` is binary and `\(A_1\)` and `\(A_0\)` are continuous. 
+
+- We fit the models 
+`$$E[Y \vert L_1, A_1, A_0] = m(L_1, A_1, A_0; \theta) = \theta_0 + \theta_1 L_1 + \theta_2 A_1 + \theta_3 A_0$$`
+`$$P(L_1 = 1 \vert a_0) = e(L_1 = 1, A_0; \beta)  = \frac{\exp(\beta_0 + \beta_1 A_0)}{1 + \exp(\beta_0 + \beta_1 A_0)}$$`
+- Plugging into the g-formula
+
+`$$E[Y(a_0, a_1)] = \sum_{l = 0}^1 m(l, a_1, a_0; \theta)e(l, a_0; \beta)  =\\\ 
+(\theta_0 + \theta_2 a_1 + \theta_3 a_0 + \theta_1) \frac{\exp(\beta_0 + \beta_1 a_0)}{1 + \exp(\beta_0 + \beta_1 a_0)}$$`
+
+
+---
+## G-Null Paradox 
+
+- Under the strict null `\(E[Y(a_0, a_1)]\)` does not depend on `\(a_0\)` and `\(a_1\)`. 
+
+- We can see in our model that `\(\hat{E}[Y(a_0, a_1)]\)` always depends on `\(a_0\)` and `\(a_1\)` unless `\(\theta_2\)`, `\(\theta_3\)`, and `\(\beta_1\)` are all 0. 
+  + But this can't occur because we know `\(Y\)` is correlated with `\(A_1\)` and `\(A_0\)`
+  
+- If we had access to `\(U\)` and could model it correctly, this wouldn't be a problem.
+
+
+- Essentially, our parametric model does not include the strict null.
+
+---
+## Beyond the Strict Null
+
+- It may be impossible to correctly specify the parametric G-formula even when the strict null does not hold.
+
+- For example, the problem occurs in the DAG below where there is an effect only of `\(A_1\)` on `\(Y\)` using the same model we've been using. 
+
+- McGrath, Young, and Hernán (2022) show that non-negligible bias can occur in some non-null models *even* using flexible model specifications. 
+
+- Previous results showed that in at least some settings, bias from the g-null paradox is negligible. 
+
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-c470df92ea7342e7ce07" style="width:504px;height:234px;"></div>
+<script type="application/json" data-for="htmlwidget-c470df92ea7342e7ce07">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+
+---
+## Beyond the Strict Null
+
+- The figure below shows simulation results from McGrath, Young, and Hernán (2022).
+
+- More flexible models reduce the amount of bias but bias can still be substantial.
+
+&lt;center&gt; 
+&lt;img src="img/9_gnull.png" width="85%" /&gt;
+&lt;/center&gt;
+
+
+---
+## G-Null Paradox
+
+- By contrast, using marginal structural models with IP weighting,
+
+- Under the strict null, `\(E[Y(\bar{a})]\)` does not depend on `\(\bar{a}\)`. 
+
+- Under the strict null, the marginal structural mean model will never be mis-specified (as long as it contains an intercept parameter). 
+
+- So the IP weighting method does not suffer from the g-null paradox. 
+
+
+---
+## Summary
+
+- For time-varying exposures with treatment-confounder feedback, we need to use the time-varying G-formula.
+
+- We saw two estimation strategies, IP weighting and G-computation (parametric G-formula).
+
+- IP weighting for time-varying exposures differs from IP weighting for point exposures in the way the weights are calculated. 
+  + We can also use a parametric structural marginal model that combines information across time-points.
+  
+- Using the parametric G-formula approach differs from G-computation for point exposures in that we need to simulate covariate values for covariates that happen after the first time-point.
+  + This requires a density estimate for every covariate.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

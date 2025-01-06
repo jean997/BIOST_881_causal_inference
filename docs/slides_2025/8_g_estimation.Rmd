@@ -1,0 +1,683 @@
+---
+title: "L8: G-Estimation"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "Lecture on 2024-02-21\n(updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+library(readr)
+library(ggplot2)
+library(geepack)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+
+## Lecture Plan
+
+1. G-Estimation
+
+Lecture materials from HR Chapter 14 and from Vansteelandt and Joffe (2014). 
+
+---
+## G-Estimation
+
+- This is the last causal estimation method we will see for non-time varying data. 
+
+- It is also probably the least familiar. 
+
+- G-estimation is fairly uncommon in applied lit but has several advantages:
+  + For a continuous treatment, we only have to specify $E[A \vert L]$ instead of $f(A \vert L)$.
+  + Potentially more efficient than IP weighting.
+  + Less extrapolation bias than G-computation.
+
+- G-Estimation is also useful for time-varying data, which we will see later.
+
+---
+## Marginal Structural Models
+
+- In IP weighting, we estimate weights $f(A \vert L)$ and propose a **marginal structural model** (MSM) such as
+
+$$E[Y(a)] = \beta_0 + \beta_1 a$$
+
+- We then estimate the parameters of the MSM by fitting a regression, weighting each observation by $\frac{1}{f(A_i \vert L_i)}$. 
+
+- The model above is **marginal** because we marginalized over the distribution of $L$. 
+
+- We needed to get the propensity model (model for $f(A | L)$) right.
+
+- We also need to get the MSM right (only hard if $A$ is not binary).
+
+---
+## Conditional Outcome Models
+
+- In G-Computation, we propose a model for $E[Y \vert A, L]$. 
+
+- This model is also structural because we are assuming that $E[Y \vert A, L] = E[Y(a) \vert L]$. 
+
+- However, it is a **conditional** structural model because we are conditioning on $L$. 
+
+
+---
+## Semiparametric Structural Mean Models
+
+- Suppose we have a single, continuous confounder $L$, a binary treatment $A$, and a continuous outcome $Y$.
+
+- We are interested in estimating the ATE, $E[Y(1)] - E[Y(0)]$. 
+
+- Suppose we specify a conditional structural model,
+$$E[Y \vert A = a, L ] = E[Y(a) \vert L] = \beta_0 + \beta_1 a + \beta_2 L + \beta_3 a L$$
+
+- We could think of this as really specifying two structural models:
+$$E[Y(0) \vert L] = \beta_0 + \beta_2 L$$
+$$E[Y(1) \vert L] = (\beta_0 + \beta_1) + (\beta_2 + \beta_3) L = E[Y(0) \vert L ] + \beta_1 + \beta_3L$$
+---
+## Semiparametric Structural Mean Models
+
+- Since we are only interested in the ATE, we really only care about the second formula,
+$$E[Y(1) \vert L] =  E[Y(0) \vert L ] + \beta_1 + \beta_3L$$
+- In order to estimate the ATE, we need to estimate $\beta_1$ and $\beta_3$. 
+
+- The parameters in the formula for $E[Y(0) \vert L]$ are nuisance parameters. 
+
+- If we are using G-computation, we need to estimate them, but they don't tell us anything about the causal effect.
+
+---
+## Semiparametric Structural Mean Models
+
+- A semiparametric structural mean model only specifies a model for the target contrast (in our case difference in counterfactual means).
+
+$$E[Y(1) \vert  L] - E[Y(0) \vert L] = \beta_1  + \beta_3 L$$
+- This model is **semiparametric** because we don't specify a parametric form for for $E[Y(0) \vert L]$.
+
+- It is **not** marginal because we are conditioning on $L$. 
+
+- If we know $\beta_1$ and $\beta_3$, we can calculate the ATE by standardizing over $L$, just as we would in G-computation
+
+$$E[Y(1)] - E[Y(0)] = \beta_1 + \frac{1}{n}\sum_{i = 1}^n \beta_3 L_i$$
+---
+## Semi-Parametric Structural Mean Models
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/8_semiparametric2.png")
+```
+
+---
+## G-Estimation
+
+- Suppose we have a semiparametric structural mean model (SMM)
+$$
+E[Y(a)-Y(0) \vert L] = \beta a
+$$
+
+- How do we estimate $\beta$ if we can never observe both $Y(a)$ and $Y(0)$ for the same person? 
+
+
+---
+
+## G-Estimation
+
+- To motivate the method, first assume the causal effect is **homogeneous**, meaning it is exactly the same for everyone.
+
+- This means that for each person, 
+$$
+Y_i(1)- Y_i(0) =  \beta
+$$
+
+- Validity of G-estimation doesn't actually require homogeneity but it is a convenient place to start. 
+
+
+---
+
+## G-Estimation
+
+- Re-write as $$ Y_i(0) = Y_i(1) - \beta$$
+
+- By consistency, if $A_i = a$ then $Y_i = Y_i(a)$ so $$ Y_i(0) = Y_i - \beta A_i$$
+
+- This means that if we know $\beta$, we can fill in each unit's missing counterfactual.
+
+- Let $$H_i(x) = Y_i - x A_i$$ 
+
+- We want to find the value of $x$ that will make $H_i(x)$ equal to $Y_i(0)$. 
+  
+  
+  
+---
+
+## G-Estimation
+
+
+- Now we will use exchangeability. Exchangeability says that 
+$Y(0) \ci A \vert L$
+aka, $H(\beta) \ci A \vert L$.
+
+- For any given value of $x$, we can compute $H(x)_i = Y_i - x A_i$ for every person in the study. 
+
+- We can estimate $\beta$ as  $\hat{\beta} = x^*$ where $H(x^*)$ is statistically independent of $A$ conditional on $L$, in our sample. 
+
+```{r, echo = FALSE, eval =  FALSE}
+nsim <- 1000
+expit <- function(x){exp(x)/( 1 + exp(x))}
+logit <- function(x){log(x) - log(1-x)}
+set.seed(4321)
+dat <- data.frame(L = rnorm(n = nsim))
+dat$logitA <- logit(0.5) + (logit(0.85)/4)*dat$L
+dat$pA <- expit(dat$logitA)
+dat$A <- rbinom(n = nsim, size = 1, prob = dat$pA)
+dat$Y0 <- 0.5*dat$L + 0.4*(dat$L^2) #+ rnorm(n = nsim, sd = 0.1)
+dat$Y1 <- dat$Y0 + 0.5 #+ rnorm(n = nsim, sd = 0.1)
+dat$Y <- case_when(dat$A == 1 ~ dat$Y1, TRUE ~ dat$Y0)
+
+```
+
+---
+## Example with Categorical $L$
+
+```{r, echo = FALSE, message = FALSE}
+nsim <- 1000
+expit <- function(x){exp(x)/( 1 + exp(x))}
+logit <- function(x){log(x) - log(1-x)}
+set.seed(4321)
+dat <- data.frame(L = sample(c(-1, 0, 1), size = nsim, replace = TRUE))
+dat$logitA <- logit(0.5) + (logit(0.85)/4)*dat$L
+dat$pA <- expit(dat$logitA)
+dat$A <- rbinom(n = nsim, size = 1, prob = dat$pA)
+dat$Y0 <- 0.5*dat$L + 0.4*(dat$L^2) + rnorm(n = nsim, sd = 0.3)
+dat$Y1 <- dat$Y0 + 0.5 #+ rnorm(n = nsim, sd = 0.1)
+dat$Y <- case_when(dat$A == 1 ~ dat$Y1, TRUE ~ dat$Y0)
+dat$id <- 1:nsim
+
+D <- dat %>% 
+  filter(L == -1 & A == 0) %>% .[1:3,] %>% 
+  bind_rows(., (filter(dat, L == -1 & A == 1) %>% .[1:4,]) ) %>% 
+  bind_rows(., (filter(dat, L == 0 & A == 0) %>% .[1:3,]) )  %>% 
+ bind_rows(., (filter(dat, L == 0 & A == 1) %>% .[1:4,]) )  %>% 
+ bind_rows(., (filter(dat, L == 1 & A == 0) %>% .[1:3,]) ) %>% 
+ bind_rows(., (filter(dat, L == 1 & A == 1) %>% .[1:3,]) ) 
+
+D$Y0 <- as.character(round(D$Y0, digits = 2))
+D$Y1 <- as.character(round(D$Y1, digits = 2))
+
+D <- D %>%
+    dplyr::select(L, A, Y0, Y1) %>%
+     mutate(Y0 = case_when(A == 0 ~ Y0, 
+                           TRUE ~ paste0(Y1, "\\(-x\\)")), 
+            Y1 = case_when(A == 1 ~ Y1, 
+                           TRUE ~  paste0(Y0, "\\(+x\\)")))
+D <- bind_cols(D[1:10,], D[11:20,])
+t <- kable(D, col.names = c("L", "A", "\\(Y(0) = H(x)\\)", "\\(Y(1)\\)", "L", "A", "\\(Y(0) = H(x)\\)", "\\(Y(1)\\)"), format = 'html') %>%
+  kable_styling(position = "center", full_width = FALSE, font_size = 14) %>%
+    column_spec(4, extra_css = "border-right: solid;")
+
+t
+```
+
+- The best estimate of $\beta$ is the value of $x$ that makes $H(x)$ as close to independent of $A \vert L$ as possible.
+
+---
+## G-Estimation
+
+- How would we know if $H(x)$ were independent of $A \vert L$?
+
+- If we have a guess for $x$, we could fit a regression like
+$$
+logit \left( P[A = 1 \vert H(x), L] \right) = \alpha_0 + \alpha_1 H(x) + \alpha_2 L
+$$
+
+- If $\alpha_1$ is not statistically different from 0, then our data are consistent with $H(x) \ci A \vert L$. 
+
+- We could find the values of $x$ that make this true by doing a grid search, repeatedly fitting the regression for multiple candidate $x$'s. 
+
+- A good point estimate of $\beta$ is the value of $x$ that gives $\hat{\alpha}_1(x)$ closest to 0. 
+
+---
+## G-Estimation
+
+- Alternatively, minimizing the association between $H(x)= Y_i - xA_i$ and $A$ conditional on $L$ is equivalent to solving the estimating equation:
+
+$$\sum_{i = 1}^n  H_i(x)(A_i - E[A \vert L_i]) = 0$$
+
+- This is solved by 
+
+$$x^* = \frac{\sum_{i=1}^n Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n  A_i (A_i - E[A \vert L_i])}$$
+
+---
+## Variance of the Estimate
+
+- Suppose that $\hat{x}$ is the solution to $\min_{x} \vert \hat{\alpha}_1(x) \vert$ found via grid search.
+
+- For every value of $x$ we try, we get a regression fit including a $p$-value for $\hat{\alpha}_1(x) = 0$. Call this $p$-value $p_1(x)$.
+
+- We can get a confidence interval for $\hat{x}$ by inverting this $p$-value. 
+
+- The 95% confidence interval for $\hat{x}$ is the set of values 
+$\lbrace x : p_1(x) > 0.05 \rbrace$.
+
+- Alternatively, we can bootstrap using the estimating equations version. 
+
+
+---
+## Example with Categorical $L$
+
+- In our categorical $L$ example, to perform the grid search method, we first write a function to calculate $\alpha_1(x)$.
+
+```{r}
+grid = seq(0.4, 0.6, by = 0.01)
+
+Hx_coefs <- purrr::map_dfr(grid, function(x){
+  dat$Hx <- dat$Y - x * dat$A
+  # Using GEE for robust SEs
+  ea_fit <- geeglm(A ~ as.factor(L) + Hx, 
+                  family=binomial(), data=dat, 
+                  id=id, corstr="independence")
+  res <- data.frame("Est" = summary(ea_fit)$coefficients["Hx", "Estimate"], 
+                    "SE" = summary(ea_fit)$coefficients["Hx", "Std.err"], 
+                    "p" = summary(ea_fit)$coefficients["Hx", "Pr(>|W|)"])
+})
+
+Hx_coefs <- Hx_coefs %>% mutate(ci_lower = Est - 1.96*SE, 
+                                ci_upper = Est + 1.96*SE, 
+                                pns = p > 0.05)
+```
+
+---
+## G-Estimation in Catgorical Example
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=7, fig.align='center'}
+
+Hx_coefs %>% ggplot() + geom_point(aes(x = grid, y = Est, color = as.factor(pns))) + 
+  geom_hline(yintercept = 0) + 
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper, x = grid, color = as.factor(pns))) + 
+  scale_color_discrete(guide = "none") + 
+  xlab("x")+ ylab("alpha hat") +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 20), 
+        legend.title = element_text(size = 20), 
+        legend.text = element_text(size = 14), 
+        axis.text =  element_text(size = 14))
+```
+
+
+---
+## Estimating Equations in Categorical Example
+
+```{r}
+gest_func <- function(dat){
+  ps_model <- glm(A ~ as.factor(L),
+                  family=binomial(), data=dat)
+  dat$ea <- predict(ps_model, type = "response")
+  est <- with(dat, sum(Y*(A-ea))/sum(A*(A -ea)))
+  return(est)
+}
+boot_samps <- replicate(n = 500,
+                       expr = {gest_func(dat[sample(seq(nrow(dat)), 
+                                     size = nrow(dat), replace = TRUE),])})
+est <- gest_func(dat)
+round(est, digits = 2)
+round(est + c(-1, 1)*qnorm(0.975)*sd(boot_samps), digits = 2)
+```
+
+---
+## Beyond Homogeneous Effects
+
+- We have motivated G-estimation under the very strong assumption that $Y_i(1)-Y_i(0) = \beta$ for everyone.
+
+- If this is the case, then $H_i(\beta) = Y_i - \beta A_i$ is equal to $Y_i(0)$. 
+
+- However, we are only making use of mean exchangeability: $E[Y(0) \vert L, A] = E[Y(0) \vert L]$.
+
+- So we only need $H(\beta)$ to have the same conditional mean as $Y(0)$, i.e.
+$$E[H(\beta) \vert L] = E[Y(0) \vert L]$$
+
+- This is true as long as we get the semiparametric structural mean model for $E[Y(1)]-E[Y(0)]$ correct.
+
+---
+## Censoring
+
+- When there is censoring, we want to estimate $E[Y(A = 1, C =0) - Y(A =0, C =0)]$.
+
+- We can estimate censoring weights $W^C = \frac{1}{P[C = 0 \vert A, L]}$, weight the population by these, and then apply G-estimation.
+
+- Using the grid search method, this means using $W^{C}$ as weights when we fit the model for $E[A \vert H(x), L]$.
+
+- Using the estimating equations version, we add weights to the sums in numerator and denominator,
+
+$$x^* = \frac{\sum_{i: C = 0} W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i:C = 0} W^C_i A_i (A_i - E[A \vert L_i])}$$
+
+---
+## G-Estimation in NHEFS
+
+Step 1: Compute censoring weights
+
+```{r, message = FALSE}
+dat <- read_csv("../../data/nhefs.csv") 
+dat$cens <- ifelse(is.na(dat$wt82), 1, 0)
+
+cw_fit <- glm(cens==0 ~ qsmk + sex + race + age + I(age^2) 
+                     + as.factor(education) + smokeintensity + I(smokeintensity^2) 
+                     + smokeyrs + I(smokeyrs^2) + as.factor(exercise) 
+                     + as.factor(active) + wt71 + I(wt71^2), 
+                     data = dat, family = binomial())
+
+dat$wc <- 1/predict(cw_fit, type="response")
+```
+
+---
+## Grid Search G-Estimation in NHEFS
+
+Step 2: Estimate $x$ by grid search. 
+
+
+```{r, warning=FALSE, message = FALSE}
+grid = seq(2, 5, by = 0.1)
+
+Hx_coefs <- purrr::map_dfr(grid, function(x){
+  dat$Hx <- dat$wt82_71 - x * dat$qsmk
+  # Using GEE for robust SEs
+  gest_fit <- geeglm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+                  + smokeintensity + I(smokeintensity*smokeintensity) + smokeyrs
+                  + I(smokeyrs*smokeyrs) + as.factor(exercise) + as.factor(active)
+                  + wt71 + I(wt71*wt71) + Hx, 
+                  family=binomial(), data=dat, weights=wc, 
+                  id=seqn, corstr="independence", 
+                  subset = which(!is.na(wt82_71)))
+  res <- data.frame("Est" = summary(gest_fit)$coefficients["Hx", "Estimate"], 
+                    "SE" = summary(gest_fit)$coefficients["Hx", "Std.err"], 
+                    "p" = summary(gest_fit)$coefficients["Hx", "Pr(>|W|)"])
+})
+
+Hx_coefs <- Hx_coefs %>% mutate(ci_lower = Est - 1.96*SE, 
+                                    ci_upper = Est + 1.96*SE, 
+                                    pns = p > 0.05)
+
+```
+
+---
+## G-Estimation in NHEFS
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=7, fig.align='center'}
+
+Hx_coefs %>% ggplot() + geom_point(aes(x = grid, y = Est, color = as.factor(pns))) + 
+  geom_hline(yintercept = 0) + 
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper, x = grid, color = as.factor(pns))) + 
+  scale_color_discrete(guide = "none") + 
+  xlab("x")+ ylab("alpha hat") +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 20), 
+        legend.title = element_text(size = 20), 
+        legend.text = element_text(size = 14), 
+        axis.text =  element_text(size = 14))
+```
+
+---
+## Estimating Equations in NHEFS
+
+```{r}
+ps_model <- glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+                  + smokeintensity + I(smokeintensity*smokeintensity) + smokeyrs
+                  + I(smokeyrs*smokeyrs) + as.factor(exercise) + as.factor(active)
+                  + wt71 + I(wt71*wt71),
+                  family=binomial(), data=dat)
+dat$ea <- predict(ps_model, type = "response")
+
+g_est_num <- with(dat, sum((1-cens)*wc*wt82_71*(qsmk-ea), na.rm=T))
+g_est_denom <- with(dat, sum((1-cens)*wc*qsmk*(qsmk-ea)))
+
+round(g_est_num/g_est_denom, digits = 2)
+```
+
+---
+## Assumptions
+
+- In order for the G-estimation estimate to be consistent, we need to get two things right:
+
+- The semiparametric structural mean model, $$E[Y(a) \vert A = a, L] - E[Y(0) \vert A = a, L]$$
+
+- The model for $E[A \vert L]$.
+
+
+---
+## Closer Look At Estimating Eqns Solution
+
+$$x^* = \frac{\sum_{i=1}^n 1_{C=0}W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n 1_{C=0}W^C_i A_i (A_i - E[A \vert L_i])}$$
+
+- In the numerator, there is a term $(A_i - E[A \vert L_i])$. Units with $A_i = E[A \vert L_i]$ don't contribute to the sum. 
+
+- This means we are basing our inference on units in the overlap space, units that have a chance of either treatment. 
+
+- When there are regions of covariate space with only cases or only controls, G-Computation suffers from extrapolation bias because it is basing too much of its estimation on only one group. 
+
+- IP weighting on the other hand can have very high variance due to enormous weights. 
+
+- G-estimation remains efficient and doesn't suffer from overlap bias. 
+
+---
+## Effect Modification
+
+- In G-estimation, we are estimating $E[Y(a)-Y(0) \vert L, A = a]$, the treatment effect *conditional* on $L$. 
+   - If there is any effect modification by variables in $L$, we **have** to include that in the model. 
+   - To get the marginal effect, we need to standardize as in G-computation.
+
+
+- This is different from the MSMs we use for IP weighting. 
+  - In that case, we only put in effect modifiers if we find them interesting. 
+  
+
+---
+
+## Effect Modification
+
+- Vansteelandt and Joffe argue that, in the binary $A$ case, mis-specifying the model as $E[Y(1) \vert L] - E[Y(0) \vert L ] = \beta_1$ when there is effect modification, still gives interpretable results.
+
+- Suppose the true model is $E[Y(1) \vert L] - E[Y(0) \vert L ] = \omega(L)$
+
+- Then the G-estimator using the incorrect model with no effect modification converges to 
+$$\frac{E\left \lbrace Var(A \vert L)\omega(L)\right \rbrace}{E\left \lbrace Var(A \vert L)\right \rbrace}$$ which is a weighted average of treatment effects, giving the most weight to strata with higher values of $Var(A \vert L)$, or strata with the most overalp between treated and control.
+
+---
+## Multi-Parameter Structural Mean Models
+
+
+- Suppose we propose the model
+
+$$E[Y(a)-Y(0) \vert  L] = \beta_1 a + \beta_2 a L $$
+
+- The corresponding "H" model is 
+
+$$H_i(x_1, x_2) = Y_i - x_1 A_i - x_2 A_i L_i$$
+- We are looking for values $x_1^*$ and $x_2^*$ such that $H(x_1^*, x_2^*) \ci A \vert L$
+
+---
+## Multi-Parameter Structural Mean Models
+
+
+- We now have two parameters to estimate, so we need to perform a search over a two dimensional grid. 
+
+- At $x_1 = \beta_1$ and $x_2 = \beta_2$, the $\alpha_1$ and $\alpha_2$ terms will both be 0.  
+
+$$
+logit\left( P[A = 1 \vert H(x_1, x_2), L] \right) = \alpha_0 + \alpha_1 H(x_1, x_2) + \alpha_2 H(x_1, x_2) L + \alpha_3 L
+$$
+
+---
+## Multi-Parameter Structural Mean Models
+
+- We have some choices about how we put $H(x_1, x_2)$ into the exposure model.
+
+- For example, we could use
+
+$$
+logit\left( P[A = 1 \vert H(x_1, x_2), L] \right) = \alpha_0 + \alpha_1 H(x_1, x_2) + \alpha_2 H(x_1, x_2) L + \alpha_3 L
+$$
+
+or 
+
+$$
+logit\left( P[A = 1 \vert H(x_1, x_2), L] \right) = \alpha_0 + \alpha_1 H(x_1, x_2) + \alpha_2 H(x_1, x_2) L^2 + \alpha_3 L
+$$
+
+- It turns out that the choice only affects efficiency and not consistency, and we can derive the locally most efficient choice. 
+
+---
+## General Formulation
+
+- In general we start with a structural mean model 
+
+$$g\left \lbrace E[Y(a) \vert A =a, L]\right \rbrace - g\left \lbrace E[Y(0) \vert A =a, L]\right \rbrace = \gamma(a, l ; x^*)  $$
+
+- From this, we define
+
+$$
+\begin{split}
+&H(x) = Y - \gamma(L, A; x) \qquad &g\ \text{identity}\\
+&H(x) = Y\exp[-\gamma(L, A; x)]\qquad &g\ \text{log}\\
+&H(x) = expit \left( logit(E[Y \vert L, A])- \gamma(L, A; x)  \right)
+) \qquad &g\ \text{logit}
+\end{split}
+$$
+- The fact that $E[Y \vert L, A]$ shows up in the definition of $H(x)$ if $g$ is logit makes the odds ratio formulation more difficult to deal with. 
+  + There is no consistent G-estimator for the causal odds ratio. 
+
+---
+## General Formulation
+
+- Next we either grid search for a value of $x$ such that $H(x)$ is statistically independent of $A - E[A \vert L]$ or we solve the estimating equations
+
+$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(x)(d(A_i, L_i) - d(E[A \vert L_i], L_i)) = 0$$ where $d$ is a function with dimension equal to the dimension of $x$. 
+
+
+- For example, using the model $E[Y(a) \vert L ] - E[Y(0) \vert L ] = \beta_1 a + \beta_2 a L$, we could use the estimating equation
+
+$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i  H_i(x) \begin{pmatrix}A_i - E[A \vert L_i]\\L_i(A_i - E[A \vert L_i]) \end{pmatrix}= 0$$ 
+
+- The $d$ function corresponds to the choice of how to put $H(x)$ into the exposure model.
+
+---
+## Efficient choice of $d$
+
+- Under homoskedasticity, meaning that the variance of $H(x)$ is constant given $A$ and $L$, the best choice of $d$ is
+
+$$
+d(A, L) = E\left\lbrace \frac{\partial H(x)}{dx} \Big\vert A, L\right\rbrace
+$$
+- Under the two parameter model from a few slides ago where we had
+
+$$H_i(x_1, x_2) = Y_i - x_1 A_i - x_2 A_i L_{1,i}$$
+- The best choice of $d$ is $d(A,L) = \begin{pmatrix}A \\ A L_1 \end{pmatrix}$.
+  + We dropped the minus sign since we can just multiply both sides of the estimating equations by -1. 
+
+---
+## Multi-Parameter Model in NHEFS
+
+- Suppose we believe there is effect modification by smoking intensity. Let $V$ be smoking intensity and $L$ the remaining confounders. We could use the SMM
+$$E[Y(a) \vert L, V] - E[Y(0) \vert L, V] = \beta_1 a + \beta_2 a V$$
+
+- We need to solve the estimating equations
+
+$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i \begin{pmatrix}1\\V_i \end{pmatrix}(A_i - E[A \vert L_i, V_i]) H_i(x)= 0$$ 
+---
+## Multi-Parameter Model in NHEFS
+
+- By plugging in $H_i(x) = Y_i -x_1 A_i - x_2 A_i V_i$, we obtain
+
+$$\begin{pmatrix}x_1 \\ x_2 \end{pmatrix} = R^{-1} S$$
+with 
+$$S = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i D_i\\
+\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i V_i D_i\end{pmatrix}$$
+
+$$R = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i D_i & \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i\\
+\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i & \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i^2 D_i\end{pmatrix}$$
+
+where $D_i = A_i - E[A \vert L_i]$. 
+
+
+---
+## Multi-Parameter Model in NHEFS
+
+
+```{r}
+dat$wc[dat$cens != 0] <- 0
+dat$rem_w <- with(dat, wc*(qsmk - ea))
+S <- with(dat, c(sum(wt82_71*rem_w, na.rm=T), 
+                 sum(smokeintensity*wt82_71*rem_w, na.rm=T)))
+R <- with(dat, c(sum(qsmk*rem_w), sum(smokeintensity*qsmk*rem_w), 
+                 sum(smokeintensity*qsmk*rem_w), sum(smokeintensity^2*qsmk*rem_w)))
+R <- matrix(R, nrow = 2, byrow = T)
+x <- solve(R) %*% S
+round(x, digits = 2)
+
+ate <- x[1] + mean(dat$smokeintensity*x[2])
+round(ate, digits = 2)
+```
+
+
+
+---
+## Doubly Robust G-Estimation
+
+- To make the estimator more robust, we can replace $H(x)$ with $H(x) - E[H(x) \vert L]$. 
+  - This works using either the estimating equation approach or the grid search approach.
+
+- To do this, we first fit an outcome model for $E[Y \vert L, A = 0]$. 
+
+- If $H_i(x) = Y_i - xA_i$, then $H_i(x) - E[H_i(x) \vert L] = (Y_i - \hat{Y}_{i,0}) - xA_i$.
+
+- The resulting estimator will be consistent if either the outcome model in the untreated or the propensity model are correct. 
+
+
+
+---
+## Continuous Treatments
+
+
+- One nice feature of G-estimation for continuous treatments is that we only need a model for $E[A \vert L]$. 
+
+- For IP weighting, we need a model for $f(A \vert L)$ which is much harder to get right. 
+
+---
+
+## Summary 
+
+- In G-Estimation we propose a semiparametric structural mean model for the causal contrast of interest **conditional** on $L$, with parameters $\boldsymbol{\beta}$. 
+
+- We also propose a model for $E[A \vert L]$. 
+
+- We then obtain a function $H(x)$ such that $E[H(\boldsymbol{\beta}) \vert L] = E[Y(0) \vert L]$.
+
+- Finally, we search for the value of $x$ that makes $H(x)$ statistically independent of $A \vert L$.
+
+---
+
+## Summary 
+
+- G-Estimation avoids some of the problems of G-Computation and IP Weighting
+  + Extrapolation bias (G-Computation)
+  + Large variance (IP Weighting)
+  
+- The `gesttools` R package came out in 2022.
+  - Primarily focused on time-varying exposures and outcomes but also works for single time point data.
+

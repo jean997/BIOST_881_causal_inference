@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Discussion</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Discussion
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### 2024-04-17
+(updated: 2024-04-17)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+
+## What Kinds of Questions Can Causal Inference Answer?
+
+
+- We have often talked about the idea of the target trial to guide design of causal inference studies. 
+
+- This restricts the realm of causal inference to a fairly narrow range of questions: 
+  
+  + E.g. Should we treat this disease with drug A or drug B. 
+  
+- In particular, it leaves out states that are hard to intervene on like race, gender and complex multifactoral conditions like obesity. 
+
+- Today we will talk about some different persepectives on this issue.
+
+---
+## References
+
+Glymour and Glymour (2014). Commentary: Race and Sex Are Causes. *Epidemiology*
+
+Hernán and Taubman (2008). Does obesity shorten life? The importance of well-defined interventions to answer causal questions. *International Journal of Obesity*
+
+Kaufman (2019). Commentary: Causal Inference for Social Exposures. *Annual Review of Public Health*
+
+---
+## Questions
+
+Consider the following causal questions:
+
++ Will administering drug B instead of drug A reduce mortality?
+
++ Does obesity cause heart disease?
+
++ Was she denied the job because she is female?
+
+
+For each question:
+  
+  + Why are we (or the asker) asking the question?
+  
+  + Is there a well-defined intervention related to the question?
+  
+  + How would you try to answer the question?
+  
+---
+## Do We Need a Hypothetical Intervention?
+
+- Glymour and Glymour are addressing hesitence in the causal inference community to address causal effects of race due to a lack of plausible intervention for altering race. 
+
+- Glymour and Glymour argue that a hypothetical intervention is unnecessary: 
+
+&lt;center&gt; 
+&lt;img src="img/12_gandg2.png" width="75%" /&gt;
+&lt;/center&gt;
+
+---
+## Do We Need a Hypothetical Intervention?
+
+- Glymour and Glymour make a philosophical distinction between attempting to identify a useful intervention and attempting to identify the cause of a problem.
+
+- These are both potential uses for causal inference. We might use the same tools, but the motivation is different. 
+
+&lt;center&gt; 
+&lt;img src="img/12_gandg1.png" width="75%" /&gt;
+&lt;/center&gt;
+
+
+---
+## Susan
+
+- A hypothetical scenario. 
+
+&lt;center&gt; 
+&lt;img src="img/12_gandg3.png" width="75%" /&gt;
+&lt;/center&gt;
+
+---
+## Etiological Causation
+
+&lt;center&gt; 
+&lt;img src="img/15_gandg4.png" width="75%" /&gt;
+&lt;/center&gt;
+
+
+---
+## Hernán and Taubman
+
+- Hernán and Taubman argue that we **do** need a well defined intervention to make sensible causal statements. 
+
+- They consider trying to answer the question "How many deaths are attributable to obesity."
+
+- They argue that this question is not really answerable. 
+
+---
+## Hypothetical Obesity Studies
+
+- Hernán and Taubman describe three hypothetical randomized trials, each using different mechanisms to reduce BMI in treated participants. 
+
+  + In one trial participants are forced to exercise every day for 30 years. 
+  
+  + In another participants' diets are restricted. 
+  
+  + In a third both interventions are combined but in less extreme forms. 
+
+- All three treatments have the same effect on BMI. 
+
+- But the trials observe different effects on mortality. 
+
+&lt;center&gt; 
+&lt;img src="img/12_handt1.png" width="75%" /&gt;
+&lt;/center&gt;
+
+---
+## Consequences of Vague Interventions
+
+- H and T argue that vague counterfactuals violate consistency. 
+
+&lt;center&gt; 
+&lt;img src="img/12_handt2.png" width="75%" /&gt;
+&lt;/center&gt;
+
+- Different methods to intervene on BMI may have dramatically different affects on mortality.
+
+---
+## Consequences of Vague Interventions
+
+&lt;center&gt; 
+&lt;img src="img/12_handt3.png" width="75%" /&gt;
+&lt;/center&gt;
+
+---
+# Consequences of Vague Interventions
+
+- They go on to argue that vague interventions also lead to violations of exchangeability, since complex traits like obesity have many component causes. 
+
+- And possibly also violations of positivity: There may be some levels of confounders at which individuals have zero probability of some range of the exposure. 
+
+  + This is especially problematic when the proposed contrast is large (e.g. BMI of 20 vs BMI of 30). 
+  
+---
+## Consequences of Vague Interventions
+  
+&lt;center&gt; 
+&lt;img src="img/12_handt4.png" width="75%" /&gt;
+&lt;/center&gt;
+
+
+
+---
+## Race and Social Variables
+
+- Jay Kaufman discusses strategies to disambiguate the causal effect of race.
+
+&lt;center&gt; 
+&lt;img src="img/12_k1.png" width="95%" /&gt;
+&lt;/center&gt;
+
+---
+## Race and Social Variables
+
+&lt;center&gt; 
+&lt;img src="img/12_k2.png" width="95%" /&gt;
+&lt;/center&gt;
+&lt;/br&gt;
+
+&lt;/br&gt;
+
+&lt;center&gt; 
+&lt;img src="img/12_k4.png" width="95%" /&gt;
+&lt;/center&gt;
+
+---
+## Discussion: Etiological Causation
+
+- G and G argue that etiological causation is useful because it allows us to "identify a problem".
+
+- H and T argue that questions of etiological causation (aka "vague intervention")  are ill-posed because it does not allow us to identify the mechanism explaining the observed "cause". 
+
+- G and G use the example of sex and hiring. H and T use the example of obesity and lifespan. What are the philosphical differences between these examples? 
+
+- What do you think? Is etiological causation useful?
+
+---
+## Discussion: Mechanism of Action
+
+Consider two studies:
+
+- The first study is attempting to measure a causal effect of gender on heart disease risk. It has been observed that men have higher rates of heart disease than women of the same age. The researchers want to know if this relationship is causal.
+
+- The second study is attempting to measure the causal effect of gender on income. Does being female cause a person to earn less money?
+
+
+
+Questions:
+
+- What are the possible mechanisms by which gender could be causal in each scenario?
+
+- What are the merits or down-sides of trying to answer each question?
+
+- Are there alternative ways of asking these questions that may avoid some of the vagueness that Hernán and Taubman warn us away from?
+
+
+---
+## Risk of Vaguely Defined Causes
+
+
+- If we estimate a cause associated with a vague intervention, we are inviting our audience/readers to fill in a mechanism based on their current beliefs. 
+
+- To continue the obesity example used by H and T, it is a short step from identifying a ``causal effect'' of BMI on mortality or disease to conclude that weight loss programs will reduce disease risk and extend life. 
+
+- From Powell-Wiley et al (2021), clinical trials of dietary interventions have not shown significant effects on cardiovascular outcomes and different clinical interventions on obesity have shown dramatically different effects. 
+
+
+---
+## Risk of Vaguely Defined Causes
+
+- There are successful interventions (e.g. cholesterol reduction drugs) that reduce modrtality without modifying body size.
+
+- Some interventions on body size have had negative, sometimes fatal side effects (e.g. fen-phen). 
+
+- From Tomiyama et al (2018),  weight stigma and anti-fat bias in medical care may be a major contributor to risk factors associated with obesity. 
+  + Studies which describe causal effects of body size on disease without describing a mechanism or clear intervention can exacerbate this bias.
+
+---
+## Risk of Vaguely Defined Causes
+
+- Race is another exposure for which there is high risk of allowing readers to fill in causal mechanisms.
+
+- Some genetic studies have shown significant differences in genetically predicted values of educational attainment and other social outcomes between groups defined by either self-identified race or genetic ancestry. 
+  + Subsequent studies have shown that this effect can be explained by household effects and social stratification (Schork et al (2022)).
+
+- Highly publicized articles and debates that dealt sloppily with "causes" like race, ancestry, and even genetics provided fodder for white supremacists. 
+
+- Genetic studies of educational attainment have also led to suggestions for "genetic tracking" in schools, despite having no identified mechanism by which some variants affect educational attainment. 
+
+
+---
+## Utility of Vaguely Defined Causes
+
+- Using Mendelian randomization and observational studies, we can find causal effects of LDL cholesterol on both heart disease and gall stone risk. 
+
+- However, different lipid lowering medications have different effects on the risks of these two diseases. 
+
+- One hypothesis is that heart disease is caused by high levels of circulating LDL cholesterol while gall stones are caused by high levels in the liver.
+  + There may be further nuances involving distinctions between sizes of LDL particles. 
+  
+- In our studies, we only measure serum levels of LDL cholesterol which proxy many different biological processes.
+
+- The effects identified by MR and other studies are still useful. They suggest that lipid lowering medications might affect disease risk, leading us to perform more precise, interventional trials.
+
+---
+## Utility of Vaguely Defined Causes
+
+- To some extent, all biological processes are vaguely defined because our measurement tools are imperfect.
+
+- Identification of specific effective interventions or precise mechanisms often occurs after years of accumulating less precise evidence.
+
+- However, we need to be careful and conscious when we are measuring vaguely defined causes. It is the statistician/scientist's job to clearly discuss 
+  + the limits of our conclusions
+  + the motivation for conducting the study
+  + potential mechanisms that could be involved
+  + follow up work that is necessary to sharpen our conclusions
+  
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

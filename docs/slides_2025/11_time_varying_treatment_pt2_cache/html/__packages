@@ -1,0 +1,16 @@
+base
+xaringanthemer
+tidyverse
+ggplot2
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+DiagrammeR
+kableExtra
+sandwich
+gfoRmula
+gesttools

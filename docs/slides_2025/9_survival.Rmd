@@ -1,0 +1,1228 @@
+---
+title: "L9: Time to Event Outcomes"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "Lecture on 2024-03-20\n(updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(DiagrammeR)
+library(ggplot2)
+library(gridExtra)
+library(viridis)
+library(survival)
+library(survminer)
+
+dat.u <- read_csv("../../data/nhefs.csv") 
+dat <- dat.u %>%
+       filter(!is.na(wt82))
+```
+
+
+
+# Lecture Plan
+
+1. Introduction 
+1. Brief survival analysis overview
+1. IP Weighting and G-Computation for Survival Analysis
+1. G-Estimation of Structural Nested Models
+1. Competing Events
+
+---
+
+## Time to Event Data
+
+- Simplest setting: 
+
+- Participants are enrolled into a study at time 0 and receive a treatment $A$. 
+
+- Participants are followed until either they die or the study ends. 
+
+- We want to know if people who receive $A =1$ live longer than people who receive $A = 0$. 
+
+- The NHEFS study we know date of death for participants who died before Dec. 31, 1992. 
+  + We might like to know if there is a difference in survival time for quitters and non-quitters.
+
+---
+
+## Time to Event Data with Censoring
+
+- Let $T_i$ be the time of death for unit $i$. 
+  + We can have counterfactual times of death $T_i(1)$ and $T_i(0)$.
+  
+- If we follow all participants until they die, $T$ is just an outcome like weight change, any of the tools we have learned so far apply. 
+
+- Administrative censoring poses a problem: $T$ is missing for participants with the longest survival times. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5, warning=FALSE, message=FALSE}
+ndf1 <- create_node_df(n =4 , label = c("A", "T", "U", "C"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     fixedsize = FALSE,
+                     shape = rep(c("circle", "square"), c(3, 1)),
+                     x = c(0, 1.5, 0.75, 3)*0.8, 
+                     y = c(0, 0, 1, 0)*0.8)
+edf1 <- create_edge_df(from = c(1, 3, 3, 2), to = c(2, 1, 2, 4),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+gr1 <- create_graph(nodes_df = ndf1, edges_df = edf1)
+
+render_graph(gr1)
+```
+</center>
+
+---
+
+## Time to Event Data with Censoring
+
+- The graph below has the same shape as the graph for the case-control study. 
+
+- In Lecture 4, we saw that we could recover from selection bias if we knew the distribution of the outcome in the general population and if we knew the probability of censoring/study inclusion given the outcome. 
+
+- In the time to event setting, it is unlikely that we know the distribution of $T$ in the population or are able to estimate $P[C = 0 \vert T]$. 
+
+- There may also be values of $T$ for which $P[C = 0 \vert T] = 0$ leading to a violation of positivity. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5, warning=FALSE, message=FALSE}
+render_graph(gr1)
+```
+</center>
+
+---
+## Time to Event Data
+
+Given this intractable censoring problem, we have two options:
+
+1. Ask questions about time-specific survival (e.g. 120 month survival) or risk rather than questions about overall survival time. 
+
+2. Use structural nested accelerated failure time models to estimate ratios of survival times comparing $A = a$ to $A = 0$. 
+
+---
+# 1. Survival Analysis Overview/Review
+
+
+---
+## Survival Data
+
+- In the simplest survival survival data setting, for each unit we know:
+  + Time they were last observed (ether time of death or last observation).
+  + Whether or not death was observed
+  + Treatment/exposure and other covariates
+  
+- For a lot of this lecture, we will be using **discrete time** survival models.
+
+- This means that we assume there is a series of times $t_0, \dots, t_K$ that are evenly spaced at which a death or loss to follow up could be recorded. 
+
+
+---
+## Survival Data Short Form
+
+- Below, unit 1 is censored at time 1. Unit 2 is observed to die at time 2. 
+```{r, echo=FALSE, message = FALSE, warning=FALSE, fig.align='center', fig.width=6, fig.height=3}
+ex_dat <- data.frame(ID = c("ID1", "ID2"), surv_time = c(1, 2), event = c(0, 1))
+ex_dat$ID = factor(ex_dat$ID, levels = c("ID2", "ID1"))
+ex_dat %>% ggplot() + 
+  #geom_vline(xintercept = c(0, 1, 2), linetype = 2) + 
+  geom_linerange(aes(xmin = 0, xmax = surv_time, y = ID)) + 
+  geom_point(aes(x = surv_time, y = ID, shape = as.factor(event)), size = 3, stroke = 2.5) + 
+  scale_shape_manual(values = c(1, 4), name = "event") + 
+  scale_x_continuous(breaks = c(0, 1, 2)) + 
+  theme_bw() + 
+  theme(axis.title.y = element_text(size = 20), 
+        axis.title.x = element_blank(), 
+        legend.title = element_text(size = 20), 
+        legend.text = element_text(size = 14), 
+        axis.text =  element_text(size = 14))
+```
+
+- In the "short" form, this data would look like
+
+```{r, echo = FALSE}
+kable(ex_dat, col.names = c( "ID", "surv_time", "Event"), 
+      format = 'html', row.names = FALSE) 
+```
+
+---
+## Survival Data Long (Person-Time) Form
+
+- For each unit, we can define variables $D_{i, 0}, \dots, D_{i,K}$ where $D_{i,k}$ is 1 if the person died on or before time $k$ and 0 otherwise. 
+
+- We also need censoring variables $C_{i,0}, \dots, C_{i,K}$ where $C_{i,k}$ is 1 if the person is lost to follow-up on or before time $k$. 
+
+- Our previous data would look like
+
+```{r, echo = FALSE}
+library(survival)
+ex_dat_long <- data.frame(ID = rep(c("ID1", "ID2"), each = 3), 
+                          t = c(0, 1, 2, 0, 1, 2),
+                          D = c(0, NA, NA, 0, 0, 1), 
+                          C = c(0, 1, 1, 0, 0, 0))
+kable(ex_dat_long, col.names = c( "ID", "Time", "D", "C"), 
+      format = 'html', row.names = FALSE) 
+```
+
+
+---
+## Survival 
+
+- Survival, $S_{i,k} = P[T_i > t_k] = E[1-D_{i,k}]$, is the probability of unit $i$ living beyond time $t_k$. 
+
+- Alternatively, we might prefer risk $R_{i,k} = 1-S_{i,k} = P[T_i \leq t_k]$. 
+
+- If there is no censoring before time $k$, we can estimate $S_k$ non-parametrically.
+$$\hat{S}_{k} = \hat{E}[S_{i,k}  ] = \frac{1}{n}\sum_{i = 1}^n I(T_i > t_k) = \frac{1}{n} \sum_{i = 1}^n (1 - D_{i,k})$$
+- With some censoring before time $k$, estimating $S_k$ is a little harder.
+
+---
+
+## Hazards
+
+- The hazard at time $t_k$ is the risk of dying during the interval $(t_{k-1}, t_k]$. 
+$$h_k = P[D_k = 1 \vert D_{k-1} = 0] = \frac{P[t_{k-1} < T \leq t_k]}{P[T > t_{k-1}]}$$
+
+- For continuous time, the hazard is the instantaneous risk of death, defined as the derivative of the survival function, normalized by the proportion at risk
+
+$$
+\lambda(t) = \frac{\frac{d}{dt} S(t)}{S(t)} = -\frac{d}{dt} log\left( S(t) \right)
+$$
+
+---
+
+## Hazards
+
+- We can also write the survival function in terms of hazards. In order to survive to time $t$, you must not die in any of the preceding time periods, so
+
+$$S_{k} = \prod_{j = 1}^{k}\left(1 - h_j\right)$$
+
+- Or for continuous time, 
+
+$$H(t) = \int_0^t \lambda(t)dt \qquad S(t) = exp(-H(t))$$
+
+
+---
+
+## Kaplan-Meier Curves
+
+- Suppose that participants are lost to follow-up at various times throughout the study.
+
+- We will use bars over variables to represent history up to a certain point. So $\bar{C}_k = (C_1, \dots, C_k)$ and $\bar{D}_k = (D_1, \dots, D_k)$.
+
+- We want to estimate $S_k = 1-E[D_k(\bar{C}_k = 0)]$, the survival we would have observed if nobody had been censored before time $k$. 
+
+
+- However, what we can observe is $E[D_k \vert C_k = 0, D_{k-1} = 0]$. 
+
+---
+## Example
+
+- Suppose we have two time points, $t_1$ and $t_2$. 
+
+- For each unit, we have $D_1$, $D_2$, $C_1$, and $C_2$ recorded. However $D_k$ is missing if $C_k = 1$.
+
+- There are no common causes of death and censoring. 
+
+- Draw a DAG of these four variables. Keep in mind, a unit can only die once, units who have already been observed to die cannot be censored.
+
+---
+## Example Continued
+
+- At time 1, nobody is censored, $P[C_1 = 0] = 1$. 10% of units die by time 1, $P[D_1 = 0] = 0.9$.
+
+- At time 2, half of the remaining units are censored $P[C_2 = 0 \vert D_1 = 0, C_1 = 0] = 0.5$.
+
+- At time 2, 5% of the uncensored units die, $P[D_2 = 0 \vert C_2 = 0, D_1 = 0] = 0.95$
+
+- Compute $P[D_2(C_1 = 0, C_2 = 0) = 0]$, the probability of surviving past time 2 (remember censoring and death are independent). 
+
+- Compute the fraction of uncensored units at time 2 who survived, $P[D_2 = 0 \vert C_2 = 0]$
+
+
+---
+## Example Continued
+
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5, warning=FALSE, message=FALSE}
+ndfex <- create_node_df(n =4 , label = c("D@_{1}", "D@_{2}", "C@_{1}", "C@_{2}"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     y = c(1, 1, 0, 0)*0.6, 
+                     x = c(0, 1, 0, 1)*0.8)
+edfex <- create_edge_df(from = c(1, 1, 3), to = c(2, 4, 4),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+grex <- create_graph(nodes_df = ndfex, edges_df = edfex)
+
+render_graph(grex)
+```
+</center>
+
+$$P[D_2(C_1 = 0, C_2 = 0) = 0] = 1-(0.1 + 0.05\cdot 0.9) = 0.855$$
+
+$$P[D_2 = 0 \vert C_2 = 0] = \frac{ 0.95 \cdot 0.45}{0.1 + 0.45} \approx 0.777$$
+
+---
+## Example Continued
+
+- We could have estimated $P[D_2(\bar{C}_2 = 0)]$ as 
+$$P[D_2 = 0] = P[D_2=0 \vert D_1 = 0]P[D_1 = 0]$$
+
+- Because death and censoring are independent $P[D_2 = 0 \vert D_1 = 0] = P[D_2 = 0 \vert D_1 = 0, C_2 = 0]$, so both of these quantities are observable in our data. 
+
+- We are just using the product identity 
+$$S_{k} = \prod_{j = 1}^{k}\left(1 - h_j\right)$$
+---
+
+## Kaplan-Meier Curves
+
+
+- Generally, we can estimate the hazard, $h_k = P[D_k(\bar{C}_k = 0) = 1 \vert D_{k-1} = 0]$ if we assume that censoring before time $t_k$ to be independent of death during interval $(t_{k-1}, t_k]$.
+  - This is called **non-informative** censoring. 
+
+$$D_k \ci \bar{C}_k \vert D_{k-1} = 0$$
+- With this assumption, $h_k= E[D_k \vert D_{k-1} = 0, C_k = 0]$ and can be estimated by 
+$$\hat{h}_k = \frac{d_k}{N_k}$$
+
+  + $d_k$ is the number of deaths observed in interval $k$ and 
+
+  +  $N_k$ is the number *at risk* in interval $k$: 
+    - The number of units that were known to be alive at time $t_{k-1}$ and were not censored at time $t_k$. 
+
+---
+
+## Kaplan-Meier Curves
+
+- The plug-in estimator $$\hat{S}_{k} = \prod_{j=1}^{k}\left(1 - \frac{d_j}{N_j} \right)$$ is a non-parametric estimate of sample average survival. 
+
+- Confidence intervals can be derived from binomial distribution of $d_k$.
+
+- We can subset within values of covariates to estimate group-specific survival. 
+
+
+
+
+
+
+---
+## Kaplan-Meier Curves in NHEFS Data
+
+- We will estimate K-M curves in the NHEFS data stratified by smoking status. 
+
+- Everyone was censored 120 months after 1983. 
+
+
+```{r kmplot, message = FALSE, fig.show = 'hide', warning=FALSE, fig.align='center', fig.width=9, fig.height=7}
+dat <- read_csv("../../data/nhefs.csv") %>%
+       mutate(survtime = case_when(death == 0 ~ 120, 
+                                   TRUE ~ (yrdth-83)*12 + modth))
+
+fit <- survfit(Surv(survtime, death) ~ qsmk, data=dat)
+survminer::ggsurvplot(fit, data = dat, xlab="Months of follow-up", conf.int = TRUE,
+           ylab="Survival Probability",
+           risk.table = TRUE, ylim = c(0.6, 1))
+
+```
+
+---
+## Kaplan-Meier Curves in NHEFS Data
+![](`r knitr::fig_chunk("kmplot", ".png")`)
+
+
+
+
+---
+## Comparing Survival Between Groups
+
+- The commonly used log-rank test tests the null hypothesis that the two survival functions are the same. That is,
+$$S_{1,k}  = S_{0,k} \qquad \forall k$$
+- In the NHEFS data, the log-rank test gives a p-value of 0.005.
+
+- We can also see from the estimated survival curves that $\hat{S}_{1,k} < \hat{S}_{0,k}$ for nearly all time points. 
+
+- Conclusion: Quitting smoking reduced survival in this sample?
+
+
+
+---
+## Parametric Estimates of Survival Curves
+
+- Non-parametric estimates of $h_k$ can be unstable. 
+
+- We may wish to condition on more covariates or continuous covariates. 
+
+- We can instead fit a parametric (or semi-parametric) model for $h_k$.
+
+
+---
+## Cox Relative Risk Model
+
+- The Cox relative risk model is
+$$\lambda(t; Z) = \lambda_{0}(t)\exp(Z^\top \beta)$$ 
+
+- $\lambda_0(t)$ is an arbitrary baseline hazard, the hazard when all covariates are equal to 0. 
+ 
+- The Cox model is semi-parametric because the form of $\lambda_0(t)$ is unspecified.
+
+- This model says that the hazard ratio, $\frac{\lambda(t; Z)}{\lambda(t; Z^\prime)}$, is constant over time, we have **proportional hazards**
+  
+- Two extensions allow flexibility:
+  1. Stratified Cox model
+  2. Adding time-dependent covariates
+  
+---
+## Stratified Cox Model 
+
+- A stratified Cox model allows a different baseline hazard for different levels of a covariate.
+
+- Let $V$ be a covariate on which we want to stratify. We model 
+
+$$\lambda(t; V = v, Z) = \lambda_{0, v}(t)exp(Z^\top\beta)$$
+- Since $\lambda_{0,v}$ can be estimated non-parametrically, proportional hazards can be violated for $V$. 
+
+- $V$ must have a small number of levels. 
+
+---
+## Time Dependent Covariates
+
+- We can generalize the Cox model so that some covariates can depend on time:
+$$\lambda(t; Z(t)) = \lambda_0(t)\exp(Z(t)^\top \beta) $$
+
+- This model no longer has proportional hazards restriction, we can specify any linear model for the hazard ratio. 
+
+---
+## Logistic Regression Model 
+
+- When the hazard is small, we can approximate the relative risk model with a logistic regression:
+
+- If $\lambda(t; Z)$ is small then $1-\lambda(t; Z) \approx 1$
+
+- So $\log \lambda(t; Z) \approx \log \frac{\lambda(t; Z)}{1-\lambda(t; Z)}$.
+
+- We can propose
+
+$$\text{logit } P[D_k = 1 \vert D_{k-1} = 0, Z_k] = \theta_{0,k} + Z_k^\top \theta_z$$
+- $\theta_{0, k}$ is a specified function of $Z$ and $t_k$ like
+
+$$\theta_{0, k} = \alpha_0 + \alpha_1 t_k + \alpha_2 t_k^2$$
+
+- We are now fully parametric because we had to specify the form of $\theta_{0,k}$
+
+---
+## Fitting the Logistic Regression
+
+- To fit the proposed logistic regression, we need to convert our data into person-time format.
+
+- Each person has one row for every time period in which they were alive and uncensored at the beginning of the time period. 
+  + A variable `D` indicates whether the person died by the end of the time period. 
+
+- People do not have rows for time periods after they died or were censored.
+
+- Usual standard errors are correct if the hazards model is correct. 
+
+---
+## Creating Person-Time Data
+
+- Note that by default, there are no more IDs, we don't need them. 
+
+```{r, message=FALSE, warning=FALSE}
+#Creating person-time data
+dtime <- seq(120)
+newdat <- survSplit(Surv(survtime, death) ~ qsmk, 
+                    data = dat, cut = dtime) %>%
+          mutate(time = survtime-1, 
+                 timesq = time^2)
+head(newdat)
+```
+
+---
+## Fitting the Logistic Regression
+
+For the NHEFS data we fit the logistic regression
+$$\text{logit } P[D_k = 1 \vert D_{k-1} = 0, Z_k] = \theta_{0,k} + \theta_1 A + \theta_2 A k + \theta_3 A k^2$$
+$$\theta_{0, k} = \alpha_0 + \alpha_1 k + \alpha_2 k^2$$
+
+```{r, message = FALSE, warning = FALSE}
+## This model is for no event
+fit_logistic <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
+                       time + timesq, family=binomial(), 
+           data=newdat)
+```
+
+
+
+---
+## Computing Survival from Estimated Hazards
+
+- Once we have fit the logistic regression, we want to estimate $S_k$ for a particular combination of covariates $Z^*$. 
+
+- We will use the same trick we used to compute K-M curves. 
+$$\hat{S}_{k, Z^*} = \prod_{j \leq k}\left( 1 - \hat{h}_{j,Z^*}\right)$$
+
+- Our estimate of the hazard $\hat{h}_{j,Z^*} = \hat{P}[D_j = 1 \vert D_{j-1} = 0, Z = Z^*]$ comes from the logistic regression model. 
+
+- We can use the same trick for results from a Cox model (output automatically by `survfit` in the `Survival` package).
+
+- Confidence intervals via bootstrapping
+
+---
+
+## Computing Survival in NHEFS
+
+Next we estimate survival at each time for quitters and non-quitters:
+
+```{r, message=FALSE, warning=FALSE}
+qsmk0 <- qsmk1 <- data.frame(time = seq(120)-1)%>% 
+  mutate(timesq = time^2)
+qsmk0$qsmk <- 0
+qsmk1$qsmk <- 1
+
+## Fitted values are 1-hazard
+qsmk0$p_noevent <- predict(fit_logistic, qsmk0, type="response")
+qsmk1$p_noevent <- predict(fit_logistic, qsmk1, type="response")
+
+## Survival = prod (1 - hazard)
+qsmk0$surv <- cumprod(qsmk0$p_noevent)
+qsmk1$surv <- cumprod(qsmk1$p_noevent)
+
+surv_data <-bind_rows(qsmk0, qsmk1)
+```
+
+---
+
+## Parametric Survival Curves in NHEFS
+```{r,echo=FALSE, message=FALSE, warning=FALSE, fig.align='center', fig.width=9, fig.height=7}
+## plot
+ggplot(surv_data, aes(x=time, y=surv)) + 
+  geom_line(aes(group = qsmk, color = as.factor(qsmk))) + 
+  xlab("Months") + 
+  scale_x_continuous(limits = c(0, 120), breaks=seq(0,120,12)) +
+  scale_y_continuous(limits=c(0.6, 1)) +
+  scale_color_discrete(name = "qsmk") + 
+  ylab("Survival") + 
+  ggtitle("Survival from hazards model") + 
+  labs(colour="Quit smoking") +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 14), 
+        legend.title =  element_text(size = 12),
+        plot.title = element_text(size = 18))
+```
+
+---
+## Semi-Parametric Survival Curves
+- We can use the `coxph` function to fit the time-dependent coefficients instead of using logistic regression.
+- Since we have time-dependent coefficients, we need to use the long form data.
+
+```{r}
+fit_cox <- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(qsmk*timesq), data = newdat)
+fit_cox$coefficients
+```
+
+- The coefficients from the CoxPH model are comparable to the coefficients involving the `qsmk` term in the logistic regression model.
+
+```{r}
+fit_logistic$coefficients
+```
+
+
+---
+## Semi-Parametric Survival Curves
+
+- We can obtain predicted survival from the CoxPH fit using the `survfit` function.
+
+```{r}
+surv_data$id <- 1
+surv_data$id[surv_data$qsmk==1] <- 2
+surv_data <- surv_data %>% 
+          mutate(tstart = time,
+                 survtime = time + 1, 
+                 death = 0) 
+x <- survfit(fit_cox, newdata = surv_data, id = id, se.fit = FALSE)
+surv_data2 <- surv_data
+surv_data2$surv <- x$surv
+
+# some bookkeeping
+surv_data$type <- "logistic"
+surv_data2$type <- "cox"
+surv_data2$id <- surv_data2$id + 2
+surv_data <- bind_rows(surv_data, surv_data2)
+```
+
+---
+## Semi-Parametric Survival Curves
+
+```{r, echo = FALSE, fig.align='center', fig.width=9, fig.height=7}
+ggplot(surv_data, aes(x=time, y=surv)) + 
+  geom_line(aes(group = id, color = as.factor(qsmk), linetype = type)) + 
+  xlab("Months") + 
+  scale_x_continuous(limits = c(0, 120), breaks=seq(0,120,12)) +
+  scale_y_continuous(limits=c(0.6, 1)) +
+  ylab("Survival") + 
+  ggtitle("Survival from hazards models") + 
+  labs(colour="Quit smoking") +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 14), 
+        legend.title =  element_text(size = 12),
+        legend.text = element_text(size = 14),
+        plot.title = element_text(size = 18))
+```
+
+---
+## Censoring
+
+- In the NHEFS data, we only have administrative censoring. 
+
+- If we have censoring throughout the study, then the hazards model will be estimating
+
+$$P[D_k = 1 \vert D_{k-1} = 0, \bar{C}_k = 0, A]$$
+
+- If $\bar{C}_k \ci D_k \vert D_{k-1} = 0, A$, then the quantity above is equal to $$P[D_k = 1\vert D_{k-1} = 0, A]$$, so nothing has changed.
+
+- If censoring is informative, we need to condition on variables $L$ such that $\bar{C}_k \ci D_k \vert D_{k-1} = 0, A, L$. 
+
+---
+# 2. IP Weighting and G-Computation for Survival Analysis
+
+---
+
+## IP Weighting
+
+- What we have seen so far allows us to estimate the association between survival and treatment, potentially conditioning on other variables. 
+
+- However, what we would like to estimate is the counterfactual survival had everyone recieved treatment $a$: 
+$$E[D_{k}(A = a, \bar{C}_k = 0)]$$
+
+- We can use the same IP weighting + marginal structural model approach we used in L5 for non-time to event data. 
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5, warning=FALSE, message=FALSE}
+ndf3 <- create_node_df(n =5 , label = c("A", "L", "D@_{1}", "D@_{2}", "U"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     x = c(0, 0, 1, 2, 1)*0.8, 
+                     y = c(0, 0.7, -1, -1, 0.7)*0.6)
+edf3 <- create_edge_df(from = c(1,  1,2,3, 5, 5, 5), to = c(3, 4, 1, 4, 2, 3, 4),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+gr3 <- create_graph(nodes_df = ndf3, edges_df = edf3)
+
+render_graph(gr3)
+```
+</center>
+
+
+
+---
+## IP Weighting
+
+- We first compute standardized weights $$SW^{A} = \frac{P[A = A_i]}{P[A =A_i \vert L = L_i]}$$ exactly as we did before. 
+
+- We can now convert our conditional hazard model into a structural marginal model 
+
+$$\text{logit } P[D_k(A = a) = 1 \vert D_{k-1}(A = a) = 0] = \beta_{0,k} + \beta_1 a + \beta_2 a k + \beta_3 a k^2$$
+- Estimate the parameters of the model using weighted data. 
+
+---
+## IP Weighted Estimates in NHEFS
+
+- First step, estimate propensity scores as before
+```{r, warning = FALSE}
+#denominator
+fit_ps <- glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+               + smokeintensity + I(smokeintensity*smokeintensity)
+               + smokeyrs + I(smokeyrs*smokeyrs) + as.factor(exercise)
+               + as.factor(active) + wt71 + I(wt71*wt71), 
+               data=dat, family=binomial())
+dat$ps <- predict(fit_ps, dat, type="response")
+
+#numerator
+fit_pa <- glm(qsmk ~ 1, data=dat, family=binomial())
+dat$pa1 <- predict(fit_pa, dat, type="response")
+
+# computation of estimated weights
+dat <- dat %>% mutate(sw_a = case_when(qsmk == 1 ~ pa1/ps, 
+                                       TRUE ~ (1-pa1)/(1-ps)))
+
+```
+
+---
+## IP Weighted Estimates in NHEFS
+
+- Next fit the logistic regression hazard model weighted by the IP weights. 
+
+- You will get a warning using non-integer weights. This is ok. 
+
+```{r}
+# creation of person-month data
+dtime <- seq(120)
+newdat <- survSplit(Surv(survtime, death) ~ qsmk + sw_a, 
+                    data = dat, cut = dtime) %>%
+          mutate(time = survtime-1, 
+                 timesq = time^2)
+
+# fit of weighted hazards model
+ipw_fit_logistic <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
+                   time + timesq, family=binomial(), weight=sw_a,
+                 data=newdat)
+```
+
+---
+## IP Weighted Estimates in NHEFS
+
+- Finally, compute counterfactual survival probabilities. 
+```{r}
+qsmk0 <- qsmk1 <- data.frame(time = seq(120)-1)%>% 
+  mutate(timesq = time^2)
+qsmk0$qsmk <- 0; qsmk0$id <- 1;
+qsmk1$qsmk <- 1; qsmk1$id <- 2;
+
+# Fitted values are 1-hazard
+qsmk0$p_noevent <- predict(ipw_fit_logistic, qsmk0, type="response")
+qsmk1$p_noevent <- predict(ipw_fit_logistic, qsmk1, type="response")
+
+# computation of survival for each person-month
+qsmk0$surv <- cumprod(qsmk0$p_noevent)
+qsmk1$surv <- cumprod(qsmk1$p_noevent)
+
+# some data management to plot estimated survival curves
+surv_data <- bind_rows(qsmk0, qsmk1)
+```
+
+
+---
+## Alternative Semi-Parametric Approach
+
+- Instead of logistic regression, we could use CoxPH to fit a semi-parametric marginal structural model for the hazard.
+
+```{r}
+ipw_fit_cox <- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(qsmk*timesq), 
+                     data = newdat, weights = sw_a)
+```
+
+```{r, echo = FALSE}
+surv_data <- surv_data %>% 
+          mutate(tstart = time,
+                 survtime = time + 1, 
+                 death = 0) 
+surv_data2 <- surv_data
+surv_data2$surv <- survfit(ipw_fit_cox, newdata = surv_data, id = id, se.fit = FALSE)$surv
+
+
+# some bookkeeping
+surv_data$type <- "logistic"
+surv_data2$type <- "cox"
+surv_data2$id <- surv_data2$id + 2
+surv_data <- bind_rows(surv_data, surv_data2)
+```
+
+---
+## IP-Weighted Survival Curves
+
+```{r, echo = FALSE, fig.align='center', fig.width=9, fig.height=5}
+ggplot(surv_data, aes(x=time, y=surv)) + 
+  geom_line(aes(group = id, color = as.factor(qsmk), linetype = type)) + 
+  xlab("Months") + 
+  scale_x_continuous(limits = c(0, 120), breaks=seq(0,120,12)) +
+  scale_y_continuous(limits=c(0.6, 1)) +
+  ylab("Survival") + 
+  ggtitle("Survival from IP-Weighted Hazards Models") + 
+  labs(colour="Quit smoking") +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 14), 
+        legend.title =  element_text(size = 12),
+        legend.text = element_text(size = 14),
+        plot.title = element_text(size = 18))
+```
+
+```{r, echo = FALSE, eval = FALSE}
+surv_func <- function(dat){
+  #denominator
+  fit_ps <- glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
+                 + smokeintensity + I(smokeintensity*smokeintensity)
+                 + smokeyrs + I(smokeyrs*smokeyrs) + as.factor(exercise)
+                 + as.factor(active) + wt71 + I(wt71*wt71), 
+                 data=dat, family=binomial())
+  dat$ps <- predict(fit_ps, dat, type="response")
+  
+  #numerator
+  fit_pa <- glm(qsmk ~ 1, data=dat, family=binomial())
+  dat$pa1 <- predict(fit_pa, dat, type="response")
+  
+  # computation of estimated weights
+  dat <- dat %>% mutate(sw_a = case_when(qsmk == 1 ~ pa1/ps, 
+                                         TRUE ~ (1-pa1)/(1-ps)))
+  dtime <- seq(120)
+  newdat <- survSplit(Surv(survtime, death) ~ qsmk + sw_a, 
+                      data = dat, cut = dtime) %>%
+            mutate(time = survtime-1, 
+                   timesq = time^2)
+  
+  # fit of weighted hazards model
+  ipw_fit_logistic <- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
+                     time + timesq, family=binomial(), weight=sw_a,
+                   data=newdat)
+  ipw_fit_cox <- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(qsmk*timesq), 
+                     data = newdat, weights = sw_a)
+  qsmk0 <- qsmk1 <- data.frame(time = seq(120)-1)%>% 
+  mutate(timesq = time^2)
+  qsmk0$qsmk <- 0; qsmk0$id <- 1;
+  qsmk1$qsmk <- 1; qsmk1$id <- 2;
+  
+  # Fitted values are 1-hazard
+  qsmk0$p_noevent <- predict(ipw_fit_logistic, qsmk0, type="response")
+  qsmk1$p_noevent <- predict(ipw_fit_logistic, qsmk1, type="response")
+
+  # computation of survival for each person-month
+  qsmk0$surv <- cumprod(qsmk0$p_noevent)
+  qsmk1$surv <- cumprod(qsmk1$p_noevent)
+
+  # some data management to plot estimated survival curves
+  surv_data <- bind_rows(qsmk0, qsmk1)
+  surv_data <- surv_data %>% 
+          mutate(tstart = time,
+                 survtime = time + 1, 
+                 death = 0) 
+  surv_data2 <- surv_data
+  surv_data2$surv <- survfit(ipw_fit_cox, newdata = surv_data, id = id, se.fit = FALSE)$surv
+  
+  
+  # some bookkeeping
+  surv_data$type <- "logistic"
+  surv_data2$type <- "cox"
+  surv_data2$id <- surv_data2$id + 2
+  surv_data <- bind_rows(surv_data, surv_data2)
+  ests <- with(surv_data, c(surv[qsmk==0 & type == "logistic" & time == 119], 
+                            surv[qsmk==1 & type == "logistic" & time == 119], 
+                            surv[qsmk==0 & type == "cox" & time == 119], 
+                            surv[qsmk==1 & type == "cox" & time == 119]))
+  return(ests)
+}
+boot_ests <- replicate(n = 500, expr = {
+  ix <- sample(1:nrow(dat), size = nrow(dat), replace = TRUE)
+  surv_func(dat[ix,])
+})
+ests <- surv_func(dat)
+est_diff <- c(ests[2]-ests[1], ests[4]-ests[3])
+#[1] 0.8046516 0.8066673 0.8047777 0.8067029
+boot_diff <- rbind(boot_ests[2,]-boot_ests[1,], 
+                   boot_ests[4,]-boot_ests[3,])
+sd <- apply(boot_diff, 1, sd)
+est_diff + qnorm(0.975)*sd
+#[1] 0.04186884 0.04177637
+est_diff - qnorm(0.975)*sd
+#[1] -0.03783763 -0.03792582
+```
+
+
+- LR 120 month survival estimates: $A = 0: 80.5\%$, $A = 1: 80.7\%$
+  + 95% CI for difference at 120 months from bootstrapping: $(-3.8\%, 4.2\%)$
+  + Nearly identical results from Cox model
+
+---
+## IP Weighting Assumptions
+
+- For consistent estimation we need: 
+
+--
+
+- Correctly specified propensity score model
+
+- Correctly specified marginal structural model
+
+- Non-informative censoring
+  + We could have also included weights for censoring. 
+  + Censoring weights may be time-varying.
+  
+  <!-- + Alternatively, if we had a set of variables $V$ such that $\bar{C}_k \ci D_k \vert A, V$ for all $k$, we could condition on $V$ in the marginal structural model.  -->
+
+<!-- --- -->
+<!-- ## Adjusting for Non-Adherence -->
+
+
+---
+## Standardization/G-Computation
+
+- Recall standardization from L5: 
+  + Propose a conditional model for $E[Y \vert A, L]$ and then standardize over the distribution of $L$ in our sample.
+
+- The procedure is the same for time to event data. 
+
+- In this case, we need a parametric model for the hazard. 
+
+- We then compute the conditional survival from the conditional hazard using the product trick. 
+
+- Finally, we standardize the survival to the distribution of $L$ in our sample. 
+
+- Results in NHEFS data are very similar to IP weighted results:
+  + 120 month survival: $A = 0: 80.6\%$, $A = 1: 80.4\%$
+  + Bootstrap based 95% confidence interval for difference: $(-4.6\%, 4.1\%)$
+  
+---
+## Standardization Assumptions
+
+- For consistent estimation we need: 
+
+--
+
+- Correctly specified conditional hazard model
+
+- Non-informative censoring conditional on $A$ and $L$. 
+
+---
+
+## Survival vs Hazards
+
+- So far we have focused on estimating counterfactual survival, the hazards have just been a means to an end. 
+
+- Recall from our discussion of selection bias that time-specific hazard ratios have built-in selection bias. 
+  + We can compute counterfactual hazard ratios but interpretation may be misleading.
+
+- When a single hazard ratio from a Cox model is reported, it is a weighted average of time-specific hazard ratios. 
+  + Interpretation is unclear if proportional hazards does not hold.
+
+- Hernán and Robins propose that time-specific survival or risk are the most interpretable parameters. 
+
+
+---
+## 3. G-Estimation of Structural Nested Models
+
+---
+## Accelerated Failure Time Models
+
+- An AFT is an alternative to the relative risks model. 
+
+- Let $Y = \log T$. We can propose a log-linear model for survival time:  $$\log T = Y = Z^\top \beta + W\\\ T = \exp(Z^\top \beta)\exp(W)$$ 
+
+- $W$ is a random variable with unspecified distribution. $W$ may not be mean 0. 
+
+- Let $\Lambda_0(t) = P[\exp(W) < t]$ be the CDF of $S = \exp(W)$. The risk (CDF) of T is
+
+$$R(t; Z, \beta) = P[T < t \vert Z, \beta] = \Lambda_0(t \exp(-Z^\top \beta))$$
+---
+## Accelerated Failure Time Models
+
+- From the risk, we can calculate the hazard associated with the log-linear model for $T$:
+
+$$\lambda(t; Z, \beta) = \frac{\frac{d}{dt}(-R(t; Z, \beta))}{1-R(t; Z, \beta)}$$
+
+- Use the chain rule with $u(t) = t \exp(Z^\top \beta)$
+$$\lambda(t; Z, \beta) = \frac{\exp(-Z^\top \beta)\frac{d}{du}(-\Lambda_0(u))}{1-\Lambda_0(u)}\\\
+= \exp(-Z^\top \beta)\lambda_0(t \exp(-Z^\top \beta))$$
+
+
+- Covariates have the effect of "speeding up" or "slowing down" the trajectory.
+
+---
+## Accelerated Failure Time Models 
+
+<center> 
+
+```{r, echo=FALSE, out.width="95%"}
+knitr::include_graphics("img/8_aft.png")
+```
+
+</center>
+
+
+---
+## Accelerated Failure Time Models
+
+
+
+- The exponential model, in which $\lambda(t) = \lambda \exp(Z^\top \beta)$ is a special case of the AFT. 
+  + It is also a special case of a relative risk model. 
+
+- The more general Cox model is not a special case of the AFT model. 
+
+- In the AFT, the parameter $\beta$ describes the ratio of expected survival times 
+
+$$\frac{E[T \vert Z = Z_1]}{E[ T \vert Z = Z_2]} = \exp((Z_1 -Z_2)\beta)$$
+---
+
+## Structural Nested Models
+
+- An alternative to IP weighting and standardization is G-estimation of structural nested models. 
+
+- For survival data, we can consider a **structural nested accelerated failure time** model. 
+
+- We start by motivating the method with a strong assumptions
+
+$$T_{i}(A = a)/T_i(A = 0) = \exp(-\psi_1 a)$$
+- This model says that the ratio of survival time under treatment $a$ and treatment 0 is exactly the same for all individuals. 
+
+- This is the same as the models we saw in L7 except that here we are using the log link. 
+
+---
+## G-estimation
+
+- As in L7, if we think there is effect modification, we should include it in the model.
+
+$$T_{i}(A = a)/T_i(A = 0) = \exp(-\psi_1 a - \psi_2 a L_i)$$
+
+- Rearranging
+
+$$T_{i}(A = 0)= T_i(A = a) \exp(\psi_1 a + \psi_2 a L_i)$$
+
+- Using consistency 
+$$T_{i}(A = 0) = T_i \exp(\psi_1 A_i + \psi_2 A_i L_i)$$
+
+---
+## G-estimation
+
+- Following our previous strategy, we would define 
+$$H(x_1, x_2) = T_i\exp(x_1 A_i + x_2 A_i L_i)$$
+- We would then search for a solution pair $(\hat{x}_1, \hat{x}_2)$ such that $H(\hat{x}_1, \hat{x}_2)$ is independent of $A$ in a regression model. 
+
+--
+
+- What is wrong with this approach in the survival setting?
+
+--
+
+- $T_i$ is unknown for everyone who was censored. 
+
+
+---
+## Example
+
+- We conduct a 60 month study of treatment $A$ which is assigned randomly. 
+
+- In everyone, $T(A = 1)/T(A = 0) = 0.667$ (the treatment reduces survival).
+
+- We have three types participants in the study:
+  + High risk: $T(A = 0)= 36$, $T(A = 1) = 24$
+  + Medium risk: $T(A = 0) = 72$, $T(A = 1) = 48$
+  + Lowest risk: $T(A = 0) = 108$, $T(A = 1) = 72$
+  
+- After 60 months, we have observed death times for all of the high risk group and none of the low risk group. 
+
+- We have observed death times only for the treated medium risk group. 
+
+- If we restrict our sample to only those with observed death times, risk group is no longer independent of treatment. 
+
+---
+## Artificial Censoring 
+
+- In the example, if we could exclude the medium risk group, we would eliminate selection bias. 
+
+- Generally, we want to exclude anyone for whom $T_i(A = a) > K$ or $T_i(A = 0) > K$ where $K$ is the end of the study. 
+
+- If we knew the value of $\psi$, we could identify these individuals because we could calculate both $T_i(A = 0)$ and $T_i(A  = a).$ 
+
+- We introduce a new indicator $\Delta_i(x)$ which is 0 if unit $i$ should be excluded if $\psi = x$.
+
+---
+## Estimation
+
+- Once we have the artificial censoring indicator, $\Delta_i(x)$, we can fit a logistic regression model in only data with $\Delta_i(x) = 1$. 
+
+- We do a grid search for values of $x$ which make $H(x)$ independent of $A.$
+
+
+- In the NHEFS data, using the model $$T_i(A = 0) = T_i \exp(\psi A_i)$$ the resulting estimate of $\psi$ is  $-0.05 (95\%\ \text{CI:} -0.22 \text{ to } 0.33)$.
+---
+## Structural Nested AFTs in Practice
+
+- Currently, there is a lack of software for structural nested AFTs. 
+
+- Search algorithms for structural nested AFTs are not guaranteed to converge to unique solutions. 
+
+- As a result, structural nested AFTs are rarely used in practice. 
+
+- HR  and Vansteelandt and Joffe (2014) argue that structural nested models are underutilized. 
+
+---
+# 4. Competing Events
+
+---
+
+## Competing Events
+
+- Suppose we are interested in the time until cancer recurrence. 
+
+- If some patients die before their cancer recurs and before the administrative censoring time, we now have three possible endpoints, death, recurrence, or censoring. 
+
+- Four options:
+  1. Count death as censoring
+  2. Do not count death as censoring
+  3. Condition on competing events
+  4. Define a composite event death or cancer recurrence.
+  
+- Let $Y_k$ be an indicator for recurrence at time $k$ and $D_k$ an indicator for death at time $k$. 
+  
+---
+## Example
+
+- Draw a DAG for two time points. Include indicators of death, recurrence and censoring at each time point. 
+
+- Remember that a unit can only die once and only recur once. A unit cannot recur or be censored if they have died.
+
+- Include a treatment $A$ that could affect either death or recurrence at either time point. 
+  
+  
+---
+## Example
+
+<center>
+```{r, echo = FALSE, fig.height = 4, warning=FALSE, message=FALSE}
+ndfex <- create_node_df(n =7 , label = c("D@_{1}", "D@_{2}", "C@_{1}", "C@_{2}", "Y@_{1}", "Y@_{2}", "A"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     y = c(2, 2, 0, 0, 1, 1, 1.5)*0.6, 
+                     x = c(0, 1, 0, 1, 0, 1, -1)*0.8)
+edfex <- create_edge_df(from = c(1, 1, 3, 7, 7, 7, 7, 1, 1, 5, 5), 
+                        to = c(2, 4, 4, 1, 5, 6, 2, 5, 6, 6, 2),
+                          minlen = 1, 
+                          color = "black" 
+                          )
+grex <- create_graph(nodes_df = ndfex, edges_df = edfex)
+
+render_graph(grex)
+```
+</center>  
+  
+  
+  
+---
+## Option 1: Count Death as Censoring
+
++ We are estimating $E[Y_{k}(a, \bar{C}_k =0, \bar{D}_k = 0) \vert Y_{k-1}(a, \bar{C}_{k-1} =0, \bar{D}_{k-1} = 0) = 0]$, the expected hazard if nobody was censored and
+  all causes of death were prevented. 
+  + Is this a reasonable counterfactual?
+  
+- This is the **hazard under elimination of competing events**
+
+- The effect on recurrence is called the **direct effect**
+
+- Check for informative censoring -- if $Y_k$ and $D_k$ have shared causes, censoring is informative.
+
+
+<center> 
+
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/8_ysthfig2.png")
+```
+
+</center>  
+  
+
+---
+## Option 2: Do Not Count Death as Censoring
+
++ Patients who die have a value of 0 for the recurrence event for all time points after death.
+
++ That is, we continue to count patients who are dead as "at risk" for the primary event. 
+  
++ We are estimating the **hazard without elimination of competing events**.
+
++ The effect on recurrence is the **total effect**.
+
+<center> 
+
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/8_ysthfig2.png")
+```
+
+</center>  
+
+---
+## Option 2: Do Not Count Death as Censoring
+
++ Exchangeability requirements are less strong, common causes of $D_k$ and $Y_k$ do not create bias.
+
++ However, we could see a beneficial effect of treatment on recurrence due to an increase in the rate of death for treated patients.
+
+
+<center> 
+
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/8_ysthfig2.png")
+```
+
+</center>  
+
+---
+## Option 3: Condition on competing events
+
++ Estimate $E[D_{k}(a, \bar{C}_k =0) \vert D_{k-1}(a, \bar{C}_{k-1} =0) = 0, Y_{k-1}(a, \bar{C}_{k-1} =0) = 0]$
+
++ This is the **cause-specific hazard**.
+
++ If there are common causes of treatment and $Y_k$ or of $Y_k$ and $Y_{k + 1}$, conditioning on $Y_k$ will introduce selection bias. 
+
+<center> 
+
+```{r, echo=FALSE, out.width="75%"}
+knitr::include_graphics("img/8_ysthfig3.png")
+```
+
+</center>  
+
+---
+## Option 4: Composite Event
+
+- The easiest option is to create a composite event death or recurrence. 
+
++ The causal question has now changed (maybe ok). 
+
++ A non-null result could indicate an effect on death or recurrence (or both). 
+
+---
+
+## Final Thoughts
+
+- An important thing to keep in mind when analyzing time to event data is that hazards themselves don't have a causal interpretation (recall Lecture 4). 
+
+- It is therefore more sensible to compute estimated survival curves and compare these at one or multiple points. 
+
+- As with our previous methods, causal interpretation of any model will require finding a well fitting model.
+
+

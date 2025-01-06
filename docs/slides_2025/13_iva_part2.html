@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L13: Instrumental Variable Analysis Part 2</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# L13: Instrumental Variable Analysis
+Part 2
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### Lecture on 2024-03-27
+(updated: 2024-03-27)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+## Lecture Outline
+
+1. Structural Equation Motivation for IVW
+1. Distribution of Single IV Estimator
+1. Multiple IV Estimators
+1. Mendelian Randomization
+
+---
+# 1. Structural Equation Motivation for IVW
+
+
+---
+## Structural Equation Model Approach
+
+- Consider the set of linear structural models:
+
+`$$A_i(z)  = \beta_{A0} + \beta_{AZ} z + \epsilon_{A,i} \\\
+Y_i(a)  = \beta_{Y0} + \gamma a + \epsilon_{Y,i}$$`
+
+- `\(\gamma\)` is the causal effect we want to identify. 
+
+- In this model, both the effect of `\(Z\)` on `\(A\)` and the effect of `\(A\)` on `\(Y\)` are homogeneous (the same for everyone).
+
+- `\(\epsilon_{A,i}\)` and `\(\epsilon_{Y,i}\)` are mean zero deviations, which may depend on other variables.
+
+- If there is confounding between `\(A\)` and `\(Y\)`, then `\(\epsilon_A\)` and `\(\epsilon_Y\)` are correlated.
+
+- Using consistency, we can substitute `\(A_i\)` for `\(A_i(z)\)` and `\(Z_i\)` for `\(z\)` in both equations.
+
+---
+## IV Assumptions Impose Constraints
+
+`$$A_i  = \beta_{A0} + \beta_{AZ} Z_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+
+
+
+- The relevance assumption means that `\(\beta_{AZ} \neq 0\)`. 
+
+
+
+- The exclusion restriction requires that `\(Y\)` is independent of `\(Z\)` given `\(A\)`.  This is satisfied by conditions:
+    - `\(Z_i\)` is not in the second equation and 
+    - `\(Cov(Z, \epsilon_{Y}) = 0\)`
+    
+
+
+- Exchangeability requires that there is no confounding between `\(Z\)` and `\(Y\)`. 
+    - This is also satisfied by `\(Cov(Z, \epsilon_{Y}) = 0\)` 
+
+
+- We need an additional condition to identify `\(\gamma\)`:  `\(Cov(Z_i, \epsilon_{A, i}) = 0\)`.
+  + This is equivalent to assuming that the true association between `\(Z\)` and `\(A\)` is linear.  
+   
+---
+## Structural Equation Model Approach
+
+Starting with our system of structural equations:
+`$$A_i  = \beta_{A0} + \beta_{AZ} Z_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+
+Plug the first equation into the second. 
+`$$Y_i  = \beta_{Y0} + \gamma \left(\beta_{A0} + \beta_{AZ} Z_i + \epsilon_{A,i} \right) + \epsilon_{Y,i}\\\
+ = \beta_{Y0}^\prime + \gamma \beta_{AZ} Z_i + \epsilon_{Y,i}^\prime$$`
+
+---
+## Structural Equation Model Approach
+
+`$$A_i  = \beta_{A0} + \beta_{AZ} Z_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0}^\prime + \gamma \beta_{AZ} Z_i + \epsilon_{Y,i}^\prime$$`
+
+
+This result suggests two estimation strategies: 
+
+--
+
+1. Two stage least squares:
+
+  - Regress `\(Z\)` on `\(A\)` to obtain `\(\hat{\beta}_{AZ}\)`. 
+  - Regress `\(Y\)` on `\(\hat{\beta}_{AZ}Z\)` to estimate `\(\gamma\)`. 
+
+--
+
+2. Ratio estimator: 
+
+  - Regress `\(A\)` on `\(Z\)` to obtain `\(\hat{\beta}_{AZ}\)`.
+  - Regress `\(Y\)` on `\(Z\)` to obtain `\(\hat{\beta}_{YZ}\)`, an estimate of `\(\gamma\beta_{AZ}\)`. 
+  - Estimate `\(\gamma\)` by `\(\hat{\beta}_{YZ}/\hat{\beta}_{AZ}\)`
+  
+- We will show that these estimates are identical, and for binary `\(Z\)` and `\(A\)`, equal to the version of `\(\beta_{IV}\)` we have already seen.
+  
+
+---
+## Two Stage Least Squares
+
+- Suppose we have `\(N\)` observations of `\((Z, A, Y)\)`. 
+
+- Let `\(\mathbf{Z}\)`, `\(\mathbf{A}\)`, and `\(\mathbf{Y}\)` be `\(N\times 1\)` vectors. 
+
+- For simplicity, assume that `\(\mathbf{A}\)` and `\(\mathbf{Y}\)` are centered (mean 0). 
+
+- Then in the first stage we obtain 
+`$$\hat{\beta}_{AZ} = (\mathbf{Z}^\top \mathbf{Z})^{-1}\mathbf{Z}^\top\mathbf{A}$$`
+
+- In the second stage we regress `\(\hat{\beta}_{AZ}\mathbf{Z}\)` on `\(Y\)`. 
+
+`$$\hat{\gamma} = \hat{\beta}_{2SLS} =  (\hat{\beta}_{AZ}^2\mathbf{Z}^\top \mathbf{Z})^{-1}\hat{\beta}_{AZ}\mathbf{Z}^\top\mathbf{Y}\\\
+\frac{(\mathbf{Z}^\top \mathbf{Z})^{-1}\mathbf{Z}^\top\mathbf{Y}}{\hat{\beta}_{AZ}}
+= \frac{\hat{\beta}_{YZ}}{\hat{\beta}_{AZ}}$$`
+
+
+
+---
+## Ratio Estimator
+
+
+- If `\(Z\)` is binary then the OLS estimate of `\(\hat{\beta}_{AZ}\)` is `\(E[A \vert Z =1]-E[A \vert Z = 0]\)`. 
+
+- Similarly, the OLS estimate of `\(\hat{\beta}_{YZ}\)` is `\(E[Y \vert Z = 1] - E[Y \vert Z = 0]\)`. 
+
+- So `\(\hat{\beta}_{IV}\)` introduced previous is a special case of the ratio estimator. 
+
+---
+## Two Sample IVA
+
+
+- Both the 2SLS framework and the ratio estimator framework suggest that we don't need to measure `\(Z\)`, `\(A\)` and `\(Y\)` in the same sample. 
+
+- We could instead have two samples, 
+  + Sample 1: data for `\(Z\)` and `\(A\)` and 
+  + Sample 2: data for `\(Z\)` and `\(Y\)`. 
+
+- In 2SLS, we conduct the first stage regression of `\(A\)` on `\(Z\)` in Sample 1. 
+
+- We then use `\(\hat{\beta}_{AZ}\)` to compute `\(\hat{\beta}_{AZ}Z\)` in Sample 2. We then regress `\(Y\)` on this new variable. 
+  + `\(\hat{\beta}_{AZ}Z\)` is like an imputed unconfounded version of `\(A\)`.
+  
+- Using the ratio framework, we use Sample 1 to estimate `\(\hat{\beta}_{AZ}\)` and `\(\hat{\beta}_{YZ}\)` and then compute the ratio. 
+
+- These two strategies give identical results. 
+
+---
+## Two Sample IVA
+
+- Being able to estimate the effect of `\(A\)` on `\(Y\)` without observing `\(A\)` and `\(Y\)` in the same data set is extremely powerful. 
+
+- It makes it possible to address causal questions that would be otherwise impossible to study. 
+
+Examples:
+
+- `\(A\)` and `\(Y\)` might occur very far apart in time making it impractical to measure them in the same units. 
+  + E.g Do exposures during pregnancy increase risks of late in life diseases. 
+  
+- One of `\(A\)` or `\(Y\)` might be challenging to measure while the other is easy. We can have a larger sample size for one stage than the other.
+  
+- Data have already been collected for either `\(Z\)` and `\(A\)` or `\(Z\)` and `\(Y\)` in a sample that cannot be recontacted. 
+
+
+
+
+
+
+---
+## Adjusting for `\(Z-Y\)` Confounding
+
+- Our instrument does not have to perfectly satisfy the exchangeability condition, as long as we have measured any variables confounding `\(Z\)` and `\(A\)`. 
+
+- Hernan and Robins suggest that g-methods can be used to estimate the causal effect of `\(Z\)` on `\(A\)` accounting for confounders. 
+  - The most common strategy is to simply add confounders to the regression of `\(A\)` on `\(Z\)`. 
+
+- In the education example, age is a potential confounder between quarter of birth and wages. 
+  + Men born in the first quarter are older than their peers who started school the same year. 
+  + Age is also associated with earnings. 
+  + Angrist and Kruger adjust for age and age squared in the first stage of the 2SLS regression. 
+
+---
+# 2. Distribution of Single IV Estimator
+
+---
+## Distribution of the IV Estimator
+
+- The standard IV estimator for a single IV is a ratio of random variables. 
+`$$\hat{\gamma} = \hat{\beta}_{IV} = \frac{\hat{\beta}_{YZ}}{\hat{\beta}_{AZ}}$$`
+
+- If `\(\hat{\beta}_{YZ}\)` and `\(\hat{\beta}_{AZ}\)` are estimated in different samples then 
+the numerator and denominator are independent. Otherwise, they are dependent. 
+
+- Inconveniently, none of the moments of `\(\hat{\beta}_{IV}\)` exist and it is not normally distributed. 
+  + This occurs because some of the mass of the distribution of `\(\hat{\beta}_{IV}\)` is very close to 0. 
+  
+- For instruments with large effects on `\(A\)`, the portion of the distribution of `\(\hat{\beta}_{AZ}\)` close to zero is very small, so a normal approximation to `\(\hat{\beta}_{IV}\)` works reasonably well. 
+
+---
+## Distribution of the IV Estimator
+
+- Write `\(\hat{\beta}_{AZ} = \mu + \sigma_{AZ} T_A\)` where `\(T_A\)` has mean 0 and variance 1, and `\(\sigma^2_{AZ} = Var(\hat{\beta}_{AZ})\)`.
+
+- If all of our IV assumptions hold the `\(\hat{\beta}_{YZ} = \gamma \mu + \sigma_{YZ} T_y\)`, with  `\(\sigma^2_{YZ} = Var(\hat{\beta}_{YZ})\)`.
+
+- This means that,
+
+`$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A} = \gamma \frac{1}{1 + \sigma_{AZ} T_A/\mu} + \frac{\sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A}$$`
+---
+## Distribution of the IV Estimator
+
+
+`$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A} = \gamma \frac{1}{1 + \sigma_{AZ} T_A/\mu} + \frac{\sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A}$$`
+
+- If `\(T_{YZ}\)` and `\(T_{AZ}\)` are independent, then the expectation of the last term is 0. This occurs in two sample IVA.
+
+- If `\(T_A\)` is normally distributed, then `\(E[1/(1 + \sigma_{AZ} T_A/\mu)]\)` does not have a defined expectation. 
+
+- However, we can see that if `\(\mu/\sigma_{AZ}\)` is large, then `\(\frac{1}{1 + \sigma_{AZ} T_A/\mu} \approx 1\)`. 
+
+- As the sample size used to estimate `\(\hat{\beta}_{AZ}\)` increases, `\(\sigma_{AZ}\)`, goes to zero, so `\(E[\hat{\beta}_{IV}] \to \gamma\)` . 
+
+---
+## Distribution of the IV Estimator
+
+- We can get estimates of the mean and variance of `\(\hat{\beta}_{IV}\)` from a first order Taylor expansion around `\(\gamma\)`.
+
+- Recall that `\(\hat{\beta}_{IV}\)` does not actually have either first or second moments.
+
+
+- Define `\(f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ}) = \hat{\beta}_{YZ}/\hat{\beta}_{AZ} = \hat{\beta}_{IV}\)`. Then for any two-dimensional point `\(\boldsymbol{\theta}\)`, 
+
+`$$f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ}) = f(\boldsymbol{\theta}) + \nabla f(\boldsymbol{\theta})^\top \begin{pmatrix} \hat{\beta}_{YZ} - \theta_1 \\ \hat{\beta}_{AZ} - \theta_2 \end{pmatrix} + \text{Rem}$$`
+---
+## Distribution of the IV Estimator
+
+- If we plug in `\(\boldsymbol{\theta} = (E[\hat{\beta}_{YZ}], E[\hat{\beta}_{AZ}]) = (\gamma \mu , \mu)\)` we obtain 
+
+$$
+`\begin{split}
+E[f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})] \approx &amp; \gamma\\
+Var(f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})) \approx &amp;  \gamma^2 \left(\frac{\sigma^2_{AZ}}{ \mu^2} + \frac{\sigma^2_{YZ}}{\gamma^2 \mu^2} - 2 \frac{Cov(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})}{\gamma \mu ^2} \right) \\ 
+\approx &amp; \hat{\gamma}^2 \left(\frac{\hat{\sigma}^2_{AZ}}{ \hat{\beta}_{AZ}^2} + \frac{\hat{\sigma}^2_{YZ}}{\hat{\beta}_{YZ}^2} - 2 \frac{Cov(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})}{\hat{\beta}_{AZ}\hat{\beta}_{YZ}} \right)
+\end{split}`
+$$
+
+- In the last step we replace all unknowns with estimates. 
+
+---
+## Distribution of the IV Estimator
+
+- To see how good the normal approximation is, we simulate some data. 
+
+- Simulate `\(\hat{\beta}_{YZ} \sim N(\gamma \mu_x, 1)\)` and `\(\hat{\beta}_{AZ} \sim N(\mu_x, 1)\)`, independent. 
+
+- Calculate `\((\hat{\beta}_{IV} - \gamma)/\sqrt{\hat{V}}\)` using the formula from the previous slide to estimate the variance of `\(\hat{\beta}_{IV}\)` 
+
+- Compare these values to a standard normal distribution. 
+
+- We consider values of `\(\gamma = 0\)` or `\(\gamma = 1\)` and `\(\mu = 1, 2, 5, 10\)`. 
+
+---
+## Distribution of the IV Estimator
+
+&lt;center&gt;
+&lt;img src="13_iva_part2_files/figure-html/unnamed-chunk-2-1.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+&lt;/center&gt;
+---
+## Distribution of the IV Estimator
+
+- The approximation is better when `\(\mu\)` is larger. 
+
+- When `\(\mu\)` is small and `\(\gamma \neq 0\)`, `\(\hat{\beta}_{IV}- \gamma\)` is, on average, lower than expected under the normal approximation. We are underestimating the causal effect. 
+
+- This is called **weak instrument bias** because it occurs when the effect of the instrument on the exposure is small compared to the estimation error of `\(\hat{\beta}_{AZ}\)`.
+
+---
+# 3. Multiple IV Estimators
+
+---
+## Multiple Instruments
+
+- Both the 2SLS estimation strategy and the ratio strategy extend to multiple instruments. 
+
+- Let `\(\mathbf{Z}_i\)` be a `\(k\)`-vector of instruments.
+
+- For 2SLS, we extend our set of linear models.
+
+`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i} \\\
+Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
+
+- In the first stage, we estimate `\(\hat{\boldsymbol{\beta}}_{AZ}\)`. 
+
+- In the second stage regress `\(Y\)` on `\(\hat{A} = \hat{\boldsymbol{\beta}}_{AZ}^\top Z\)`. 
+
+- Angrist and Kruger (1991) also examine the problem using quarter of birth interacted with year-of-birth. 
+  + This gives multiple instruments that could affect total years of education differently. 
+
+
+---
+## Inverse Variance Weighted Regression
+
+- The extension of the ratio estimator to multiple instruments is called **inverse variance weighted regression** or IVW regression.
+
+- For each instrument, we can construct a ratio estimate
+
+`$$\hat{\beta}_{IV,1}  = \frac{\hat{\beta}_{YZ_1}}{\hat\beta_{AZ_1}}, \dots, \hat{\beta}_{IV,K}  = \frac{\hat{\beta}_{YZ_K}}{\hat\beta_{AZ_K}}$$`
+- We then construct an overall estimate as a weighted average `$$\hat{\beta}_{IVW} = \frac{\sum_{k=1}^K w_k \hat{\beta}_{IV,k}}{\sum_{k =1}^K w_k}$$` where `\(w_k\)` is the inverse of the (approximate) variance of `\(\hat{\beta}_{IV,k}\)`.
+
+- `\(\hat{\beta}_{IVW}\)` is asymptotically equivalent (but not numerically identical) to the  2SLS estimate.
+
+
+---
+## Inverse Variance Weighted Regression
+
+- IVW regression is often used when only the estimates `\(\hat{\beta}_{YZ_k}\)` and `\(\hat{\beta}_{AZ_k}\)` are available, but the individual level data is not. 
+  - This is often the case in Mendelian randomization. 
+
+- In MR, `\(\hat{\beta}_{YZ_k}\)` and `\(\hat{\beta}_{AZ_k}\)` are obtained from marginal regressions on each instrument separately (GWAS), so our instruments need to be marginally approximately independent. 
+
+- If we use dependent instruments, we will under-estimate the variance of `\(\hat{\beta}_{IVW}\)`. 
+
+
+---
+## IVW Regression
+
+
+- For IVW regression, we need to choose the weights `\(w_j\)`. 
+
+- The most common approach is to use
+
+`$$w_k = \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} \approx Var(\hat{\beta}_{IV,k})$$`  
+
+- This is the estimate of `\(Var(\hat{\beta}_{IV,k})\)` we would get using our previous formula but assuming that `\(\gamma = 0\)`.
+
+
+- Plugging in these weights gives us
+
+`$$\hat{\beta}_{IVW} =   \frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{AZ_k}\sigma^{-2}_{YZk}}{\sum_{k=1}^K \hat{\beta}_{AZ_k}\sigma^{-2}_{YZ_k}}$$`
+
+
+---
+
+## IVW as Regression of Summary Statistics
+
+- The estimator `$$\hat{\beta}_{IVW} = \sum_{k=1}^K   \frac{\hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}{\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}$$`
+is exactly the estimate we would get from regressing  `\((\hat{\beta}_{Y,Z_1}, \dots, \hat{\beta}_{Y, Z_K})\)` on `\((\hat{\beta}_{A,Z_1}, \dots, \hat{\beta}_{A, Z_K})\)` with no intercept.
+
+- This makes sense: our linear model implies that 
+
+`$$E[\hat{\beta}_{A, Z_k}] = \beta_{A, Z_k} \qquad\text{and}\qquad
+E[\hat{\beta}_{Y, Z_k}] = \gamma\beta_{A,Z_k}$$`
+
+- Based on these equations, we might estimate `\(\gamma\)` by substituting `\(\hat{\beta}_{A, Z_k}\)` for `\(\beta_{A, Z_k}\)` in the second equation and fitting a regression.
+
+---
+
+## IVW as Regression of Summary Statistics
+
+&lt;center&gt; 
+&lt;img src="img/10_ldl_cad.jpg" width="70%" /&gt;
+&lt;/center&gt;
+
+Ference et al, Journal of American College of Cardiology (2012)
+
+---
+## Expectation of IVW Estimator
+
+- With `\(K\)` IVs, the moments of the 2SLS and IVW estimators exist up `\(K-1\)`. 
+
+- Zhao et al (2019) (and others) calculate an approximation of `\(E\left[\hat{\beta}_{IVW}\right]\)` for independent samples. 
+
+- For simplicity, assume that `\(\sigma^2_{AZ_k} = \sigma^2_{A}\)` and `\(\hat{\sigma}^2_{YZ_k} = \sigma^2_{Y}\)` are constant over instruments.
+
+- Write `\(\hat{\beta}_{YZ_k} = \gamma \mu_k + \epsilon_{Y,k}\)` and `\(\hat{\beta}_{AZ_k} = \mu_k + \epsilon_{A,k}\)`.
+
+- With independent samples, `\(\epsilon_{Y,k}\)` and `\(\epsilon_{A,k}\)` are independent.
+
+
+---
+## Expectation of IVW Estimator
+
+$$
+`\begin{split}
+E[\hat{\beta}_{IVW}] =&amp; E\left[\frac{\sum_{k=1}^K \hat{\beta}_{Y,Z_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Z_k}}{\sum_{k=1}^K \hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}\right]\\
+=&amp; E\left[\frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}}{\sum_{k=1}^K \hat{\beta}_{A,Z_k}}\right] \approx \frac{E\left[\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\right]}{E\left[\sum_{k=1}^K \hat{\beta}_{A,Z_k}\right]}\\
+\approx &amp;\frac{\gamma \sum_{k = 1}^K \mu_k^2}{\sum_{k = 1}^K \mu_k^2 + \sum_{k = 1}^K E[\epsilon_{A,k}^2]} = \frac{\gamma}{1 + (p\sigma^2_{A})/\sum_{k = 1}^K \mu_k^2}\\
+=&amp; \frac{\gamma}{1 + 1/\kappa}&amp;
+\end{split}`
+$$
+
+where `\(\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k^2}{\sigma^2_{AZ_k}}\)` represents the average instrument strength. 
+---
+## Expectation of IVW Estimator
+
+- Solving the expression from the previous slide, we find that 
+
+`$$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma}{\kappa}$$`
+- `\(\kappa = \frac{1}{K} \sum_{k = 1}^K \frac{E[\hat{\beta}_{AZ_k}]^2}{\sigma^2_{A,k}}\)` represents average instrument strength. This can be estimated as the average chi-squared statistic minus 1.
+
+- Weak instrument bias is pushing the estimate closer to zero. 
+
+- This is the same pattern we saw in the single instrument case. 
+
+
+---
+## Expectation of IVW Estimator
+
+- When there is sample overlap, `\(\epsilon_{A,k}\)` and `\(\epsilon_{Z_k}\)` are not independent and there is an additional term in the expression for the expected bias.
+
+- In the numerator of the expression for `\(E[\hat{\beta}_{IVW}]\)` we have
+`$$E\left[\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\right] = \gamma \sum_{k = 1}^K \mu_k^2 + Cov(\epsilon_{A,k},\epsilon_{Z_k})$$`
+- Rearranging terms and combining with the previous expression we have
+
+`$$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma + \rho c}{\kappa}$$`
+- Where `\(\rho = Cor(\epsilon_{A,k},\epsilon_{Z_k})\)` and `\(c = \sigma_{Y}/\sigma_{A}\)`.
+
+---
+## Bias of the OLS Estimate
+
+
+- Let `\(\rho_{pop}\)` be the population correlation of `\(A\)` and `\(Y\)`. 
+
+- The expectation of the OLS estimate regressing `\(A\)` on `\(Y\)` is 
+
+$$
+`\begin{split}
+&amp;E\left[ \hat{\beta}_{OLS} \right] =  \frac{Cov(A, Y)}{Var(A)} = \rho_{pop}\sqrt{\frac{Var(Y)}{Var(A)}} \equiv \rho_{pop} c_{pop}\\
+&amp;E\left[ \hat{\beta}_{OLS} -\gamma \right] = \rho_{pop}c_{pop} - \gamma
+\end{split}`
+$$ where `\(Var(Y)\)` is the residual variance of `\(Y\)`. 
+
+---
+## Bias of the IVW Estimator
+
+- If each instrument explains a small amount of the variance of `\(A\)` and there is complete sample overlap then `\(\rho \approx \rho_{pop}\)` and `\(c \approx c_{pop}\)`.
+
+- So the bias of the IVW estimate is approximately equal to the bias of the OLS estimate divided by `\(\kappa\)`. 
+
+-  Weak instrument bias is in the direction of the unadjusted (confounded) OLS estimate. 
+
+- We have derived these expressions for the IVW estimator but the same results can be found for the 2SLS estimator. 
+
+
+
+
+
+---
+## Weak Instrument Bias
+
+
+- The table below shows simulation results from Burgess and Thompson (2011). 
+
+- Relative bias is comparing the OLS and the IV estimate.
+
+- We can see that as predicted, relative bias depends on `\(1/F\)` (approximately `\(1/\kappa\)` in our notation). 
+
+&lt;center&gt; 
+&lt;img src="img/10_bandt_tab2.png" width="80%" /&gt;
+&lt;/center&gt;
+
+
+
+
+
+---
+## Weak Instrument Bias in the Education Example
+
+- Bound, Jaeger, and Baker (1993 and 1995) point out that after adjusting for age, age squared, and year of birth the F-statistic for the quarter of birth IVs is actually quite small. 
+
+- A small amount of confounding between years of education and wages or slight violations of the exclusion restriction, could account for the results observed by Angrist and Kruger. 
+
+---
+## Weak Instrument Bias in the Education Example
+
+&lt;center&gt; 
+&lt;img src="img/10_bound_tab1.png" width="90%" /&gt;
+&lt;/center&gt;
+
+---
+## Weak Instrument Bias as Regression Dilution
+
+- Recall that the IVW estimator is a regression of `\(\boldsymbol{\hat{\beta}}_Y\)` on `\(\boldsymbol{\hat{\beta}}_A\)`.
+
+- However, our equation was `\(E[\hat{\beta}_{YZ_k}] = \gamma \beta_{AZ_k}\)`. We substituted the hat value for `\(\beta_{AZ_k}\)`.
+
+- Bias arises because `\(\hat{\beta}_{AZ_k}\)` are measured with error. 
+
+- Measurement error in a predictor will attenuate the estimated coefficient. 
+
+
+---
+## Regression Dilution
+
+- Uncertainty in `\(\hat{\beta}_{AZ}\)` leads to regression dilution, causal estimate biased towards the null. 
+
+&lt;center&gt; 
+&lt;img src="img/10_regression_dilution.gif" width="70%" /&gt;
+&lt;/center&gt;
+
+Animation from Robert Östling
+
+
+---
+## Bias in the IV Estimate
+
+&lt;center&gt; 
+&lt;img src="img/10_bdt_fig1.png" width="115%" /&gt;
+&lt;/center&gt;
+
+---
+## Selection Bias
+
+
+- If we test our potential instrument and find that our estimated F statistic is small, we will probably reject it as an instrument. 
+
+- This means that on average, our estimate of `\(\hat{\beta}_{AZ}\)` will tend to be too extreme (far from 0). 
+
+- Overestimating the magnitude of `\(\hat{\beta}_{AZ}\)` will lead us to understimate the magnitude of `\(\gamma\)`, biasing results towards the null.  
+
+---
+## Selection Bias
+
+- This problem is bigger in settings where there are many possible instruments to choose from and selection is required. 
+  + In these circumstances, three sample IV is sometimes suggested. 
+  + We use one sample with measurements of `\(Z\)` and `\(A\)` to select instruments, and a second sample with measurements of `\(Z\)` and `\(A\)` to estimate `\(\hat{\beta}_{AZ}\)`. 
+  
+- Bias due to winner's curse tends to be small relative to weak instrument bias and is smaller for more stringent significance cutoffs.
+
+---
+## Bias in IV Estimates Summary
+
+- Using 2SLS or IVW in a single sample, bias due to weak instruments will be towards the confounded population correlation. 
+
+- In estimates from separate samples, weak instrument bias will bias the estimate towards the null. 
+
+- Selection bias will bias results towards the null but is smaller than weak instrument bias. 
+
+- This is all bias that occurs *when all of the assumptions are satisfied*. 
+
+- Violations of exchangeability or the exclusion restriction introduce correlation between `\(Z\)` and `\(\epsilon_{Y}\)`. If this occurs, bias could be in any direction but will most often be similar to the observational bias. 
+
+---
+## Pros and Cons of Using Multiple Instruments
+
+Pros: 
+- We have seen that our estimators do not have finite moments for single instruments. 
+  - This makes it appealing to use multiple instruments whenever possible. 
+
+- Adding instruments will increase the total F statistic, which we have seen will decrease bias. 
+
+Cons:
+- The more instruments we include, the more chances we have to vioalte one of the IV assumptions. 
+   + Valid inference depends on all instruments being valid. 
+   
+- In more non-parametric settings, using multiple instruments can make interpretation hard. 
+
+
+---
+## Multiple Instrument Interpretation
+
+- Each of the ratio estimates is an estimate of the complier average causal effect. 
+
+- However, different instruments have different complier groups. 
+  - In Angrist and Kruger, all instruments related to quarter of birth so plausibly, the "complier" group associated with each instrument represent similar populations. 
+
+- If we are not willing to accept a model in which the effect is homogeneous, or there are no non-compliers, we are now estimating a weighted average of LATEs applying to different sub-groups. 
+
+- However, if we believe that the sign of the causal effect is the same in all complier groups, we still have a valid test of the strict null and the sign of the estimated effect is meaningful. 
+
+
+---
+# 4. Mendelian Randomization
+
+
+---
+## Mendelian Randomization
+
+
+- In Mendelian randomization, genetic variants are used as instruments. 
+--
+
+
++ Genetic variants are fixed at conception. They can't be altered by any confounders that occur after that point. 
+
+  + No arrows int `\(Z\)` from environment. 
+  
+--
+
++ Genetic variants can alter traits like height or disease risk by changing proteins, changing protein levels, or regulating expression of other genes. 
+
+  + Relevance can be satisfied
+
+--
+
++ If we are willing to assume random mating with respect to the instruments at hand, then an individual's genetic variants are perfect randomizations.
+
+  + No associations with confounders
+
+---
+## Mendelian Randomization
+
+- MR is incredibly powerful because it can be applied to any pair of traits that has been studied in genetic association studies. 
+
+- Using summary statistic methods, MR can be applied even when individual level data are not available. 
+
+- However, there are major caveats to results obtained using MR.
+---
+## Estimation Problems in MR
+
+
+- Weak instruments: Most variants explain only a tiny amount of trait variation. 
+
+  + Additionally, we are often trying to identify instruments in the same data we will use to estimate `\(\hat{\beta}_{AZ}\)`. 
+  + This can create selection bias. 
+
+--
+
+- Violations of the exclusion restriction. Some variants causally effect multiple traits. 
+
+  - Also, genetic variants are correlated with each other, so one variant may be correlated with separate causal variants for two different traits. 
+
+--
+
+- Confounding from population structure and assortative mating.
+
+  + We generally try to adjust for this in the regression of `\(A\)` on `\(Z\)`. 
+  
+---
+## Interpretation Problems in MR
+
+- Complier groups are unknown and hard to define. We generally don't know the mechanism of most variants. 
+
+- We generally assume that everyone is a complier for all instruments. 
+
+- The exposure can be ill-defined.
+- We don't know *when* a variant affects a trait so we cannot differentiate short and long term exposure. 
+  + We may know that genetic changes altering `\(A\)` increase disease risk `\(Y,\)` but does that mean that if we pharmaceutically alter `\(A\)` later in life we can prevent `\(Y\)`?
+
+- Variants may be affecting different components of an overly broad exposure, e.g. very large LDLs vs large LDLs. 
+  
+  
+---
+## MR Solutions
+
+- Despite its problems, MR has one big resource -- lots and lots of genetic variants. 
+
+- The exposure trait may have thousands of causal variants, so thousands of potential instruments. 
+
+- One strategy is to assume that most but not all of the instruments are valid. 
+
+- We can then examine the distribution of ratio estimates and reject variants that look very different from the rest. 
+
+- Another option is to use a robust regression rather than OLS for the regression of `\(\boldsymbol{\hat{\beta}}_Y\)` on `\(\boldsymbol{\hat{\beta}}_A\)`. 
+  + E.g median or mode regression
+
+- There are many many interesting methods trying different variations of this or related strategies.  
+
+---
+## Accounting for Violations of the Exclusion Restriction
+
+- In MR, violations of the exclusion restriction (also called pleiotropy) are the biggest concern. 
+
+- A simple extension of the SEM we have been working with allows for some violations. 
+
+`$$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i}$$`
+`$$Y_i  = \beta_{Y0} + \gamma A_i + \boldsymbol{\alpha}^\top Z_i + \epsilon_{Y,i}$$` 
+
+- The presence of the `\(\boldsymbol{\alpha}^\top Z_i\)` term in the second equation is a violation of the exclusion restriction. 
+
+- As written, the parameters in this new model are not identifiable. We have to make some restrictions on `\(\boldsymbol{\alpha}\)`. 
+
+---
+## Egger Regression
+
+- Our extended model implies that, if `\(Z_1, \dots, Z_K\)` are independent,  
+`$$E[\hat{\beta}_{YZ,k}] = \alpha_k + \gamma \beta_{AZ,k}$$`
+
+- IVW regression, regresses `\(\hat{\beta}_{YZ}\)` on `\(\hat{\beta}_{AZ}\)` with no intercept.
+
+- Egger regression extends this strategy to add an intercept, fitting
+`$$E[\hat{\beta}_Y] = \alpha_0 + \gamma \hat{\beta}_A$$`
+
+- This strategy is valid if, either `\(\boldsymbol{\alpha} = \alpha_0 \mathbf{1}_{K}\)` or `\(\sum_{k = 1}^K \alpha_k \beta_{AZ,k}  = 0\)`
+  + If we have a large number of instruments and think of `\(\beta_{AZ,k}\)` and `\(\alpha_k\)` as random, we require that `\(Cov(\beta_{AZ}, \alpha) = 0\)`. 
+  
+- This assumption says that effects of instruments not mediated by `\(A\)` are independent of the effects of instruments on `\(A\)`. 
+  + This is called the Instrument Strength Independent of the Direct Effect (InSIDE) assumption
+
+
+---
+## Violations of InSIDE
+
+- Violations of the InSIDE assumption occur when some instruments affect `\(A\)` *through* a confounder of the exposure and the outcome. 
+
+&lt;center&gt; 
+&lt;img src="img/10_scatter2.png" width="95%" /&gt;
+&lt;/center&gt;
+
+---
+## Median Regression 
+
+- An alternative strategy proposed by Bowden et al (2016) is to assume that most instruments are valid. 
+
+- Rather than use the IVW estimator which averages the `\(K\)` ratio estimates, we take the median of the ratio estimates.
+
+&lt;center&gt; 
+&lt;img src="img/10_median.png" width="95%" /&gt;
+&lt;/center&gt;
+
+---
+## Outlier Robust Regression
+
+- There are several variations of this strategy.
+
+- Modal regression: use the mode of the ratio estimates. 
+
+- Outlier detection: use a strategy to identify outliers and discard them. 
+
+- Robust regression: Use an alternative loss function such as Huber loss to fit the regression. 
+
+&lt;center&gt; 
+&lt;img src="img/10_mrpresso.png" width="45%" /&gt;
+&lt;/center&gt;
+
+---
+## Mixture Models
+
+- Finally, another alternative is to assume that there are two or more groups of instruments. 
+- Instruments are grouped by their latent mechanistic relationship to `\(A\)`. 
+- Instruments with the same mechanistic relationship should have similar ratio estimates. 
+- We assume that the largest group of instruments are valid. 
+
+&lt;center&gt; 
+&lt;img src="img/10_mrpath.png" width="50%" /&gt;
+&lt;/center&gt;
+
+
+---
+## MR Next Directions
+
+- MR is a very exciting field with many new developments happening every year. Major fields of development in MR include:
+
+- De-biasing strategies: How to reduce weak instrument bias and selection bias.
+
+- Improving robustness to violations of the no horizontal pleiotropy assumption. 
+
+- Multivariable MR: Estimating effects of many exposures simultaneously. 
+
+- Network MR: Using MR to infer causal networks for many traits. 
+
+- MR for estimating non-linear relationships. 
+
+---
+## MR in Action: Alcohol and Stroke
+
+- Observational studies show a J-shaped relationship between alcohol consumption and heart disease.
+
+- This relationship could be confounded by socioeconomic factors. 
+
+- Millwood et al. perform MR using data from the China Kadoorie Biobank to estimate the effect of increased alcohol consumption on stroke, intracerebral haemorrhage, and myocardial infarction. 
+
+- Two genetic variants explain a large proportion of the variation in alcohol consumption among men in the study.
+
+- Authors create a 6 lelel instrument based on genotypes and geographical region and use a two stage regression approach.
+
+- Only 2% of women in the study report drinking in most weeks. This group can be used as a negative control. 
+
+
+---
+## MR in Action: Alcohol and Stroke
+
+&lt;center&gt; 
+&lt;img src="img/13_alc_stroke.jpg" width="70%" /&gt;
+&lt;/center&gt;
+
+---
+## MR in Action: Alcohol and Stroke
+
+&lt;center&gt; 
+&lt;img src="img/13_alc_mi.jpg" width="50%" /&gt;
+&lt;/center&gt;
+
+---
+## MR in Action: Alcohol and Stroke
+
+- Millwood et al. conclude that the J-shaped relationship seen observationally is a result of socioeconomic confounding and reverse causation. 
+
+- They find a monotonic dose-response relationship between increased alcohol consumption and increased risk of stroke and intracerebral haemorrhage. 
+
+- They find no relationship between alcohol consumption and myocardial infarction.
+
+
+- In this study, they are able to test the exclusion restriction by verifying that there is no relationship between the genetic/geographic risk categories and stroke/haemorrhage/MI risk.
+
+
+---
+## MR in Action: Covid-19 and Vitamin D
+
+- Early in the Covid-19 pandemic, vitamin D was suggested as a protective factor based on country level and patient level observational data. 
+
+- Multiple MR studies have subsequently found no relationship between genetically predicted vitamin D levels and Covid-19 infection or hospitalization. 
+
+- This does not rule out the possibility that acute changes in vitamin D levels near the time of exposure affect infection risk. 
+
+
+---
+## MR in Action: Lifecourse MR
+
+- Richardson et al. use MR to distinguish effects of childhood and adult BMI on risk of CHD, T2D, and breask cancer. 
+
+- They use multivariable MR and variants associated with childhood BMI, adult BMI, or both as instruments. 
+
+- Results suggest no direct effect effect of childhood BMI (i.e. not mediate by adult BMI) on risks of CHD and T2D.
+
+- They do find a direct protective effect of higher childhood BMI on risk of breast cancer. 
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
