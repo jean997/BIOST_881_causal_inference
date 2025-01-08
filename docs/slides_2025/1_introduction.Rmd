@@ -199,7 +199,7 @@ concrete mechanistic hypotheses.
 
 --
 
-"[B]ehind every causal claim there must lie some causal assumption that is not discernible form the joint distribution and, hence, not testable in observational studies. Such assumptions are usually provided by humans, resting on expert judgement. Thus, the way humans organize and communicate experiential knowledge becomes an integral part of the study, for it determines the veracity of the judgements experts are requested to articulate." -- Judea Pearl, [Causality 2nd Edition (2009)](http://bayes.cs.ucla.edu/BOOK-2K/)
+"[B]ehind every causal claim there must lie some causal assumption that is not discernible from the joint distribution and, hence, not testable in observational studies. Such assumptions are usually provided by humans, resting on expert judgement. Thus, the way humans organize and communicate experiential knowledge becomes an integral part of the study, for it determines the veracity of the judgements experts are requested to articulate." - Judea Pearl, [Causality 2nd Edition (2009)](http://bayes.cs.ucla.edu/BOOK-2K/)
 
 ---
 ## Lessons Part 2: Importance of Observational Data
@@ -342,7 +342,7 @@ In real data, we only observe one of the two entries for each person.
 ---
 ## Sharp vs Average Causal Null
 
-+ Sharp causal null: No effect of treatment for any individual, $$Y_i(A_i = 1) = Y_i(A_i = 0) \qquad \forall i$$. 
++ Sharp causal null: No effect of treatment for any individual, $$Y_i(A_i = 1) = Y_i(A_i = 0) \qquad \forall i$$ 
 
 + Average causal null: The average causal effect is zero, $$E[Y(A = 0)] = E[Y(A = 1)]$$
 
@@ -362,7 +362,7 @@ knitr::kable(dat, col.names = c("", "\\(Y(A=0)\\)", "\\(Y(A=1)\\)"), format = 'h
 
 + Average treatment effect (ATE): $E[Y(1)] - E[Y(0)] = E[Y_i(A1) - Y_i(0)]$
 
-+ Risk ratio (RR): $E[Y(0)]/E[Y(1)]$
++ Risk ratio (RR): $E[Y(1)]/E[Y(0)]$
 
 + Odds ratio (OR; for binary outcomes): $\frac{E[Y(1)]/(1-E[Y(1)])}{E[Y(0)]/(1-E[Y(0)]}$
 
@@ -442,19 +442,22 @@ Fig 1.1 from HR
 
 ## Surgery Example Continued
 
-What is the average causal effect $E[Y(1)] - E[Y(0)]$? 
+What is the average causal effect, $E[Y(1)] - E[Y(0)]$? 
 
 What is the association $E[Y \vert A = 1] - E[Y \vert A = 0]$? 
 
 ```{r, echo = FALSE, message = FALSE}
 set.seed(47)
 n = 20
-high_risk <- rbinom(n = n, size = 1, prob = 0.5)
-A <- rbinom(n = n, size = 1, prob = 0.2 + 0.5*high_risk)
+A <- rep(c(0, 1), each = 10)
+high_risk <- rbinom(n = n, size = 1, prob = 0.2 + 0.7*A)
 Y_0  <- rbinom(n = n, size = 1, prob = 0.2 + 0.4*high_risk)
-Y_1  <- rbinom(n = n, size = 1, prob = 0.2 + 0.4*high_risk - 0.1)
+Y_1  <- Y_0 - rbinom(n = n, size = 1, prob = 0.5) + rbinom(n = n, size = 1, prob = 0.1)
+Y_1 <- pmax(Y_1, 0)
 
-D <- data.frame(Ind = seq(n), Y_0, Y_1, A) %>% arrange(A)
+D <- data.frame(Y_0, Y_1, A) %>% arrange(A) 
+D$Ind = seq(n)
+D <- D[, c(4, 1, 2, 3)]
 
 tl <- kable(D[1:10,], col.names = c("", "\\(Y(A=0)\\)", "\\(Y(A=1)\\)", "\\(A\\)"), format = 'html') %>%
   kable_styling(position = "float_left", full_width = FALSE, font_size = 14) %>%
@@ -594,7 +597,7 @@ Pair discussion:
 
 + Can you think of a time that "no different versions of treatment" may not hold?
 
-+ Can you think of a time "No interference" may not hold?
++ Can you think of a time "no interference" may not hold?
 
 ---
 ## Subtlty in No Different Versions of Treatment
@@ -1001,7 +1004,7 @@ $$A_i = a \Rightarrow Y_i = Y_i(a)$$
   - These categories include multiple physical and social features. 
   - In the case of race and sex, definitions may shift over time. 
   
-- In some discrimination studies, there is a work-around: intervene on an observers perceptions:
+- In some discrimination studies, there is a work-around: intervene on an observer's perceptions.
   - In admissions discrimination studies, the same applications are sent with different names. 
   - In studies of housing discrimination, actors of different races view apartments. 
   

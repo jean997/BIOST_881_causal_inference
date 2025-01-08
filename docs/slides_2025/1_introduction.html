@@ -37,7 +37,7 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### Lecture on 2025-01-08
-(updated: 2025-01-06)
+(updated: 2025-01-08)
 ]
 
 ---
@@ -152,8 +152,8 @@ Causal inference consists of three elements:
 ## Fisher's Argument 
 
 
-<div class="grViz html-widget html-fill-item" id="htmlwidget-6e43e27393745deed0ac" style="width:90%;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-6e43e27393745deed0ac">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Smoking\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = \"Genertic Variant\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,1!\"] \n  \"3\" [label = \"Lung Cancer\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"3,0!\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-017e36235cd5f1928a76" style="width:90%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-017e36235cd5f1928a76">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Smoking\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = \"Genertic Variant\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,1!\"] \n  \"3\" [label = \"Lung Cancer\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"3,0!\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 ## What is Wrong with Fisher's Argument?
@@ -193,7 +193,7 @@ concrete mechanistic hypotheses.
 
 --
 
-"[B]ehind every causal claim there must lie some causal assumption that is not discernible form the joint distribution and, hence, not testable in observational studies. Such assumptions are usually provided by humans, resting on expert judgement. Thus, the way humans organize and communicate experiential knowledge becomes an integral part of the study, for it determines the veracity of the judgements experts are requested to articulate." -- Judea Pearl, [Causality 2nd Edition (2009)](http://bayes.cs.ucla.edu/BOOK-2K/)
+"[B]ehind every causal claim there must lie some causal assumption that is not discernible from the joint distribution and, hence, not testable in observational studies. Such assumptions are usually provided by humans, resting on expert judgement. Thus, the way humans organize and communicate experiential knowledge becomes an integral part of the study, for it determines the veracity of the judgements experts are requested to articulate." - Judea Pearl, [Causality 2nd Edition (2009)](http://bayes.cs.ucla.edu/BOOK-2K/)
 
 ---
 ## Lessons Part 2: Importance of Observational Data
@@ -381,7 +381,7 @@ In real data, we only observe one of the two entries for each person.
 ---
 ## Sharp vs Average Causal Null
 
-+ Sharp causal null: No effect of treatment for any individual, `$$Y_i(A_i = 1) = Y_i(A_i = 0) \qquad \forall i$$`. 
++ Sharp causal null: No effect of treatment for any individual, `$$Y_i(A_i = 1) = Y_i(A_i = 0) \qquad \forall i$$` 
 
 + Average causal null: The average causal effect is zero, `$$E[Y(A = 0)] = E[Y(A = 1)]$$`
 
@@ -449,7 +449,7 @@ In our example, the sharp null is false, but the average null is true.
 
 + Average treatment effect (ATE): `\(E[Y(1)] - E[Y(0)] = E[Y_i(A1) - Y_i(0)]\)`
 
-+ Risk ratio (RR): `\(E[Y(0)]/E[Y(1)]\)`
++ Risk ratio (RR): `\(E[Y(1)]/E[Y(0)]\)`
 
 + Odds ratio (OR; for binary outcomes): `\(\frac{E[Y(1)]/(1-E[Y(1)])}{E[Y(0)]/(1-E[Y(0)]}\)`
 
@@ -529,7 +529,7 @@ Fig 1.1 from HR
 
 ## Surgery Example Continued
 
-What is the average causal effect `\(E[Y(1)] - E[Y(0)]\)`? 
+What is the average causal effect, `\(E[Y(1)] - E[Y(0)]\)`? 
 
 What is the association `\(E[Y \vert A = 1] - E[Y \vert A = 0]\)`? 
 
@@ -544,7 +544,37 @@ What is the association `\(E[Y \vert A = 1] - E[Y \vert A = 0]\)`?
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
@@ -557,48 +587,18 @@ What is the association `\(E[Y \vert A = 1] - E[Y \vert A = 0]\)`?
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
@@ -617,61 +617,61 @@ What is the association `\(E[Y \vert A = 1] - E[Y \vert A = 0]\)`?
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
@@ -686,9 +686,9 @@ What is the association `\(E[Y \vert A = 1] - E[Y \vert A = 0]\)`?
 
 ## Surgery Example Continued
 
-Average causal effect: `\(0.25 - 0.4 = -0.15\)` 
+Average causal effect: `\(0.2 - 0.35 = -0.15\)` 
 
-Association: `\(0.4 - 0.2 = 0.2\)`
+Association: `\(0.3 - 0.2 = 0.1\)`
 
 &lt;table class="table" style="font-size: 14px; width: auto !important; float: left; margin-right: 10px;"&gt;
  &lt;thead&gt;
@@ -701,7 +701,37 @@ Association: `\(0.4 - 0.2 = 0.2\)`
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
@@ -714,48 +744,18 @@ Association: `\(0.4 - 0.2 = 0.2\)`
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
@@ -774,61 +774,61 @@ Association: `\(0.4 - 0.2 = 0.2\)`
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
@@ -940,7 +940,7 @@ Pair discussion:
 
 + Can you think of a time that "no different versions of treatment" may not hold?
 
-+ Can you think of a time "No interference" may not hold?
++ Can you think of a time "no interference" may not hold?
 
 ---
 ## Subtlty in No Different Versions of Treatment
@@ -1007,7 +1007,37 @@ Does exchangeability hold in these data?
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
@@ -1020,48 +1050,18 @@ Does exchangeability hold in these data?
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
@@ -1080,56 +1080,44 @@ Does exchangeability hold in these data?
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
@@ -1139,21 +1127,33 @@ Does exchangeability hold in these data?
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 
 .small[**Bold** = Observed]
-&lt;!-- `\(E[Y(A = 0) \vert A = 0] = 0.2\)`,   `\(E[Y(A = 0) \vert A = 1] = 0.6\)` --&gt;
+&lt;!-- `\(E[Y(A = 0) \vert A = 0] = 0.2\)`,   `\(E[Y(A = 0) \vert A = 1] = 0.5\)` --&gt;
 
-&lt;!-- `\(E[Y(A = 1) \vert A = 0] = 0.1\)`,   `\(E[Y(A = 1) \vert A = 1] = 0.4\)` --&gt;
+&lt;!-- `\(E[Y(A = 1) \vert A = 0] = 0.1\)`,   `\(E[Y(A = 1) \vert A = 1] = 0.3\)` --&gt;
 
 ---
 
 ## Exchangeability Example:
 
-`\(E[Y(A = 0) \vert A = 0] = 0.2\)`,   `\(E[Y(A = 0) \vert A = 1] = 0.6\)`
+`\(E[Y(A = 0) \vert A = 0] = 0.2\)`,   `\(E[Y(A = 0) \vert A = 1] = 0.5\)`
 
-`\(E[Y(A = 1) \vert A = 0] = 0.1\)`,   `\(E[Y(A = 1) \vert A = 1] = 0.4\)`
+`\(E[Y(A = 1) \vert A = 0] = 0.1\)`,   `\(E[Y(A = 1) \vert A = 1] = 0.3\)`
 
 
 &lt;table class="table" style="font-size: 14px; width: auto !important; float: left; margin-right: 10px;"&gt;
@@ -1167,7 +1167,37 @@ Does exchangeability hold in these data?
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
@@ -1180,48 +1210,18 @@ Does exchangeability hold in these data?
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 10 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
@@ -1240,61 +1240,61 @@ Does exchangeability hold in these data?
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 11 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 5 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 9 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
-   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 14 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 16 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:right;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+   &lt;td style="text-align:right;color: grey !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20 &lt;/td&gt;
    &lt;td style="text-align:right;color: grey !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;font-weight: bold;color: black !important;"&gt; 0 &lt;/td&gt;
    &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
@@ -1621,7 +1621,7 @@ the treatment has discrete levels.
   - These categories include multiple physical and social features. 
   - In the case of race and sex, definitions may shift over time. 
   
-- In some discrimination studies, there is a work-around: intervene on an observers perceptions:
+- In some discrimination studies, there is a work-around: intervene on an observer's perceptions.
   - In admissions discrimination studies, the same applications are sent with different names. 
   - In studies of housing discrimination, actors of different races view apartments. 
   
