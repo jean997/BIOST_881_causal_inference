@@ -2,7 +2,7 @@
 title: "L2: DAGs and Confounding"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2024-01-17 (updated: `r Sys.Date()`)"
+date: "Lecture on 2025-01-14\n (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -34,12 +34,15 @@ style_mono_accent(
 ## Lecture Outline 
 
 1. Representing Causal Relationships in Directed, Acyclic Graphs (DAGs)
+   + The causal Markov property connects DAGs to properties of the joint distribution of nodes.
 
-1. Connecting DAGs to Counterfactuals
+1. Connecting DAGs to Counterfactuals through Structural Equation Models. 
 
-1. Using the backdoor criterion to identify conditional exchangeability.
+1. Using the Properties of DAGs to Identify Conditional Exchangeability.
+  + d-separation allows us to determine conditional independence statements from DAGs.
+  + The backdoor criterion allows us to determine conditional exchangeability from DAGs.
+  + SWIGs provide an alternative approach for identifying conditional exchangeability. 
 
-1. Single World Intervention Graphs
 
 
 ---
@@ -299,67 +302,11 @@ render_graph(di_graph)
 ```
 
 </center>
-
-
----
-
-# 2. Connecting DAGs and Counterfactuals through the 'do' Operator
-
----
-## The 'do' Operator
-
-- In order for a graph to be a **causal graph**, it must say something about counterfactual worlds in which a variable is **set** to a particular value. 
-
-- Judea Pearl makes this connection by introducing the 'do' operator and 'graph surgery'. We will see two other ways to make this connection in this lecture. 
-
-- The operation $do(X = x)$ indicates the intervention of setting the variable $X$ equal to $x$. 
-
----
-## 'do' Operator in DAGs
-
-- Pearl suggests that the action of setting $X$ to $x$ can be represented graphically by removing all of the arrows into $X$. 
-
-- This is because, in the interventional world, $X$ is no longer affected by its parents, we determined what it would be
-
----
-## Pearl's Graph Surgery
-
-.pull-left[
-Original DAG
-
-```{r, echo=FALSE, out.width="90%"}
-knitr::include_graphics("img/2_sprinkler_dag_1.png")
-```
-$$
-\begin{split}
-P(\mathbf{x}) = P(x_1) P(x_2 \vert x_1)P(x_3, \vert x_1)\\P(x_4 \vert x_2, x_3)P(x_5 \vert x_4)
-\end{split}
-$$
-]
-.pull-right[
-DAG with intervention "turning sprinkler on".
-
-```{r, echo=FALSE, out.width="90%"}
-knitr::include_graphics("img/2_sprinkler_dag_2.png")
-```
-
-$$
-\begin{split}
-P_{X_3 = ON}(\mathbf{x}) = & P(x_1) P(x_2 \vert x_1)\\& P(x_4 \vert x_2, X_3 = ON)\\ & P(x_5 \vert x_4)
-\end{split}
-$$
-]
----
  
-# 3. Connecting DAGs and Counterfactuals through Structural Equation Models
-
 ---
 
-## Structural Equation Models
+# 2. Connecting DAGs to Counterfactuals through Structural Equation Models
 
-- In a **structural equation** the bit on the left is qualitatively different from the bit on the right. 
-
-- The bit on the left is a counterfactual. 
 
 ---
 
@@ -402,27 +349,46 @@ render_graph(xy_graph)
 $$Y = X + \epsilon_Y$$
 where $\epsilon_Y$ is a random variable that is the error of the machine. 
 
-- Mathematically, it would be equivalent to say 
 
-$$X = Y - \epsilon_Y$$
+- This equation is structural because the quantity on the left can be interpreted as a counterfactual. 
 
-- But the first equation is structural while the second is not. 
 
-- We can find the counterfactual value $Y(X = x)$ by plugging $x$ into the first equation. 
+- We could equivalently write
 
-- The second equation is descriptive but not counterfactual. 
+$$Y(X = x) = x + \epsilon_Y$$
+- Traditionally, in SEM literature, the counterfactual is not written explicitly. 
 
 ---
 
-## Non-Parametric Structural Equation Models
+## Example
 
-- We can link a graph to a causal model with a system of non-parametric structural equations. 
+- Mathematically, $Y = X + \epsilon_Y$ is equivalent to 
 
-- Let $\mathcal{G} = \lbrace V, E \rbrace$ is a directed graph with nodes $V_1, \dots, V_n$.
+$$X = Y - \epsilon_Y$$
 
-- Let $\epsilon_1, \dots, \epsilon_n$ be a set of random variables corresponding to each node. 
+- But this equation is not structural because the lefthand term cannot be interpreted as a counterfactual. 
 
-- We assume that for a given $V_i$ with parents $\mathbf{pa}_i \subset V$, there is a counterfactual $V_i(\mathbf{pa}_i)$ given by the 
+- In other words, intervening on the readout on the machine does not change the patients blood pressure.
+
+---
+
+## Structural Equation Models
+
+- A **structural equation model** is a system of structural equations describing a set of variables.
+
+- An equation is structural if the lefthand term can be interpreted as the counterfactual value, intervening on the terms on the right.
+
+---
+
+## SEMs Link to Graphs
+
+- DAGs can be given causal interpretation by linking them with structural equation models.
+
+- Let $\mathcal{G} = \lbrace V, E \rbrace$ be a directed graph with nodes $V_1, \dots, V_n$.
+
+- Let $\epsilon_1, \dots, \epsilon_n$ be a set of random "noise" variables corresponding to each node. 
+
+- We assume that, for a given $V_i$ with parents $\mathbf{pa}_i \subset V$, there is a counterfactual $V_i(\mathbf{pa}_i)$ given by the non-parametric
 structural equation 
 $$V_i(\mathbf{pa}_i) = f_{V_i}(\mathbf{pa}_i, \epsilon_{i})$$
 
@@ -440,7 +406,7 @@ knitr::include_graphics("img/2_swig6_fig9.png")
 
 </center>
 
-corresponds to equations
+corresponds to the nonparametric SEM (NPSEM):
 
 $$Z = f_Z(\epsilon_Z)$$
 $$M(z) = f_M(z, \epsilon_M)$$
@@ -497,19 +463,22 @@ the other variables in the model.
 
 ---
 
-# 4. The Backdoor Criterion
+# 3. Using the Properties of DAGs to Identify Conditional Exchangeability.
 
-- Using DAGs to identify conditioning sets. 
+3.1 Confounding, Colliding, and d-separation
 
-- Confounding
+3.2 Backdoor criterion 
 
-- Colliding
+3.3 Single world intervention graphs (SWIGs)
+
+---
+# 3.1 Confounding, Colliding, and d-seperation
 
 ---
 
 ## Exchangeability
 
-- We want to know if the outcome $O$ exchangeable with respect to the treatment? $O(t) \ci T$?
+- We want to know if the outcome $O$ is exchangeable with respect to the treatment? $O(t) \ci T$?
 
 - If not, what set of variables, $L$ can we condition on such that $O(t) \ci T \vert L$?
 
@@ -773,27 +742,88 @@ render_graph(ayll_graph3)
 square = is conditioned on 
 ---
 
-## d-Separation and the Causal Markov Property
+## d-Separation Implies Conditional Independence
 
-Let $A$, $B$, and $C$ be sets of variables. Verma and Pearl (1988) proved that:
+- Let $A$, $B$, and $C$ be sets of variables. Verma and Pearl (1988) proved that
+$$ A \text{ is } d\text{-separated from }B\text{ given }C \Rightarrow A \ci B \vert C$$ 
 
-If $A$ and $B$ are d-separated given $C$ then $A \ci B \vert\ C$.
+- We will not prove this in class, but you may enjoy the proof in the 1988 paper if you like graph theory (see Related Reading). 
 
-- We will not prove this in class. 
+- Notice that $d$-separation is a result about conditional independence of the variables **in** the graph. 
 
+- It does not tell us about conditional exchangeability, which is conditional independence of a counterfactual value and a variable in the graph, e.g. $Y(A=a) \ci A \vert L$. 
+  - So far there are no counterfactuals in our graphs. 
+  
 ---
 ## Faithfulness
 
-Faithfulness is the property that, for three sets of variables $A$, $B$, and $C$
+- Faithfulness is the reverse direction.  A graph is faithful if, for any three sets of variables $A$, $B$, and $C$, 
 $$A \ci B \vert C \Rightarrow\ A \text{ is } d\text{-separated from }B\text{ given }C$$ 
 
 - Violations of faithfulness occur when confounding effects perfectly cancel each other. 
-  + Pearl calls these "incidental cancellations". 
-  + And then defines "stable" vs "unstable" unbiasedness. Unstable unbiasedness occurs when faithfulness is violated. 
+
+---
+## Faithfulness Example
+
+- If the graph below corresponds to the linear SEM
+$$
+\begin{split}
+&A = 0.4 U_1 - 0.2 U_2 + \epsilon_A \qquad &U_1 = \epsilon_{U_1}\\
+&B = 0.5 U_1 + U_2 + \epsilon_B\qquad &U_2 = \epsilon_{U_2}\\
+&\epsilon_A \ci \epsilon_B \ci \epsilon_{U_1} \ci \epsilon_{U_2} \qquad &\epsilon_{*} \sim N(0, 1),
+\end{split}
+$$
+then $A \ci B$. 
+
+- But $A$ and $B$ are not $d$-separated unconditionally in this graph. 
+
+<center>
+```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, fig.align='center'}
+faith_node <- create_node_df(n = 4, label = c("A", "B", "U@_{1}", "U@_{2}"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                      fillcolor = "white", 
+                     color = "black", 
+                     x = c(0, 2, 1, 1), 
+                     y = c(0, 0, 1, -1)*0.5)
+faith_edge <- create_edge_df(from = c( 3, 3, 4, 4), to = c( 1, 2, 1, 2), 
+                          minlen = 1, 
+                          color = "black", 
+                          )
+faith_graph <- create_graph(nodes_df = faith_node, edges_df = faith_edge)
+
+render_graph(faith_graph)
+```
+</center>
+
+
+---
+
+## Faithfulness
+
+- Pearl calls violations of faithfulness "incidental cancellations" because conditional independence only occurs when there are specific numerical relationships between the variables.
+
+- There are many alternative SEMs corresponding to the same graph below in which $A$ is not independent of $B$ unconditionally.
+
+- Pearl defines "stable" vs "unstable" unbiasedness. Unstable unbiasedness occurs when faithfulness is violated. 
   
+<center>
+```{r, echo = FALSE, fig.width = 6, fig.height = 2.5, fig.align='center'}
+render_graph(faith_graph)
+```
+</center>  
+  
+  
+  
+  
+---
+## Faithfulness
+
 - Practically, we can assume that faithfulness is never violated except when it is violated by design.
 
 - Matching studies intentionally violate faithfulness. 
+  + More on this in our matching lecture.
 
 ---
 
@@ -811,6 +841,10 @@ render_graph(di_graph)
 
 - The causal Markov property allowed us to conclude that $T \ci Ad \vert S, A$.
 - Because $T$ and $Ad$ are d-separated, we can also conclude that $T \ci Ad$ unconditionally.
+
+
+---
+# 3.2 The Backdoor Criterion
 
 ---
 
@@ -970,17 +1004,17 @@ render_graph(f711_graph)
 
 
 ---
-# 5. Single World Intervention Graphs
+# 3.3. Single World Intervention Graphs
 
 ---
 
 ## Single World Intervention Graphs (SWIGs)
 
-- SWIGs are a method of including counterfactuals in DAG proposed by Richardson and Robins.
+- SWIGs are a method of including counterfactuals in DAGs proposed by Richardson and Robins.
 
-- This is an alternative to Pearl's graph surgery strategy.
+- This is an alternative to a strategy called graph surgery proposed by Judea Pearl.
 
-- SWIGs make the intervention more explicit. 
+- SWIGs make the intervention more explicit than graph surgery does. 
 
 - Using SWIGs, we can evaluate conditional exchangeability using only $d$-separation without having to 
 manage the other aspects of the backdoor criterion. 
@@ -990,7 +1024,7 @@ manage the other aspects of the backdoor criterion.
 ## SWIGs
 
 - To create a SWIG, the node representing the intervened on variable is split into two nodes. 
-  - One node represents the natural value of of the variable.
+  - One node represents the natural (observable) value of of the variable.
   - The other represents the fixed value due to the intervention.
 
 <center> 
@@ -1026,7 +1060,7 @@ knitr::include_graphics("img/2_swig1.png")
 
 - Each SWIG can represent only a single intervention, i.e. the world in which everyone receives treatment $A = a$. 
 
-- A template is graph valued function $x \rightarrow \mathcal{G}(x)$.  The input is the value the intervened on variable is set to, the output is a SWIG.
+- A template is a graph valued function $x \rightarrow \mathcal{G}(x)$.  The input is the value the intervened-on variable is set to, the output is a SWIG.
   
 <center> 
 
@@ -1102,13 +1136,13 @@ knitr::include_graphics("img/2_label_nodes.png")
 
 - In a SWIG, any path containing an intervention node is blocked. 
 
-- This sounds like a new rule but isn't really. 
+- This sounds like a new rule but really usn't. 
 
-- Intervention nodes are fixed at a value, so no information can propogate through. 
+- Intervention nodes are fixed at a value, so no information can propagate through them. 
 
 - Fixed nodes in any graph block a path. 
 
-- However, it is atypical to include fixed nodes in a graph so this is an important rule to remember for SWIGs.
+- However, it is atypical to include fixed nodes in non-SWIG graphs, so this is an important rule to remember for SWIGs.
 
 ---
 
@@ -1201,12 +1235,12 @@ knitr::include_graphics("img/2_swig6_fig9.png")
 ## SWIGs, Exchangeability, and d-Separation
 
 - The factorization result allows us to conclude that d-separation in the SWIG implies conditional exchangeability. 
+  - Recall: Conditional exchangeability says that $Y(a) \ci A \vert L$.
+  - Since $Y(a)$ is a node in the SWIG, we can now just read conditional exchangeability off of the graph using d-separation.
 
-- Recall: Conditional exchangeability says that $Y(a) \ci A \vert L$, which is exactly what is implied by $d$-separation in the SWIG. 
+- Achieving $d$-separation in the SWIG is equivalent to satisfying the backdoor criterion. 
 
-- $d$-separation in the SWIG is equivalent to satisfying the backdoor criterion. 
-
-- So the proof of the factorization result also implies that proof also shows that the FFRCISTG assumptions are sufficient for the backdoor backdoor criterion theorem to hold
+- So factorization result also implies the FFRCISTG assumptions are sufficient for the backdoor backdoor criterion theorem to hold.
 
 - Since NPSEM-IE is strictly stronger than FFRCISTG, NPSEM-IE assumptions also imply that the backdoor criterion theorem holds. 
 
@@ -1260,7 +1294,7 @@ knitr::include_graphics("img/2_fig9ii.png")
 
 </center>
 
-- Here we do have unconditional exchangeability because $Y(z) \ci Z$. 
+- Here we do have unconditional exchangeability, $Y(z) \ci Z$. 
 
 - From factorization, $P(Z, M(z), Y(z)) = P(Z)P(M(z))P(Y(z) \vert M(z))$
 
@@ -1359,96 +1393,5 @@ $$
 
 - We will come back to this in the future to talk more about mediation. 
 
-<!-- --- -->
 
-<!-- ## Identifying the NDE under NPSEM-IE Assumptions -->
-
-<!-- - Under NPSEM-IE assumptions, cross-world independcies hold.  -->
-
-<!-- - Specifically, we have  -->
-
-<!-- $$ Y(A = 1, l) \ci L(A = 0) \qquad \forall\ l $$ -->
-<!-- - We want to estimate $E[Y(A = 1, L(A = 0))]$.  -->
-
-<!-- $$ -->
-<!-- E[Y(A = 1, L(A = 0))] = \sum_l E[Y(A = 1, L = l)\vert L(0) = l]P[L(0) = l] -->
-<!-- $$ -->
-<!-- $$ -->
-<!-- =\sum_l E[Y(A = 1, L=l)]P[L(0) = l] -->
-<!-- $$ -->
-<!-- - The second equality comes from the independence assumption above.  -->
-
-<!-- --- -->
-
-<!-- ## Identifying the NDE under NPSEM-IE Assumptions -->
-
-<!-- - We now only need to estimate $E[Y(A = 1, L = l)]$ and $P[L(0) = l]$ which can be estimated as -->
-<!-- $$ -->
-<!-- E[Y(A = 1, L = l)] = E[Y \vert A = 1, L = l] -->
-<!-- $$ -->
-<!-- $$ -->
-<!-- P[L(0) = l ] = P[L=l \vert A = 0] -->
-<!-- $$ -->
-<!-- - Both equalities come from exchangeability -->
-
-<!-- - So -->
-
-<!-- $$ -->
-<!-- E[Y(A = 1, L(A = 0))] = \sum_l E[Y \vert A = 1, L = l]P[L =l \vert A = 0] -->
-<!-- $$ -->
-
-<!-- --- -->
-<!-- ## Non-Identifiability of NDE under FFRCISTG Intuition -->
-
-<!-- - Consider two types of units: -->
-<!--   + Both have $L(0) = 0$ and $L(1) = 1$ -->
-
-<!-- - In both cases $Y(1, 1) = 1$ and $Y(0, 0) = 0$. -->
-
-<!-- - For type 1, $Y(1, 0) = 0$ and for type 2 $Y(1, 0) = 1$. -->
-<!--   - For type 1, if $A$ had not caused $L$, they would not have experienced $Y$. -->
-<!--   - For type 2, $L$ did not matter.  -->
-
-<!-- - Even if we could observe both types under both treatments of $L$, we could not tell them apart.  -->
-
-<!-- - But type 1 individuals represent indirect effects while type 2 individuals represent direct effects. -->
-
-<!-- --- -->
-<!-- ## Controlled Direct and Indirect Effects -->
-
-<!-- - Controlled effects are an alternative to natural effects.  -->
-
-<!-- - These are the effect of $Y$ when we control $L$ at some pre-determined value. -->
-
-<!-- $$E[Y(A = 1, L = l)] - E[Y(A = 0, L = l)]$$ -->
-
-<!-- - This definition only requires a joint intervention and doesn't require cross-world relationships between counterfactuals. -->
-
-<!-- - Therefore CDE and CIE are identifiable under the FFRCISTG model. -->
-
-<!-- --- -->
-
-<!-- ## Extras: Collapsibility and Confounding -->
-
-
-
-<!-- --- -->
-<!-- ## Causal Identification -->
-
-<!-- - Suppose I know the joint distribution $P(V)$ over a set of variables.  -->
-
-<!-- - Suppose I also assume: -->
-<!--   - The distribution factorizes according to a DAG. -->
-<!--   - We have observed all of the nodes on the DAG. -->
-<!--   - Faithfulness -->
-
-<!-- - When is it possible to infer the structure of the DAG? -->
-
-<!-- --- -->
-
-<!-- ## Markov Equivalence -->
-
-<!-- - Multiple graphs can imply the same set of conditional independence relations. -->
-
-<!-- - Two graphs $\mathcal{G}_1$ and $\mathcal{G}_2$ are Markov equivalent if they imply the same set of d-separation relations.  -->
 
