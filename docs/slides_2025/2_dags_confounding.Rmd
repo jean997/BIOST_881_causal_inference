@@ -156,7 +156,7 @@ there are two paths from $A$ to $Y$ but only one directed path.
 
 - If there are no paths between two nodes, they are *disconnected* (or *connected* otherwise).
 
-- Node $j$ is a descendant of node $k$ if there is a directed path from $V_j$ to $V_k$. 
+- Node $k$ is a descendant of node $j$ if there is a directed path from $V_j$ to $V_k$. 
 
 - If a graph contains no directed cycles, it is *acyclic*
   + We will require all of our graphs to be acyclic.
@@ -276,7 +276,7 @@ $$
 Conditional independence statements in the disease treatment graph:
 
 $$S\ci A \qquad S\ci Ad \qquad A \ci Ad$$
-$$T \ci Ad\ \vert A, S$$
+$$T \ci Ad\ \mid A, S$$
 <center>
 
 ```{r, echo = FALSE, fig.width = 6, fig.height = 5,  fig.align='center'}
@@ -480,7 +480,7 @@ the other variables in the model.
 
 - We want to know if the outcome $O$ is exchangeable with respect to the treatment? $O(t) \ci T$?
 
-- If not, what set of variables, $L$ can we condition on such that $O(t) \ci T \vert L$?
+- If not, what set of variables, $L$ can we condition on such that $O(t) \ci T \midt L$?
 
 <center>
 
@@ -745,20 +745,20 @@ square = is conditioned on
 ## d-Separation Implies Conditional Independence
 
 - Let $A$, $B$, and $C$ be sets of variables. Verma and Pearl (1988) proved that
-$$ A \text{ is } d\text{-separated from }B\text{ given }C \Rightarrow A \ci B \vert C$$ 
+$$ A \text{ is } d\text{-separated from }B\text{ given }C \Rightarrow A \ci B \mid C$$ 
 
 - We will not prove this in class, but you may enjoy the proof in the 1988 paper if you like graph theory (see Related Reading). 
 
 - Notice that $d$-separation is a result about conditional independence of the variables **in** the graph. 
 
-- It does not tell us about conditional exchangeability, which is conditional independence of a counterfactual value and a variable in the graph, e.g. $Y(A=a) \ci A \vert L$. 
+- It does not tell us about conditional exchangeability, which is conditional independence of a counterfactual value and a variable in the graph, e.g. $Y(A=a) \ci A \mid L$. 
   - So far there are no counterfactuals in our graphs. 
   
 ---
 ## Faithfulness
 
 - Faithfulness is the reverse direction.  A graph is faithful if, for any three sets of variables $A$, $B$, and $C$, 
-$$A \ci B \vert C \Rightarrow\ A \text{ is } d\text{-separated from }B\text{ given }C$$ 
+$$A \ci B \mid C \Rightarrow\ A \text{ is } d\text{-separated from }B\text{ given }C$$ 
 
 - Violations of faithfulness occur when confounding effects perfectly cancel each other. 
 
@@ -839,7 +839,7 @@ render_graph(di_graph)
 
 --
 
-- The causal Markov property allowed us to conclude that $T \ci Ad \vert S, A$.
+- The causal Markov property allowed us to conclude that $T \ci Ad \mid S, A$.
 - Because $T$ and $Ad$ are d-separated, we can also conclude that $T \ci Ad$ unconditionally.
 
 
@@ -900,18 +900,21 @@ Theorem: If a set of variables, $L$,
   + blocks every backdoor path between $A$ and $Y$ 
   + contains no descendants of $A$,
   
-then $Y(a) \ci A \vert L$. 
+then $Y(a) \ci A \mid L$. 
 
 --
 - The two conditions in the theorem are referred to as the *backdoor criterion*. 
 
-
+--
+- Reminder: We care about conditional exchangeability because we learned in L1 that if $Y(a) \ci A \mid L$, and consistency, SUTVA, and positivity hold, then 
+$$E[Y(a)] = \sum_{l}E[Y \vert A = a, L = l]P[L = l]$$
+- If we can find a measured set of variables, $L$, such that $Y(a) \ci A \mid L$ and the other assumptions hold, then we know that $E[Y(a)]$ is identifiable.
 
 ---
 
 ## Examples
 
-Find a set of variables $H \subseteq \left \lbrace U_1, L, U_2 \right \rbrace$ such that  $Y(a) \ci A \vert H$:
+Find a set of variables $H \subseteq \left \lbrace U_1, L, U_2 \right \rbrace$ such that  $Y(a) \ci A \mid H$:
 
 <center>
 
@@ -931,7 +934,7 @@ render_graph(m_graph)
 
 - $A$ and $Y$ are exchangeable unconditionally, $Y(a) \ci A$, ( $H$ is the emptyset). 
 
-- Conditioning on $L$ induces bias. (M-Bias), $Y(a) \nci A \vert L$.
+- Conditioning on $L$ induces bias. (M-Bias), $Y(a) \nci A \mid L$.
 
 - If we condition on $L$, we need to also condition on $U_1$ or $U_2$ to block the now open path.
 
@@ -939,7 +942,7 @@ render_graph(m_graph)
 
 ## Examples
 
-What set of variables can we condition on to make $A$ and $Y$ conditionally exchangeable?
+Is there a set of variables, $H$ such that  $Y(a) \ci A \mid H$? What if $U_1$ and $U_2$ are unobserved?
 
 <center>
 
@@ -968,7 +971,7 @@ render_graph(m_graph)
 
 ## Examples
 
-What set of variables can we condition on to make $A$ and $Y$ conditionally exchangeable?
+Is there a set of variables, $H$ such that  $Y(a) \ci A \mid H$? What if $U$ is unobserved?
 
 <center>
 ```{r, echo = FALSE, out.width='60%', fig.height = 3, fig.align='left'}
@@ -999,8 +1002,7 @@ render_graph(f711_graph)
 
 --
 
-- No. $L$ is a descendant of $A$, so it does not satisfy the backdoor criterion.
-
+- $L$ is a descendant of $A$, so it does not satisfy the backdoor criterion. It is not true that $Y(a) \ci A \vert L$. 
 
 
 ---
@@ -1156,7 +1158,7 @@ $$Y(a) \ci A$$
 - We have a similar result for conditional exchangeability. 
 
 - If $Y(a)$ and $A$ are $d$-separated in $\mathcal{G}(a)$ conditional on a set of nodes $L$, then 
-$$Y(a) \ci A \vert \ L$$
+$$Y(a) \ci A \mid \ L$$
 - NPSEM-IE is stronger than necessary to achieve this result. 
 
 <!-- - Alternatively, $A$ and $Y$ are d-separated in $\mathcal{G}(a)$ if they are d-separated in the subgraph of $\mathcal{G}(a)$ achieved by removing all of the fixed nodes.  -->
@@ -1235,7 +1237,7 @@ knitr::include_graphics("img/2_swig6_fig9.png")
 ## SWIGs, Exchangeability, and d-Separation
 
 - The factorization result allows us to conclude that d-separation in the SWIG implies conditional exchangeability. 
-  - Recall: Conditional exchangeability says that $Y(a) \ci A \vert L$.
+  - Recall: Conditional exchangeability says that $Y(a) \ci A \mid L$.
   - Since $Y(a)$ is a node in the SWIG, we can now just read conditional exchangeability off of the graph using d-separation.
 
 - Achieving $d$-separation in the SWIG is equivalent to satisfying the backdoor criterion. 
@@ -1257,9 +1259,9 @@ knitr::include_graphics("img/2_swig3.png")
 
 </center>
 
-+ From the SWIG on the right we can conclude that $Y(x) \ci X \vert L_1, L_2(x)$.
++ From the SWIG on the right we can conclude that $Y(x) \ci X \mid L_1, L_2(x)$.
 
-+ However, we cannot conclude that $Y(x) \ci X \vert L_1, L_2$ because $L_2$ is not on the graph. 
++ However, we cannot conclude that $Y(x) \ci X \mid L_1, L_2$ because $L_2$ is not on the graph. 
 
 + In fact, the second statement is false. Conditioning on $L_2$ introduces a type of selection bias (more on this in L4).
 
@@ -1275,7 +1277,7 @@ knitr::include_graphics("img/2_fig9iii.png")
 
 </center>
 
-- $Y(m)$ is not unconditionally independent of $M$ but, $Y(m) \ci M \vert Z$
+- $Y(m)$ is not unconditionally independent of $M$ but, $Y(m) \ci M \mid Z$
 
 - The factorization result gives us
 $$P(Z, M, Y(m)) = P(Z)P(M \vert Z)P(Y(m) \vert Z)$$
