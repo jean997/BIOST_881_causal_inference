@@ -1,8 +1,8 @@
 ---
-title: "L4: Selection Bias"
+title: "L3: Selection Bias"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2024-01-31 (updated: `r Sys.Date()`)"
+date: "2025-01-27 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -13,6 +13,7 @@ output:
       countIncrementalSlides: false
 ---
 $\newcommand{\ci}{\perp\!\!\!\perp}$
+$\newcommand{\nci}{\not\!\perp\!\!\!\perp}$
 ```{r xaringanExtra, echo=FALSE}
 xaringanExtra::use_tile_view()
 xaringanExtra::use_search(show_icon = TRUE)
@@ -92,7 +93,7 @@ render_graph(hiv_graph0)
 
 ## HIV Treatment Example
 
-- If there had been no censoring, could we identify $E[Y(a)]$? (i.e. is there a set of variables $\mathcal{V}$ such that $Y(a) \ci A \vert\ \mathcal{V}$)?
+- If there had been no censoring, could we identify $E[Y(a)]$? (i.e. is there a set of variables $\mathcal{V}$ such that $Y(a) \ci A \mid \mathcal{V}$)?
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
@@ -264,7 +265,7 @@ $$
 
 - In both examples we have selection bias because $C$ is a common effect of both $A$ and $Y$.
 
-- In the first case, this condition is true whether or not $A$ has a non-zero effect on $Y$ (*selection bias under the null*).
+- In the first case, there is selection bias whether or not $A$ has an effect on $Y$ (*selection bias under the null*).
 
 <center>
 ```{r, echo = FALSE, fig.height = 1.5}
@@ -272,7 +273,7 @@ render_graph(hiv_graph0)
 ```
 </center>
 
-- In the second case (all of the effect of $A$ on $C$ is mediated by $Y$), this condition *only* occurs when there is a non-zero causal effect of $A$ on $Y$. 
+- In the second case, there is selection bias *only* if there is a non-zero causal effect of $A$ on $Y$. 
 
 <center>
 ```{r, echo = FALSE, fig.height = 0.75}
@@ -282,7 +283,7 @@ render_graph(hiv_graph)
 
 - Selection bias under the null always implies selection bias in non-null settings.
 
-- The reverse is not true (as we have seen).
+- The reverse is not true.
 
 ---
 ## Colliding Creates Selection Bias
@@ -390,7 +391,7 @@ render_graph(hiv_graph2)
 - $X_2$ is either the exposure or *associated* with the exposure. 
 
 
-- Equivalently, conditioning on $C$ leads to selection bias **unless** $Y \ci C \vert A$ (i.e. $Y$ is $d$-separated from $C$ by $A$).
+- Equivalently, conditioning on $C$ leads to selection bias **unless** $Y \ci C \mid A$ (i.e. $Y$ is $d$-separated from $C$ by $A$).
 
 ---
 
@@ -448,20 +449,12 @@ render_graph(gr9)
 </center>
 
 
-<!-- --- -->
-
-<!-- Extended Backdoor Criterion -->
-
-
-<!-- --- -->
-
-
 ---
 # Augmenting DAGs
 
 - The DAGs we have been drawing are harboring a hidden counterfactual. 
 
-- If there is no effect of selection on $Y$, he node $Y$ could be written as $Y(C = 0)$, the value of $Y$ that we would observe if nobody was censored.
+- If there is no effect of selection on $Y$, the node $Y$ could be written as $Y(C = 0)$, the value of $Y$ that we would observe if nobody was censored.
 
 - Our DAGs are missing the value of $Y$ that we actually observe, $Y^{obs}$ which is determined by $Y(C = 0)$ and $C$.
 
@@ -492,9 +485,6 @@ render_graph(gr10)
 
 
 
-
-
-
 ---
 ## Adjusting for Selection
 
@@ -506,11 +496,14 @@ render_graph(gr10)
 ## Example
 
 
-- In this graph, if we were did not have censoring (no conditioning on $C$), $Y(a) \ci A$ (unconditionally)
+- In the graph below, if there were no censoring (no conditioning on $C$), $Y(a) \ci A$ (unconditionally), so $E[Y(a)] = E[Y \vert A = a]$. 
 
-- With no censoring, it is also true that $Y(a) \ci A \vert L$ so $E[Y(a) \vert L = l] = E[ Y \vert L = l, A = a]$.
+- Conditioning on $C$ opens the path $A \to C \gets L \to Y$, so conditioning on $C$ will change the association between $A$ and $Y$. 
 
-- From the causal markov property, $Y \ci C \vert L, A$, so $E[Y \vert L = l, A = a] = E[Y \vert L = l, A = a, C = 0]$. 
+- This means that $E[Y(a)] \neq E[Y \vert A = a, C = 0]$
+
+- SWIGs and the backdoor condition can't help us because we have conditioned on something downstream of $A$.
+
 
 <center>
 ```{r, echo = FALSE, fig.height = 3}
@@ -538,15 +531,34 @@ render_graph(gr15)
 ---
 ## Example
 
-- We can identify the causal effect using the formula 
+- Looking again the graph with no censoring, we can see that that $Y(a) \ci A \mid L$.
+
+- This means that $E[Y(a) \vert L = l] = E[ Y \vert L = l, A = a]$.
+
+- And using the standardization formula from L1, 
+$$E[ Y(a) ] = \sum_l E[Y(a) \vert L = l] P[L = l]$$.
+
+<center>
+```{r, echo = FALSE, fig.height = 3}
+render_graph(gr15)
+```
+</center>
+
+---
+## Example
+
+- From the causal markov property, $Y \ci C \mid L, A$, so $E[Y \vert L = l, A = a] = E[Y \vert L = l, A = a, C = 0]$. 
+
+- Therefore, we can identify $E[Y(a)]$ using the formula 
 
 $$
 \begin{split}
-E[ Y(a) ] = \sum_l E[Y(a) \vert L = l] P[L = l]\\
+E[ Y(a) ] 
 = \sum_{l} E[ Y \vert L = l, A = a, C = 0] P[L = l]
 \end{split}
 $$
-- But this requires an estimate of $P[L = l]$, not $P[L = l \vert C = 0]$. 
+
+- However! This requires an estimate of $P[L = l]$, not $P[L = l \vert C = 0]$, so we must have an estimate of the uncensored distribution of $L$. 
 
 <center>
 ```{r, echo = FALSE, fig.height = 3}
@@ -566,8 +578,8 @@ render_graph(gr15)
 - $\mathbf{Z}$ satisfies the s-backdoor criterion relative to $A$ and $Y$ if:
 
 1. $\mathbf{Z}^{+}$ blocks all backdoor paths from $A$ to $Y$.
-1. $Y \ci \mathbf{Z}^{-} \vert A, \mathbf{Z}^{+}$ ( $Y$ is $d$-separated from $\mathbf{Z}^{-}$ by $A$ and $\mathbf{Z}^{+}$)
-1. $Y \ci C \vert A, \mathbf{Z}$ ( $Y$ is $d$-separated from $C$ by $A$ and $\mathbf{Z}$)
+1. $Y \ci \mathbf{Z}^{-} \mid A, \mathbf{Z}^{+}$ ( $Y$ is $d$-separated from $\mathbf{Z}^{-}$ by $A$ and $\mathbf{Z}^{+}$)
+1. $Y \ci C \mid A, \mathbf{Z}$ ( $Y$ is $d$-separated from $C$ by $A$ and $\mathbf{Z}$)
 1. $P(\mathbf{Z})$ can be measured without selection.
 
 ---
@@ -588,7 +600,7 @@ $$P[Y(a)] = \sum_{z} P(Y \vert A, \mathbf{Z}, C = 0) P(\mathbf{Z})$$
 
 1. There are no backdoor paths from $A$ to $Y$.
 1. $\mathbf{Z}^{-}$ is the empty set so the second condition is satisfied.
-1.  $Y \ci C \vert A, L$
+1.  $Y \ci C \mid A, L$
 1. So we must be able to observe $L$ without censoring. 
 
 <center>
@@ -605,13 +617,13 @@ render_graph(gr15)
 
 - First, we want to weight the data to look like a population with no selection. We need a set of variables $L_1$ such that
 
-$$Y( C = 0) \ci C \vert\ L_1, A$$
+$$Y( C = 0) \ci C \mid L_1, A$$
 
 - We then weight the data by $W^{c} = \frac{1}{P(C = 0 \vert L_1, A)}$
 
 - Second, we need a set of variables $L_2$ such that 
 
-$$Y(a, C = 0) \ci A \vert\ L_2$$
+$$Y(a, C = 0) \ci A \mid L_2$$
 - The second stage weights are $W^{A} = \frac{1}{f(A \vert L_2)}$
 
 - The total weights are $W = W^{C} W^{A}$
@@ -1209,7 +1221,7 @@ render_graph(gr13)
 
 ## Measurment Error in Confounders
 
-- If a confounder, $L$, is measured with error, it will generally not be true that $Y(a) \ci A \vert L^*$ even if $Y(a) \ci A \vert L$. 
+- If a confounder, $L$, is measured with error, it will generally not be true that $Y(a) \ci A \mid L^*$ even if $Y(a) \ci A \mid L$. 
 
 - Conditioning on $L^*$ rather than $L$ will leave residual confounding. 
 
