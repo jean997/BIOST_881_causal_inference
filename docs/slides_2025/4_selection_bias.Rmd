@@ -93,7 +93,7 @@ render_graph(hiv_graph0)
 
 ## HIV Treatment Example
 
-- If there had been no censoring, could we identify $E[Y(a)]$? (i.e. is there a set of variables $H$ such that $Y(a) \ci A \mid H$)?
+- If there had been no censoring, could we identify $E[Y(a)]$? i.e. is there a set of variables $H$ such that $Y(a) \ci A \mid H$?
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
@@ -697,7 +697,7 @@ ndf2 <- create_node_df(n =5 , label = c("A", "Y", "L", "C", "U"),
                      fontcolor = "black",
                      color = "black", 
                      fixedsize = FALSE,
-                     shape = c("circle", "ellipse", "circle", "square", "circle"),
+                     shape = c("circle", "circle", "circle", "square", "circle"),
                      x = c(0, 3, 1,2, 2)*0.8, 
                      y = c(0, 0, 0, 0, 1)*0.8)
 edf2 <- create_edge_df(from = c(1, 3, 5, 5), to = c(3, 4, 3, 2),
@@ -725,23 +725,6 @@ render_graph(gr2)
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
-ndf2 <- create_node_df(n =5 , label = c("A", "Y(C = 0)", "L", "C", "U"), 
-                     fontname = "Helvetica", 
-                     fontsize = 10, 
-                     width = 0.3, 
-                     fillcolor = "white", 
-                     fontcolor = "black",
-                     color = "black", 
-                     fixedsize = FALSE,
-                     shape = c("circle", "ellipse", "circle", "square", "circle"),
-                     x = c(0, 3, 1,2, 2)*0.8, 
-                     y = c(0, 0, 0, 0, 1)*0.8)
-edf2 <- create_edge_df(from = c(1, 3, 5, 5), to = c(3, 4, 3, 2),
-                          minlen = 1, 
-                          color = "black" 
-                          )
-gr2 <- create_graph(nodes_df = ndf2, edges_df = edf2)
-
 render_graph(gr2)
 ```
 </center>
