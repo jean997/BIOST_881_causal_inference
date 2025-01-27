@@ -93,7 +93,7 @@ render_graph(hiv_graph0)
 
 ## HIV Treatment Example
 
-- If there had been no censoring, could we identify $E[Y(a)]$? (i.e. is there a set of variables $\mathcal{V}$ such that $Y(a) \ci A \mid \mathcal{V}$)?
+- If there had been no censoring, could we identify $E[Y(a)]$? (i.e. is there a set of variables $H$ such that $Y(a) \ci A \mid H$)?
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
@@ -104,19 +104,15 @@ render_graph(hiv_graph_noc)
 ```
 </center>
 
+--
 
-- With some data unobserved, can we identify the effect of $A$ on $Y$?
-<center>
-```{r, echo = FALSE, fig.height = 2.5}
-render_graph(hiv_graph0)
-```
-</center>
+- In this graph, $Y(a) \ci A$ so we can identify $E[Y(a)]$ as $E[Y \vert A = a]$ (assuming SUTVA and consistency hold). 
+
 
 ---
 
 ## HIV Treatment Example
 
-- Once we condition on the collider, $C$, we open the path $A \to L \to C \leftarrow Y$, inducing non-causal association between $A$ and $Y$. 
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
@@ -124,7 +120,11 @@ render_graph(hiv_graph0)
 ```
 </center>
 
-- This is one type of **selection bias**
+- Once we condition on the collider, $C$, we open the path $A \to L \to C \leftarrow Y$, inducing non-causal association between $A$ and $Y$. 
+
+- This means that $E[Y(a)] \neq E[Y \vert A = a, C = 0]$.
+
+- This is one type of **selection bias**.
 
 
 
@@ -221,9 +221,9 @@ P( Y = 1 \vert A = 0, C = 0) = & \frac{0.5 \cdot 0.8 }{0.6} \approx 0.67
 $$
 $$E[Y \vert A = 1, C  =0] - E[Y \vert A = 0, C = 0] \approx -0.61$$
 
-$$E[Y(1)] - E[Y(0)] = -0.7$$
+$$E[Y(1)] - E[Y(0)] = E[Y \vert A = 1] - E[Y \vert A = 0] =  -0.7$$
 
-- The associational value is not equal to the ATE so there is selection bias.
+- The identification formula that works when there is no selection doesn't work once we condition on $C = 0$, so we have selection bias.
 
 ---
 
@@ -263,7 +263,7 @@ $$
 
 ## Selection Bias Under the Null
 
-- In both examples we have selection bias because $C$ is a common effect of both $A$ and $Y$.
+- In both examples selection bias occurs because $C$ is a common effect of both $A$ and $Y$.
 
 - In the first case, there is selection bias whether or not $A$ has an effect on $Y$ (*selection bias under the null*).
 
@@ -449,41 +449,6 @@ render_graph(gr9)
 </center>
 
 
----
-# Augmenting DAGs
-
-- The DAGs we have been drawing are harboring a hidden counterfactual. 
-
-- If there is no effect of selection on $Y$, the node $Y$ could be written as $Y(C = 0)$, the value of $Y$ that we would observe if nobody was censored.
-
-- Our DAGs are missing the value of $Y$ that we actually observe, $Y^{obs}$ which is determined by $Y(C = 0)$ and $C$.
-
-<center> 
-
-```{r, echo=FALSE, fig.height  =3.5}
-ndf10 <- create_node_df(n =6 , label = c("A", "L", "C", "Y(C=0)", "U", "Y@^{obs}"),
-                     fontname = "Helvetica", 
-                     fontsize = 10, 
-                     width = 0.3, 
-                     fillcolor = "white", 
-                     fontcolor = "black",
-                     color = "black", 
-                     fixedsize =FALSE,
-                     shape = c("circle", "circle", "square", "ellipse", "circle", "ellipse"),
-                     x = c(0, 1, 2, 3, 2, 2.5)*0.8, 
-                     y = c(0, 0, 0,0,1, -1.5)*0.5)
-edf10 <- create_edge_df(from = c(1, 2, 5, 5, 4, 3), to = c(2, 3, 2, 4, 6, 6),
-                          minlen = 1, 
-                          color = "black", 
-                          )
-gr10 <- create_graph(nodes_df = ndf10, edges_df = edf10)
-
-render_graph(gr10)
-```
-
-</center>
-
-
 
 ---
 ## Adjusting for Selection
@@ -566,6 +531,16 @@ render_graph(gr15)
 ```
 </center>
 
+---
+## Selection as a Treatment
+
+- Hernan and Robins argue that, in the presence of selectin, we should think of our causal estimand as $E[Y(A = a, C = 0)]$, the expected value of $Y$ intervening to set $A$ to $a$ **and** intervening to eliminate selection.
+
+- In most cases, $Y$ is not a descendent of $C$, so this is really the same as $E[Y(a)]$.
+
+- However, Hernan and Robins argue that including $C = 0$ as a treatment helps us remember that we need to ensure that exchangeability, positivity, and consistency hold for $C$ as well as $A$. 
+
+
 
 ---
 
@@ -613,7 +588,7 @@ render_graph(gr15)
 ---
 ## IP Weighting for Selection Bias
 
-- There is an alternative IP weighting approach to selection bias. 
+- IP weighting is another tool for recovering from selection bias. 
 
 - First, we want to weight the data to look like a population with no selection. We need a set of variables $L_1$ such that
 
@@ -623,7 +598,7 @@ $$Y( C = 0) \ci C \mid L_1, A$$
 
 - Second, we need a set of variables $L_2$ such that 
 
-$$Y(a, C = 0) \ci A \mid L_2$$
+$$Y(A = a, C = 0) \ci A \mid L_2$$
 - The second stage weights are $W^{A} = \frac{1}{f(A \vert L_2)}$
 
 - The total weights are $W = W^{C} W^{A}$
@@ -637,9 +612,6 @@ $$Y(a, C = 0) \ci A \mid L_2$$
 
 <center>
 ```{r, echo = FALSE, fig.height = 3}
-ndf15$label[2] <- "Y(C = 0)"
-ndf15$fixedsize[2] <- FALSE
-ndf15$shape[2] <- "ellipse"
 gr15 <- create_graph(nodes_df = ndf15, edges_df = edf15)
 
 render_graph(gr15)
@@ -662,7 +634,7 @@ render_graph(gr15)
 
 - We must condition on $L$ to block the path between $Y(C = 0)$ and $C.$
 
-- $Y(a, C = 0)$ is independent of $A$ unconditionally. 
+- $Y(A = a, C = 0)$ is independent of $A$ unconditionally. 
 
 - Since there is no confounding, we only need to compute $W^{C} = 1/P[C = 0 \vert L, A]$ for all levels of $L$ and $A$. 
 
@@ -703,7 +675,7 @@ kable(X, col.names = c( "\\(A=0\\)", "\\(A=1\\)"),
 
 - We do not need $P[C = 1 \vert A, L] > 0$.
 
-- We also need the the counterfactual outcome $Y(a, C = 0)$ to be well-defined. 
+- We also need the the counterfactual outcome $Y(A = a, C = 0)$ to be well-defined. 
   + If $C$ is loss to follow-up, it makes sense to suppose that all patients were followed. 
 
 - Suppose that $C$ is censoring due to death resulting from causes other than $A$. 
@@ -717,7 +689,7 @@ kable(X, col.names = c( "\\(A=0\\)", "\\(A=1\\)"),
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
-ndf2 <- create_node_df(n =5 , label = c("A", "Y(C = 0)", "L", "C", "U"), 
+ndf2 <- create_node_df(n =5 , label = c("A", "Y", "L", "C", "U"), 
                      fontname = "Helvetica", 
                      fontsize = 10, 
                      width = 0.3, 
