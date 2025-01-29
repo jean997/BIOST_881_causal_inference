@@ -606,7 +606,7 @@ $$Y(A = a, C = 0) \ci A \mid L_2$$
 
 ---
 
-## IP Weighting Example 1
+## Recovering From Selection Example 1
 
 - The graph we saw earlier is a modified verison of  HR Fig 8.3:
 
@@ -629,7 +629,7 @@ render_graph(gr15)
 
 
 ---
-## IP Weighting Example 1
+## Recovering From Selection Example 1
 
 
 - We must condition on $L$ to block the path between $Y(C = 0)$ and $C.$
@@ -649,7 +649,7 @@ render_graph(gr15)
 </center>
 
 ---
-## IP Weighting Example 1
+## Recovering From Selection Example 1
 
 - The table shows $P[C = 0 \vert A, L]$ from the HR example.
 <center> 
@@ -682,10 +682,7 @@ kable(X, col.names = c( "\\(A=0\\)", "\\(A=1\\)"),
   + HR argue that it doesn't make sense to propose an intervention that that eliminates all other causes of death.
   
 ---
-## IP Weighting Example 2
-
-- In the previous example, we saw that both IP weighting and stratification on $L$ could be used to identify the treatment effect. 
-
+## Recovering From Selection Example 2
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
@@ -710,18 +707,17 @@ render_graph(gr2)
 ```
 </center>
 
+- In the previous example, we saw that both IP weighting and the s-backdoor criterion could be used to identify the treatment effect. 
 
-- In this case, stratifying by $L$ induces confounding through the path $A \rightarrow L \leftarrow U \rightarrow Y$.
+- Here, stratifying by $L$ induces association through the path $A \rightarrow L \leftarrow U \rightarrow Y$.
 
-- In this graph, there is no way to satisfy the s-backdoor criterion without observing $U$:
+- If $U$ is unobserved, there is no way to satisfy the s-backdoor criterion:
   - To $d$-separate $Y$ from $C$, we must condition on $L$. 
   - But $L$ is a child of $A$, so in $\mathbf{Z}^{-}$ and there is no way to $d$-separate $L$ from $Y$ without $U$. 
 
 
 ---
-## IP Weighting Example 2
-
-
+## Recovering From Selection Example 2
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5}
@@ -730,11 +726,52 @@ render_graph(gr2)
 </center>
 
 
-- Without $U$, we cannot apply the selection backdoor criterion to estimate $E[Y(a)]$, even with uncensored observations of $A$ and $L$. 
+- Without $U$, we cannot apply the s-backdoor criterion to estimate $E[Y(a)]$. 
 
 - However, weighting by $1/P[C = 0 \vert A, L]$ works. 
   - We must be able to observe $A$, and $L$ without censoring.
+  - And we must have positivity, $P[C = 0 \vert A = a, L = l] > 0\ \forall a, l$.
 
+
+---
+## Recovering From Selection Example 2
+
+<center>
+```{r, echo = FALSE, fig.height = 2.5}
+render_graph(gr2)
+```
+</center>
+
+
+- Our IP weighting formula is
+$$E[Y(a)] = E\left[\frac{1_{A = a, C = 0}Y}{P[C = 0 \vert A = a, L]}\right]$$
+
+- Which we could estimate as
+$$\hat{E}[Y(a)]= \frac{1}{n}\sum_{i = 1}^n \frac{1_{A_i = a, C_i = 0}Y_i}{\hat{P}[C = 0 \vert A = a, L = L_i]}$$
+
+---
+## Recovering From Selection Example 2
+
+
+<center>
+```{r, echo = FALSE, fig.height = 1.5}
+render_graph(gr2)
+```
+</center>
+
+- There is a second way to identify $E[Y(a)]$ without $U$ in this graph, pointed out by Berskin et al (2018) and Cinelli and Pearl (2018). 
+
+- Without censoring $A \ci Y$, so $E[Y(a)] = E[Y \vert A = a]$. 
+
+- Using the law of total probability and d-separation
+$$
+\begin{split}
+E[Y(a)] = E[Y \vert A = a] = &\sum_{l}E[Y \vert A = a, L = l]P[L = l \vert A = a]\\
+=& \sum_{l}E[Y \vert A = a, L = l, C = 0]P[L = l \vert A = a]
+\end{split}
+$$
+
+- Notice that we still need $P[L = l \vert A =a]$ which is not the same as $P[L = l \vert A =a, C = 0]$. 
 
 ---
 
@@ -764,25 +801,28 @@ render_graph(hiv_graph)
 ```
 </center>
 
-- Individuals are selected into the study based on their value of $Y$. 
+- Individuals are selected into the study based on their value of $Y$, whcih is binary. 
 
 - In this case, we are no longer able estimate the average counterfactuals or the causal risk ratio. 
 - However, in this DAG, we can estimate the causal odds ratio due to cancellation. 
 ---
 ## Case-Control Studies
 
-- Without censoring, $Y(a)$ and $A$ are exchangeable so $E[Y(a)]= E[Y \vert A]$.
+- Without censoring, $Y(a)$ and $A$ are exchangeable so $P[Y(a) = 1]= P[Y = 1 \vert A = a]$.
 
-- We only get to observe $E[Y \vert A, C = 0]$
+- The causal odds is $\frac{P[Y(a)=1]}{1-P[Y(a) = 1]}$
+
 $$
-\text{OR} = \frac{P[Y = 1 \vert A ]}{P[Y = 0 \vert A ]}\\\
-= \frac{P[Y = 1\vert A, C = 0]P[C = 0 \vert A]}{P[Y = 0\vert A, C = 0]P[C = 0 \vert A]} \\\
-= \frac{P[Y = 1\vert A, C = 0]}{P[Y = 0\vert A, C = 0]}
+\begin{split}
+\frac{P[Y(a)=1]}{1-P[Y(a) = 1]} = &\frac{P[Y = 1 \vert A = a ]}{P[Y = 0 \vert A = a]}\\
+= & \frac{P[Y = 1\vert A, C = 0]P[C = 0 \vert A]}{P[Y = 0\vert A, C = 0]P[C = 0 \vert A]} \\
+= &\frac{P[Y = 1\vert A, C = 0]}{P[Y = 0\vert A, C = 0]}
+\end{split}
 $$
-- So the association odds ratio is equal to the causal odds ratio. 
+- This means that we can estimate the causal odds even with censoring and the causal odds ratio will not be subject to selection bias in this graph. 
 
 <center>
-```{r, echo = FALSE, fig.height = 1.5}
+```{r, echo = FALSE, fig.height = 0.75}
 render_graph(hiv_graph)
 ```
 </center>
@@ -792,7 +832,7 @@ render_graph(hiv_graph)
 
 - If $Y$ is the only cause of selection, we can recover $E[Y(a)]$ by using outside information, even though there is no way to satisfy the s-backdoor criterion.
 
-- If we know $P[Y = 1] = \alpha$ in the target population, we can compute the value of $P[Y \vert A]$ that we would have observed in the full population.
+- Suppose we know the population prevalence, $P[Y = 1] = \alpha$ in the target population. Then,
 
 $$
 \begin{split}
