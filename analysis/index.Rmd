@@ -19,6 +19,9 @@ editor_options:
 
 [4. Effect Modification, Interaction, and Collapsibility](slides_2025/3_effect_modification_interaction.html)
 
+[5. The Target Trial](slides_2025/5_target_trial.html)
+
+
 ## Lecture Slides from Past Years
 
 [2024 Slides](slide_index_2024.html)

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L3: Effect Modification and Interaction</title>
+    <title>L4: Effect Modification and Interaction</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -15,28 +15,20 @@
     <script src="libs/panelset-0.2.6/panelset.js"></script>
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
-    <script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+    <script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
     <script src="libs/viz-1.8.2/viz.js"></script>
     <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
-    <script src="libs/grViz-binding-1.0.10/grViz.js"></script>
+    <script src="libs/grViz-binding-1.0.7/grViz.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-.title[
-# L3: Effect Modification and Interaction
-]
-.author[
+# L4: Effect Modification and Interaction
 ### Jean Morrison
-]
-.institute[
 ### University of Michigan
-]
-.date[
-### Lecture on 2024-01-24 (updated: 2024-01-29)
-]
+### Lecture on 2025-02-03 (updated: 2025-02-02)
 
 ---
 
@@ -308,7 +300,7 @@ $$
 
 &lt;center&gt;
 
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-14e75633904f254e322c" style="width:576px;height:216px;"></div>
+<div id="htmlwidget-14e75633904f254e322c" style="width:576px;height:216px;" class="grViz html-widget"></div>
 <script type="application/json" data-for="htmlwidget-14e75633904f254e322c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"V\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.5,0.5!\"] \n  \"5\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2,0!\"] \n  \"6\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3,0!\"] \n  \"7\" [label = \"V\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"2,1!\"] \n  \"8\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.5,0.5!\"] \n  \"9\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"4,0!\"] \n  \"10\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"5,0!\"] \n  \"11\" [label = \"V\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"3.5,1.2!\"] \n  \"12\" [label = \"W\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"4,0.7!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"6\" [color = \"black\"] \n\"5\"->\"6\" [color = \"black\"] \n\"4\"->\"7\" [color = \"black\"] \n\"8\"->\"10\" [color = \"black\"] \n\"9\"->\"10\" [color = \"black\"] \n\"8\"->\"12\" [color = \"black\"] \n\"11\"->\"12\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 &lt;/center&gt;
@@ -316,7 +308,7 @@ $$
 - In the third graph, `\(W\)` is in the conditioning set.
   + Why is `\(V\)` associated with `\(Y\)`?
 
-- In graphs 2 and 3, `\(V\)` is a *surrogate effect modifier*. 
+- In graphs 2 and 3, `\(V\)` is a *surrogate effect modifier* because `\(V\)` does not directly cause `\(Y\)`. 
 
 ---
 
@@ -365,7 +357,7 @@ $$
 - Without accounting for tobacco access, our causal effect estimate is not transportable. 
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-458e57a9129a6af9ca02" style="width:720px;height:180px;"></div>
+<div id="htmlwidget-458e57a9129a6af9ca02" style="width:720px;height:180px;" class="grViz html-widget"></div>
 <script type="application/json" data-for="htmlwidget-458e57a9129a6af9ca02">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Genotype\", fontname = \"Helvetica\", fontsize = \"20\", width = \"0.3\", fixedsize = \"FALSE\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Addiction\n Susceptibility\", fontname = \"Helvetica\", fontsize = \"20\", width = \"0.3\", fixedsize = \"FALSE\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"3,0!\"] \n  \"3\" [label = \"Tobacco\n Access\", fontname = \"Helvetica\", fontsize = \"20\", width = \"0.3\", fixedsize = \"FALSE\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"6,1.3!\"] \n  \"4\" [label = \"Smoking\", fontname = \"Helvetica\", fontsize = \"20\", width = \"0.3\", fixedsize = \"FALSE\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"6,0!\"] \n  \"5\" [label = \"Lung Cancer\", fontname = \"Helvetica\", fontsize = \"20\", width = \"0.3\", fixedsize = \"FALSE\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fillcolor = \"#FFFFFF\", pos = \"9,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 &lt;/center&gt;
@@ -442,7 +434,7 @@ I simulated 1000 units from the model
 
 &lt;center&gt;
 
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-1dce438bf14852d4e1d9" style="width:576px;height:216px;"></div>
+<div id="htmlwidget-1dce438bf14852d4e1d9" style="width:576px;height:216px;" class="grViz html-widget"></div>
 <script type="application/json" data-for="htmlwidget-1dce438bf14852d4e1d9">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"V\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,1!\"] \n  \"2\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.8!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
@@ -990,7 +982,7 @@ E[Y(1)] - E[Y(0)] = \sum_{z}(E[Y(1) \vert Z=z]-E[Y(0) \vert Z=z])P[Z=z]
 $$
 
 $$
-\frac{E[Y(1)]}{E[Y(0)]} = \sum_l \frac{E[Y(1) \vert Z=z]}{E[Y(0) \vert Z=z]}w_z
+\frac{E[Y(1)]}{E[Y(0)]} = \sum_z \frac{E[Y(1) \vert Z=z]}{E[Y(0) \vert Z=z]}w_z
 $$
 $$
 w_z = \frac{E[Y(0)\vert Z=z]P[Z=z]}{E[Y(0)]}
@@ -1042,7 +1034,7 @@ $$
 
 **Theorem:** If `\(g\)` is the risk difference, faithfulness holds, and `\(g\)` is strictly collapsible over `\(Z\)` then `\(A\)` and `\(Y\)` are unconfounded by `\(Z\)`.
 
-- The reverse is not true, if `\(g\)` is not collapsible over `\(Z\)`, we can't conclude that `\(Z\)` is a confounder. 
+- The reverse is not true, if `\(g\)` is not strictly collapsible over `\(Z\)`, we can't conclude that `\(Z\)` is a confounder. 
 
 - This theorem does not hold for the odds ratio.
 
@@ -1171,19 +1163,6 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
-// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
-// screen reader (see PR #262)
-(function(d) {
-  let res = {};
-  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
-    const t = tr.querySelector('td:nth-child(2)').innerText;
-    tr.querySelectorAll('td:first-child .key').forEach(key => {
-      const k = key.innerText;
-      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
-    });
-  });
-  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
-})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable

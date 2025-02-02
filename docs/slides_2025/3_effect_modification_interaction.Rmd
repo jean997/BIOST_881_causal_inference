@@ -1,8 +1,8 @@
 ---
-title: "L3: Effect Modification and Interaction"
+title: "L4: Effect Modification and Interaction"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2024-01-24 (updated: `r Sys.Date()`)"
+date: "Lecture on 2025-02-03 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -28,6 +28,11 @@ style_mono_accent(
  # text_font_google   = google_font("Montserrat", "300", "300i"),
  # code_font_google   = google_font("Fira Mono")
 )
+library(dplyr)
+library(kableExtra)
+library(knitr)
+library(DiagrammeR)
+
 ```
 
 
@@ -57,12 +62,7 @@ $\newcommand{\ci}{\perp\!\!\!\perp}$
 
 ## Effect Modification Example
 
-```{r, echo = FALSE, message = FALSE}
-library(dplyr)
-library(kableExtra)
-library(knitr)
-library(DiagrammeR)
-
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 set.seed(1)
 n <- 1000
 V <- rep(c(0, 1), each = n/2)
@@ -255,7 +255,7 @@ render_graph(mo)
 - In the third graph, $W$ is in the conditioning set.
   + Why is $V$ associated with $Y$?
 
-- In graphs 2 and 3, $V$ is a *surrogate effect modifier*. 
+- In graphs 2 and 3, $V$ is a *surrogate effect modifier* because $V$ does not directly cause $Y$. 
 
 ---
 
@@ -766,7 +766,7 @@ E[Y(1)] - E[Y(0)] = \sum_{z}(E[Y(1) \vert Z=z]-E[Y(0) \vert Z=z])P[Z=z]
 $$
 
 $$
-\frac{E[Y(1)]}{E[Y(0)]} = \sum_l \frac{E[Y(1) \vert Z=z]}{E[Y(0) \vert Z=z]}w_z
+\frac{E[Y(1)]}{E[Y(0)]} = \sum_z \frac{E[Y(1) \vert Z=z]}{E[Y(0) \vert Z=z]}w_z
 $$
 $$
 w_z = \frac{E[Y(0)\vert Z=z]P[Z=z]}{E[Y(0)]}
@@ -818,7 +818,7 @@ $$
 
 **Theorem:** If $g$ is the risk difference, faithfulness holds, and $g$ is strictly collapsible over $Z$ then $A$ and $Y$ are unconfounded by $Z$.
 
-- The reverse is not true, if $g$ is not collapsible over $Z$, we can't conclude that $Z$ is a confounder. 
+- The reverse is not true, if $g$ is not strictly collapsible over $Z$, we can't conclude that $Z$ is a confounder. 
 
 - This theorem does not hold for the odds ratio.
 
