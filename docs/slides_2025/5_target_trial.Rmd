@@ -39,7 +39,7 @@ style_mono_accent(
 - In a trial, treatment arms and the outcome of interest are explicitly defined before the trial starts. 
   + This ensures that the causal contrast is clear and well defined. 
 
-- Randomization ensures that $Y(a) \ci A$ or $Y(A) \ci \mid L$ for known covariates $L$. 
+- Randomization ensures that $Y(a) \ci A$ or $Y(A) \ci A \mid L$ for known covariates $L$. 
 
 - Clear eligibility requirements make it easy to understand the population and help prevent selection bias.
 
@@ -88,7 +88,7 @@ knitr::include_graphics("img/5_target_trial_hr16.png")
 
 - This means that we have to develop the target trial plan in consideration of the observational data. 
 - Doing this exercise also helps us identify if the data we have is suitable for causal inference:
-  + If there is no randomized trial we can emulate, our observational data has fatal limitations that prevent us from estimating causal effects.
+  + If we cannot come up with a target trial to emulate, we can conclude that our observational data has fatal limitations that prevent us from estimating causal effects or our causal question is poorly specified.
 
 ---
 ## Eligiability
@@ -109,7 +109,7 @@ knitr::include_graphics("img/5_target_trial_hr16.png")
 
 - In the randomized trial, treatment is assigned randomly by investigators. 
 
-- In order to ensure conditional exchangeability, we need to identify possible confounders of treatment and outcome in the observational data. 
+- In order to ensure conditional exchangeability in the observational data, we need to identify possible confounders of treatment and outcome. 
 
 - If all confounders are measured and modeled correctly, we can mimic a conditionally randomized trial. 
 

@@ -4,25 +4,33 @@
     <title>L5: The Target Trial Framework</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
+.title[
 # L5: The Target Trial Framework
+]
+.author[
 ### Jean Morrison
+]
+.institute[
 ### University of Michigan
-### 2025-02-05 (updated: 2025-02-03)
+]
+.date[
+### 2025-02-05 (updated: 2025-02-05)
+]
 
 ---
 
@@ -40,7 +48,7 @@ class: center, middle, inverse, title-slide
 - In a trial, treatment arms and the outcome of interest are explicitly defined before the trial starts. 
   + This ensures that the causal contrast is clear and well defined. 
 
-- Randomization ensures that `\(Y(a) \ci A\)` or `\(Y(A) \ci \mid L\)` for known covariates `\(L\)`. 
+- Randomization ensures that `\(Y(a) \ci A\)` or `\(Y(A) \ci A \mid L\)` for known covariates `\(L\)`. 
 
 - Clear eligibility requirements make it easy to understand the population and help prevent selection bias.
 
@@ -87,7 +95,7 @@ class: center, middle, inverse, title-slide
 
 - This means that we have to develop the target trial plan in consideration of the observational data. 
 - Doing this exercise also helps us identify if the data we have is suitable for causal inference:
-  + If there is no randomized trial we can emulate, our observational data has fatal limitations that prevent us from estimating causal effects.
+  + If we cannot come up with a target trial to emulate, we can conclude that our observational data has fatal limitations that prevent us from estimating causal effects or our causal question is poorly specified.
 
 ---
 ## Eligiability
@@ -108,7 +116,7 @@ class: center, middle, inverse, title-slide
 
 - In the randomized trial, treatment is assigned randomly by investigators. 
 
-- In order to ensure conditional exchangeability, we need to identify possible confounders of treatment and outcome in the observational data. 
+- In order to ensure conditional exchangeability in the observational data, we need to identify possible confounders of treatment and outcome. 
 
 - If all confounders are measured and modeled correctly, we can mimic a conditionally randomized trial. 
 
@@ -272,6 +280,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
