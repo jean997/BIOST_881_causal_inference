@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L5: IP Weighting and G-Computation</title>
+    <title>L6: IP Weighting and G-Computation</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
@@ -22,7 +22,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L5: IP Weighting and G-Computation
+# L6: IP Weighting and G-Computation
 ]
 .author[
 ### Jean Morrison
@@ -31,8 +31,8 @@ class: center, middle, inverse, title-slide
 ### University of Michigan
 ]
 .date[
-### Lecture on 2024-02-07
-(updated: 2024-04-10)
+### Lecture on 2025-02-10
+(updated: 2025-02-08)
 ]
 
 ---
@@ -57,15 +57,56 @@ class: center, middle, inverse, title-slide
 # 1. Introduction
 
 ---
-## Modeling
 
-- So far we have learned two strategies for estimating `\(E[Y(a)]\)` from data when we need to adjust for
-confounding or selection bias. 
+## G-Formula
 
-- In IP weighting we re-weight our observations by `\(1/P[A = A_i \vert L_i]\)`, the probability that 
-they received the treatment that they got given confounderts `\(L_i\)`. 
+- The formula we saw previously as the standardization formula is also called the g-formula
 
-- In standardization, we first stratify the data by `\(L\)`, compute `\(E[Y \vert A = a, L]\)` within each stratum, and then take a weighted sum of these averages. 
+$$
+E[Y(a)] = \sum_l E[Y \vert A = a, L = l]P[L = l]
+$$
+
+- We showed in L1 that an alternate expression of the g-formula is 
+
+$$
+E[Y(a)] = E\left[ \frac{I(A = a) Y}{P(A = a \vert L)}\right]
+$$
+
+---
+
+## Non-Parametric G-Formula Estimates
+
+- In L1-L5, we always assumed that `\(L\)` and `\(A\)` were discrete and data was abundant. 
+
+- This allows us to estimate the components of these formulas non-parametrically as
+
+$$
+`\begin{split}
+&amp;\hat{E}[Y \vert A = a, L = l] = \frac{\sum_{i} 1_{A = a, L = l} Y_i}{\sum_i 1_{A = a, L = l}}\\
+&amp;\hat{P}[L = l] = \frac{\sum_i 1_{L = l}}{n}
+\end{split}`
+$$
+
+and
+
+$$
+`\begin{split}
+\hat{P}[A = a \vert L = l] = \frac{\sum_{i} 1_{A = a, L = l}}{\sum_i 1_{L = l}}
+\end{split}`
+$$
+
+- We showed in HW1 that if we plug these estimates into their respective formulas, the standardization and IP weighting formulas give exactly the same estimate.
+
+---
+## Models
+
+- In most cases, `\(L\)` is multivariate and we don't have enough data to use the non-parametric estimates. 
+
+- In these cases, we will need to substitute parametric estimates. 
+
+- What are some ways you know to estimate `\(E[Y \vert A = a, L = l]\)`?
+
+- What are some ways you know to estimate `\(P[ A = a \vert L = l]\)`?
 
 ---
 
@@ -84,45 +125,17 @@ they received the treatment that they got given confounderts `\(L_i\)`.
 - In this  lecture we will talk about parametric models. 
 
 ---
+## Parametric G-Formula Estimates
 
-## Our Models So Far
+- We can use the G-formula to obtain estimates of `\(E[Y(a)]\)` using parametric estimates of the components of the formulas. 
 
-- So far in examples, we have always used **saturated** models. 
-  + Saturated models contain all possible probability distributions for the observed data. 
-  
-
-- We assume that `\(A\)`, `\(Y\)`, and any confounders have a discrete number of levels and that we have 
-enough data to estimate quantities like `\(E[Y \vert A, L]\)` in each stratum of `\(A\)` and `\(L\)`. 
-  
-
-- This has allowed us to focus on **identification**, i.e. could we estimate a parameter with infinite data. 
-
-- However, in the real world, we don't get infinite data and it is impractical to assume we can always estimate `\(E[Y \vert A, L]\)` in every stratum of `\(A\)` and `\(L\)`.
-
-- We will need **modeling** to go further. 
+- If we use parametric estimates, we will generally **not** get numerically identical estimates from the two versions of the formula.
+  + As a result, the G-formula provides us with two estimation methods with different methods.
 
 
----
+- G-computation (also called standardization): Estimate `\(E[Y \vert A, L]\)` and plug into the first version of the g-formula. 
 
-## G-Formula
-
-- The formula we saw previously as the "stratification" formula is also called the g-formula
-
-$$
-E[Y(a)] = \sum_l E[Y \vert A = a, L = l]P[L = l]
-$$
-
-- We showed in L1 that an alternate expression of the g-formula is 
-
-$$
-E[Y(a)] = E\left[ \frac{I(A = a) Y}{f(A \vert L)}\right]
-$$
-
-- We can use either of these expressions to obtain parametric estiamtes of `\(E[Y(a)]\)`. 
-
-- In G-computation (also called standardization) we estimate `\(E[Y \vert A, L]\)` and plug into the first expression. 
-
-- In IP weighting we estimate `\(f(A \vert L)\)` (the propensity score) and use the second expression. 
+- IP weighting: Estimate `\(P(A =a \vert L)\)`, the **propensity score**, and plug into the second version of the g-formula. 
 
 ---
 # 2. Inverse Probabilty Weighting 
@@ -205,6 +218,11 @@ $$
 
 - On average, quitters gained about 5kg over the 10 year period while non-quitters only gained about 2kg. 
 
+- This is the unadjusted association, `\(E[Y \vert A = 1] - E[Y \vert A = 0]\)`.
+- We learned previously that this is only an estimate of the causal effect of `\(Y(a) \ci A\)`. 
+
+- Since we don't think that is true in these data, this is probably not a good estimate of the causal effect.
+
 ---
 ## Quitters v Non-Quitters
 
@@ -279,9 +297,8 @@ $$
 - We cannot compute `\(P[A = 1 \vert L ]\)` among every (or any) stratum of `\(L\)` because every
 participant has their own unique value of `\(L\)`. 
 
-- We have to fit a parametric model. 
+- Instead, we will fit a parametric model!
 
-- What would you do? 
 
 ---
 
@@ -292,16 +309,18 @@ participant has their own unique value of `\(L\)`.
 - The goal is to get the best possible estimate of the probability of treatment given `\(L\)`, so 
 we should fit a flexible model. 
 
-- Once we fit the model, we can estimate the probability of quitting for each person as  `\(\pi_i = P[A = 1 \vert L = L_i]\)`. These are the probability-scale fitted values from the logistic model. 
+- Once we fit the model, we can estimate the probability of quitting for each person as  `\(\pi_i = P[A = 1 \vert L = L_i]\)`. 
+  + These are the probability-scale fitted values from the logistic model. 
+  + Recall, `\(\pi_i\)` is the **propensity score**.
 
-- The weight for individual `\(i\)` will be equal to `\(\frac{1}{\pi_i}\)` if `\(A_i = 1\)` (the person actually did quit) or `\(\frac{1}{1-\pi_i}\)` if `\(A_i = 0\)` (the person did not quit). 
+- The weight for individual `\(i\)` is `\(\frac{1}{\pi_i}\)` if `\(A_i = 1\)` (the person actually did quit) or `\(\frac{1}{1-\pi_i}\)` if `\(A_i = 0\)` (the person did not quit). 
 
 ---
 
 ## Weights Estimated by Logistic Regression 
 
 
-```r
+``` r
 fit &lt;- glm(qsmk ~ sex + race + age + I(age ^ 2) +
     as.factor(education) + smokeintensity +
     I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
@@ -329,15 +348,15 @@ dat$w &lt;- ifelse(dat$qsmk == 0,
 - *Structural violations* of positivity occur when it is impossible for people with some 
 levels of confounders to receive a particular level of treatment. 
 
-  + If we have structural violations, we cannot use IP weighting or standardization. 
-  + We need to restrict our inference to relevant strata of `\(L\)`. 
+  + If there are structural violations, we cannot use IP weighting or standardization. 
+  + We need to restrict our inference to strata of `\(L\)` where positivity holds. 
 
 - *Random violations* of positivity occur when certain combinations of `\(L\)` and `\(A\)` 
 are missing from our data by chance. 
 
-  + We are using a parametric model, so we are able to smooth over unobserved covariate values. 
-  + We are able to predict for strata that were not observed in our data. 
-  + We should be careful about predicting outside the range of the observed data. 
+  + Using a parametric propensity model, we can smooth over unobserved covariate values. 
+  + Using IP weighting with a parametric model, we are implicitly assuming that all violations of positivity are random and not structural. 
+  + We still need to be careful about predicting outside the range of the observed data. 
 
 
 ---
@@ -346,7 +365,7 @@ are missing from our data by chance.
 
 - If positivity holds, propensity scores should be bounded away from 0 and 1:
   
-  + Scores very close to 0 or very close to 1 suggest that there are some strata of `\(A\)` and `\(L\)` that have no chance to receive one of the two treatments.
+  + Scores very close to 0 or very close to 1 suggest that there are some strata of `\(L\)` that have no chance to receive one of the two treatments.
   + We might get scores close to 0 or 1 if there is perfect separation by one or a combination of confounders.
   + Scores close to 0 or 1 suggest there could be structural positivity violations. 
 
@@ -374,7 +393,7 @@ estimated weights.
 - The Horvitz-Thompson estimator just plugs our estimated weights into our previous formula.
 
 $$
-\hat{E}[Y(a)] = \hat{E}\left[\frac{I(A = a)Y}{f(A\vert L)} \right] = \frac{1}{n}\sum_{i = 1}^n I(A_i = a)Y_i W_i
+\hat{E}[Y(a)] = \hat{E}\left[\frac{I(A = a)Y}{P(A= a\vert L)} \right] = \frac{1}{n}\sum_{i = 1}^n I(A_i = a)Y_i W_i
 $$
 
 ---
@@ -383,25 +402,29 @@ $$
 
 - The *Hajek estimator* fits the linear model 
 $$
-E[Y \vert A] = \theta_0 + \theta_1 A
+E[Y \vert A] = \beta_0 + \beta_1 A
 $$
 by weighted least squares, weighting individuals by our estimated IP weights. 
 
 - It is is equivalent to
 
 
-`$$\frac{ \hat{E}\left[\frac{I(A = a)Y}{f(A\vert L)} \right]}{ \hat{E}\left[\frac{I(A = a)}{f(A\vert L)} \right]} = \frac{\sum_{i = 1}^n I(A_i = a)Y_i W_i}{\sum_{i = 1}^n I(A_i = a) W_i}$$`
+`$$\frac{ \hat{E}\left[\frac{I(A = a)Y}{P(A =a\vert L)} \right]}{ \hat{E}\left[\frac{I(A = a)}{P(A =a\vert L)} \right]} = \frac{\sum_{i = 1}^n I(A_i = a)Y_i W_i}{\sum_{i = 1}^n I(A_i = a) W_i}$$`
 ---
 
 ## Hajek Estimator
 
-- Hajek estimator is unbiased for 
+- THe Hajek estimator is an unbiased estimate of 
 
-`$$\frac{ E\left[\frac{I(A = a)Y}{f(A\vert L)} \right]}{ E\left[\frac{I(A = a)}{f(A\vert L)} \right]}$$`
+`$$\frac{ E\left[\frac{I(A = a)Y}{P(A =a\vert L)} \right]}{ E\left[\frac{I(A = a)}{P(A = a\vert L)} \right]}$$`
 - If positivity holds, then  
 
 $$
-E\left[\frac{I(A = a)}{f(A\vert L)} \right] = 1
+`\begin{split}
+E\left[\frac{I(A = a)}{P(A = a\vert L)} \right] = &amp; E_l \left[ E\left[\frac{I(A = a)}{P(A = a\vert L = l )}  \Big\vert L  \right] \right]\\
+ = &amp; E_l \left[ \frac{E[I(A = a) \vert L = l]}{P(A = a\vert L = l)} \right]\\
+ = &amp; E_l \left[ \frac{P(A = a \vert L = l)}{P(A = a\vert L = l)}\right] = 1
+\end{split}`
 $$
 
 - The Hajek estimator is guaranteed to be between 0 and 1 for dichotomous outcomes. The Horvitz-Thompson estimator is not. 
@@ -411,10 +434,10 @@ $$
 
 ## IP Weighted Effect Estimate in NHEFS
 
-- This code computes the Hajek estimator:
+- To compute the Hajek estimator, we fit a weighted linear regression:
 
 
-```r
+``` r
 f_w_lm &lt;- lm(wt82_71 ~ qsmk, data = dat, weights  = w)
 f_w_lm
 ```
@@ -457,25 +480,25 @@ f_w_lm
 ## Variance Estiamte in the NHEFS Data
 
 
-```r
+``` r
 library("geepack")
 f_w_gee &lt;- geeglm(wt82_71 ~ qsmk, data = dat,weights = w,
                 id = seqn,corstr = "independence")
 beta &lt;- coef(f_w_gee)
 SE &lt;- coef(summary(f_w_gee))[, 2]
-lcl &lt;- beta - qnorm(0.975) * SE
-ucl &lt;- beta + qnorm(0.975) * SE
-cbind(beta, lcl, ucl)
+lci &lt;- beta - qnorm(0.975) * SE
+uci &lt;- beta + qnorm(0.975) * SE
+cbind(beta, lci, uci)
 ```
 
 ```
-##                 beta      lcl      ucl
+##                 beta      lci      uci
 ## (Intercept) 1.779978 1.339514 2.220442
 ## qsmk        3.440535 2.410587 4.470484
 ```
 
 
-```r
+``` r
 library(sandwich)
 # Equivalent alternative using sandwich
 v_wlm_robust &lt;- vcovHC(f_w_lm, type = "HC0")
@@ -487,41 +510,119 @@ all.equal(v_wlm_robust, vcov(f_w_gee))
 ## [1] TRUE
 ```
 
+---
+
+## Marginal Structural Models
+
+- In the IP weighting strategy, we create a population in which `\(A\)` is independent of `\(L\)` and then fit the model 
+`$$E_{ps}[Y \vert A ] = \beta_0 + \beta_1 A$$`
+
+- If  `\(Y(a) \ci A \vert L\)` in the sample and `\(A \ci L\)` in the pseudo-population, then `\(Y(a) \ci A\)` in the pseudo-population. 
+  + This means that `\(E_{ps}[Y \vert A] = E[Y(a)]\)`. 
+
+- So the parameter `\(\beta_1\)` is interpretable as the causal risk difference. 
+
+--
+
+- Our model for `\(E_{ps}[Y \vert A]\)` is actually a **marginal structural model (MSM)**: 
+
+`$$E[Y(a)] = \beta_0 + \beta_1 a$$`
+
+- This model is *marginal* because it is not conditional on any covariates. 
+
+- It is structural because it is a model for a counterfactual `\(E[Y(a)]\)`.
+
+
+---
+## Modeling Continuous Treatments
+
+- With a binary exposure, there is only one possible marginal structural model.
+  + `\(E[Y(a)] = \beta_0 + \beta_1 a\)` is a fully saturated model.
+
+- For continuous (or highly polytomous) exposures, we need to use a parametric model instead. 
+
+- In the NHEFS data, let `\(A\)` be the change in smoking intensity ( `\(A = 10\)` indicates that a person increased their smoking by 10 cigarettes).
+
+- We can propose a model for our *dose-response curve*
+
+$$
+E[Y(a)] = \beta_0  + \beta_1 a + \beta_2 a^2
+$$
+---
+## Weights for Continuous Treatment
+
+- To use IP weighting with a continuous treatment, we need to estimate the conditional pdf of `\(A\)`, `\(f(A \vert L)\)`. 
+
+- Estimating a pdf is a notoriously hard problem.
+
+- One solution is to assume that `\(f(A \vert L)\)` is normal with constant variance across participants, but this is a very strong assumption. 
+
+  
+- We can then estimate the mean of `\(f(A \vert L)\)` via linear regression and the variance of `\(f(A \vert L)\)` as the empirical residual variance from the linear regression. 
+
+- IP weighted estimates of continuous variables can be very sensitive to these distributional assumptions.
+
+
 
 ---
 ## Stabilized Weights
 
-- Using weights `\(W^{A} = 1/f(A \vert L)\)` we create a pseudo-population in which (heuristically), each person is matched by someone exactly like them who received the opposite treatment. 
+- Using weights `\(W^{A} = 1/f(A \vert L)\)`, we create a pseudo-population in which each person is matched by someone exactly like them who received the opposite treatment. 
 
 
 - Our pseudo-population is twice as big as our actual sample so the mean of `\(W^A\)` is 2. 
 
-- In the pseudo-population, the frequency of treatment `\(A = 1\)` is 50%. 
+- In the pseudo-population, the frequency of treatment `\(A = 1\)` is 50% for every stratum of `\(L\)`, so in the pseudo-population, `\(A \ci L\)` .
+  - This also means that, in the pseudo-population `\(Y(a) \ci A\)` (unconditionally), which is why we can use the weighted mean to estimate `\(E[Y(a)]\)`. 
 
-- We could have created other pseudo-populations. 
 
 ---
 ## Stabilized Weights
 
-- Our requirements are that, in the pseudo-population, probability of treatment is independent of `\(L\)`. 
+- We could have created other pseudo-populations in which `\(A\)` is independent of `\(L\)`. 
+  
+- For example, to create a pseudo-population the same size as our observed data with treatment probability of 0.5, we could multiply all of the weights by 0.5.
 
-- But different people could have different probabilities of treatment. 
+- To create a pseudo-population the same size as our observed data with treatment probability of 0.25, we would multiple the weights for people with `\(A = 1\)` by 0.25 and the weights for people with `\(A = 0\)` by 0.75.
+
+- As long as we scale the weights by some quantity that doesn't depend on `\(L\)`, we create a pseudo-population in which `\(A \ci L\)`. 
+
+---
+## Stabilized Weights
+
+- If we look at the formula for the Hajek estimator, we can see that multiplying the weights by a factor that only depends on `\(A_i\)` will not change the estimate.
+
+`$$\frac{ \hat{E}\left[\frac{I(A = a)Y}{P(A =a\vert L)} \right]}{ \hat{E}\left[\frac{I(A = a)}{P(A =a\vert L)} \right]} = \frac{\sum_{i = 1}^n I(A_i = a)Y_i W_i}{\sum_{i = 1}^n I(A_i = a) W_i}$$`
+- This is because the MSM for a binary treatment is saturated.
+
+---
+## Stabilized Weights
+
+- For a non-saturated MSM, like we constructed for smoking intensity, multiplying `\(W_i\)` by a constant depending on `\(A_i\)` **will** change the estimate, but *not* the expected value of the estimate.
 
 
-- To create stabilized weights, we construct a pseudo-population in which the probability of receiving 
-each treatment is the same as the frequency of the treatment in our original sample. 
+- As long as we multiply `\(W_i\)` by something that doesn't depend on `\(L\)`, we will get an unbiased estimate of the structural parameters. 
+
+- But different choices of multipliers will result in more or less efficient estimates. 
+
+- It turns out that the most efficient estimate is achieved with **stabilized weights**
 
 $$
 SW^A = \frac{f(A)}{f(A \vert L)}
 $$
+
+- These weights correspond to a pseudo-population in which the treatment has the same marginal distribution as in our observed data. 
+
 ---
 
 ## Stabilized Weights
 
-- In our data, `\(A\)` is binary, so we can compute `\(f(1)\)` as the proportion of quitters in the data. 
+- We saw that for binary `\(A\)`, we don't expect using stabilized weights to change the estimate. Let's confirm this using our data. 
+
+- For our binary treatment example, we can compute `\(f(1)\)` as the proportion of quitters in the data. 
 
 
-```r
+``` r
 p1 &lt;- mean(dat$qsmk); p1
 ```
 
@@ -529,10 +630,14 @@ p1 &lt;- mean(dat$qsmk); p1
 ## [1] 0.2573436
 ```
 
-- In the pseudo-population created by the stabilized weights, each person in our data set corresponds to  26% of a treated person and 74% of an untreated person. 
+---
+
+## Stabilized Weights
+
+- Next we compute stabilized weights by multiplying our original weights by `\(P(A = A_i)\)`:
 
 
-```r
+``` r
 dat &lt;- dat %&gt;% mutate(pa = ifelse(dat$qsmk == 0, 1-p1,  p1),
               sw= pa*w)
 summary(dat$sw)
@@ -543,15 +648,17 @@ summary(dat$sw)
 ##  0.3312  0.8665  0.9503  0.9988  1.0793  4.2977
 ```
 
-- The expected value of `\(SW^A\)` is 1 because the pseudo-population is the same size as
+- The expected value of `\(SW^A\)` is 1 because the pseudo-population corresponding to the stabilized weights is the same size as
 the observed data. 
 
 ---
 
 ## Estimation Using the Stabilized Weights
 
+- We can use the stabilized weights in exactly the same way we used the non-stabilized weights.
 
-```r
+
+``` r
 f_sw_gee &lt;- geeglm(wt82_71 ~ qsmk,data = dat,
   weights = sw, id = seqn,corstr = "independence")
 beta &lt;- coef(f_sw_gee)
@@ -567,101 +674,53 @@ cbind(beta, lcl, ucl)
 ## qsmk        3.440535 2.410587 4.470484
 ```
 
-- These are exactly the results we saw with the unstabilized weights. 
+- As expected, these are exactly the results we saw with the non-stabilized weights. 
 
----
-## Why Use Stabilized Weights
-
-- Differences between stabilized and non-stabilized weights only occur when the model for `\(E[Y \vert A]\)` is not saturated. 
-
-
-- When the model is not saturated, stabilized weights typically result in greater efficiency. 
-
----
-
-## Marginal Structural Models
-
-- In the IP weighting strategy we create a population in which `\(A\)` is indepedent of `\(L\)` and then fit the model 
-`$$E_{ps}[Y \vert A ] = \theta_0 + \theta_1 A$$`
-
-- If we believe our conditional exchangeability assumption `\(Y(a) \ci A \vert L\)` and the propensity score model, then in the pseudo-population, `\(E_{ps}[Y \vert A] = E[Y(a)]\)`. 
-
-- So the parameter `\(\theta_1\)` is interpretable as the causal risk difference. 
-
---
-
-- We have proposed a model for the average counterfactual: 
-
-`$$E[Y(a)] = \beta_0 + \beta_1 a$$`
---
-
-- This model is *marginal* because we have marginalized (averaged) over the values of all
-other covariates. 
-
-- It is structural because it is a model for a counterfactual `\(E[Y(a)]\)`.
-
----
-## Modeling Continuous Treatments
-
-- With a binary exposure, we could construct a saturated model. 
-
-- For continuous (or highly polytomous) exposures, we can't do that and will have to use 
-a parametric model instead. 
-
-- In the NHEFS data, let `\(A\)` be the change in smoking intensity ( `\(A = 10\)` indicates that a person increased their smoking by 10 cigarettes).
-
-- We will limit to only those who smoked 25 or fewer cigarettes per day at baseline ( `\(N = 1,162\)` )
-
-- We can propose a model for our *dose-response curve*
-
-$$
-E[Y(a)] = \beta_0  + \beta_1 a + \beta_2 a^2
-$$
 
 ---
 ## Estimating Weights for the Continuous Treatment
 
-- To use stabilized weights, we need to estimate `\(f(A \vert L)\)` and `\(f(A)\)`. 
+- If we return to the continuous treatment example, to estimate stabilized weights we need to estimate `\(f(A)\)` in addition to `\(f(A \vert L)\)`
 
-- Both of these are PDFs which are hard to estimate!
+- We will assume that `\(f(A)\)` is normal with constnat variance. 
 
-- We will assume that both `\(f(A \vert L)\)` and `\(f(A)\)` are normal with constant variance across participants.
-  + These assumptions are almost certainly wrong. 
-  
-- We will estimate the mean of `\(f(A \vert L)\)` via linear regression. 
+- We can estimate the mean of `\(f(A)\)` as the overall sample mean of `\(A\)`  and the variance as sample variance of `\(A\)`. 
 
-- IP weighted estimates of continuous variables can be very sensitive to choice of weights.
+- Again, we are making some very strong distributional assumptions
 
 ---
 ## Estimating Weights for the Continuous Treatment
 
-- We fit a linear model for change in smoking intensity including:
+- To estimate the mean of `\(f(A \vert L)\)`, we fit a linear model for change in smoking intensity including:
 
   + sex, race, education, exercise, life activity
   + age and age squared 
   + baseline smoking intensity and baseline smoking intensity squared
   + baseline weight and baseline weight squared
   
-- The fitted values of this model give us `\(E[A \vert L]\)`.
+- We can use the residual variance from this model as an estimate of the variance of `\(f(A \vert L)\)`. 
 
-- We can use the variance of the residuals as an estimate of the variance of `\(A \vert L\)`
-
-- We then compute `\(f(A \vert L)\)` using `dnorm`. 
+- Once we have the mean and variance of `\(f(A \vert L)\)` and `\(f(A)\)`, we can estimate
+`\(f(A = A_i \vert L = L_i)\)` and `\(f(A = A_i)\)` for individual `\(i\)` using `dnorm`. 
 
 
 ---
 ## Estimating Weights for the Continuous Treatment
 
+- We will limit to only those who smoked 25 or fewer cigarettes per day at baseline ( `\(N = 1,162\)` )
 
 
-```r
+
+``` r
 dat.s &lt;- filter(dat, smokeintensity &lt;= 25)
+## Fit model for E[A | L]
 fal_fit&lt;- lm(smkintensity82_71 ~ as.factor(sex) +
     as.factor(race) + age + I(age ^ 2) +
     as.factor(education) + smokeintensity + I(smokeintensity ^ 2) +
     smokeyrs + I(smokeyrs ^ 2) + as.factor(exercise) + as.factor(active) + wt71 +
     I(wt71 ^ 2), data = dat.s)
 fal_mean &lt;- predict(fal_fit, type = "response")
+## compute f(A = Ai | L = Li) for each individual
 fal  &lt;- dnorm(dat.s$smkintensity82_71, fal_mean,
         summary(fal_fit)$sigma)
 ```
@@ -672,22 +731,25 @@ fal  &lt;- dnorm(dat.s$smkintensity82_71, fal_mean,
 - To estimate `\(f(A)\)` we use the same procedure, except that the mean of `\(E[A]\)` is is just the average change in smoking intensity. 
 
 
-```r
+``` r
+## Estimate f(A | L)
 fa_fit &lt;- lm(smkintensity82_71 ~ 1, data = dat.s)
 fa_mean &lt;- predict(fa_fit, type = "response")
 fa &lt;- dnorm(dat.s$smkintensity82_71, fa_mean,
             summary(fa_fit)$sigma)
+
+## compute stabilized and non-stabilized weights
 dat.s$sw_cont &lt;- fa / fal
 dat.s$w_cont &lt;- 1/fal
 ```
 
 ---
-## Estimating Weights for the Continuous Treatment
+## Estimating Weights of the Continuous Treatment
 
-- For comparison, we compute both the stabilized weights and the non-stabilized weights
+- Let's compare the distribution of the stabilized and non-stabilized weights:
 
 
-```r
+``` r
 summary(dat.s$sw_cont)
 ```
 
@@ -696,7 +758,7 @@ summary(dat.s$sw_cont)
 ##  0.1938  0.8872  0.9710  0.9968  1.0545  5.1023
 ```
 
-```r
+``` r
 summary(dat.s$w_cont)
 ```
 
@@ -706,10 +768,11 @@ summary(dat.s$w_cont)
 ```
 
 - The non-stabilized weights are much more variable!
+
 ---
 ## Fitting the Continuous Treatment Model
 
-- We then fit the marginal structural model $$ E[Y(a)] = \beta_0 + \beta_1 a + \beta_2 a^2$$ using exactly the same strategy we used before. 
+- Next, we then fit the marginal structural model $$ E[Y(a)] = \beta_0 + \beta_1 a + \beta_2 a^2$$ using exactly the same strategy we used before. 
 
 
 
@@ -763,20 +826,22 @@ summary(dat.s$w_cont)
 
 &lt;img src="5_modeling1_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;
 
+- Do you have any complaints about this plot?
 
 ---
 ## Issues with the Continuous Treatment Model
 
 - We had to make strong assumptions about the distribution of `\(A \vert L\)`. 
 
-- There are structural positivity issues -- it is not possible for everyone to reduce their smoking by 80 cigarettes per day. 
+- There are structural positivity issues. 
+  - It is not possible for everyone to reduce their smoking by 80 cigarettes per day. In fact, we limited to ony those who smoke less than 25 cigarettes at baseline. 
 
 ---
 ## Effect Modification in Marginal Structural Models
 
 - We might be interested in estimating the causal effect within strata of `\(V\)`. 
 
-- We can propose a marginal structural model that includes `\(V\)`
+- To do this, we can propose a marginal structural model that includes `\(V\)`
 
 $$
 E[Y(a) \vert V] = \beta_0 + \beta_1 a + \beta_2 a V + \beta_3 V
@@ -817,15 +882,15 @@ $$
 \frac{f(A)}{f(A \vert L)} \qquad \text{or} \qquad  \frac{f(A\vert V)}{f(A \vert L)}
 $$
 
-- Which will be more efficient?
+- The second choice is available because we only need our stabilizing factor to not depend on `\(L\)` *within* levels of `\(V\)`. 
+
+- Which choice will be more efficient?
 
 --
 
 - Conditioning on `\(V\)` in the numerator will make the numerator closer to the denominator. 
 
-- The second choice of weights will be less variable. 
-
-- So the second choice of weights is more efficient. 
+- The second choice of weights will be less variable, and therefore more efficient. 
 
 ---
 ## Stablilized Weights for the EM Model
@@ -835,7 +900,7 @@ $$
 - We can just use the stratified means. 
 
 
-```r
+``` r
 fav_fit &lt;- lm(qsmk ~ sex, data = dat)
 dat$pav &lt;- ifelse(dat$qsmk == 0,
                   1-predict(fav_fit, type = "response"), 
@@ -853,7 +918,7 @@ summary(dat$sw_em)
 ## Fitting the Effect Modification Model
 
 
-```r
+``` r
 msm_em &lt;- geeglm(
   wt82_71 ~ qsmk*sex, data = dat, weights = sw_em, id = seqn,
   corstr = "independence")
@@ -883,12 +948,13 @@ cbind(beta, lcl, ucl)
 - The stabilized weights would be 1, so we would just be running a regular 
 regression. 
 
-- If we believe in the model for `\(E[Y(a) \vert L]\)`, then the regression coefficient
-is interpretable as a (conditional) causal parameter. 
+- If the model for `\(E[Y(a) \vert L]\)` is correct, then the regression coefficient
+is interpretable as a *conditional* causal parameter. 
 
-- Using the marginal model with IP weighting, we need to believe that our estimates of `\(f(A \vert L)\)` are accurate. 
-
-- In some cases, solving a prediction problem is easier than guessing the correct structural model for all confounders.
+- So why not just use the "699 approach" and fit a regression model with all the confounders in it and interpret the coefficients?
+--
+- We might really want the marginal causal effect rather than the conditional causal effect. 
+- It might be easier to specify a good model for `\(P[A = a \vert L ]\)` than for `\(E[Y(a) \vert L]\)`. 
 
 ---
 
@@ -927,11 +993,15 @@ who have a missing value for weight.
 
 ## Weights for Censoring
 
-- We learned in L4 that, to correct for selection bias, we need to find a set of variables `\(L_c\)` such that `\(Y(C = 0) \ci C \vert L_c\)`. 
+- We learned in L3 that, to correct for selection bias, we need to find a set of variables `\(L_c\)` such that `\(Y \ci C \mid A, L_c\)`. 
 
-- We then need to estimate `\(W^C = 1/P[C = 0 \vert A, L_c]\)`, or the stabilized version `$$SW^C = \frac{P[C = 0 \vert A]}{P[C = 0 \vert A, L_c]}$$`
+- We then need to estimate `\(W^C = 1/P[C = 0 \vert A, L_c]\)`. 
 
-- We will use the same set of variables, we used to compute weights for confounding. 
+- We could also stabilize our censoring weights and use 
+
+`$$SW^C = \frac{P[C = 0 \vert A]}{P[C = 0 \vert A, L_c]}$$`
+
+- In this example, we will let `\(L_c\)` be the same set of variables we used to control for confounding, but we didn't have to make this choice. 
 
 - The total weights will be `\(SW^C \cdot SW^A\)`
 
@@ -940,15 +1010,12 @@ who have a missing value for weight.
 
 ## Weights for Censoring
 
-- We will estimate `\(f(C=0 \vert A, L)\)` using a logistic model adjusting for
-  + the exposure
-  + sex, race age, education, exercise, life activity
-  + linear and quadratic terms for smoking intensity, duration, and baseline weight. 
+- We will estimate `\(P(C=0 \vert A, L)\)` using a logistic regression. 
 
 - The `dat.u` data frame includes data for all participants. 
 
 
-```r
+``` r
 dat.u$cens &lt;- ifelse(is.na(dat.u$wt82), 1, 0)
 fcal_fit &lt;- glm(
   cens ~ as.factor(qsmk) + as.factor(sex) +
@@ -966,10 +1033,10 @@ fc0al &lt;- 1 - predict(fcal_fit, type = "response")
 
 ## Weights for Censoring
 
-- We can estimate the numerator of the stablilized weight, `\(f(C = 0 \vert A)\)` using the average within levels of `\(A\)`. 
+- We can estimate the numerator of the stabilized weight, `\(P(C = 0 \vert A)\)` using the average within levels of `\(A\)`. 
 
 
-```r
+``` r
 fca_fit &lt;-glm(cens ~ as.factor(qsmk), family = binomial(), data = dat.u)
 fc0a &lt;- 1 - predict(fca_fit, type = "response")
 sw.c &lt;- fc0a/fc0al
@@ -979,7 +1046,7 @@ dat$sw.comb &lt;- dat$sw*dat$sw.c
 
 
 
-```r
+``` r
 summary(dat$sw.c)
 ```
 
@@ -988,7 +1055,7 @@ summary(dat$sw.c)
 ##  0.9442  0.9782  0.9858  0.9990  1.0035  1.7180
 ```
 
-```r
+``` r
 summary(dat$sw.comb)
 ```
 
@@ -1024,7 +1091,7 @@ summary(dat$sw.comb)
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-- Compared with the previous results
+- Compared with the previous results without censoring weights:
 
 &lt;table&gt;
  &lt;thead&gt;
@@ -1058,21 +1125,22 @@ summary(dat$sw.comb)
 - Over-sampling introduces selection bias that needs to be corrected.
 
 - If the survey was done well, a specific over-sampling rule was used. 
-  + For example, you might select census tracts randomly according to a covariate informed probability and then select housees randomly within census tract. 
+  + For example, you might select census tracts randomly according to a covariate informed probability and then select houses randomly within census tract. 
   
-- This allows the survey administers to compute `\(P[C = 0 \vert L]\)` for every participant. 
+- This allows the survey administers to compute `\(P[ \text{In Survey} \vert L]\)` for every participant. 
+  + Being in the survey is the same as *not* being censored, so we can think of this as `\(P[ C = 0 \vert L]\)`.
 
 
 ---
 ## Survey Weights
 
-
-- If `\(L\)` includes every factor affecting study inclusion, then `\(P[C = 0 \vert A, L] = P[C = 0 \vert L]\)` for any exposure `\(A\)`. 
-
-- So we could use the same set of weights regardless of what exposure we are looking at. 
-
 - Usually, survey administers will compute `\(P[ C = 0 \vert L]\)` and distribute `\(1/P[C = 0 \vert L]\)` as "survey weights". 
-  + Survey weights are censoring weights!
+
+- Our censoring weight procedure requires `\(P[ C = 0 \vert A = a, L]\)`, not `\(P[C = 0 \vert L]\)`.
+  - However, If `\(L\)` includes every factor affecting study inclusion, then `\(C \ci A \vert L\)`, so `\(P[C = 0 \vert L] = P[ C = 0 \vert A = a, L]\)`.
+
+- This means we can use the same set of weights regardless of what exposure we are looking at.   
+
 
 - If you have survey data that come with survey weights, be sure to read about how these are calculated. 
   + Most likely, if you want to estimate a parameter for the larger population, you will need to use the survey weights. 
@@ -1100,12 +1168,12 @@ $$
 
 ## Outcome Modeling
 
-- In the standardization formula, we need to estimate `\(P[Y \vert A = a, L = l]\)`.
+- In the standardization formula, we need to estimate `\(E[Y \vert A = a, L = l]\)`.
 
-- To do this we fit a linear regression
+- For our smoking example, we will fit a linear regression
 
 
-```r
+``` r
 f_y &lt;-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(education)
     + smokeintensity + I(smokeintensity * smokeintensity) + smokeyrs
     + I(smokeyrs * smokeyrs) + as.factor(exercise) + as.factor(active)
@@ -1127,12 +1195,13 @@ summary(f_y)$coefficients %&gt;% head()
 ## Outcome Modeling
 
 - This first step of fitting the outcome model is just fitting a regular linear regression. 
+  + In a 699-type class, this is probably where you would stop.
 
-- If we believe the model, then the coefficient for treatment gives a *conditional* causal effect estimate within strata of `\(L\)`. 
+- We saw in our IP weighting discussion that, if we believe the model, the coefficient for treatment gives a *conditional* causal effect estimate within strata of `\(L\)`. 
 
-- If there were no interactions between `\(A\)` and `\(L\)` in the model, the coefficient on `\(A\)` would give the marginal treatment effect. 
+- If there were no interactions between `\(A\)` and `\(L\)` in the model, the coefficient on `\(A\)` would also give the marginal treatment effect. 
 
-  + This is true using a linear model but would not be true in a model with a non-linear link.
+  + This is only true for a linear model. It would not be true in a model with a non-linear link.
 
 
 - An outcome model with no interactions assumes **homogeneity**, i.e. the average treatment effect is the same in every level of `\(L\)`. 
@@ -1164,7 +1233,7 @@ $$
 - So we can estimate the standardized mean as
 
 $$
-\frac{1}{n}\sum_{i=1}^n\hat{E}[Y \vert A = a, L_i]
+\frac{1}{n}\sum_{i=1}^n\hat{E}[Y \vert A = a, L = L_i]
 $$
 ---
 
@@ -1177,7 +1246,7 @@ $$
 - We predict each person's outcome with `\(A = 0\)` and with `\(A = 1\)`. 
 
 
-```r
+``` r
 # Make two copies of the data
 dat0 &lt;- dat1 &lt;- dat.u 
 # In one copy everyone got treatment 0
@@ -1197,13 +1266,12 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 ---
 ## Censoring
 
-- If the set of variables in our model for `\(E[Y \vert A, L]\)` are sufficient to adjust for censoring (meaning that they block all paths between `\(Y(C = 0)\)` and `\(C\)`), then we don't need to do anything extra to adjust for censoring.
+- If the set of variables in our model for `\(E[Y \vert A, L]\)` are sufficient to adjust for censoring (meaning that they block all paths between `\(Y\)` and `\(C\)`), then we don't need to do anything extra to adjust for censoring.
 
-- The trick is to predict `\(Y(a)\)` for **all individuals** with covariate data, not just those with non-missing outcomes. 
+- However, we do need to predict `\(Y(a)\)` for *all individuals* with covariate data, not just those with non-missing outcomes. 
 
 - If `\(L\)` is not sufficient to adjust for censoring, we may need to add additional variables specifically to deal with censoring. 
 
-- Recall that the s-backdoor criterion gives us a way to select variables to condition on. 
 
 ---
 
@@ -1222,7 +1290,7 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 
 - Step 1: Write a function to compute the standardized mean
 
-```r
+``` r
 # Step 1: Write a function compute the standardized mean
 std_mean_func &lt;- function(d){
    boot_fit &lt;-glm( wt82_71 ~ qsmk + sex + race + age + I(age * age) + as.factor(education)
@@ -1245,7 +1313,7 @@ std_mean_func &lt;- function(d){
 - Step 2: Repeatedly re-sample the data and compute the standardized mean in the re-sampled data set. 
 
 
-```r
+``` r
 set.seed(1)
 samples &lt;- replicate(n = 500,
                      expr = sample(seq(nrow(dat.u)), 
@@ -1272,8 +1340,10 @@ cat(round(eff, digits = 2), "(", round(ci, digits = 2), ")")
 
 - If we want to estimate the average causal effect stratified by `\(V\)`, we can simply stratify by `\(V\)` before averaging our predicted values. 
 
+- Here we look at effect modification by sex:
 
-```r
+
+``` r
 dat.u$Y0 &lt;- predict(f_y, newdata = dat0, type = "response") 
 dat.u$Y1 &lt;- predict(f_y, newdata = dat1, type = "response")
 dat.u %&gt;% group_by(sex) %&gt;% 
@@ -1288,6 +1358,7 @@ dat.u %&gt;% group_by(sex) %&gt;%
 ## 2     1  1.66  5.06
 ```
 
+- We could get bootstrap confidence intervals for these estimates as well. 
 
 ---
 
@@ -1301,9 +1372,10 @@ dat.u %&gt;% group_by(sex) %&gt;%
 
 - In the standardized analysis, we need to trust our model for `\(E[Y \vert A, L]\)`. 
 
-- In either case, if our our parametric models are wrong, our predictions will be biased and so our estimators will be biased. 
+- In either case, if  our parametric models are wrong, our predictions will be biased and so our estimators will be biased. 
 
-- May be wise to compute both and compare.
+- It can be a good idea to compute both and compare.
+  + If results are very different, at least one of the two models is wrong. 
 
 
 ---
