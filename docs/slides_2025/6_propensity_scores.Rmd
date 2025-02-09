@@ -1,8 +1,8 @@
 ---
-title: "L6: More PS Estimators and Double Robustness"
+title: "L7: More PS Estimators and Double Robustness"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2024-02-12 \n(updated: `r Sys.Date()`)"
+date: "2025-02-12 \n(updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -56,7 +56,7 @@ dat <- dat.u %>%
 
 - $\pi(L) = P[A = 1 \vert L]$, the probability of receiving treatment conditional on confounders $L$ is the **propensity score**. 
 
-- Within strata of $\pi(L)$, the distribution of $L$ will be the same in cases and controls. 
+- Within strata of $\pi(L)$, the distribution of $L$ is the same in cases and controls. 
   - $\pi(L)$ is a **balancing score**. 
   
 $$
@@ -131,7 +131,10 @@ render_graph(gr0)
   
 $$E[Y_i \vert A_i, L_i] = \beta_0 + \beta_1 A_i + \sum_{k = 1}^K \beta_{\pi,k} \phi_k(\hat{\pi}_i) + \sum_{k = 1}^K \beta_{A\pi,k} \phi_k(\hat{\pi}_i) A_i$$
 
+- In this formula $\phi_1, \dots, \phi_K$ are spline basis functions. There are lots of R functions to fit models like this.
+
 - If the model includes effect modification by $\pi(L)$, we will need to standardize to get a marginal effect estimate. 
+  + This is just G-computation with a derived covariate. 
 
 
 ---
@@ -140,7 +143,7 @@ $$E[Y_i \vert A_i, L_i] = \beta_0 + \beta_1 A_i + \sum_{k = 1}^K \beta_{\pi,k} \
 
 - Subclassification is a specific version of outcome regression with propensity scores. 
 
-- Idea: Break the data into quantiles based on propensity score and compute the difference of means within each quantile. 
+- Idea: Break the data into quantiles based on the propensity score and compute the difference of means within each quantile. 
 
 - Compute the overall effect by averaging the effects in each quantile. 
 
@@ -159,7 +162,7 @@ $$\hat{\Delta}_S = E[Y(1)] - E[Y(0)] = \sum_{i = 1}^n\sum_{k = 1}^K \beta_{A\pi,
 ---
 ## Propensity Score Regression in NHEFS
 
-- We first calculate propensity scores in the same way as in L5 (not shown here).
+- We first calculate propensity scores in the same way as in L6 (not shown here).
 
 - Next we fit a model for $E[Y \vert A, \pi(L)]$.
 
@@ -357,7 +360,7 @@ $$\hat{\Delta}_{HT} = \frac{1}{N}\sum_{i=1}^N \frac{A_i Y_i}{\hat{\pi}_i} - \fra
 
 - Outcome regression with propensity scores additionally requires correctly specifying the relationship between $Y(a)$ and $\pi(L)$. 
 
-- Subclassification allows us to use a very flexible model for the $Y$ - $\pi$ relationship. 
+- Subclassification allows us to use a very flexible model for this relationship. 
   - Bias will remain if intervals are too wide. 
   
   
@@ -994,9 +997,8 @@ $$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - 
 
 - $b^*$ and $\pi^*$ are the limiting expectations of $\hat{b}$ (i.e. $\hat{Y}$) and $\hat{\pi}$. 
 
-- Doubly robust methods are often less biased than IP weighting or outcome regression. 
+- Doubly robust methods are often (but not always) less biased than IP weighting or outcome regression, even if both models are wrong. 
 
-- Kang and Schaffer (2007) demonstrate a simulated example where the bias of the DR estimator is larger than the bias of the OLS estimate when both models are misspecified.
 
 ---
 
@@ -1017,7 +1019,7 @@ $$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - 
 ## More from Lunceford and Davidian (2004)
 
 
-- As we said before  $\hat{\Delta}_{S}$ is inconsistent for fixed $K$. $\hat{\Delta}_{SR}$ is only consistent if within stratum regression models are correctly specified. 
+- As we said before,  $\hat{\Delta}_{S}$ is inconsistent for fixed $K$. $\hat{\Delta}_{SR}$ is only consistent if within-stratum regression models are correctly specified. 
 
 
 - $\hat{\Delta}_{S}$, and $\hat{\Delta}_{SR}$ both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
@@ -1034,6 +1036,21 @@ $$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - 
 - If covariates $L$ are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
 
 - Many of them were developed originally in the context of accounting for missing data rather than accounting for confounding. 
+
+
+---
+## Causal Inference Methods as Missing Data Methods
+
+- The primary problem in estimating $E[Y(a)]$ is not that $Y(a)$ is a counterfactual. 
+  + Consistency guarantees that we *can* observe $Y(a)$ for those in our sample who actually received treatment $a$.
+  
+- The problem is that we are missing $Y(a)$ for everyone else. 
+
+- We have looked at all of our methods so far as methods for estimating contrasts like $E[Y(1)] - E[Y(0)]$.
+
+- However, the could also be used to estimate a mean in a sample with some censored values, $E[Y(C = 0)]$. 
+
+- Kang and Schaffer (2007) perform a simulations study comparing many of the estimators we have seen in this context. 
 
 
 ---
@@ -1154,11 +1171,10 @@ ggsave(p, file = paste0("~/Dropbox/teaching/BIOST881_causal_inference/docs/slide
 ---
 ## G-computation
 
--  Kang and Schaffer refer to the method we have called G-computation as "OLS".
-
 - In this simulation, G-computation is quite robust to model misspecification.
-
-- GC under the incorrect outome model has lower RMSE than IPW with the correct model.
+  - G-Computation under the incorrect outcome model has lower RMSE than IPW with the correct model.
+  
+- Kang and Schaffer refer to this method as "OLS".
 
 <center> 
 
@@ -1169,7 +1185,7 @@ knitr::include_graphics("img/6_ks_results3.png")
 ---
 ## Bias Corrected OLS (AIPW)
 
-- Happily, using AIPW, we have low bias if either model is correct as promised. 
+- Using AIPW, we have low bias if either model is correct as promised. 
 
 - When both models are wrong, the bias is quite bad. 
 
@@ -1186,7 +1202,7 @@ knitr::include_graphics("img/6_ks_results4.png")
 
 ## Doubly Robust Standardization 
 
-- "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate (8) when one of the models is true, but much better when both models are misspecified"
+- "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate when one of the models is true, but much better when both models are misspecified"
 
 <center>
 ```{r, echo=FALSE, out.width="100%"}
@@ -1217,7 +1233,7 @@ knitr::include_graphics("img/6_ks_results6.png")
 ---
 ## Scharfstein Estimator 
 
-- "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified $\pi$ -model (Table 8). The performance of this method is disastrous when some of the estimated propensities are small."
+- "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified $\pi$-model. The performance of this method is disastrous when some of the estimated propensities are small."
 
 - RMSE with incorrect PS model > 1e5.
 

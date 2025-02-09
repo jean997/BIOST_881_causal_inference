@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L6: More PS Estimators and Double Robustness</title>
+    <title>L7: More PS Estimators and Double Robustness</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
-    <script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
+    <link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
     <script src="libs/viz-1.8.2/viz.js"></script>
     <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
-    <script src="libs/grViz-binding-1.0.10/grViz.js"></script>
+    <script src="libs/grViz-binding-1.0.11/grViz.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -24,7 +25,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L6: More PS Estimators and Double Robustness
+# L7: More PS Estimators and Double Robustness
 ]
 .author[
 ### Jean Morrison
@@ -33,8 +34,8 @@ class: center, middle, inverse, title-slide
 ### University of Michigan
 ]
 .date[
-### 2024-02-12
-(updated: 2024-02-14)
+### 2025-02-12
+(updated: 2025-02-08)
 ]
 
 ---
@@ -63,7 +64,7 @@ class: center, middle, inverse, title-slide
 
 - `\(\pi(L) = P[A = 1 \vert L]\)`, the probability of receiving treatment conditional on confounders `\(L\)` is the **propensity score**. 
 
-- Within strata of `\(\pi(L)\)`, the distribution of `\(L\)` will be the same in cases and controls. 
+- Within strata of `\(\pi(L)\)`, the distribution of `\(L\)` is the same in cases and controls. 
   - `\(\pi(L)\)` is a **balancing score**. 
   
 $$
@@ -84,8 +85,8 @@ $$
 - The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-984cee046e3a1b3bc36d" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-984cee046e3a1b3bc36d">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-1b3d3dd8d639c11bf60f" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-1b3d3dd8d639c11bf60f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -115,7 +116,10 @@ $$
   
 `$$E[Y_i \vert A_i, L_i] = \beta_0 + \beta_1 A_i + \sum_{k = 1}^K \beta_{\pi,k} \phi_k(\hat{\pi}_i) + \sum_{k = 1}^K \beta_{A\pi,k} \phi_k(\hat{\pi}_i) A_i$$`
 
+- In this formula `\(\phi_1, \dots, \phi_K\)` are spline basis functions. There are lots of R functions to fit models like this.
+
 - If the model includes effect modification by `\(\pi(L)\)`, we will need to standardize to get a marginal effect estimate. 
+  + This is just G-computation with a derived covariate. 
 
 
 ---
@@ -124,7 +128,7 @@ $$
 
 - Subclassification is a specific version of outcome regression with propensity scores. 
 
-- Idea: Break the data into quantiles based on propensity score and compute the difference of means within each quantile. 
+- Idea: Break the data into quantiles based on the propensity score and compute the difference of means within each quantile. 
 
 - Compute the overall effect by averaging the effects in each quantile. 
 
@@ -143,7 +147,7 @@ $$
 ---
 ## Propensity Score Regression in NHEFS
 
-- We first calculate propensity scores in the same way as in L5 (not shown here).
+- We first calculate propensity scores in the same way as in L6 (not shown here).
 
 - Next we fit a model for `\(E[Y \vert A, \pi(L)]\)`.
 
@@ -151,7 +155,7 @@ $$
 
 
 
-```r
+``` r
 library(splines)
 # Simple linear model
 f1 &lt;- lm(wt82_71 ~ qsmk + ps, data = dat)
@@ -163,7 +167,7 @@ f1$coefficients
 ##    5.101542    3.454263  -13.026068
 ```
 
-```r
+``` r
 # No interaction, spline for propensity score
 f2 &lt;- lm(wt82_71 ~ qsmk + bs(ps), data = dat)
 f2$coefficients
@@ -180,7 +184,7 @@ f2$coefficients
 - If we include an effect modification, we need to standardize to compute the marginal causal effect. 
 
 
-```r
+``` r
 # Linear model with effect modification
 f3 &lt;- lm(wt82_71 ~ qsmk*ps, data = dat)
 f3$coefficients
@@ -192,7 +196,7 @@ f3$coefficients
 ```
 
 
-```r
+``` r
 dat0 &lt;- dat1 &lt;- dat
 dat0$qsmk &lt;- 0
 dat1$qsmk &lt;- 1
@@ -212,7 +216,7 @@ Y1 - Y0
 - The subclassification estimator is just another propensity score regression estimator. 
 
 
-```r
+``` r
 # Deciles of PS
 dat$ps_dec &lt;- cut(dat$ps, 
                   breaks=c(quantile(dat$ps, probs=seq(0,1,0.1))),
@@ -235,7 +239,7 @@ mean(predict(f5, dat1, type = "response")) - mean(predict(f5, dat0, type = "resp
 - Step 1: Write a function to compute the estimator
 
 
-```r
+``` r
 delta_s &lt;- function(df){
   # Estimate propensity scores
   fit &lt;- glm(qsmk ~ sex + race + age + I(age ^ 2) +
@@ -265,7 +269,7 @@ delta_s &lt;- function(df){
 - Step 2: Re-sample data and compute the estimate for each re-sampled data set. 
 
 
-```r
+``` r
 set.seed(1)
 samples &lt;- replicate(n = 1000, 
                      expr = sample(seq(nrow(dat)), 
@@ -363,7 +367,7 @@ with `\(n_k\)` number of samples in `\(\hat{C}_k\)`, `\(n_1\)`, number of cases 
 
 - Outcome regression with propensity scores additionally requires correctly specifying the relationship between `\(Y(a)\)` and `\(\pi(L)\)`. 
 
-- Subclassification allows us to use a very flexible model for the `\(Y\)` - `\(\pi\)` relationship. 
+- Subclassification allows us to use a very flexible model for this relationship. 
   - Bias will remain if intervals are too wide. 
   
   
@@ -419,8 +423,8 @@ good ranking.
 ## Predictors of Treatment
 
 - Should we include `\(L_1\)` in in the predictive model of `\(A\)`? 
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-c32a1cdd9f4bc8c9d1c8" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-c32a1cdd9f4bc8c9d1c8">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-4ca1deb80f50c90606ba" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-4ca1deb80f50c90606ba">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 --
 
 - Suppose that `\(P[A = 1 \vert L = 0] = 0.01\)` and `\(P[A = 1 \vert L_1 = 1]= 0.99\)` and we condition on `\(L_1\)` to compute `\(\hat{\pi}(L)\)`.
@@ -436,8 +440,8 @@ good ranking.
 
 - Should we include `\(L_2\)` in in the predictive model of `\(A\)`? 
 
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-592e6fe7609fd51582f5" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-592e6fe7609fd51582f5">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-fcdc73207c5a827a205f" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-fcdc73207c5a827a205f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 
 
@@ -447,8 +451,8 @@ good ranking.
 ## Simulations 
 
 - Data are generated from the graph: 
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-7776ef8a66b347ae5056" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-7776ef8a66b347ae5056">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-4ea6b56c54c6db9ec586" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-4ea6b56c54c6db9ec586">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 - A randomized trial with `\(N/2\)` units each in treatment and control groups. 
 
@@ -699,9 +703,8 @@ across participants.
 
 - `\(b^*\)` and `\(\pi^*\)` are the limiting expectations of `\(\hat{b}\)` (i.e. `\(\hat{Y}\)`) and `\(\hat{\pi}\)`. 
 
-- Doubly robust methods are often less biased than IP weighting or outcome regression. 
+- Doubly robust methods are often (but not always) less biased than IP weighting or outcome regression, even if both models are wrong. 
 
-- Kang and Schaffer (2007) demonstrate a simulated example where the bias of the DR estimator is larger than the bias of the OLS estimate when both models are misspecified.
 
 ---
 
@@ -722,7 +725,7 @@ across participants.
 ## More from Lunceford and Davidian (2004)
 
 
-- As we said before  `\(\hat{\Delta}_{S}\)` is inconsistent for fixed `\(K\)`. `\(\hat{\Delta}_{SR}\)` is only consistent if within stratum regression models are correctly specified. 
+- As we said before,  `\(\hat{\Delta}_{S}\)` is inconsistent for fixed `\(K\)`. `\(\hat{\Delta}_{SR}\)` is only consistent if within-stratum regression models are correctly specified. 
 
 
 - `\(\hat{\Delta}_{S}\)`, and `\(\hat{\Delta}_{SR}\)` both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
@@ -739,6 +742,21 @@ across participants.
 - If covariates `\(L\)` are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
 
 - Many of them were developed originally in the context of accounting for missing data rather than accounting for confounding. 
+
+
+---
+## Causal Inference Methods as Missing Data Methods
+
+- The primary problem in estimating `\(E[Y(a)]\)` is not that `\(Y(a)\)` is a counterfactual. 
+  + Consistency guarantees that we *can* observe `\(Y(a)\)` for those in our sample who actually received treatment `\(a\)`.
+  
+- The problem is that we are missing `\(Y(a)\)` for everyone else. 
+
+- We have looked at all of our methods so far as methods for estimating contrasts like `\(E[Y(1)] - E[Y(0)]\)`.
+
+- However, the could also be used to estimate a mean in a sample with some censored values, `\(E[Y(C = 0)]\)`. 
+
+- Kang and Schaffer (2007) perform a simulations study comparing many of the estimators we have seen in this context. 
 
 
 ---
@@ -799,11 +817,10 @@ X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$`
 ---
 ## G-computation
 
--  Kang and Schaffer refer to the method we have called G-computation as "OLS".
-
 - In this simulation, G-computation is quite robust to model misspecification.
-
-- GC under the incorrect outome model has lower RMSE than IPW with the correct model.
+  - G-Computation under the incorrect outcome model has lower RMSE than IPW with the correct model.
+  
+- Kang and Schaffer refer to this method as "OLS".
 
 &lt;center&gt; 
 
@@ -812,7 +829,7 @@ X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$`
 ---
 ## Bias Corrected OLS (AIPW)
 
-- Happily, using AIPW, we have low bias if either model is correct as promised. 
+- Using AIPW, we have low bias if either model is correct as promised. 
 
 - When both models are wrong, the bias is quite bad. 
 
@@ -827,7 +844,7 @@ X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$`
 
 ## Doubly Robust Standardization 
 
-- "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate (8) when one of the models is true, but much better when both models are misspecified"
+- "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate when one of the models is true, but much better when both models are misspecified"
 
 &lt;center&gt;
 &lt;img src="img/6_ks_results5.png" width="100%" /&gt;
@@ -854,7 +871,7 @@ X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$`
 ---
 ## Scharfstein Estimator 
 
-- "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified `\(\pi\)` -model (Table 8). The performance of this method is disastrous when some of the estimated propensities are small."
+- "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified `\(\pi\)`-model. The performance of this method is disastrous when some of the estimated propensities are small."
 
 - RMSE with incorrect PS model &gt; 1e5.
 
