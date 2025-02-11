@@ -218,7 +218,7 @@ $$h_k = P[D_k = 1 \vert D_{k-1} = 0] = \frac{P[t_{k-1} < T \leq t_k]}{P[T > t_{k
 - For continuous time, the hazard is the instantaneous risk of death, defined as the derivative of the survival function, normalized by the proportion at risk
 
 $$
-\lambda(t) = \frac{\frac{d}{dt} S(t)}{S(t)} = -\frac{d}{dt} log\left( S(t) \right)
+\lambda(t) = \frac{-\frac{d}{dt} S(t)}{S(t)} = -\frac{d}{dt} log\left( S(t) \right)
 $$
 
 ---
