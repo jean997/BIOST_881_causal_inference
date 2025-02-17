@@ -1,8 +1,8 @@
 ---
-title: "L7: Matching"
+title: "L8: Matching"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2024-02-19 (updated: `r Sys.Date()`)"
+date: "2025-02-19 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -431,7 +431,7 @@ $$\hat{\beta} = \frac{n_k}{N}\sum_{k} \hat{\beta}_{1,k}$$
 ---
 ## Variance Estimation
 
-- Rubin and Thomas (1996) and Rubin and Stuart (2006) argue that, if we are matching on PS, we don't need to account for uncertainty in in estimating the PS because not doing so will be conservative. 
+- Rubin and Thomas (1996) and Rubin and Stuart (2006) argue that, if we are matching on PS, we don't need to account for uncertainty in estimating the PS because not doing so will be conservative. 
 
 - The usual robust sandwich variance (`vcovHC`) will not be accurate, but we can use cluster robust sandwich estimation (e.g. using `gee` or `vcovCL`). 
 
@@ -873,12 +873,24 @@ knitr::include_graphics("img/6_knfig2b.png")
 ---
 ## Imbalance Leads to Model Dependence
 
+- King and Nielsen simulate 100 data sets with 100 treated and 100 control units and two covariates. 
 
-- Graph on the right shows the largest coefficient we could get by fitting 512 different models. 
+- For each data set, they perform propensity score matching and Mahalanobis distance matching. 
 
-- Using Mahalanobis distance match eventually results in a very balanced data set as the caliper shrinks. 
+- They then fit 512 different outcome models to the matched data sets and keep the largest estimate of the causal effect from all models. 
+  + This is extreme data dredging. 
+  
+- They repeat the matching process decreasing the caliper. 
 
-- When there is perfect balance, there is no model dependency. PS Matching cannot achieve this. 
+---
+## Imbalance Leads to Model Dependence
+
+- Graphs below show the variance and estimate size for the data dredged effect estimate. 
+
+- Using Mahalanobis distance matching eventually results in a very balanced data set as the caliper shrinks. 
+
+- When there is perfect balance, there is no model dependency, so even with data dredging we get the correct estimate.
+  + PS Matching cannot achieve this. 
 
 
 <center> 

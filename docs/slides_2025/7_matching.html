@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L7: Matching</title>
+    <title>L8: Matching</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -20,7 +20,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L7: Matching
+# L8: Matching
 ]
 .author[
 ### Jean Morrison
@@ -29,7 +29,7 @@ class: center, middle, inverse, title-slide
 ### University of Michigan
 ]
 .date[
-### 2024-02-19 (updated: 2024-02-19)
+### 2025-02-19 (updated: 2025-02-17)
 ]
 
 ---
@@ -290,7 +290,7 @@ E[Y(0) \vert A = 1] =&amp; \frac{\sum_{i = 1}^{n} (1-A_i) Y_i W_i}{\sum_{i = 1}^
 ---
 ## Variance Estimation
 
-- Rubin and Thomas (1996) and Rubin and Stuart (2006) argue that, if we are matching on PS, we don't need to account for uncertainty in in estimating the PS because not doing so will be conservative. 
+- Rubin and Thomas (1996) and Rubin and Stuart (2006) argue that, if we are matching on PS, we don't need to account for uncertainty in estimating the PS because not doing so will be conservative. 
 
 - The usual robust sandwich variance (`vcovHC`) will not be accurate, but we can use cluster robust sandwich estimation (e.g. using `gee` or `vcovCL`). 
 
@@ -464,7 +464,7 @@ E[Y(0) \vert A = 1] =&amp; \frac{\sum_{i = 1}^{n} (1-A_i) Y_i W_i}{\sum_{i = 1}^
 ## NHEFS Matching
 
 
-```r
+``` r
 library(geepack)
 a_form &lt;- formula(qsmk ~ sex + race + age +
                       as.factor(education) + smokeintensity + smokeyrs +
@@ -482,7 +482,7 @@ round(y1 - y0, digits = 2)
 ## [1] 3.29
 ```
 
-```r
+``` r
 ## Cluster robust standard errors
 f1 &lt;- geeglm(wt82_71 ~ qsmk, weights = weights, id = subclass, corstr = "independence", data = md)
 ci &lt;- round(f1$coefficients[2] + c(-1, 1)*qnorm(0.975)*sqrt(vcov(f1)[2,2]), digits = 2)
@@ -556,12 +556,24 @@ cat(round(f1$coefficients[2], digits = 2), " (", ci, ")")
 ---
 ## Imbalance Leads to Model Dependence
 
+- King and Nielsen simulate 100 data sets with 100 treated and 100 control units and two covariates. 
 
-- Graph on the right shows the largest coefficient we could get by fitting 512 different models. 
+- For each data set, they perform propensity score matching and Mahalanobis distance matching. 
 
-- Using Mahalanobis distance match eventually results in a very balanced data set as the caliper shrinks. 
+- They then fit 512 different outcome models to the matched data sets and keep the largest estimate of the causal effect from all models. 
+  + This is extreme data dredging. 
+  
+- They repeat the matching process decreasing the caliper. 
 
-- When there is perfect balance, there is no model dependency. PS Matching cannot achieve this. 
+---
+## Imbalance Leads to Model Dependence
+
+- Graphs below show the variance and estimate size for the data dredged effect estimate. 
+
+- Using Mahalanobis distance matching eventually results in a very balanced data set as the caliper shrinks. 
+
+- When there is perfect balance, there is no model dependency, so even with data dredging we get the correct estimate.
+  + PS Matching cannot achieve this. 
 
 
 &lt;center&gt; 

@@ -45,7 +45,7 @@ style_mono_accent(
 
 
 ---
-## Monday, February 19
+## Monday, February 17
 
 Match the estimator with statements that are true about it. 
 .pull-left[
