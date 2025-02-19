@@ -1005,7 +1005,7 @@ $$
 - If $L$ is continuous, we need to integrate
 
 $$
-E[Y(a)] = \int_l P[Y \vert A = a, L = l]f(l) dl
+E[Y(a)] = \int_l E[Y \vert A = a, L = l]f(l) dl
 $$
 
 ---
@@ -1061,7 +1061,7 @@ summary(f_y)$coefficients %>% head()
 
 - Using the definition of expectation, we can write
 $$
- \int_l P[Y \vert A = a, L = l]f(l)dl = E\left[ E\left[Y \vert A = a, L = l \right]\right]
+ \int_l E[Y \vert A = a, L = l]f(l)dl = E\left[ E\left[Y \vert A = a, L = l \right]\right]
 $$
 - So we can estimate the standardized mean as
 
