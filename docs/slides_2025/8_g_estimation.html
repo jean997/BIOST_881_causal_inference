@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L8: G-Estimation</title>
+    <title>L9: G-Estimation</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
@@ -22,7 +22,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L8: G-Estimation
+# L9: G-Estimation
 ]
 .author[
 ### Jean Morrison
@@ -31,8 +31,8 @@ class: center, middle, inverse, title-slide
 ### University of Michigan
 ]
 .date[
-### Lecture on 2024-02-21
-(updated: 2024-02-21)
+### Lecture on 2025-02-24
+(updated: 2025-02-24)
 ]
 
 ---
@@ -51,9 +51,7 @@ Lecture materials from HR Chapter 14 and from Vansteelandt and Joffe (2014).
 ---
 ## G-Estimation
 
-- This is the last causal estimation method we will see for non-time varying data. 
-
-- It is also probably the least familiar. 
+- This is probably the least familiar estimation method we will see for non-time varying treatments. 
 
 - G-estimation is fairly uncommon in applied lit but has several advantages:
   + For a continuous treatment, we only have to specify `\(E[A \vert L]\)` instead of `\(f(A \vert L)\)`.
@@ -355,7 +353,7 @@ $$
 - In our categorical `\(L\)` example, to perform the grid search method, we first write a function to calculate `\(\alpha_1(x)\)`.
 
 
-```r
+``` r
 grid = seq(0.4, 0.6, by = 0.01)
 
 Hx_coefs &lt;- purrr::map_dfr(grid, function(x){
@@ -384,7 +382,7 @@ Hx_coefs &lt;- Hx_coefs %&gt;% mutate(ci_lower = Est - 1.96*SE,
 ## Estimating Equations in Categorical Example
 
 
-```r
+``` r
 gest_func &lt;- function(dat){
   ps_model &lt;- glm(A ~ as.factor(L),
                   family=binomial(), data=dat)
@@ -403,7 +401,7 @@ round(est, digits = 2)
 ## [1] 0.49
 ```
 
-```r
+``` r
 round(est + c(-1, 1)*qnorm(0.975)*sd(boot_samps), digits = 2)
 ```
 
@@ -436,7 +434,7 @@ round(est + c(-1, 1)*qnorm(0.975)*sd(boot_samps), digits = 2)
 
 - Using the estimating equations version, we add weights to the sums in numerator and denominator,
 
-`$$x^* = \frac{\sum_{i: C = 0} W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i:C = 0} W^C_i A_i (A_i - E[A \vert L_i])}$$`
+`$$x^* = \frac{\sum_{i: C_i = 0} W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i:C_i = 0} W^C_i A_i (A_i - E[A \vert L_i])}$$`
 
 ---
 ## G-Estimation in NHEFS
@@ -444,7 +442,7 @@ round(est + c(-1, 1)*qnorm(0.975)*sd(boot_samps), digits = 2)
 Step 1: Compute censoring weights
 
 
-```r
+``` r
 dat &lt;- read_csv("../../data/nhefs.csv") 
 dat$cens &lt;- ifelse(is.na(dat$wt82), 1, 0)
 
@@ -464,7 +462,7 @@ Step 2: Estimate `\(x\)` by grid search.
 
 
 
-```r
+``` r
 grid = seq(2, 5, by = 0.1)
 
 Hx_coefs &lt;- purrr::map_dfr(grid, function(x){
@@ -496,7 +494,7 @@ Hx_coefs &lt;- Hx_coefs %&gt;% mutate(ci_lower = Est - 1.96*SE,
 ## Estimating Equations in NHEFS
 
 
-```r
+``` r
 ps_model &lt;- glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
                   + smokeintensity + I(smokeintensity*smokeintensity) + smokeyrs
                   + I(smokeyrs*smokeyrs) + as.factor(exercise) + as.factor(active)
@@ -525,19 +523,33 @@ round(g_est_num/g_est_denom, digits = 2)
 
 
 ---
-## Closer Look At Estimating Eqns Solution
+## Effect of Positivity Violations in G-Estimation
 
-`$$x^* = \frac{\sum_{i=1}^n 1_{C=0}W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n 1_{C=0}W^C_i A_i (A_i - E[A \vert L_i])}$$`
 
-- In the numerator, there is a term `\((A_i - E[A \vert L_i])\)`. Units with `\(A_i = E[A \vert L_i]\)` don't contribute to the sum. 
+- Suppose we have a region of covariate space with almost no treated units. In this region `\(E[A \vert L]\)` will be close to 0.
 
-- This means we are basing our inference on units in the overlap space, units that have a chance of either treatment. 
 
-- When there are regions of covariate space with only cases or only controls, G-Computation suffers from extrapolation bias because it is basing too much of its estimation on only one group. 
+- In G-computation, we may get extrapolation bias because G-computation will smooth and borrow from surrounding samples to predict `\(Y(1)\)` for all of the untreated units in this region.  
+  + This will make our estimates highly model dependent.
 
-- IP weighting on the other hand can have very high variance due to enormous weights. 
+- On the other hand, IP weighting could have very high variance due to enormous weights for the few treated units in the region. 
 
-- G-estimation remains efficient and doesn't suffer from overlap bias. 
+
+
+---
+## Effect of Positivity Violations in G-Estimation
+
+- Look again at the estimating equations version of the G-estimation estimator:
+
+`$$x^* = \frac{\sum_{i=1}^n 1_{C_i=0}W^C_i Y_i (A_i - E[A \vert L_i])}{\sum_{i=1}^n 1_{C_i=0}W^C_i A_i (A_i - E[A \vert L_i])}$$`
+
+-  Untreated units in the problematic region will have `\(A_i - E[A \vert L_i] \approx 0\)`.
+
+- Treated units will have `\(A_i - E[A \vert L_i] \approx 1\)`.
+
+
+- In G-estimation, the untreated units will barely contribute to the sum, so G-estimation will not suffer from extrapolation bias.
+  + Treated units will contribute, but the weight of their contribution is not extreme, preventing high variance.
 
 ---
 ## Effect Modification
@@ -560,7 +572,7 @@ round(g_est_num/g_est_denom, digits = 2)
 - Suppose the true model is `\(E[Y(1) \vert L] - E[Y(0) \vert L ] = \omega(L)\)`
 
 - Then the G-estimator using the incorrect model with no effect modification converges to 
-`$$\frac{E\left \lbrace Var(A \vert L)\omega(L)\right \rbrace}{E\left \lbrace Var(A \vert L)\right \rbrace}$$` which is a weighted average of treatment effects, giving the most weight to strata with higher values of `\(Var(A \vert L)\)`, or strata with the most overalp between treated and control.
+`$$\frac{E\left[ Var(A \vert L)\omega(L)\right ]}{E\left [ Var(A \vert L)\right ]}$$` which is a weighted average of treatment effects, giving the most weight to strata with higher values of `\(Var(A \vert L)\)`, or strata with the most overlap between treated and control.
 
 ---
 ## Multi-Parameter Structural Mean Models
@@ -626,19 +638,18 @@ $$
 - The fact that `\(E[Y \vert L, A]\)` shows up in the definition of `\(H(x)\)` if `\(g\)` is logit makes the odds ratio formulation more difficult to deal with. 
   + There is no consistent G-estimator for the causal odds ratio. 
 
+- Suppose `\(x\)` has dimension `\(k\)`. 
+
 ---
 ## General Formulation
 
-- Next we either grid search for a value of `\(x\)` such that `\(H(x)\)` is statistically independent of `\(A - E[A \vert L]\)` or we solve the estimating equations
+- Next we either grid search for a value of `\(x\)` such that `\(H(x)\)` is statistically independent of `\(A - E[A \vert L]\)` (possible for small `\(k\)`)
 
-`$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(x)(d(A_i, L_i) - d(E[A \vert L_i], L_i)) = 0$$` where `\(d\)` is a function with dimension equal to the dimension of `\(x\)`. 
+- Or we solve the estimating equations
 
+`$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i H_i(x)(d(A_i, L_i) - d(E[A \vert L_i], L_i)) = 0_k$$` where `\(d\)` is a function with that outputs a `\(k\)`-dimensional vector and `\(0_k\)` is the `\(k\)`-dimensional `\(0\)` vector.
 
-- For example, using the model `\(E[Y(a) \vert L ] - E[Y(0) \vert L ] = \beta_1 a + \beta_2 a L\)`, we could use the estimating equation
-
-`$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i  H_i(x) \begin{pmatrix}A_i - E[A \vert L_i]\\L_i(A_i - E[A \vert L_i]) \end{pmatrix}= 0$$` 
-
-- The `\(d\)` function corresponds to the choice of how to put `\(H(x)\)` into the exposure model.
+- `\(d\)` can be any function of `\(A\)` and `\(L\)`, but there is a most efficient choice. 
 
 ---
 ## Efficient choice of `\(d\)`
@@ -650,41 +661,55 @@ d(A, L) = E\left\lbrace \frac{\partial H(x)}{dx} \Big\vert A, L\right\rbrace
 $$
 - Under the two parameter model from a few slides ago where we had
 
-`$$H_i(x_1, x_2) = Y_i - x_1 A_i - x_2 A_i L_{1,i}$$`
+`$$H_i(x_1, x_2) = Y_i - x_1 A_i - x_2 A_i L_{i}$$`
 - The best choice of `\(d\)` is `\(d(A,L) = \begin{pmatrix}A \\ A L_1 \end{pmatrix}\)`.
   + We dropped the minus sign since we can just multiply both sides of the estimating equations by -1. 
 
+
 ---
-## Multi-Parameter Model in NHEFS
+## Multi-Parameter Example
 
-- Suppose we believe there is effect modification by smoking intensity. Let `\(V\)` be smoking intensity and `\(L\)` the remaining confounders. We could use the SMM
-`$$E[Y(a) \vert L, V] - E[Y(0) \vert L, V] = \beta_1 a + \beta_2 a V$$`
 
-- We need to solve the estimating equations
+- In our example multi-parameter model we need to solve (dropping censoring weights for simplicity)
 
-`$$\sum_{i = 1}^n 1_{C_i = 0}W^C_i \begin{pmatrix}1\\V_i \end{pmatrix}(A_i - E[A \vert L_i, V_i]) H_i(x)= 0$$` 
----
-## Multi-Parameter Model in NHEFS
+`$$\sum_{i = 1}^n  H_i(x) \begin{pmatrix}A_i - E[A \vert L_i]\\L_i(A_i - E[A \vert L_i]) \end{pmatrix}= \begin{pmatrix}0 \\ 0 \end{pmatrix}$$` 
 
-- By plugging in `\(H_i(x) = Y_i -x_1 A_i - x_2 A_i V_i\)`, we obtain
+- Let `\(D_i = A_i - E[A \vert L_i]\)`. 
 
-`$$\begin{pmatrix}x_1 \\ x_2 \end{pmatrix} = R^{-1} S$$`
-with 
-`$$S = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i D_i\\
-\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iY_i V_i D_i\end{pmatrix}$$`
-
-`$$R = \begin{pmatrix}\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i D_i &amp; \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i\\
-\sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i D_i &amp; \sum_{i = 1}^n 1_{C_i = 0} W^{C}_iA_i V_i^2 D_i\end{pmatrix}$$`
-
-where `\(D_i = A_i - E[A \vert L_i]\)`. 
+`$$\sum_{i = 1}^n  (Y_i - x_1 A_i - x_2 A_i L_i) D_i\begin{pmatrix}1\\L_i \end{pmatrix}= \begin{pmatrix}0 \\ 0 \end{pmatrix}$$` 
 
 
 ---
+## Multi-Parameter Example
+
+- Separating terms and rearranging : 
+`$$x_1 \sum_{i = 1}^n A_i D_i\begin{pmatrix}1\\L_i \end{pmatrix} + x_2\sum_{i = 1}^n A_i L_i D_i\begin{pmatrix}1\\L_i \end{pmatrix} = \sum_{i = 1}^n  Y_i  D_i\begin{pmatrix}1\\L_i \end{pmatrix}$$`
+
+`$$x_1 \begin{pmatrix} \sum_{i = 1}^n A_i D_i\\ \sum_{i = 1}^n A_i D_iL_i \end{pmatrix} + x_2\begin{pmatrix}\sum_{i = 1}^n A_i L_i D_i\\\sum_{i = 1}^n A_i L_i^2 D_i \end{pmatrix} = \begin{pmatrix}\sum_{i = 1}^n  Y_i  D_i\\\sum_{i = 1}^n  Y_i  D_iL_i \end{pmatrix}$$`
+---
+## Multi-Parameter Example
+
+- Solving for `\((x_1, x_2)\)`:
+
+`$$\begin{pmatrix} \sum_{i = 1}^n A_i D_i &amp; \sum_{i = 1}^n A_i D_i L_i\\ \sum_{i = 1}^n A_i D_iL_i &amp; \sum_{i = 1}^n A_i L_i^2 D_i\end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix}\sum_{i = 1}^n  Y_i  D_i\\\sum_{i = 1}^n  Y_i  D_iL_i \end{pmatrix}$$`
+`$$\begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix} \sum_{i = 1}^n A_i D_i &amp; \sum_{i = 1}^n A_i L_i D_i\\ \sum_{i = 1}^n A_i D_iL_i &amp; \sum_{i = 1}^n A_i L_i^2 D_i\end{pmatrix}^{-1}\begin{pmatrix}\sum_{i = 1}^n  Y_i  D_i\\\sum_{i = 1}^n  Y_i  D_iL_i \end{pmatrix}$$`
+
+---
+## Multi-Parameter Model in NHEFS
+
+- Suppose we believe there is effect modification by smoking intensity. Let `\(L\)` be smoking intensity and `\(W\)` the remaining confounders. We could use the SMM
+`$$E[Y(a) \vert L, W] - E[Y(0) \vert L, W] = \beta_1 a + \beta_2 a L$$`
+
+- We include `\(W\)` to make explicit that this model is conditional on all of the confounders. We are explicitly saying we think there is only effect modification by smoking intensity. 
+
+- For this we can use the solution to the example that we just worked out. 
+
+---
 ## Multi-Parameter Model in NHEFS
 
 
 
-```r
+``` r
 dat$wc[dat$cens != 0] &lt;- 0
 dat$rem_w &lt;- with(dat, wc*(qsmk - ea))
 S &lt;- with(dat, c(sum(wt82_71*rem_w, na.rm=T), 
@@ -702,7 +727,8 @@ round(x, digits = 2)
 ## [2,] 0.03
 ```
 
-```r
+``` r
+# Standardize to get the ATE
 ate &lt;- x[1] + mean(dat$smokeintensity*x[2])
 round(ate, digits = 2)
 ```
