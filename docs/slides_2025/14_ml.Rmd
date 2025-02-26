@@ -1,8 +1,8 @@
 ---
-title: "L14: Machine Learning in Causal Inference"
+title: "L10: TMLE and Machine Learning in Causal Inference"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2024-04-01\n (updated: `r Sys.Date()`)"
+date: "Lecture on 2025-02-26\n (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -29,11 +29,12 @@ library(tidyverse)
 library(DiagrammeR)
 ```
 
+
+
 ## Introduction
 
-- In the first half of this class, we learned G-formula based methods for estimating causal effects. 
-
-- We generally needed to get either the outcome model or the propensity score model correct in order to have unbiased, consistent estimation. 
+- So far, we have learned parametric causal estimation methods. 
+  + Generally, good performance (i.e. consistency) of these methods requires getting a parametric model correct.
 
 - Getting parametric models correct is hard. 
 
@@ -45,30 +46,35 @@ library(DiagrammeR)
 - It would be great if we could use non-parametric or semi-parametric methods to estimate outcome or propensity score models. 
   + These methods are sometimes called **machine learning**.
 
-- The issue with plugging ML methods into our existing G-formula methods is that we won't get out consistent, asymptotically normal estimates of the causal effects.
+- The issue with plugging ML methods into our existing G-formula methods is that we won't necessarily get out consistent, asymptotically normal estimates of the causal effects.
 
 - ML methods generally converge "too slowly". 
   + Classical parametric estimators generally have $\sqrt{n}$-convergence (we will define this later). 
   + ML methods often have slower than $\sqrt{n}$-convergence. 
   
-  
+
 ---
 ## Introduction
 
-- In targeted minimum loss estimation (TMLE), we start with an initial estimator that may not be consistent and then take a targeting step.
+- In this lecture, we will learn one more double robust estimator for the ATE, targeted minimum loss estimation. 
 
-- The TMLE estimator is closely related to other double robust estimators we have already seen.
+- We will also learn how the convergence rates of the estimators of the outcome and propensity score model influence the convergence rates of estimators of the ATE. 
 
-- A very convenient property of TMLE is that it will be root-n consistent if either the outcome or the exposure model are consistent. 
-  + But the component models need not be $\sqrt{n}$-consistent themselves, they can converge more slowly. 
+- We will see how targeting can be used build estimators that have good convergence rates, even when we use machine learning estimates of the outcome model and propensity score. 
+
+- We will end with some discussion of the super learner and other machine learning methods. 
 
 ---
 
 ## Lecture Outline
 
-1. Introduction of machine learning estimatoion methods. 
-1. Targeted Minimum Loss Estimation
+1. Brief introduction of machine learning estimation methods. 
+1. Convergence rates
+1. Targeted Minimum Loss Estimation (TMLE)
 1. Super-Learning (a kind of machine learning)
+
+
+
 
 ---
 # 1. ML Introduction
@@ -80,7 +86,7 @@ library(DiagrammeR)
 
 --
 
-- For example, if we have observations $(x_1, y_1), \dots, (x_N, y_N)$ and we fit a simple linear regression of $Y$ on $X$, we are using the model
+- For example, if we have observations $(x_1, y_1), \dots, (x_n, y_n)$ and we fit a simple linear regression of $Y$ on $X$, we are using the model
 $$y_i = \beta_0  + \beta_1 x_i + \epsilon_i\\\ \epsilon_i \sim N(0, \sigma_y^2)$$
   + We are approximating the conditional distribution of $Y \vert X$ as normal with mean $\beta_0 + \beta_1X$ and variance $\sigma_y^2$. 
  
@@ -97,7 +103,6 @@ $\newcommand{\nci}{\not\!\perp\!\!\!\perp}$
 ## Machine Learning Methods Search Large Model Spaces
 
 - In classical parametric methods, models can be parameterized by a small number of parameters.
-  + "Small" is relative to the number of observations. 
   + When we think about the asymptotic behavior of classical methods, we assume that the number of parameters stays fixed as the sample size grows.
 
 - ML methods usually search larger, more flexible model spaces. 
@@ -158,8 +163,8 @@ $$\vert h(x) - \sum_{k = 1}^K\beta_k g_k(x) \vert < \varepsilon \ \ \forall x$$
 --
 
 - Using our spline basis, we replace the previous model with
-$$y_i = \sum_{k = 1}^{K(N)}\beta_k g_k(x_i) + \epsilon$$  
-  + Often $K(N) = N$
+$$y_i = \sum_{k = 1}^{K(n)}\beta_k g_k(x_i) + \epsilon$$  
+  + Often $K(n) = n$
   + We then estimate the coefficients $\beta_1, \dots, \beta_K$ via *penalized likelihood*. 
   + The penalty controls the degree of smoothness or the *effective number of parameters*. 
   
@@ -203,7 +208,7 @@ knitr::include_graphics("img/11_splines.png")
 
 - Smoothing splines allow us to expand the class of models we can use to approximate the conditional mean $E[Y \vert X]$ compared to simple linear regression.
 
-- The model increases in complexity with sample size, since $K$ increases with $N$. 
+- The model increases in complexity with sample size, since $K$ increases with $n$. 
 
 
  
@@ -275,12 +280,12 @@ $$P_n(X) = \frac{1}{n}\sum_{i = 1}^n I(O_i \in X)$$
 - Suppose that $X_1, X_2, \dots$ is an infinite series. **Big Oh** and **little oh** notation are two ways to describe what happens to the series as $n \to \infty$. 
 
 - **little oh** notation: $X_n$ is $o_p(1)$ if $X_n \to 0$ as $n \to \infty$. 
-  + $X_n$ is $o_p(r)$ if $X_n/r \to 0$ as $n \to \infty$. 
+  + $X_n$ is $o_p(r_n)$ if $X_n/r_n \to 0$ as $n \to \infty$. 
   + For example, $X_n$ is $o_p\left(n^{-1/2}\right)$ if $\sqrt{n}X_n \to 0$ as $n \to \infty$. 
   
 - **Big Oh** notation: $X_n$ is $O_p(1)$ if $X_n$ stays bounded as $n \to \infty$, 
 $$P[\vert X_n \vert > M ] < \epsilon$$ for any $\epsilon$ and $n$ large enough. 
-  + $X_n$ is $O_p(r)$ if $rX_n$ is $O_p(1)$.
+  + $X_n$ is $O_p(r_n)$ if $X_n/r_n$ is $O_p(1)$.
   
 - An estimator $\hat{\Psi}_n$ has a rate of convergence $r_n \to \infty$ if $r_n(\hat{\Psi}_n - \Psi)$ is $O_p(1)$ (i.e. $\hat{\Psi}_n - \Psi$ is $O_p(1/r_n)$).
 
@@ -298,9 +303,9 @@ Figure from [Edward Kennedy](https://www.ehkennedy.com/uploads/5/8/4/5/58450265/
 ---
 ## Convergence Rates
 
-- The $\sqrt{n}$-convergence rate is generally the fastest possible rate for an estimator. 
+- $1/\sqrt{n}$ is generally the fastest possible rate for an estimator. 
 
-- Estimates from a correctly specified parametric model will have $\sqrt{n}$-convergence rates. 
+- Estimates from a correctly specified parametric model usually converge at rate $1/\sqrt{n}$. 
 
 - Machine learning estimators generally have slower convergence rates due to the *curse of dimensionality*. 
 
@@ -335,7 +340,7 @@ $$\sqrt{n}(\hat{\Psi}(P_n) - \Psi(P_0)) \overset{d}{\to} N(\mu_{IC}, \sigma^2_{I
 - Asymptotic linearity implies consistent, asymptotically normal estimators. 
   + These are nice estimators that we can create Wald-type confidence intervals for. 
   
-  $$\hat{\Psi} \pm Z_{1-\frac{\alpha}{2}}\hat{\sigma}_{IC}/\sqrt{N}$$
+  $$\hat{\Psi} \pm Z_{1-\frac{\alpha}{2}}\hat{\sigma}_{IC}/\sqrt{n}$$
 
 ---
 ## Efficient Influence Functions
@@ -345,7 +350,7 @@ $$\sqrt{n}(\hat{\Psi}(P_n) - \Psi(P_0)) \overset{d}{\to} N(\mu_{IC}, \sigma^2_{I
   
 - Recall that an estimator is *efficient* if it has equal or lower asymptotic variance than every other estimator in its class. 
 
-- Two estimators are **asymptotically equivalent** if they have the same influence function.
+- Two asymptotically linear estimators are **asymptotically equivalent** if they have the same influence function.
   
 ---
 ## Efficient Influence Functions
@@ -382,7 +387,13 @@ $$\sqrt{n}(\hat{\Psi}(P_n) - \Psi(P_0)) \overset{d}{\to} N(\mu_{IC}, \sigma^2_{I
 
 - To link the probability distribution of the observed data and the counterfactual parameters we are interested in we need a DAG and the g-formula
 
-$$E[Y(a)] = \int E[Y \vert A = a, L = l]dF_l(l)$$
+
+$$
+\begin{split}
+E[Y(a)] =& \int E[Y \vert A = a, L = l]dF_l(l)\\
+ =& E\left[ E[Y \vert A = a, L] \right]
+\end{split}
+$$
 
 - The DAG is necessary to identify a sufficient set of confounding variables.
   + The data cannot tell us what the correct DAG is. 
@@ -420,7 +431,7 @@ $$E[Y(a)] = \int E[Y \vert A = a, L = l]dF_l(l)$$
 
 - Both G-computation and IP weighting will converge at the rate of the estimator of $b$ or $\pi$. 
 
-- If we use an ML estimator that converges more slowly than $\sqrt{n}$, the estimate of $E[Y(1)]$ will also converge slowly.
+- If we use an ML estimator that converges more slowly than $1/\sqrt{n}$, the estimate of $E[Y(1)]$ will also converge slowly.
 
 - The estimate might be consistent but Wald type confidence intervals will be too narrow, leading to poor coverage.
 
@@ -432,25 +443,51 @@ $$E[Y(a)] = \int E[Y \vert A = a, L = l]dF_l(l)$$
 
 - The efficient influence function for 
 
-$$\Psi_a(P_0) \equiv E[Y(a)] = \int E[Y \vert A = a, L = l]dF_l(l)$$
+$$\Psi_a(P_0) \equiv E[Y(a)] =  E\left[ E[Y \vert A = a, L] \right]$$
 is
 
 $$EIF(O_i) = \frac{1_{A_i = a}}{\pi(a, L_i )}\left(Y_i - b(a, L_i) \right) + b(a, L_i) -  \Psi_a(P_0)$$
 ---
 ## Double Robust Estimation
 
+- This means that if $\hat{\Psi}(P_n)$ is an asmyptotically linear, efficient estimator of $E[Y(a)]$, then 
+
+$$
+\begin{split}
+\hat{\Psi}(P_n) - \Psi(P_0) =& \frac{1}{n}\sum_{i = 1}^n EIF(O_i) + o_p(n^{-1/2})\\
+\hat{\Psi}(P_n)  =& \frac{1}{n}\sum_{i = 1}^n EIF(O_i) + o_p(n^{-1/2})\\
+ \hat{\Psi}(P_n) = & \sum_{i = 1}^n \frac{1_{A_i = a}}{\pi(a, L_i )}\left(Y_i - b(a, L_i) \right) + b(a, L_i) + o_p(n^{-1/2})
+\end{split}
+$$
+
+- All of the asymptotically equivalent DR estimators we have seen (e.g. AIPW, Bang and Robins) differ in what is in the remainder term but have the same influence curve. 
+
+---
+## Double Robust Estimation
+
 - If we want an estimator that has the efficient influence function, one possibility is the plug in estimator.
 
-- Want $\hat{\Psi}(P_n)$ such that
-
-$$\hat{\Psi}(P_n) = \Psi(P_0) + \frac{1}{n}\sum_{i = 1}^n EIF(O_i) + o_p(n^{-1/2})$$
-$$\hat{\Psi}(P_n) = \frac{1}{n}\sum_{i = 1}^n \frac{1_{A_i = a}}{\pi(a, L_i )}\left(Y_i - b(a, L_i) \right) + b(a, L_i) + o_p(n^{-1/2})$$
-
-- Plugging in $\hat{b}$ and $\hat{\pi}$
+- Plugging in $\hat{b}$ and $\hat{\pi}$ into the formula for the previous slide we get:
 
 $$\hat{\Psi}^*(P_n) = \frac{1}{n}\sum_{i = 1}^n \frac{1_{A_i = a}}{\hat{\pi}(a, L_i )}\left(Y_i - \hat{b}(a, L_i) \right) + \hat{b}(a, L_i)$$
 
-- This is the AIPW estimator (Robins, Rotnitzky, and Zhao) that we saw previously!
+- This is the AIPW estimator (Robins, Rotnitzky, and Zhao) that we saw previously. 
+
+- For this estimator, the remainder term $$R_n = \hat{\Psi}(P_n) - \Psi(P_0) - \frac{1}{n}\sum_{i = 1}^n EIF(O_i)$$ is proportional to $(b(a, L_i)-\hat{b}(a, L_i))(\pi(a, L_i) - \hat{\pi}(a, L_i))$, the product of the error in $\hat{b}$ and the error in $\hat{\pi}$.
+
+
+---
+## Substitution Estimators
+
+- A substitution estimator is an estimator that has the form $\hat{\Psi}(P_n) = \Psi(Q_n)$ where $Q_n$ is an estimator of (the relevant part of) $P_0$.
+  - G-computation is a substitution estimator. We estimate $E[Y \vert A = a, L]$, the relevant aspect of $P_0$ and then compute the expected value with respect to the empirical distribution of $L$. 
+
+- Substitution estimators respect the statistical model space and the global constraints on the data.
+  + E.g. a substitution estimator for the risk difference will always be between 0 and 1. 
+  
+- The AIPW estimator is not a substitution estimator, and may perform poorly in finite samples when there are large weights.
+  + IPW is also not a substitution estimator. 
+
 
 
 ---
@@ -458,7 +495,7 @@ $$\hat{\Psi}^*(P_n) = \frac{1}{n}\sum_{i = 1}^n \frac{1_{A_i = a}}{\hat{\pi}(a, 
 
 - TMLE is an alternative double robust estimation strategy, similar to other DR estimators we have seen so far. 
   
-- We will see that TMLE has some benefits over estimators we've already seen and the TMLE framework is extensible to get even nice properties.
+- However, TMLE is a substitution estimator, giving it good finite sample performance. 
   
 
 ---
@@ -468,7 +505,7 @@ The following steps produce the TMLE for a binary outcome and binary exposure.
 
 Step 1: Generate an initial estimate $\hat{b}_0(a, L)$ of $E[Y \vert A = a, L]$. 
 
-Step 2: Estimate $\hat{\pi}(a, L) = P[A = a \vert L]$. 
+Step 2: Estimate the propensity score, $\hat{\pi}(a, L) = \hat{P}[A = a \vert L]$. 
  
 
 ---
@@ -497,7 +534,7 @@ $$\hat{b}(A, L) = expit\left( logit(\hat{b}_0(A, L)) + \hat{\epsilon}_aH(A, L)\r
 
 The lest step is to use standardization to estimate $E[Y(a)]$
 
-$$\hat{E}[Y(a)] = \frac{1}{n}\sum_{i=1}^N \hat{b}(a, L_i)$$
+$$\hat{E}[Y(a)] = \frac{1}{n}\sum_{i=1}^n \hat{b}(a, L_i)$$
 
 ---
 ## TMLE Intuition
@@ -516,7 +553,7 @@ $$E[Y \vert A, L] = \hat{b}_0(A, L) + \epsilon_a H(A,L)$$
 ---
 ## Why The Logistic Scale
 
-- We use the logistic version of the one step update is that it guarantees an estimate of $E[Y(a)]$ that is between 0 and 1. 
+- The logistic version of the one step update guarantees an estimate of $E[Y(a)]$ that is between 0 and 1. 
 
 - For a continuous outcome, we can use the same trick to guarantee an estimate within the range of the data. 
 
@@ -534,11 +571,14 @@ $$E[Y \vert A, L] = \hat{b}_0(A, L) + \epsilon_a H(A,L)$$
 - We can obtain the variance of the treatment effect estimated by TMLE by directly computing the influence function. 
 
 
-- Let $\hat{\psi}$ be the TMLE estimate of the ATE. The influence function for the TMLE estimate is
+- We can estimate the variance of the ATE estimate as $$\frac{V(\hat{IC})}{n}$$ where $V(\hat{IC})$ is the sample variance of the estimated influence function for each unit. 
+
+
+- Let $\hat{\psi}$ be the TMLE estimate of the ATE. The influence function for each unit is
 
 $$\hat{IC}(O_i) = (Y_i - \hat{b}(A_i, L_i))H(A_i, L_i) + (\hat{b}(1, L_i)- \hat{b}(0, L_i))- \hat{\psi}$$
 
-- We can estimate the variance of the ATE estimate as $$\frac{Var(\hat{IC})}{N}$$
+
 
 ---
 ## TMLE vs AIPW
@@ -558,18 +598,7 @@ $$\hat{IC}(O_i) = (Y_i - \hat{b}(A_i, L_i))H(A_i, L_i) + (\hat{b}(1, L_i)- \hat{
 
 - TMLE and AIPW have similar asymptotic properties.
 
-- The key to figuring out if the estimator is consistent is to assess what happens to the remainder term, 
-
-$$R_n = \hat{\Psi}(P_n) - \Psi(P_0) - \frac{1}{n}\sum_{i = 1}^n EIF(O_i)$$
-
-- To have asymptotic linearity, we needed this term to be $o_p(n^{-1/2}).$
-
-- For both AIPW and TMLE, $R_n$ is proportional to $(b(a, L_i)-\hat{b}(a, L_i))(\hat{\pi}(a, L_i) - \pi(a, L_i))$, the product of the error in $\hat{b}$ and the error in $\hat{\pi}$.
- 
----
-## Double Roubst Estimation Properties
-
-- Since the remainder term is a product of the error in the two estimators,
+- For both AIPW and TMLE, $R_n$, the remainder term is proportional to $(b(a, L_i)-\hat{b}(a, L_i))(\pi(a, L_i) - \hat{\pi}(a, L_i))$.
  
 - Both estimators are consistent if either the outcome or the propensity score estimator is consistent. 
 
@@ -580,22 +609,21 @@ $$R_n = \hat{\Psi}(P_n) - \Psi(P_0) - \frac{1}{n}\sum_{i = 1}^n EIF(O_i)$$
 ---
 ## Multi-Step TMLE
 
-- Benkesser et al. (2017) and van der Laan (2014) propose an extension of TMLE that is $\sqrt{n}$-consistent if either the outcome model estimator or the PS estimator are consistent, DR-TMLE
+- Benkeser et al. (2017) and van der Laan (2014) propose an extension of TMLE that is $\sqrt{n}$-consistent if either the outcome model estimator or the PS estimator are consistent, DR-TMLE. 
+  + The idea is to use an iterative procedure to target the $\hat{\pi}$ and $\hat{b}$ estimators as well. 
 
 - DR-TMLE is asymptotically linear when 
   + One of the models is inconsistent. 
   + The other model is estimated with a ML estimator (convergence slower than $\sqrt{n}$).
 
-- Under this circumstance, TMLE is consistent but not $\sqrt{n}$-consistent.
-
-- Rather than using a single update step, DR-TMLE uses an iterative procedure.
+- Under this circumstance, "regular" TMLE is consistent but not $\sqrt{n}$-consistent.
 
 ---
 ## Multi-Step TMLE
 
-- Simulations from Benkesser et al. (2017). 
+- Simulations from Benkeser et al. (2017). 
   - Only the outcome regression is estimated consistently. 
-  - $\hat{b}$ has slower than $\sqrt{N}$ convergence.
+  - $\hat{b}$ has slower than $1/\sqrt{n}$ convergence.
   
 - Squares show performance of regular TMLE and AIPW ("One-Step").
 
@@ -609,6 +637,12 @@ knitr::include_graphics("img/14_benkesser1.png")
 knitr::include_graphics("img/14_benkesser2.png")
 ```
 </center>  
+
+
+---
+## Targeted Learning
+
+
 
 ---
 ## TMLE Extensions
@@ -725,8 +759,8 @@ knitr::include_graphics("img/11_ring.png")
 
 - Cross validation is a general procedure for selecting among estimation procedures. 
 - Suppose we have $K$ estimators of a parameter
-$$\Psi_1, \dots, \Psi_{K(N)}$$
-- We use $K(N)$ to indicate that the number of candidate estimators could depend on sample size. 
+$$\Psi_1, \dots, \Psi_{K(n)}$$
+- We use $K(n)$ to indicate that the number of candidate estimators could depend on sample size. 
 
 ---
 ## Loss
@@ -765,9 +799,9 @@ knitr::include_graphics("img/11_cv1.png")
 $$L_{CV}(\Psi_k) = \frac{1}{V}\sum_{i = 1}^V L(O_{[i]}, \hat{\Psi}_k(P_{n, -i}))$$
 - Choose the estimator that minimizes the cross-validation loss loss.
 
-$$\tilde{K}(N) = \underset{k \in 1, \dots, K(N)}{\text{argmin}} L_{CV}(\Psi_k)$$
+$$\tilde{K}(n) = \underset{k \in 1, \dots, K(n)}{\text{argmin}} L_{CV}(\Psi_k)$$
 
-- Re-fit the selected estimator, $\Psi_{\tilde{K}(N)}$ on the full data. 
+- Re-fit the selected estimator, $\Psi_{\tilde{K}(n)}$ on the full data. 
 
 ---
 ## Cross-Validation Loss Estimates Out of Sample Loss
@@ -782,7 +816,7 @@ $$E_{P_0}[L(O, \hat{\Psi}_k)]$$
 
 - The larger the number of folds we use, the larger this bias is. More folds also leads to higher variance. 
 
-- Bias goes away asymptotically if $K(N)$ does not grow too fast. 
+- Bias goes away asymptotically if $K(n)$ does not grow too fast. 
 
 ---
 ## Cross-Validation Error vs Out of Sample Error
@@ -796,12 +830,12 @@ knitr::include_graphics("img/11_cv2.png")
 ---
 ## Cross-Validation Optimality Result 
 
-- There are results that relate the expected error of our cross-validation estimator, $\Psi_{\tilde{K}(N)}$ to the expected error of the best estimator in our starting collection. 
+- There are results that relate the expected error of our cross-validation estimator, $\Psi_{\tilde{K}(n)}$ to the expected error of the best estimator in our starting collection. 
 
 - The expected loss of the cross-validation selected estimator is only slightly worse than the expected loss of the best estimator in the bunch. 
 
   + The difference is on the order of $\frac{log(K(n))}{np}$ where $p$ is the proportion of the data used in the validation set. 
-  + This result is not for N-fold cross validation, $p$ must be bounded away from 0 and 1. 
+  + This result is not for n-fold cross validation, $p$ must be bounded away from 0 and 1. 
   
 
 ---
