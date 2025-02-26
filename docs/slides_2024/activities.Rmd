@@ -31,7 +31,7 @@ style_mono_accent(
 ```
 
 
-## Monday, February 5, 2024
+## Monday, February 5, 2025
 
 - We are interested in the effect of a genetic variant, $G$ on an outcome $Y$. 
 
@@ -80,20 +80,20 @@ Match the estimator with statements that are true about it.
 ]
 
 ---
-## Wednesday, February 21, 2024
+## Wednesday, February 26, 2025
 
--Multiple choice questions to do together.
+Multiple choice questions to do together.
 
 - When you first begin thinking about a causal question you should:
 
   A. Draw a DAG containing all confounders of the exposure and outcome that you can think of, along with any sources of censoring that might affect your study. 
   
-  B. Draw a DAG that only contains variables that are already measured and in your data.
+  B. Draw a DAG that only contains variables that are measured and in your data.
   
   C. Draw a DAG containing both variables that are measured and variables that you think that you could measure.
 
 ---
-## Wednesday, February 21, 2024
+## Wednesday, February 26, 2025
 
 
 - When looking at your DAG, you find that there are confounders that you cannot measure. You should:
