@@ -639,10 +639,6 @@ knitr::include_graphics("img/14_benkesser2.png")
 </center>  
 
 
----
-## Targeted Learning
-
-
 
 ---
 ## TMLE Extensions
@@ -841,7 +837,7 @@ knitr::include_graphics("img/11_cv2.png")
 ---
 ## Consequences of CV Results
 
-- We are often see CV used to select parameters in machine learning methods (e.g penalty parameter in LASSO).
+- We often see CV used to select parameters in machine learning methods (e.g penalty parameter in LASSO).
 
 - The optimality result justifies why we are doing this. Asymptotically, the best CV estimator will do almost as well as we would have done if we knew the best parameter to begin with. 
 
@@ -884,7 +880,7 @@ knitr::include_graphics("img/11_slsteps234.png")
 
 - For example, if our target parameter is $E[Y \vert X]$ and $Z_1, \dots, Z_K$ are base learner predictions, we now fit a new model for $E[Y \vert Z_1, \dots, Z_K]$ (e.g. using linear regression).
 
-- van der Laan et al (2007) call this the minimum cross-validated risk predictor $\tilde{\Psi}$. K. Hoffman calls this the "meta learner". 
+- van der Laan et al (2007) call this the minimum cross-validated risk predictor $\tilde{\Psi}.$ K. Hoffman calls this the "meta learner". 
 
 <center> 
 ```{r, echo=FALSE, out.width="65%"}
@@ -921,7 +917,7 @@ knitr::include_graphics("img/11_slfig1.png")
 ---
 ## Super Learner Asymptotics
 
-- Asymptotically, the super learner will perform as well as the best estimator in the class defined by the meta-learner (as long as the number of folds does not grow too quikly with $n$). 
+- Asymptotically, the super learner will perform as well as the best estimator in the class defined by the meta-learner (as long as the number of folds does not grow too quickly with $n$). 
 
 - It follows that the super learner is at least as good as any of the base learners. 
   + Sometimes much better. 

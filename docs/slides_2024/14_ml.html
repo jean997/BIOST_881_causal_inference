@@ -4,15 +4,15 @@
     <title>L14: Machine Learning in Causal Inference</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -30,7 +30,7 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### Lecture on 2024-04-01
-(updated: 2024-04-03)
+(updated: 2025-03-10)
 ]
 
 ---
@@ -629,7 +629,7 @@ Extensions of TMLE have been developed for
 
 
 
-```r
+``` r
 ## transform outcome to range [0, 1]
 r &lt;- range(dat$wt82_71)
 dat$wt82_71_transformed &lt;- (dat$wt82_71 - r[1])/(r[2]-r[1])
@@ -656,7 +656,7 @@ fit_or &lt;-glm( wt82_71_transformed ~ qsmk + sex + race + age +
 - Next we fit the fluctuation parameter
 
 
-```r
+``` r
 logit &lt;- function(x){log(x)- log(1-x)}
 dat$logitbhat0 &lt;- logit(predict(fit_or))
 dat$pihat &lt;- predict(fit_ps, type = "response")
@@ -671,7 +671,7 @@ fit_fluctuation &lt;- glm(wt82_71_transformed ~ H -1,
 ## Warning in eval(family$initialize): non-integer #successes in a binomial glm!
 ```
 
-```r
+``` r
 summary(fit_fluctuation)$coefficients
 ```
 
@@ -686,7 +686,7 @@ summary(fit_fluctuation)$coefficients
 - Finally we compute the standardized means.
 
 
-```r
+``` r
 dat0 &lt;- dat1 &lt;- dat
 dat0$qsmk &lt;- 0
 dat1$qsmk &lt;- 1
@@ -809,7 +809,7 @@ cat(round(EY0, digits =2), " ", round(EY1, digits = 2), "ATE: ", round(EY1-EY0, 
 ---
 ## Consequences of CV Results
 
-- We are often see CV used to select parameters in machine learning methods (e.g penalty parameter in LASSO).
+- We often see CV used to select parameters in machine learning methods (e.g penalty parameter in LASSO).
 
 - The optimality result justifies why we are doing this. Asymptotically, the best CV estimator will do almost as well as we would have done if we knew the best parameter to begin with. 
 
@@ -850,7 +850,7 @@ cat(round(EY0, digits =2), " ", round(EY1, digits = 2), "ATE: ", round(EY1-EY0, 
 
 - For example, if our target parameter is `\(E[Y \vert X]\)` and `\(Z_1, \dots, Z_K\)` are base learner predictions, we now fit a new model for `\(E[Y \vert Z_1, \dots, Z_K]\)` (e.g. using linear regression).
 
-- van der Laan et al (2007) call this the minimum cross-validated risk predictor `\(\tilde{\Psi}\)`. K. Hoffman calls this the "meta learner". 
+- van der Laan et al (2007) call this the minimum cross-validated risk predictor `\(\tilde{\Psi}.\)` K. Hoffman calls this the "meta learner". 
 
 &lt;center&gt; 
 &lt;img src="img/11_slstep5b.png" width="65%" /&gt;
@@ -881,7 +881,7 @@ cat(round(EY0, digits =2), " ", round(EY1, digits = 2), "ATE: ", round(EY1-EY0, 
 ---
 ## Super Learner Asymptotics
 
-- Asymptotically, the super learner will perform as well as the best estimator in the class defined by the meta-learner (as long as the number of folds does not grow too quikly with `\(n\)`). 
+- Asymptotically, the super learner will perform as well as the best estimator in the class defined by the meta-learner (as long as the number of folds does not grow too quickly with `\(n\)`). 
 
 - It follows that the super learner is at least as good as any of the base learners. 
   + Sometimes much better. 
@@ -910,7 +910,7 @@ cat(round(EY0, digits =2), " ", round(EY1, digits = 2), "ATE: ", round(EY1-EY0, 
 - There are a few implementations of Super Learner in R. We will look at `SuperLearner`
 
 
-```r
+``` r
 library(SuperLearner)
 listWrappers()
 ```
@@ -966,11 +966,11 @@ sl_result &lt;- SuperLearner(Y = dat$wt82_71,
 
 - Our original linear model and LASSO have the lowest cross-validated risk. XGBoost is doing poorly on this data.
 
-- Super Learner puts most of its weight on the linear regression, but also gives weight to the other learners.
+- Super Learner splits most of its weight between the linear model and LASSO.
 
 
 
-```r
+``` r
 sl_result
 ```
 
@@ -996,7 +996,7 @@ sl_result
 - The `SuperLearner` function also gives us predictions from each model and from the Super Learner weighted model.
 
 
-```r
+``` r
 head(sl_result$library.predict)
 ```
 
@@ -1010,7 +1010,7 @@ head(sl_result$library.predict)
 ## 6      2.6383  -0.701358    -0.8301459       4.549352     2.9889503
 ```
 
-```r
+``` r
 head(sl_result$SL.predict)
 ```
 
@@ -1056,7 +1056,7 @@ cv.sl_result &lt;- CV.SuperLearner(Y = dat$wt82_71,
 - Discrete SL is the learner that just picks the single learner with best CV-error.
 
 
-```r
+``` r
 summary(cv.sl_result)$Table
 ```
 
@@ -1128,7 +1128,7 @@ Tutorials:
 - First, we will use `drtmle` to fit TMLE with the same parametric models we were using previously.
 
 
-```r
+``` r
 library(drtmle)
 ## note use A for the exposure in the outcome formula
 outcome_formula &lt;- "A + sex + race + age + 
@@ -1151,7 +1151,7 @@ exposure_formula &lt;- "sex + race + age + I(age ^ 2) +
 - All estimates are very similar for these data.
 
 
-```r
+``` r
 mydat &lt;- dat[, c("sex", "race", 
                  "age", "education", "smokeintensity", 
                  "smokeyrs", "exercise", "active", "wt71")]
@@ -1187,7 +1187,7 @@ tmle_fit_parametric$tmle
 - `SL_Qr` and `SL_gr` specify super learner libraries for secondary update steps.
 
 
-```r
+``` r
 tmle_fit_SL &lt;- drtmle(Y = dat$wt82_71, 
                         A = dat$qsmk, 
                         W = mydat,
@@ -1210,7 +1210,7 @@ tmle_fit_SL &lt;- drtmle(Y = dat$wt82_71,
 ## TMLE with SuperLearner in R
 
 
-```r
+``` r
 tmle_fit_SL$drtmle
 ```
 
