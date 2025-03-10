@@ -1,8 +1,8 @@
 ---
-title: "L9: Time to Event Outcomes"
+title: "L11: Time to Event Outcomes"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2024-03-20\n(updated: `r Sys.Date()`)"
+date: "Lecture on 2025-03-12\n(updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -631,7 +631,7 @@ $$P[D_k = 1 \vert D_{k-1} = 0, \bar{C}_k = 0, A]$$
 - However, what we would like to estimate is the counterfactual survival had everyone recieved treatment $a$: 
 $$E[D_{k}(A = a, \bar{C}_k = 0)]$$
 
-- We can use the same IP weighting + marginal structural model approach we used in L5 for non-time to event data. 
+- We can use the same IP weighting + marginal structural model approach we used in L6 for non-time to event data. 
 
 <center>
 ```{r, echo = FALSE, fig.height = 2.5, warning=FALSE, message=FALSE}
@@ -886,7 +886,7 @@ est_diff - qnorm(0.975)*sd
 ---
 ## Standardization/G-Computation
 
-- Recall standardization from L5: 
+- Recall standardization from L6: 
   + Propose a conditional model for $E[Y \vert A, L]$ and then standardize over the distribution of $L$ in our sample.
 
 - The procedure is the same for time to event data. 
@@ -994,12 +994,12 @@ $$\frac{E[T \vert Z = Z_1]}{E[ T \vert Z = Z_2]} = \exp((Z_1 -Z_2)\beta)$$
 $$T_{i}(A = a)/T_i(A = 0) = \exp(-\psi_1 a)$$
 - This model says that the ratio of survival time under treatment $a$ and treatment 0 is exactly the same for all individuals. 
 
-- This is the same as the models we saw in L7 except that here we are using the log link. 
+- This is the same as the models we saw in L9 except that here we are using the log link. 
 
 ---
 ## G-estimation
 
-- As in L7, if we think there is effect modification, we should include it in the model.
+- As in L9, if we think there is effect modification, we should include it in the model.
 
 $$T_{i}(A = a)/T_i(A = 0) = \exp(-\psi_1 a - \psi_2 a L_i)$$
 

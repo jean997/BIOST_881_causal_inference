@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L9: Time to Event Outcomes</title>
+    <title>L11: Time to Event Outcomes</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
-    <script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
+    <link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
     <script src="libs/viz-1.8.2/viz.js"></script>
     <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
-    <script src="libs/grViz-binding-1.0.10/grViz.js"></script>
+    <script src="libs/grViz-binding-1.0.11/grViz.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -24,7 +25,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L9: Time to Event Outcomes
+# L11: Time to Event Outcomes
 ]
 .author[
 ### Jean Morrison
@@ -33,8 +34,8 @@ class: center, middle, inverse, title-slide
 ### University of Michigan
 ]
 .date[
-### Lecture on 2024-03-20
-(updated: 2024-03-20)
+### Lecture on 2025-03-12
+(updated: 2025-03-10)
 ]
 
 ---
@@ -83,8 +84,8 @@ class: center, middle, inverse, title-slide
 - Administrative censoring poses a problem: `\(T\)` is missing for participants with the longest survival times. 
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-f2e031c7326cdb7c18ac" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-f2e031c7326cdb7c18ac">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"T\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"3\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.6,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-fef3d8ebf74e9458af00" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-fef3d8ebf74e9458af00">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", pos = \"0,0!\"] \n  \"2\" [label = \"T\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", pos = \"1.2,0!\"] \n  \"3\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", pos = \"0.6,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", pos = \"2.4,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 ---
@@ -100,8 +101,8 @@ class: center, middle, inverse, title-slide
 - There may also be values of `\(T\)` for which `\(P[C = 0 \vert T] = 0\)` leading to a violation of positivity. 
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-2676ac3ce66e28005f5e" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-2676ac3ce66e28005f5e">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"T\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"1.2,0!\"] \n  \"3\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", fillcolor = \"#FFFFFF\", pos = \"0.6,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", fillcolor = \"#FFFFFF\", pos = \"2.4,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-3d989ba43a7ab9de488f" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-3d989ba43a7ab9de488f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", pos = \"0,0!\"] \n  \"2\" [label = \"T\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", pos = \"1.2,0!\"] \n  \"3\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"circle\", pos = \"0.6,0.8!\"] \n  \"4\" [label = \"C\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", fixedsize = \"FALSE\", shape = \"square\", pos = \"2.4,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 ---
@@ -240,7 +241,7 @@ Given this intractable censoring problem, we have two options:
 - For continuous time, the hazard is the instantaneous risk of death, defined as the derivative of the survival function, normalized by the proportion at risk
 
 $$
-\lambda(t) = \frac{\frac{d}{dt} S(t)}{S(t)} = -\frac{d}{dt} log\left( S(t) \right)
+\lambda(t) = \frac{-\frac{d}{dt} S(t)}{S(t)} = -\frac{d}{dt} log\left( S(t) \right)
 $$
 
 ---
@@ -299,8 +300,8 @@ $$
 
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-cd40db6ebfed2077e598" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-cd40db6ebfed2077e598">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0.6!\"] \n  \"2\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.6!\"] \n  \"3\" [label = <C<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"4\" [label = <C<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-4584fa9713ef6a1776b8" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-4584fa9713ef6a1776b8">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0.6!\"] \n  \"2\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.8,0.6!\"] \n  \"3\" [label = <C<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"4\" [label = <C<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.8,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 `$$P[D_2(C_1 = 0, C_2 = 0) = 0] = 1-(0.1 + 0.05\cdot 0.9) = 0.855$$`
@@ -358,7 +359,7 @@ $$
 
 
 
-```r
+``` r
 dat &lt;- read_csv("../../data/nhefs.csv") %&gt;%
        mutate(survtime = case_when(death == 0 ~ 120, 
                                    TRUE ~ (yrdth-83)*12 + modth))
@@ -471,7 +472,7 @@ $$\lambda(t; Z(t)) = \lambda_0(t)\exp(Z(t)^\top \beta) $$
 - Note that by default, there are no more IDs, we don't need them. 
 
 
-```r
+``` r
 #Creating person-time data
 dtime &lt;- seq(120)
 newdat &lt;- survSplit(Surv(survtime, death) ~ qsmk, 
@@ -499,7 +500,7 @@ For the NHEFS data we fit the logistic regression
 `$$\theta_{0, k} = \alpha_0 + \alpha_1 k + \alpha_2 k^2$$`
 
 
-```r
+``` r
 ## This model is for no event
 fit_logistic &lt;- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) + 
                        time + timesq, family=binomial(), 
@@ -529,7 +530,7 @@ fit_logistic &lt;- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) +
 Next we estimate survival at each time for quitters and non-quitters:
 
 
-```r
+``` r
 qsmk0 &lt;- qsmk1 &lt;- data.frame(time = seq(120)-1)%&gt;% 
   mutate(timesq = time^2)
 qsmk0$qsmk &lt;- 0
@@ -557,7 +558,7 @@ surv_data &lt;-bind_rows(qsmk0, qsmk1)
 - Since we have time-dependent coefficients, we need to use the long form data.
 
 
-```r
+``` r
 fit_cox &lt;- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(qsmk*timesq), data = newdat)
 fit_cox$coefficients
 ```
@@ -570,7 +571,7 @@ fit_cox$coefficients
 - The coefficients from the CoxPH model are comparable to the coefficients involving the `qsmk` term in the logistic regression model.
 
 
-```r
+``` r
 fit_logistic$coefficients
 ```
 
@@ -588,7 +589,7 @@ fit_logistic$coefficients
 - We can obtain predicted survival from the CoxPH fit using the `survfit` function.
 
 
-```r
+``` r
 surv_data$id &lt;- 1
 surv_data$id[surv_data$qsmk==1] &lt;- 2
 surv_data &lt;- surv_data %&gt;% 
@@ -636,11 +637,11 @@ surv_data &lt;- bind_rows(surv_data, surv_data2)
 - However, what we would like to estimate is the counterfactual survival had everyone recieved treatment `\(a\)`: 
 `$$E[D_{k}(A = a, \bar{C}_k = 0)]$$`
 
-- We can use the same IP weighting + marginal structural model approach we used in L5 for non-time to event data. 
+- We can use the same IP weighting + marginal structural model approach we used in L6 for non-time to event data. 
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-4e74f814a95158e6208a" style="width:504px;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-4e74f814a95158e6208a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0.42!\"] \n  \"3\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.8,-0.6!\"] \n  \"4\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.6,-0.6!\"] \n  \"5\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.42!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-605d72b99ad36243cb98" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-605d72b99ad36243cb98">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0.42!\"] \n  \"3\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.8,-0.6!\"] \n  \"4\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.6,-0.6!\"] \n  \"5\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.8,0.42!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -660,7 +661,7 @@ surv_data &lt;- bind_rows(surv_data, surv_data2)
 
 - First step, estimate propensity scores as before
 
-```r
+``` r
 #denominator
 fit_ps &lt;- glm(qsmk ~ sex + race + age + I(age*age) + as.factor(education)
                + smokeintensity + I(smokeintensity*smokeintensity)
@@ -686,7 +687,7 @@ dat &lt;- dat %&gt;% mutate(sw_a = case_when(qsmk == 1 ~ pa1/ps,
 - You will get a warning using non-integer weights. This is ok. 
 
 
-```r
+``` r
 # creation of person-month data
 dtime &lt;- seq(120)
 newdat &lt;- survSplit(Surv(survtime, death) ~ qsmk + sw_a, 
@@ -709,7 +710,7 @@ ipw_fit_logistic &lt;- glm(death==0 ~ qsmk + I(qsmk*time) + I(qsmk*timesq) +
 
 - Finally, compute counterfactual survival probabilities. 
 
-```r
+``` r
 qsmk0 &lt;- qsmk1 &lt;- data.frame(time = seq(120)-1)%&gt;% 
   mutate(timesq = time^2)
 qsmk0$qsmk &lt;- 0; qsmk0$id &lt;- 1;
@@ -734,7 +735,7 @@ surv_data &lt;- bind_rows(qsmk0, qsmk1)
 - Instead of logistic regression, we could use CoxPH to fit a semi-parametric marginal structural model for the hazard.
 
 
-```r
+``` r
 ipw_fit_cox &lt;- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(qsmk*timesq), 
                      data = newdat, weights = sw_a)
 ```
@@ -777,7 +778,7 @@ ipw_fit_cox &lt;- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(
 ---
 ## Standardization/G-Computation
 
-- Recall standardization from L5: 
+- Recall standardization from L6: 
   + Propose a conditional model for `\(E[Y \vert A, L]\)` and then standardize over the distribution of `\(L\)` in our sample.
 
 - The procedure is the same for time to event data. 
@@ -883,12 +884,12 @@ ipw_fit_cox &lt;- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(
 `$$T_{i}(A = a)/T_i(A = 0) = \exp(-\psi_1 a)$$`
 - This model says that the ratio of survival time under treatment `\(a\)` and treatment 0 is exactly the same for all individuals. 
 
-- This is the same as the models we saw in L7 except that here we are using the log link. 
+- This is the same as the models we saw in L9 except that here we are using the log link. 
 
 ---
 ## G-estimation
 
-- As in L7, if we think there is effect modification, we should include it in the model.
+- As in L9, if we think there is effect modification, we should include it in the model.
 
 `$$T_{i}(A = a)/T_i(A = 0) = \exp(-\psi_1 a - \psi_2 a L_i)$$`
 
@@ -997,8 +998,8 @@ ipw_fit_cox &lt;- coxph(Surv(tstart, survtime, death) ~ qsmk + I(qsmk*time) + I(
 ## Example
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-81274177fd3d0880a755" style="width:504px;height:288px;"></div>
-<script type="application/json" data-for="htmlwidget-81274177fd3d0880a755">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,1.2!\"] \n  \"2\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.8,1.2!\"] \n  \"3\" [label = <C<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"4\" [label = <C<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.8,0!\"] \n  \"5\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0.6!\"] \n  \"6\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.8,0.6!\"] \n  \"7\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"-0.8,0.9!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"7\"->\"1\" [color = \"black\"] \n\"7\"->\"5\" [color = \"black\"] \n\"7\"->\"6\" [color = \"black\"] \n\"7\"->\"2\" [color = \"black\"] \n\"1\"->\"5\" [color = \"black\"] \n\"1\"->\"6\" [color = \"black\"] \n\"5\"->\"6\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-99c29ff19c6b1d85d856" style="width:504px;height:288px;"></div>
+<script type="application/json" data-for="htmlwidget-99c29ff19c6b1d85d856">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,1.2!\"] \n  \"2\" [label = <D<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.8,1.2!\"] \n  \"3\" [label = <C<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"4\" [label = <C<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.8,0!\"] \n  \"5\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0.6!\"] \n  \"6\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.8,0.6!\"] \n  \"7\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"-0.8,0.9!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"7\"->\"1\" [color = \"black\"] \n\"7\"->\"5\" [color = \"black\"] \n\"7\"->\"6\" [color = \"black\"] \n\"7\"->\"2\" [color = \"black\"] \n\"1\"->\"5\" [color = \"black\"] \n\"1\"->\"6\" [color = \"black\"] \n\"5\"->\"6\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;  
   
   
