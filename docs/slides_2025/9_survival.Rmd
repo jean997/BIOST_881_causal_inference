@@ -297,17 +297,28 @@ render_graph(grex)
 ```
 </center>
 
-$$P[D_2(C_1 = 0, C_2 = 0) = 0] = 1-(0.1 + 0.05\cdot 0.9) = 0.855$$
+$$
+\begin{split}
+P[D_2(C_1 = 0, C_2 = 0) = 0] =& 1 - (P[D_1 = 1] + P[D_2 = 1 \vert D_1 = 0]P[D_1 = 0]) \\
+ = & 1-(0.1 + 0.05\cdot 0.9) = 0.855
+\end{split}
+$$
 
 $$P[D_2 = 0 \vert C_2 = 0] = \frac{ 0.95 \cdot 0.45}{0.1 + 0.45} \approx 0.777$$
 
 ---
 ## Example Continued
 
-- We could have estimated $P[D_2(\bar{C}_2 = 0)]$ as 
-$$P[D_2 = 0] = P[D_2=0 \vert D_1 = 0]P[D_1 = 0]$$
+- We estimated $P[D_2(\bar{C}_2 = 0)]$ as 
+$$
+\begin{split}
+P[D_2(\bar{C}_2 = 0)]  =& 1 - (P[D_1 = 1] + P[D_2 = 1 \vert D_1 = 0]P[D_1 = 0]) \\
+= & 1 - P[D_1 = 1] - P[D_2 = 1 \vert D_1 = 0](1-P[D_1 = 1])\\
+= & (1-P[D_1 =1])(1 - P[D_2 = 1 \vert D_1 = 0])
+\end{split}
+$$
 
-- Because death and censoring are independent $P[D_2 = 0 \vert D_1 = 0] = P[D_2 = 0 \vert D_1 = 0, C_2 = 0]$, so both of these quantities are observable in our data. 
+- Because death and censoring are independent $P[D_2 = 1 \vert D_1 = 0] = P[D_2 = 1 \vert D_1 = 0, C_2 = 0]$, so both of these quantities are observable in our data. 
 
 - We are just using the product identity 
 $$S_{k} = \prod_{j = 1}^{k}\left(1 - h_j\right)$$
@@ -876,24 +887,19 @@ est_diff - qnorm(0.975)*sd
 - Non-informative censoring
   + We could have also included weights for censoring. 
   + Censoring weights may be time-varying.
-  
-  <!-- + Alternatively, if we had a set of variables $V$ such that $\bar{C}_k \ci D_k \vert A, V$ for all $k$, we could condition on $V$ in the marginal structural model.  -->
-
-<!-- --- -->
-<!-- ## Adjusting for Non-Adherence -->
 
 
 ---
-## Standardization/G-Computation
+## G-Computation for Time-to-Event Data
 
 - Recall standardization from L6: 
   + Propose a conditional model for $E[Y \vert A, L]$ and then standardize over the distribution of $L$ in our sample.
 
 - The procedure is the same for time to event data. 
 
-- In this case, we need a parametric model for the hazard. 
+- In this case, we need a parametric (or semi-parametric) model for the hazard conditional on $A$ and confounders $L$. 
 
-- We then compute the conditional survival from the conditional hazard using the product trick. 
+- We then compute the conditional survival from the conditional hazard using the product trick setting everyone's $A$ to 0 or to 1. 
 
 - Finally, we standardize the survival to the distribution of $L$ in our sample. 
 
@@ -902,7 +908,7 @@ est_diff - qnorm(0.975)*sd
   + Bootstrap based 95% confidence interval for difference: $(-4.6\%, 4.1\%)$
   
 ---
-## Standardization Assumptions
+## G-Computation Assumptions
 
 - For consistent estimation we need: 
 
@@ -1064,6 +1070,8 @@ $$H(x_1, x_2) = T_i\exp(x_1 A_i + x_2 A_i L_i)$$
 
 
 - In the NHEFS data, using the model $$T_i(A = 0) = T_i \exp(\psi A_i)$$ the resulting estimate of $\psi$ is  $-0.05 (95\%\ \text{CI:} -0.22 \text{ to } 0.33)$.
+  + Our point estimate is that quitting smoking extends expected survival time by about $5\%$ ($1.05 \approx \exp(0.05)$), however we do not find evidence to reject that the true causal effect is zero.
+  
 ---
 ## Structural Nested AFTs in Practice
 
