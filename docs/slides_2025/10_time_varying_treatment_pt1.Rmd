@@ -1,8 +1,8 @@
 ---
-title: "L10: Time Varying Treatment\n Part 1"
+title: "L12: Time Varying Treatment\n Part 1"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2024-03-04\n(updated: `r Sys.Date()`)"
+date: "Lecture on 2025-03-19\n(updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -171,7 +171,7 @@ knitr::include_graphics("img/9_dag2sw.png")
 
 
 - We would like to estimate $E[Y(a_0, a_1)]$. 
-- In this example, we are going to determine if we can treat $(A_0, A_1)$ like a single intervention.
+- In this example, we are going to determine if we can treat $(A_0, A_1)$ like a single intervention and use one of the strategies we already know for point treatments.
 
 ---
 ## Example
@@ -296,7 +296,8 @@ $$
 ## Estimating the Effect of the Joint Intervention
 
 
-- From the SWIG, we can see that $L_1(a_0) \ci A_0$, so $P[L_1(a_0) = l] = P[L_1 = l \vert A_0 = a_0]$.
+- From the SWIG, we can see that $L_1(a_0) \ci A_0$, so $P[L_1(a_0) = l] = P[L_1(a_0) = l \vert A_0 = a_0] = P[L_1 = l \vert A_0 = a_0]$.
+  - The last equality follows from consistency. 
 
 <center> 
 
@@ -356,7 +357,8 @@ $$
 E[Y(a_0, a_1) &\vert L_1(a_0)] \\
 = &E[Y(a_0, a_1) \vert A_0 = a_0, L_1(a_0)] \qquad \text{(Second Statement)}\\
 = & E[Y(a_0, a_1) \vert A_0 = a_0, L_1] \qquad \text{(Consistency)}\\
-= & E[Y \vert A_1 = a_1, A_0 = a_0, L_1] \qquad \text{(First Statement)}
+= & E[Y(a_0, a_1) \vert A_1 = a_1, A_0 = a_0, L_1] \qquad \text{(First Statement)}\\
+= & E[Y \vert A_1 = a_1, A_0 = a_0, L_1] \qquad \text{(Consistency)}
 \end{split}
 $$
 ---
@@ -376,7 +378,7 @@ $$
 
 
 ---
-## Estimating the Effect in Example
+## Estimating the Effect in the Example
 ```{r, echo = FALSE, warning=FALSE, message = FALSE}
 knitr::kable(dat1, col.names = c("N", "\\(A_{0}\\)","\\(L_{1}\\)", "\\(A_{1}\\)", "\\(\\bar{Y}\\)"), format = 'html')  %>%
   kable_styling(position = "float_left", full_width = FALSE)
@@ -417,6 +419,15 @@ $$
 - Static sequential exchangeability says that
 
 $$Y(\bar{a}) \ci A_k \vert\ \bar{A}_{k-1} = \bar{a}_{k-1}, \bar{L}_k\qquad k = 0, 1, \dots K$$
+- Notice that this is a collection of $K + 1$ conditional independence statements:
+$$
+\begin{split}
+&Y(\bar{a}) \ci A_0 \vert L_0\\
+&Y(\bar{a}) \ci A_1 \vert A_0 = a_0, \bar{L}_1\\
+&\vdots\\
+&Y(\bar{a}) \ci A_K \vert \bar{A}_{K-1} = \bar{a}_{K-1}, \bar{L}_K
+\end{split}
+$$
 
 - The joint counterfactual outcome is conditionally independent of each treatment **given** all previous treatments and all previous confounders.
 
@@ -452,14 +463,8 @@ $$
 
 - However, this is not necessary to identify the causal effect. 
 
-- The time-varying G-formula will work when only 
-$$
-\begin{split}
-&Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
-&Y(a_0, a_1) \ci A_0
-\end{split}
-$$
-are true and $E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]$ does not have a counterfactual interpretation.
+- If this statement were not true but sequential exchangeability held, then 
+ $E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]$ would not have a counterfactual interpretation, but the time-varying G-formula would still identify the causal effect.
 
 
 ---
@@ -656,7 +661,7 @@ $$
 
 - If we knew $Y(a_1)$, then using the single time-point G-formula, we could calculate
 
-$$E[\left(Y(a_1)\right)(a_0)] = E[Y(a_0, a_1) = E[Y(a_1) \vert A_0 = a_0]$$
+$$E[\left(Y(a_1)\right)(a_0)] = E[Y(a_0, a_1)] = E[Y(a_1) \vert A_0 = a_0]$$
 
 ---
 
