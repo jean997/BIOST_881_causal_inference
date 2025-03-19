@@ -25,6 +25,14 @@ editor_options:
 
 [7. More PS Estimators and Double Robustness](slides_2025/6_propensity_scores.html)
 
+[8. Matching](slides_2025/7_matching.html)
+
+[9. G-Estimation](slides_2025/8_g_estimation.html)
+
+[10. Machine Learning and TMLE](slides_2025/14_ml.html)
+
+[11. Time-Varying Treatment Part 1](slides_2025/10_time_varying_treatment_pt1.html)
+
 
 ## Lecture Slides from Past Years
 
