@@ -622,9 +622,10 @@ $$E[Y(a)] = \int_{l} E[Y \vert A = a, L = l] d F_L(l)$$
 
 
 - The G-Formula for two time points is
-$$E[Y(a_0, a_1)] = \sum_l E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]f_{L_1 \vert A_0}(l \vert a_0)$$
+$$E[Y(a_0, a_1)] = \sum_l E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]f_{L_0}(l_0)f_{L_1 \vert A_0}(l_1 \vert a_0)$$
+- In our previous example, we didn't have an $L_0$ but we include it here for more generality.
 
-- Because the treatment happens at two time points and $L_1$ could happen after $A_0$, we need to condition on $a_0$ in the density term.
+- Because the treatment happens at two time points and $L_1$ could happen after $A_0$, we need to condition on $a_0$ in the density term for $L_1$.
 
 ---
 ## G-Formula for Static Treatment Strategies
@@ -650,18 +651,18 @@ knitr::include_graphics("img/9_swig3.png")
 
 $$
 \begin{split}
-&Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
-&Y(a_0, a_1) \ci A_0
+&Y(a_0, a_1) \ci A_1 \mid A_0 = a_0, L_1, L_0\\
+&Y(a_0, a_1) \ci A_0 \mid L_0
 \end{split}
 $$
 
-- Think of $Y(a_0, a_1)$ as $\left(Y(a_1)\right)(a_0)$. 
+- Think of $Y(a_0, a_1)$ as $Y(a_1)(a_0)$. 
 
-- Re-write the second relation as $\left(Y(a_1)\right)(a_0) \ci A_0$. 
+- Re-write the second relation as $Y(a_1)(a_0) \ci A_0 \mid L_0$. 
 
 - If we knew $Y(a_1)$, then using the single time-point G-formula, we could calculate
 
-$$E[\left(Y(a_1)\right)(a_0)] = E[Y(a_0, a_1)] = E[Y(a_1) \vert A_0 = a_0]$$
+$$E[Y(a_1)(a_0)] = E[Y(a_0, a_1)] = \sum_{l_0} E[Y(a_1) \vert A_0 = a_0, L_0 = l_0] P[L_0 = l_0]$$
 
 ---
 
@@ -669,19 +670,19 @@ $$E[\left(Y(a_1)\right)(a_0)] = E[Y(a_0, a_1)] = E[Y(a_1) \vert A_0 = a_0]$$
 
 $$
 \begin{split}
-&Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
-&Y(a_0, a_1) \ci A_0
+&Y(a_0, a_1) \ci A_1 \mid A_0 = a_0, L_1, L_0\\
+&Y(a_0, a_1) \ci A_0 \mid L_0
 \end{split}
 $$
 
-- Now re-write the first relation as $Y(a_1) \ci A_1 \vert A_0 = a_0, L_1$ using consistency. 
+- Now re-write the first relation as $Y(a_1) \ci A_1 \mid A_0 = a_0, L_1, L_0$ using consistency. 
 
 - Then,
 
 $$
 \begin{split}
-E[Y(a_0, a_1)] = &E[Y(a_1) \vert A_0 = a_0]\\
-=& \sum_l E[Y \vert A_1 = a_1, A_0 = a_0, L_1 = l]P[L_1 = l\vert A_0 = a_0]
+&E[Y(a_0, a_1)] = \sum_{l_0} E[Y(a_1) \vert A_0 = a_0, L_0 = l_0] P[L_0 = l_0]\\
+&= \sum_{l_0}\sum_{l_1} E[Y \vert \bar{A}_1 = (a_0, a_1), \bar{L}_1 = (l_0, l_1)]P[L_1 = l\vert A_0 = a_0, L_0 = l_0]P[L_0 = l_0]
 \end{split}
 $$
 
@@ -727,10 +728,6 @@ $$W^A = \prod_{k = 0}^{K} \frac{1}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k})}$$
 - As before, we can stabilize the weights as 
 
 $$SW^A = \prod_{k = 0}^{K} \frac{f(A_k \vert \bar{A}_{k-1})}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k})}$$
-
-- If there are baseline covariates, $L_0$, we can condition on $L_0$ in both numerator and denominator
-
-$$SW^A = \prod_{k = 0}^{K} \frac{f(A_k \vert \bar{A}_{k-1}, L_0)}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k}, L_0)}$$
 
 - Only the model for the denominator needs to be correct. 
 
@@ -1292,9 +1289,9 @@ gform_bin_eof <- gformula(obs_data = dat,
 
 - In the DAG below, the strict null holds - there is no effect of treatment at any time on $Y$. 
 
-- However $Y$ is correlated with $A_0$ and $A_1$ due to the confounder $U$. 
+- However $Y$ is correlated with $A_0$ conditional on $L_1$ due to the confounder $U$ and colliding introduced by conditioning on $L_1$. 
 
-- So $h_Y = E[Y \vert L_1, A_0, A_1]$ will not be constant across values of $A_0$ and $A_1$.
+- This means that $h_Y = E[Y \vert L_1, A_0, A_1]$ will not be constant across values of $A_0$.
 
 - Our estimate of $f(L_1 \vert A_0)$ will also not be a constant function of $A_0$.
 
@@ -1344,12 +1341,12 @@ $$E[Y(a_0, a_1)] = \sum_{l = 0}^1 m(l, a_1, a_0; \theta)e(l, a_0; \beta)  =\\\
 - Under the strict null $E[Y(a_0, a_1)]$ does not depend on $a_0$ and $a_1$. 
 
 - We can see in our model that $\hat{E}[Y(a_0, a_1)]$ always depends on $a_0$ and $a_1$ unless $\theta_2$, $\theta_3$, and $\beta_1$ are all 0. 
-  + But this can't occur because we know $Y$ is correlated with $A_1$ and $A_0$
+  + But this can't occur because we know $Y$ is correlated with $A_0$ given $L_1$, so $\theta_3$ will not be zero. 
+  + We also know $\beta_1$ will not be zero because $A_0$ causes $L_1$. 
   
-- If we had access to $U$ and could model it correctly, this wouldn't be a problem.
+- If we had access to $U$, we could solve this problem by conditioning on $U$ instead of $L_1$.
 
-
-- In our graph, conditioning on $L$ satisfies sequential exchangeability. 
+- In our graph, conditioning on $L_1$ satisfies sequential exchangeability. 
 
 - Our models for $E[Y \vert L_1, A_1, A_0]$ and $P[L_1 = 1 \vert A_0]$ may also be exactly correct.
 

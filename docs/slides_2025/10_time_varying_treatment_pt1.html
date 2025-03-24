@@ -4,31 +4,42 @@
     <title>L12: Time Varying Treatment Part 1</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
-    <script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+    <link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
     <script src="libs/viz-1.8.2/viz.js"></script>
     <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
-    <script src="libs/grViz-binding-1.0.7/grViz.js"></script>
+    <script src="libs/grViz-binding-1.0.11/grViz.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# L12: Time Varying Treatment Part 1
+.title[
+# L12: Time Varying Treatment
+Part 1
+]
+.author[
 ### Jean Morrison
+]
+.institute[
 ### University of Michigan
-### Lecture on 2025-03-19 (updated: 2025-03-18)
+]
+.date[
+### Lecture on 2025-03-19
+(updated: 2025-03-24)
+]
 
 ---
 
@@ -1057,9 +1068,10 @@ $$
 
 
 - The G-Formula for two time points is
-`$$E[Y(a_0, a_1)] = \sum_l E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]f_{L_1 \vert A_0}(l \vert a_0)$$`
+`$$E[Y(a_0, a_1)] = \sum_l E[Y \vert A_0 = a_0, A_1 = a_1, L_1 = l]f_{L_0}(l_0)f_{L_1 \vert A_0}(l_1 \vert a_0)$$`
+- In our previous example, we didn't have an `\(L_0\)` but we include it here for more generality.
 
-- Because the treatment happens at two time points and `\(L_1\)` could happen after `\(A_0\)`, we need to condition on `\(a_0\)` in the density term.
+- Because the treatment happens at two time points and `\(L_1\)` could happen after `\(A_0\)`, we need to condition on `\(a_0\)` in the density term for `\(L_1\)`.
 
 ---
 ## G-Formula for Static Treatment Strategies
@@ -1083,18 +1095,18 @@ $$
 
 $$
 `\begin{split}
-&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
-&amp;Y(a_0, a_1) \ci A_0
+&amp;Y(a_0, a_1) \ci A_1 \mid A_0 = a_0, L_1, L_0\\
+&amp;Y(a_0, a_1) \ci A_0 \mid L_0
 \end{split}`
 $$
 
-- Think of `\(Y(a_0, a_1)\)` as `\(\left(Y(a_1)\right)(a_0)\)`. 
+- Think of `\(Y(a_0, a_1)\)` as `\(Y(a_1)(a_0)\)`. 
 
-- Re-write the second relation as `\(\left(Y(a_1)\right)(a_0) \ci A_0\)`. 
+- Re-write the second relation as `\(Y(a_1)(a_0) \ci A_0 \mid L_0\)`. 
 
 - If we knew `\(Y(a_1)\)`, then using the single time-point G-formula, we could calculate
 
-`$$E[\left(Y(a_1)\right)(a_0)] = E[Y(a_0, a_1)] = E[Y(a_1) \vert A_0 = a_0]$$`
+`$$E[Y(a_1)(a_0)] = E[Y(a_0, a_1)] = \sum_{l_0} E[Y(a_1) \vert A_0 = a_0, L_0 = l_0] P[L_0 = l_0]$$`
 
 ---
 
@@ -1102,19 +1114,19 @@ $$
 
 $$
 `\begin{split}
-&amp;Y(a_0, a_1) \ci A_1 \vert A_0 = a_0, L_1\\
-&amp;Y(a_0, a_1) \ci A_0
+&amp;Y(a_0, a_1) \ci A_1 \mid A_0 = a_0, L_1, L_0\\
+&amp;Y(a_0, a_1) \ci A_0 \mid L_0
 \end{split}`
 $$
 
-- Now re-write the first relation as `\(Y(a_1) \ci A_1 \vert A_0 = a_0, L_1\)` using consistency. 
+- Now re-write the first relation as `\(Y(a_1) \ci A_1 \mid A_0 = a_0, L_1, L_0\)` using consistency. 
 
 - Then,
 
 $$
 `\begin{split}
-E[Y(a_0, a_1)] = &amp;E[Y(a_1) \vert A_0 = a_0]\\
-=&amp; \sum_l E[Y \vert A_1 = a_1, A_0 = a_0, L_1 = l]P[L_1 = l\vert A_0 = a_0]
+&amp;E[Y(a_0, a_1)] = \sum_{l_0} E[Y(a_1) \vert A_0 = a_0, L_0 = l_0] P[L_0 = l_0]\\
+&amp;= \sum_{l_0}\sum_{l_1} E[Y \vert \bar{A}_1 = (a_0, a_1), \bar{L}_1 = (l_0, l_1)]P[L_1 = l\vert A_0 = a_0, L_0 = l_0]P[L_0 = l_0]
 \end{split}`
 $$
 
@@ -1807,8 +1819,8 @@ from the original data.
 - Our estimate of `\(f(L_1 \vert A_0)\)` will also not be a constant function of `\(A_0\)`.
 
 &lt;center&gt;
-<div id="htmlwidget-50d6a96a141796ba2e80" style="width:504px;height:252px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-50d6a96a141796ba2e80">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-731dcf4b0755b062f25a" style="width:504px;height:252px;"></div>
+<script type="application/json" data-for="htmlwidget-731dcf4b0755b062f25a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1859,8 +1871,8 @@ from the original data.
 
 
 &lt;center&gt;
-<div id="htmlwidget-101ac2ea064b30cd9e56" style="width:504px;height:234px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-101ac2ea064b30cd9e56">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fontcolor = \"black\", color = \"black\", fillcolor = \"#FFFFFF\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-39804a5d5efa5c817d9d" style="width:504px;height:234px;"></div>
+<script type="application/json" data-for="htmlwidget-39804a5d5efa5c817d9d">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1948,6 +1960,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
