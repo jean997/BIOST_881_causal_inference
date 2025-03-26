@@ -1,4 +1,3 @@
-base
 xaringanthemer
 tidyverse
 ggplot2
@@ -14,3 +13,4 @@ kableExtra
 sandwich
 gfoRmula
 gesttools
+lubridate

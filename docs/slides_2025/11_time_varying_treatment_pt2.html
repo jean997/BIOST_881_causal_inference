@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L11: Time Varying Treatment Part 2</title>
+    <title>L13: Time Varying Treatment Part 2</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# L11: Time Varying Treatment Part 2
+.title[
+# L13: Time Varying Treatment
+Part 2
+]
+.author[
 ### Jean Morrison
+]
+.institute[
 ### University of Michigan
-### 2023-02-22 (updated: 2024-03-13)
+]
+.date[
+### 2025-03-26
+(updated: 2025-03-26)
+]
 
 ---
 
@@ -40,22 +50,23 @@ class: center, middle, inverse, title-slide
 ---
 ## G-Estimation
 
-- Recall from L8, in G-estimation for a single time-point, we start by writing a semiparametric structural mean model for the contrast of interest, 
+- Review from L9: In G-estimation for a single time-point, we start by writing a semiparametric structural mean model for the contrast of interest, 
 
 `$$E[Y(a) \vert A = a, L=l]-E[Y(0)\vert A = a, L=l] = \gamma(a, l; \beta)$$`
 - We then define the `\(H\)` function, `\(H_i(x) = Y_i - \gamma(A_i, L_i; x)\)`.
 
-- Finally, we find the value of `\(x\)` that makes `\(H(x)\)` orthogonal to `\(A \vert L\)` by either solving an estimating equation doing a grid search.
+- Finally, we find the value of `\(x\)` that makes `\(H(x)\)` orthogonal to `\(A \mid L\)` by either solving an estimating equation or doing a grid search.
+  
 
 
 ---
 ## G-Estimation
 
-- Starting with the two time-point model, we will use the same strategy as in L8 but we will write two semiparametric structural mean models.
+- Starting with the two time-point model, we will use the same strategy, but we will write two semiparametric structural mean models.
 
 $$
 `\begin{split}
-&amp;E[Y(a_0, 0) - Y(0, 0) &amp;\vert A_0 = a_0, L_0= l_0] = \gamma_0(a_0, l_0; \beta_0) = \beta_0 a_0\\
+&amp;E[Y(a_0, 0) - Y(0, 0) &amp;\vert A_0 = a_0, L_0= l_0] = \gamma_0(a_0, l_0; \beta_0)\\
 &amp;E[Y(a_0, a_1) - Y(a_0, 0) &amp;\vert L_1(a_0) = l_1, L_0 = l_0, A_0 = a_0, A_1(a_0) = a_1] \\
 &amp;&amp;= \gamma_1(a_0, a_1, l_1, l_0; \beta_1) \\
 \end{split}`
@@ -65,8 +76,8 @@ $$
 
 $$
 `\begin{split}
-\gamma_0(a_0; \beta_0) = \beta_0 a_0\\
-\gamma_1(a_0, a_1, l_1, l_0; \beta_1) = a_1(\beta_{1,1} + \beta_{1,2}l_1 + \beta_{1,3}a_0 + \beta_{1,4}a_0l_1)
+&amp;\gamma_0(a_0; \beta_0) = \beta_0 a_0\\
+&amp;\gamma_1(a_0, a_1, l_1, l_0; \beta_1) = a_1(\beta_{1,1} + \beta_{1,2}l_1 + \beta_{1,3}a_0 + \beta_{1,4}a_0l_1)
 \end{split}`
 $$
 - By consistency, we can re-write the second equation as 
@@ -102,7 +113,7 @@ $$
 $$
 `\begin{split}
 &amp;E[Y(a_0, 0) - Y(0, 0) &amp;\vert L_0= l_0] = \gamma_0(a_0, l_0; \beta_0) \\
-&amp;E[Y(a_0, a_1) - Y(a_0, 0) &amp;\vert L_1 = l_1, L_0= l_0, A_0 = a_0, ] \\
+&amp;E[Y(a_0, a_1) - Y(a_0, 0) &amp;\vert L_1 = l_1, L_0= l_0, A_0 = a_0 ] \\
 &amp;&amp;= \gamma_1(a_0, a_1, l_1, l_0; \beta_1)
 \end{split}`
 $$
@@ -118,7 +129,7 @@ $$
 $$
 - Note the top statement applies only to units with `\(A_{0,i} = a_0\)`.
 
-- These are structural **nested** mean models because the left side of the top equation appears in the bottom equation.
+- These are structural **nested** mean models because the left side of the top equation appears on the right in the bottom equation.
 
 ---
 ## G-Estimation
@@ -133,7 +144,7 @@ H_{0,i}(x) = H_{1,i}(x) - \gamma_0(A_{0,i}, L_{0,i}; x)
 $$
 - Here `\(x\)` is a combined vector of parameters in both equations.
 
-- Just as before, our goal is to find a value for `\(x\)` that makes mean sequential exchangeability true. 
+- Our goal is to find a value for `\(x\)` that makes mean sequential exchangeability true. 
 
 ---
 ## G-Estimation
@@ -152,20 +163,20 @@ $$
 ---
 ## Considerations
 
-- Remember, in G-Estimation we are working with structural nested mean models **not** structural marginal models, these models are conditional on covariates.
+- Remember, in G-Estimation we are working with **conditional** structural mean models **not** marginal structural models. Our models are conditional on confounders.
 
-- This means we need to get the effect modification model right.
+- If there is any effect modification by confounders, we need to model it correctly.
 
 - In the time-varying case, we also need to think about effect modification by past treatment. 
 
-- We could quickly acquire many coefficients, so using the grid search method will become infeasible, we will have to use the estimating equations.
+- We could quickly acquire many coefficients, so using the grid search method will become infeasible. We will have to use the estimating equations.
 
 ---
 ## Estimation
 
 - Once we have estimated all the parameters of the structural nested mean models, we need to estimate `\(E[Y(\bar{a})]\)`.
 
-- `\(E[H_0(x^\star)] = E[Y(\bar{0})]\)` at the true value of `\(x^\star\)`, so we can estimate `\(E[Y(\bar{0})]\)` as the sample average of `\(H_{0, i}(\hat{x})\)`.
+- `\(E[H_{0,i}(x^\star)] = E[Y(\bar{0}) \vert L_0 = L_{0,i}]\)` at the true value of `\(x^\star\)`, so we can estimate `\(E[Y(\bar{0})]\)` as the sample average of `\(H_{0, i}(\hat{x})\)`.
 
 - For other values, we can plug into our nested models.
 
@@ -174,7 +185,7 @@ $$
 ---
 ## Estimation
 
-- Suppose we want to estimat `\(E[Y(a_0, a_1)]\)`. 
+- Suppose we want to estimate `\(E[Y(a_0, a_1)]\)`. 
 
 - We know that we can estimate `\(E[Y(0, 0)]\)` as `\(\frac{1}{N}\sum_{i = 1}^N H_{0, i}(\hat{x})\)`.
 
@@ -185,9 +196,9 @@ so we can find `\(\hat{E}[Y(a_0, 0)]\)` as
 
 $$
 `\begin{split}
-\hat{E}[Y(a_{0}, 0) ] &amp;= \hat{E}_{L_0}[Y(a_0, 0) \vert L_{0} = l_0] \\
-&amp;= \hat{E}_{L_0}[Y(0, 0)] + E_{L_0}[\gamma_0(a_0, l_0; \hat{x})]\\
-&amp;= \frac{1}{N}\sum_{i = 1}^N H_{0, i}(\hat{x}) + \frac{1}{N}\sum_{i = 1}^N \gamma_0(a_0, l_{0, i}; \hat{x})
+\hat{E}[Y(a_{0}, 0) ] &amp;= \int_{l_0}\hat{E}[Y(a_0, 0) \vert L_{0} = l_0]dF(l_0) \\
+&amp;= \int_{l_0}\left(\hat{E}[Y(0, 0) \vert L_0 = l_0] + \hat{\gamma}_0(a_0, l_0; \beta) \right)dF(l_0)\\
+&amp;= \frac{1}{N}\sum_{i = 1}^N H_{0, i}(\hat{x}) + \frac{1}{N}\sum_{i = 1}^N \gamma_0(a_0, L_{0, i}; \hat{x})
 \end{split}`
 $$
 ---
@@ -206,12 +217,14 @@ $$
 
 $$
 `\begin{split}
-\hat{E}[Y(a_{0}, a_1) ] &amp;= \hat{E}_{\bar{L}_1}[Y(a_0, a_1) \vert \bar{L}_1, A_{0}= a_0] \\
-&amp;= \hat{E}[Y(a_0, 0)] + \frac{1}{N}\sum_{i = 1}^N \gamma_1(\bar{a}_1, l_{0, i}, l_{1,i}(a_0); \hat{x})
+\hat{E}[Y(a_{0}, a_1) ] &amp;= 
+\int_{\bar{l}_1(a_0)} \hat{E}[Y(a_0, a_1) \vert \bar{L}_1 = \bar{l}_1(a_0), A_{0}= a_0]dF(\bar{l}_1(a_0)) \\
+&amp;= \hat{E}[Y(a_0, 0)] + \frac{1}{N}\sum_{i = 1}^N \gamma_1(\bar{a}_1, L_{0, i}, L_{1,i}(a_0); \hat{x})
 \end{split}`
 $$
 
 - In the last step, we need to average over the counterfactual distribution of `\(L_1\)`, so we need to simulate from an estimated distribution of `\(L_1 \vert L_0, A_0\)`.
+  + We also had to do this for time-varying G-computation.
 
 ---
 ## General Estimation Procedure
@@ -226,7 +239,7 @@ $$
 
 - Step 4: Compute `\(\hat{E}[Y(\bar{a})] = \hat{E}[Y(\bar{0})] + \sum_{k = 0}^K \frac{1}{N}\sum_{i = 1}^{N}\gamma_k(\bar{a}_k, \bar{l}_{i,k}(\bar{a}_{k-1}; \hat{x}))\)`
 
-- Just as in G-computation, we don't have to limit our simulated data size to the orignal data size. We can resample many times.
+- Just as in G-computation, we don't have to limit our simulated data size to the original data size. We can resample many times.
 
 ---
 ## Iterated Conditional Expectation Estimators
@@ -473,9 +486,9 @@ OR
    &lt;th style="text-align:right;"&gt; A0 &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; A1 &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; A2 &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; MeanY &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; E[Y | A] &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; MeanCounterfactualY &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; E[Y(A)] &lt;/th&gt;
   &lt;/tr&gt;
  &lt;/thead&gt;
 &lt;tbody&gt;
@@ -512,16 +525,16 @@ OR
 - For IP weighting we need a propensity model for each time point.
   
 
-```r
+``` r
 ## Fitting separate models
-f0 &lt;- glm(A.0 ~ L.0, family = "binomial", data = dat3)
-f1 &lt;- glm(A.1 ~ A.0 + L.1, family = "binomial", data = dat3)
-f2 &lt;- glm(A.2 ~ A.1 + L.2, family = "binomial", data = dat3)
+f0 &lt;- glm(A.0 ~ L.0, family = "binomial", data = sim_dat)
+f1 &lt;- glm(A.1 ~ A.0 + L.1, family = "binomial", data = sim_dat)
+f2 &lt;- glm(A.2 ~ A.1 + L.2, family = "binomial", data = sim_dat)
 
 ## For numerator of stabilized weights
-s0 &lt;- glm(A.0 ~ 1, family = "binomial", data = dat3)
-s1 &lt;-  glm(A.1 ~ A.0 , family = "binomial", data = dat3)
-s2 &lt;- glm(A.2 ~ A.1, family = "binomial", data = dat3)
+s0 &lt;- glm(A.0 ~ 1, family = "binomial", data = sim_dat)
+s1 &lt;-  glm(A.1 ~ A.0 , family = "binomial", data = sim_dat)
+s2 &lt;- glm(A.2 ~ A.1, family = "binomial", data = sim_dat)
 ```
 
 - We could also have estimated these in a combined model in long format data. 
@@ -533,15 +546,15 @@ s2 &lt;- glm(A.2 ~ A.1, family = "binomial", data = dat3)
 - Next we compute the weights:
 
 
-```r
-dat3$pA.0 &lt;- predict(f0, type = "response")
-dat3$pA.1 &lt;- predict(f1, type = "response")
-dat3$pA.2 &lt;- predict(f2, type = "response")
-dat3$sA.0 &lt;- predict(s0, type = "response")
-dat3$sA.1 &lt;- predict(s1, type = "response")
-dat3$sA.2 &lt;- predict(s2, type = "response")
+``` r
+sim_dat$pA.0 &lt;- predict(f0, type = "response")
+sim_dat$pA.1 &lt;- predict(f1, type = "response")
+sim_dat$pA.2 &lt;- predict(f2, type = "response")
+sim_dat$sA.0 &lt;- predict(s0, type = "response")
+sim_dat$sA.1 &lt;- predict(s1, type = "response")
+sim_dat$sA.2 &lt;- predict(s2, type = "response")
 
-dat3 &lt;- dat3 %&gt;% mutate(W.0 = case_when(A.0 == 1 ~ sA.0/pA.0, 
+sim_dat &lt;- sim_dat %&gt;% mutate(W.0 = case_when(A.0 == 1 ~ sA.0/pA.0, 
                                TRUE ~ (1-sA.0)/(1-pA.0)),
                        W.1 = case_when(A.1 == 1 ~ sA.1/pA.1, 
                                        TRUE ~ (1-sA.1)/(1-pA.1)), 
@@ -557,7 +570,7 @@ dat3 &lt;- dat3 %&gt;% mutate(W.0 = case_when(A.0 == 1 ~ sA.0/pA.0,
 - Finally, we fit a marginal structural model and retrieve the fitted values for the treatment courses of interest.
 
 
-```r
+``` r
 library(sandwich)
 ## data for extracting fitted values
 newdat &lt;- data.frame(A.0 = c(0, 0, 1), 
@@ -567,15 +580,15 @@ get_est &lt;- function(msm){
       se.fit = TRUE, vcov. = vcovHC(msm, type = "HC0"))
 }
 ## fit saturated marginal structural model
-f_msm1 &lt;- lm(Y ~ A.0*A.1*A.2, weights = W,  data = dat3)
+f_msm1 &lt;- lm(Y ~ A.0*A.1*A.2, weights = W,  data = sim_dat)
 ipw_est1 &lt;- get_est(f_msm1)
 
 ## fit parametric but correct marginal structural model
-f_msm2 &lt;- lm(Y ~ A.0 + A.1 + A.2,  weights = W, data = dat3)
+f_msm2 &lt;- lm(Y ~ A.0 + A.1 + A.2,  weights = W, data = sim_dat)
 ipw_est2 &lt;- get_est(f_msm2)
 
 ## fit parametric and incorrect marginal structural model
-f_msm3 &lt;- lm(Y ~ I(A.0 + A.1 + A.2),  weights = W, data = dat3)
+f_msm3 &lt;- lm(Y ~ I(A.0 + A.1 + A.2),  weights = W, data = sim_dat)
 ipw_est3 &lt;- get_est(f_msm3)
 ```
 
@@ -623,7 +636,7 @@ ipw_est3 &lt;- get_est(f_msm3)
 - I used the `gfoRmula` R package. First we specify arguments.
 
 
-```r
+``` r
 library(gfoRmula)
 
 id &lt;- 'id'
@@ -648,13 +661,13 @@ intvars &lt;- list('A', 'A', 'A')
 - The gformula will perform boostrapping for us. This can take a bit of time.
 
 
-```r
+``` r
 interventions &lt;- list(list(c(static, c(0, 0, 0))),
                       list(c(static, c(0, 1, 1))), 
                       list(c(static, c(1, 1, 1))))
 int_descript &lt;- c('Never treat', 'Treat last 2', 'Always treat')
 nsimul &lt;- 10000 # number of data points to simulate
-gform_result &lt;- gformula(obs_data = dat3_long, id = id,
+gform_result &lt;- gformula(obs_data = sim_dat_long, id = id,
                         time_points = time_points,
                         time_name = time_name, covnames = covnames,
                         outcome_name = outcome_name,
@@ -677,7 +690,7 @@ gform_result &lt;- gformula(obs_data = dat3_long, id = id,
 ## Parametric G-Formula
 
 
-```r
+``` r
 gform_result
 ```
 
@@ -695,22 +708,26 @@ gform_result
 ## Reference intervention = natural course (0)
 ##  
 ## 
-##  k Interv.    NP mean g-form mean    Mean SE Mean lower 95% CI
-##  2       0 -0.1395253 -0.14256824 0.01265358       -0.16736880
-##  2       1         NA -0.23747779 0.01190050       -0.26080235
-##  2       2         NA  0.08631253 0.01425984        0.05836376
-##  2       3         NA -0.11377756 0.01673769       -0.14658282
+##      k Interv.    NP mean g-form mean    Mean SE Mean lower 95% CI
+##  &lt;num&gt;   &lt;num&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;             &lt;num&gt;
+##      2       0 -0.1395253 -0.14256824 0.01265358       -0.16736880
+##      2       1         NA -0.23747779 0.01190050       -0.26080235
+##      2       2         NA  0.08631253 0.01425984        0.05836376
+##      2       3         NA -0.11377756 0.01673769       -0.14658282
 ##  Mean upper 95% CI Mean ratio      MR SE MR lower 95% CI MR upper 95% CI
+##              &lt;num&gt;      &lt;num&gt;      &lt;num&gt;           &lt;num&gt;           &lt;num&gt;
 ##        -0.11776769  1.0000000 0.00000000      -0.1425682     -0.14256824
 ##        -0.21415324  1.6657131 0.11596470      -0.4647644     -0.01019116
 ##         0.11426129 -0.6054120 0.15205057      -0.2117011      0.38432618
 ##        -0.08097229  0.7980568 0.06517407      -0.2415164      0.01396128
 ##  Mean difference       MD SE MD lower 95% CI MD upper 95% CI % Intervened On
+##            &lt;num&gt;       &lt;num&gt;           &lt;num&gt;           &lt;num&gt;           &lt;num&gt;
 ##       0.00000000 0.000000000     -0.14256824     -0.14256824            0.00
 ##      -0.09490955 0.009954584     -0.25698842     -0.21796717           87.44
 ##       0.22888077 0.008794431      0.06907576      0.10354929           85.49
 ##       0.02879069 0.008262831     -0.12997241     -0.09758271           78.54
 ##  Aver % Intervened On
+##                 &lt;num&gt;
 ##               0.00000
 ##              50.95333
 ##              46.52667
@@ -764,13 +781,13 @@ gform_result
 ## G-Estimation
 
 
-```r
+``` r
 library(gesttools)
 # time must start from 1
-dat3_long$time &lt;- dat3_long$time+ 1
+sim_dat_long$time &lt;- sim_dat_long$time+ 1
 
-dat3_gest &lt;- FormatData(
-  data = data.frame(dat3_long),
+sim_dat_gest &lt;- FormatData(
+  data = data.frame(sim_dat_long),
   idvar = "id", timevar = "time", An = "A",
   varying = c("A", "L"), 
   GenerateHistory = TRUE, GenerateHistoryMax = 2
@@ -792,11 +809,11 @@ propensitymodel &lt;- c("A~L+Lag1A")
 - `type = 4` allows a time-varying causal effect and effect modification.
 
 
-```r
+``` r
 outcomemodels &lt;- list("Y~A + L + A*L", 
                       "Y~A + L + A*L", 
                       "Y~A + L + A*L")
-gest_result &lt;- gestSingle(dat3_gest, idvar, timevar, Yn, An, 
+gest_result &lt;- gestSingle(sim_dat_gest, idvar, timevar, Yn, An, 
                           Cn, outcomemodels, propensitymodel,
                           censoringmodel = NULL, 
                           type = 4, EfmVar= c("L"), cutoff = NA
@@ -815,7 +832,7 @@ gest_result$psi
 - To calculate `\(E[Y(\bar{a})]\)`, we are on our own.
 
 
-```r
+``` r
 ## gamma functions
 g0 &lt;- function(A.0, L.0){
   gest_result$psi[1]*A.0 + gest_result$psi[2]*A.0*L.0
@@ -828,10 +845,10 @@ g2 &lt;- function(A.2, L.2){
 }
 
 ## Calculate H0 for everyone
-dat3$H2 &lt;- with(dat3, Y - g2(A.2, L.2))
-dat3$H1 &lt;- with(dat3, H2 - g1(A.1, L.1))
-dat3$H0 &lt;- with(dat3, H1 - g0(A.0, L.0))
-mean(dat3$H0)
+sim_dat$H2 &lt;- with(sim_dat, Y - g2(A.2, L.2))
+sim_dat$H1 &lt;- with(sim_dat, H2 - g1(A.1, L.1))
+sim_dat$H0 &lt;- with(sim_dat, H1 - g0(A.0, L.0))
+mean(sim_dat$H0)
 ```
 
 ```
@@ -844,16 +861,16 @@ mean(dat3$H0)
 - To estimate `\(E[Y(0, 1, 1)]\)` and `\([Y(1, 1, 1)]\)`, we need to estimate the distribution of `\(L_1\)` and `\(L_2\)`.
 
 
-```r
+``` r
 ## now we need distribution models for L1 and L2
-fl1 &lt;- lm(L.1 ~ A.0 + L.0, data = dat3)
+fl1 &lt;- lm(L.1 ~ A.0 + L.0, data = sim_dat)
 rl1 &lt;- function(nsamp, A.0, L.0){
   c &lt;- fl1$coefficients
   rnorm(n = nsamp, 
         mean = c[1] + c[2]*A.0 + c[3]*L.0, 
         sd = sd(fl1$residuals))
 }
-fl2 &lt;- lm(L.2 ~ A.1 + L.1, data = dat3)
+fl2 &lt;- lm(L.2 ~ A.1 + L.1, data = sim_dat)
 rl2 &lt;- function(nsamp, A.1, L.1){
   c &lt;- fl2$coefficients
   rnorm(n = nsamp, 
@@ -866,22 +883,22 @@ rl2 &lt;- function(nsamp, A.1, L.1){
 ## G-Estimation
 
 
-```r
+``` r
 gest_mean &lt;- function(a0, a1, a2, nrep = 10){
  sim_dat &lt;- purrr::map_dfr(1:nrep, function(i){
-    simdat3 &lt;- dat3
-    n &lt;- nrow(simdat3)
-    simdat3$A.0 &lt;- a0
-    simdat3$L.1 &lt;- with(simdat3, 
+    simsim_dat &lt;- sim_dat
+    n &lt;- nrow(simsim_dat)
+    simsim_dat$A.0 &lt;- a0
+    simsim_dat$L.1 &lt;- with(simsim_dat, 
                         rl1(nsamp = n, A.0 = A.0, L.0 = L.0))
-    simdat3$A.1 &lt;- a1
-    simdat3$L.2 &lt;- with(simdat3, 
+    simsim_dat$A.1 &lt;- a1
+    simsim_dat$L.2 &lt;- with(simsim_dat, 
                         rl2(nsamp = n, A.1 = A.1, L.1 = L.1))
-    simdat3$A.2 &lt;- a2
-    simdat3$Y &lt;- with(simdat3, H0 + g0(A.0, L.0) + 
+    simsim_dat$A.2 &lt;- a2
+    simsim_dat$Y &lt;- with(simsim_dat, H0 + g0(A.0, L.0) + 
                                     g1(A.1, L.1) + 
                                     g2(A.2, L.2))
-    return(simdat3)
+    return(simsim_dat)
   })
   return(mean(sim_dat$Y))
 }
@@ -890,7 +907,7 @@ gest_mean &lt;- function(a0, a1, a2, nrep = 10){
 ## G-Estimation
 
 
-```r
+``` r
 gest_mean(0, 1,1, nrep = 10)
 ```
 
@@ -898,7 +915,7 @@ gest_mean(0, 1,1, nrep = 10)
 ## [1] 0.1006678
 ```
 
-```r
+``` r
 gest_mean(1, 1,1, nrep = 10)
 ```
 
@@ -971,13 +988,13 @@ gest_mean(1, 1,1, nrep = 10)
 ## ICE Estimation
 
 
-```r
+``` r
 fit_ice_stratified &lt;- function(a0, a1, a2, dat){
   ## Recall Q4 = Y
   Q3mod &lt;- glm(Y ~ Z + L.0 + L.1 + L.2, data = dat, 
              subset = which(dat$A.2 == a2 &amp; 
                               dat$A.1 == a1 &amp; dat$A.0 == a0))
-  dat$Q3 &lt;- predict(Q3mod, newdata = dat3, type = "response")
+  dat$Q3 &lt;- predict(Q3mod, newdata = sim_dat, type = "response")
   
   Q2mod &lt;- glm(Q3 ~ Z + L.0 + L.1, data = dat, 
                subset = which( dat$A.1 == a1 &amp; dat$A.0 == a0) )
@@ -994,7 +1011,7 @@ fit_ice_stratified &lt;- function(a0, a1, a2, dat){
 ## ICE Estimation
 
 
-```r
+``` r
 fit_ice_nonstratified &lt;- function(a0, a1, a2, dat){
   dat.copy &lt;- dat
   dat.copy$A.0 &lt;- a0
@@ -1017,20 +1034,20 @@ fit_ice_nonstratified &lt;- function(a0, a1, a2, dat){
 ## ICE Estimation
 
 
-```r
-c(fit_ice_stratified(0, 0, 0, dat3), 
-  fit_ice_stratified(0, 1, 1, dat3),
- fit_ice_stratified(1, 1, 1, dat3))
+``` r
+c(fit_ice_stratified(0, 0, 0, sim_dat), 
+  fit_ice_stratified(0, 1, 1, sim_dat),
+ fit_ice_stratified(1, 1, 1, sim_dat))
 ```
 
 ```
 ## [1] -0.23663412  0.07712922 -0.10809774
 ```
 
-```r
-c(fit_ice_nonstratified(0, 0, 0, dat3),
-  fit_ice_nonstratified(0, 1, 1, dat3),
-  fit_ice_nonstratified(1, 1, 1, dat3))
+``` r
+c(fit_ice_nonstratified(0, 0, 0, sim_dat),
+  fit_ice_nonstratified(0, 1, 1, sim_dat),
+  fit_ice_nonstratified(1, 1, 1, sim_dat))
 ```
 
 ```
@@ -1411,6 +1428,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
