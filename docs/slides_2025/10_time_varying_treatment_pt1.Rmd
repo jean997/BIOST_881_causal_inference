@@ -1332,25 +1332,23 @@ $$P(L_1 = 1 \vert a_0) = e(L_1 = 1, A_0; \beta)  = \frac{\exp(\beta_0 + \beta_1 
 - Plugging into the g-formula
 
 $$E[Y(a_0, a_1)] = \sum_{l = 0}^1 m(l, a_1, a_0; \theta)e(l, a_0; \beta)  =\\\ 
-(\theta_0 + \theta_2 a_1 + \theta_3 a_0 + \theta_1) \frac{\exp(\beta_0 + \beta_1 a_0)}{1 + \exp(\beta_0 + \beta_1 a_0)}$$
+\theta_0 + \theta_2 a_1 + \theta_3 a_0 + \theta_1 \frac{\exp(\beta_0 + \beta_1 a_0)}{1 + \exp(\beta_0 + \beta_1 a_0)}$$
 
 
 ---
 ## G-Null Paradox 
 
-- Under the strict null $E[Y(a_0, a_1)]$ does not depend on $a_0$ and $a_1$. 
-
-- We can see in our model that $\hat{E}[Y(a_0, a_1)]$ always depends on $a_0$ and $a_1$ unless $\theta_2$, $\theta_3$, and $\beta_1$ are all 0. 
-  + But this can't occur because we know $Y$ is correlated with $A_0$ given $L_1$, so $\theta_3$ will not be zero. 
+- In our model that $\hat{E}[Y(a_0, a_1)]$ depends on $a_0$ and $a_1$ unless $\theta_2$, $\theta_3$, and $\beta_1$ are all 0. 
+  + We know $Y$ is correlated with $A_0$ given $L_1$, so $\theta_3$ will not be zero. 
   + We also know $\beta_1$ will not be zero because $A_0$ causes $L_1$. 
-  
-- If we had access to $U$, we could solve this problem by conditioning on $U$ instead of $L_1$.
 
 - In our graph, conditioning on $L_1$ satisfies sequential exchangeability. 
 
-- Our models for $E[Y \vert L_1, A_1, A_0]$ and $P[L_1 = 1 \vert A_0]$ may also be exactly correct.
+- Our models for $E[Y \vert L_1, A_1, A_0]$ and $P[L_1 = 1 \vert A_0]$ may also be correctly specified.
 
 - And yet, the combined model used implicitly by the parametric G-formula method does not include the strict null!
+
+- If we had access to $U$, we could solve this problem by conditioning on $U$ instead of $L_1$.
 
 ---
 ## Beyond the Strict Null

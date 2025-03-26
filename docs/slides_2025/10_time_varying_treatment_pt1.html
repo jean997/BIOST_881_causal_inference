@@ -38,7 +38,7 @@ Part 1
 ]
 .date[
 ### Lecture on 2025-03-19
-(updated: 2025-03-24)
+(updated: 2025-03-26)
 ]
 
 ---
@@ -1173,10 +1173,6 @@ or
 
 `$$SW^A = \prod_{k = 0}^{K} \frac{f(A_k \vert \bar{A}_{k-1})}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k})}$$`
 
-- If there are baseline covariates, `\(L_0\)`, we can condition on `\(L_0\)` in both numerator and denominator
-
-`$$SW^A = \prod_{k = 0}^{K} \frac{f(A_k \vert \bar{A}_{k-1}, L_0)}{f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k}, L_0)}$$`
-
 - Only the model for the denominator needs to be correct. 
 
 ---
@@ -1812,15 +1808,15 @@ from the original data.
 
 - In the DAG below, the strict null holds - there is no effect of treatment at any time on `\(Y\)`. 
 
-- However `\(Y\)` is correlated with `\(A_0\)` and `\(A_1\)` due to the confounder `\(U\)`. 
+- However `\(Y\)` is correlated with `\(A_0\)` conditional on `\(L_1\)` due to the confounder `\(U\)` and colliding introduced by conditioning on `\(L_1\)`. 
 
-- So `\(h_Y = E[Y \vert L_1, A_0, A_1]\)` will not be constant across values of `\(A_0\)` and `\(A_1\)`.
+- This means that `\(h_Y = E[Y \vert L_1, A_0, A_1]\)` will not be constant across values of `\(A_0\)`.
 
 - Our estimate of `\(f(L_1 \vert A_0)\)` will also not be a constant function of `\(A_0\)`.
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item" id="htmlwidget-731dcf4b0755b062f25a" style="width:504px;height:252px;"></div>
-<script type="application/json" data-for="htmlwidget-731dcf4b0755b062f25a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-91d825a3f0aa64587b77" style="width:504px;height:252px;"></div>
+<script type="application/json" data-for="htmlwidget-91d825a3f0aa64587b77">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1838,7 +1834,7 @@ from the original data.
 - Plugging into the g-formula
 
 `$$E[Y(a_0, a_1)] = \sum_{l = 0}^1 m(l, a_1, a_0; \theta)e(l, a_0; \beta)  =\\\ 
-(\theta_0 + \theta_2 a_1 + \theta_3 a_0 + \theta_1) \frac{\exp(\beta_0 + \beta_1 a_0)}{1 + \exp(\beta_0 + \beta_1 a_0)}$$`
+\theta_0 + \theta_2 a_1 + \theta_3 a_0 + \theta_1 \frac{\exp(\beta_0 + \beta_1 a_0)}{1 + \exp(\beta_0 + \beta_1 a_0)}$$`
 
 
 ---
@@ -1847,12 +1843,12 @@ from the original data.
 - Under the strict null `\(E[Y(a_0, a_1)]\)` does not depend on `\(a_0\)` and `\(a_1\)`. 
 
 - We can see in our model that `\(\hat{E}[Y(a_0, a_1)]\)` always depends on `\(a_0\)` and `\(a_1\)` unless `\(\theta_2\)`, `\(\theta_3\)`, and `\(\beta_1\)` are all 0. 
-  + But this can't occur because we know `\(Y\)` is correlated with `\(A_1\)` and `\(A_0\)`
+  + But this can't occur because we know `\(Y\)` is correlated with `\(A_0\)` given `\(L_1\)`, so `\(\theta_3\)` will not be zero. 
+  + We also know `\(\beta_1\)` will not be zero because `\(A_0\)` causes `\(L_1\)`. 
   
-- If we had access to `\(U\)` and could model it correctly, this wouldn't be a problem.
+- If we had access to `\(U\)`, we could solve this problem by conditioning on `\(U\)` instead of `\(L_1\)`.
 
-
-- In our graph, conditioning on `\(L\)` satisfies sequential exchangeability. 
+- In our graph, conditioning on `\(L_1\)` satisfies sequential exchangeability. 
 
 - Our models for `\(E[Y \vert L_1, A_1, A_0]\)` and `\(P[L_1 = 1 \vert A_0]\)` may also be exactly correct.
 
@@ -1871,8 +1867,8 @@ from the original data.
 
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item" id="htmlwidget-39804a5d5efa5c817d9d" style="width:504px;height:234px;"></div>
-<script type="application/json" data-for="htmlwidget-39804a5d5efa5c817d9d">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-284d38ad8ef98535f5e8" style="width:504px;height:234px;"></div>
+<script type="application/json" data-for="htmlwidget-284d38ad8ef98535f5e8">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
