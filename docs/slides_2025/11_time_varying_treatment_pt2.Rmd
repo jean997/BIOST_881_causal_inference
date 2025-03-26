@@ -477,7 +477,7 @@ library(kableExtra)
 set.seed(10)
 
 generate_data <- function(n){
-    dat <- data.frame(id = 1:n,
+  dat <- data.frame(id = 1:n,
                      Z = rbinom(n = n, size = 1, prob = 0.5))
   dat$L.0 <- 0.4*dat$Z + rnorm(n = n)
   for(i in 0:2){
@@ -842,7 +842,7 @@ gest_mean(1, 1,1, nrep = 10)
 ---
 ## G-Estimation
 
-- I bootstrapped the standard error (code hidden but you can find it here).
+- I bootstrapped the standard error (code hidden but you can find it [here](https://github.com/jean997/BIOST_881_causal_inference/blob/master/docs/slides_2025/11_time_varying_treatment_pt2.Rmd)).
 
 ```{r, echo = FALSE}
 gestfunc <- function(dat){
