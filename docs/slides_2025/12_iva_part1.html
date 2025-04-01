@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L12: Instrumental Variable Analysis Part 1</title>
+    <title>L14: Instrumental Variable Analysis Part 1</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -20,7 +20,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L12: Instrumental Variable Analysis
+# L14: Instrumental Variable Analysis
 Part 1
 ]
 .author[
@@ -30,8 +30,8 @@ Part 1
 ### University of Michigan
 ]
 .date[
-### Lecture Starting 2024-03-25
-(updated: 2024-03-25)
+### 2025-04-02
+(updated: 2025-04-01)
 ]
 
 ---
@@ -93,7 +93,7 @@ $$ A \ci Y(a) \vert L$$
 + Regression discontinuity
   - Useful when exposure is determined by a threshold on a continuous measure. 
 
-+ If we have time, we might do some introduction of the last three. 
++ We will not cover the last three in this class.
 
 ---
 ## IVA Motivation
@@ -140,7 +140,7 @@ $$ A \ci Y(a) \vert L$$
 
 --
 
-- Problem: `\(E[Y(z)]\)` isn't the effect we want, and measurements on `\(U\)` may not be available.   
+- Problem: `\(E[Y(z)]\)` isn't the effect we want, and measurements of `\(U\)` may not be available.   
   
 --
 
@@ -575,7 +575,7 @@ Argument:
 Angrist and Kruger consider these options:
 
 - Men born in the first quarter might get more out of their education because they are older than their peers. 
-  + If this affect increases wages, it would create a negative bias in the IV estimate. 
+  + This could increase wages for men born in the first quarter, leading to a negative bias in the IV estimate. 
   
 - Season of birth could be related to socioeconomic status. 
   + Angrist and Kruger reject this idea based on previous research. 
@@ -592,7 +592,7 @@ A_i(1) \leq A_i(0) \ \ \forall i$$`
 
 - This means that anyone born in the later three quarters of the year received at least as much education as they would have if they had been born earlier in the year. 
   + Red-shirting is the practice of starting children who would be the youngest in their grade one year later.
-  + If red-shirting were common, this would violate the monotonicity assumption.
+  + Red-shirting creates a violation of the monotonicity assumption.
 
 
 ---
@@ -706,9 +706,9 @@ A_i(1) \leq A_i(0) \ \ \forall i$$`
 
 - They argue that it would make more sense to think of `\(U_Z\)` as continuous, probability of prescribing drug A. 
 
-- However, if `\(U_Z\)` is not binary, there is no longer a clear definition of what effect we are estimating because it is not clear who the compliers. 
+- However, if `\(U_Z\)` is not binary, there is no longer a clear definition of what effect we are estimating because it is not clear who the compliers are. 
 
-- In this case, the IV estimator estimate a weighted average of the effect of drug A vs drug B. 
+- In this case, the IV estimator estimates a weighted average of the effect of drug A vs drug B. 
   + This makes the magnitude of the estimate hard to interpret, though it still produces a valid test of the strict null. 
   + If we are willing to assume that the effect has the same sign (or is zero) in all individuals then the sign of the IV estimate is also interpretable.
 
