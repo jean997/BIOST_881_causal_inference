@@ -1212,7 +1212,7 @@ $$W_{i,j} = \prod_{k = 0}^{k = j} \frac{f(A_k = A_{k, i} \vert \bar{A}_{k-1} = \
 
 - They fit the MSM
 
-$$E[Y_{ij}(\bar{a}) \vert V_{i,0}] = \beta_{0, j} \beta_1^{\top} V_{i,0} + \beta_2^\top g(Cum_{i,j})$$
+$$E[Y_{ij}(\bar{a}) \vert V_{i,0}] = \beta_{0, j} + \beta_1^{\top} V_{i,0} + \beta_2^\top g(Cum_{i,j})$$
 - $V_{i,0}$ are baseline CD4 count and viral load categories. 
 
 - They include these variables in the MSM because they want to use them in the numerator of the stabilized weights. Since the MSM is conditional on $V_{i,0}$, the are assuming no effect modification by $V_{i,0}$.

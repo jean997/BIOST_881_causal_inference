@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L13: Instrumental Variable Analysis Part 2</title>
+    <title>L15: Instrumental Variable Analysis Part 2</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.22/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.27/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
     <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
     <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
     <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
-    <link href="libs/panelset-0.2.6/panelset.css" rel="stylesheet" />
-    <script src="libs/panelset-0.2.6/panelset.js"></script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -20,7 +20,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L13: Instrumental Variable Analysis
+# L15: Instrumental Variable Analysis
 Part 2
 ]
 .author[
@@ -30,8 +30,8 @@ Part 2
 ### University of Michigan
 ]
 .date[
-### Lecture on 2024-03-27
-(updated: 2024-03-27)
+### Lecture on 2025-04-07
+(updated: 2025-04-07)
 ]
 
 ---
@@ -159,7 +159,7 @@ This result suggests two estimation strategies:
 
 - Similarly, the OLS estimate of `\(\hat{\beta}_{YZ}\)` is `\(E[Y \vert Z = 1] - E[Y \vert Z = 0]\)`. 
 
-- So `\(\hat{\beta}_{IV}\)` introduced previous is a special case of the ratio estimator. 
+- So `\(\hat{\beta}_{IV}\)` introduced previously is a special case of the ratio estimator. 
 
 ---
 ## Two Sample IVA
@@ -234,31 +234,31 @@ the numerator and denominator are independent. Otherwise, they are dependent.
 ---
 ## Distribution of the IV Estimator
 
-- Write `\(\hat{\beta}_{AZ} = \mu + \sigma_{AZ} T_A\)` where `\(T_A\)` has mean 0 and variance 1, and `\(\sigma^2_{AZ} = Var(\hat{\beta}_{AZ})\)`.
+- Write `\(\hat{\beta}_{AZ} = \mu + \sigma_{AZ} T_{AZ}\)` where `\(T_{AZ}\)` has mean 0 and variance 1, and `\(\sigma^2_{AZ} = Var(\hat{\beta}_{AZ})\)`.
 
-- If all of our IV assumptions hold the `\(\hat{\beta}_{YZ} = \gamma \mu + \sigma_{YZ} T_y\)`, with  `\(\sigma^2_{YZ} = Var(\hat{\beta}_{YZ})\)`.
+- If all of our IV assumptions hold then `\(\hat{\beta}_{YZ} = \gamma \mu + \sigma_{YZ} T_{YZ}\)`, with  `\(\sigma^2_{YZ} = Var(\hat{\beta}_{YZ})\)`.
 
 - This means that,
 
-`$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A} = \gamma \frac{1}{1 + \sigma_{AZ} T_A/\mu} + \frac{\sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A}$$`
+`$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A} = \gamma \frac{1}{1 + (\sigma_{AZ}/\mu) T_{AZ}} + \frac{\sigma_{YZ} T_{YZ}}{\mu + \sigma_{AZ} T_{AZ}}$$`
 ---
 ## Distribution of the IV Estimator
 
 
-`$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A} = \gamma \frac{1}{1 + \sigma_{AZ} T_A/\mu} + \frac{\sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A}$$`
+`$$\hat{\beta}_{IV} = \frac{\gamma \mu + \sigma_{YZ} T_Y}{\mu + \sigma_{AZ} T_A} = \gamma \frac{1}{1 + (\sigma_{AZ}/\mu) T_{AZ}} + \frac{\sigma_{YZ} T_{YZ}}{\mu + \sigma_{AZ} T_{AZ}}$$`
 
 - If `\(T_{YZ}\)` and `\(T_{AZ}\)` are independent, then the expectation of the last term is 0. This occurs in two sample IVA.
 
-- If `\(T_A\)` is normally distributed, then `\(E[1/(1 + \sigma_{AZ} T_A/\mu)]\)` does not have a defined expectation. 
+- If `\(T_{AZ}\)` is normally distributed, then `\(E[1/(1 + \sigma_{AZ} T_A/\mu)]\)` does not have a defined expectation. 
 
-- However, we can see that if `\(\mu/\sigma_{AZ}\)` is large, then `\(\frac{1}{1 + \sigma_{AZ} T_A/\mu} \approx 1\)`. 
+- However, we can see that if `\(\mu/\sigma_{AZ}\)` is large, then `\(\frac{1}{1 + (\sigma_{AZ}/\mu) T_{AZ}} \approx 1\)`. 
 
 - As the sample size used to estimate `\(\hat{\beta}_{AZ}\)` increases, `\(\sigma_{AZ}\)`, goes to zero, so `\(E[\hat{\beta}_{IV}] \to \gamma\)` . 
 
 ---
 ## Distribution of the IV Estimator
 
-- We can get estimates of the mean and variance of `\(\hat{\beta}_{IV}\)` from a first order Taylor expansion around `\(\gamma\)`.
+- We can approximate the mean and variance of `\(\hat{\beta}_{IV}\)` from a first order Taylor expansion around `\(\gamma\)`.
 
 - Recall that `\(\hat{\beta}_{IV}\)` does not actually have either first or second moments.
 
@@ -365,7 +365,7 @@ Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 
 - The most common approach is to use
 
-`$$w_k = \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} \approx Var(\hat{\beta}_{IV,k})$$`  
+`$$w_k^{-1} = \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} \approx Var(\hat{\beta}_{IV,k})$$`  
 
 - This is the estimate of `\(Var(\hat{\beta}_{IV,k})\)` we would get using our previous formula but assuming that `\(\gamma = 0\)`.
 
