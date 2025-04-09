@@ -31,7 +31,7 @@ Part 2
 ]
 .date[
 ### Lecture on 2025-04-07
-(updated: 2025-04-07)
+(updated: 2025-04-09)
 ]
 
 ---
@@ -253,7 +253,7 @@ the numerator and denominator are independent. Otherwise, they are dependent.
 
 - However, we can see that if `\(\mu/\sigma_{AZ}\)` is large, then `\(\frac{1}{1 + (\sigma_{AZ}/\mu) T_{AZ}} \approx 1\)`. 
 
-- As the sample size used to estimate `\(\hat{\beta}_{AZ}\)` increases, `\(\sigma_{AZ}\)`, goes to zero, so `\(E[\hat{\beta}_{IV}] \to \gamma\)` . 
+- As the sample size used to estimate `\(\hat{\beta}_{AZ}\)` increases, `\(\sigma_{AZ}\)`, goes to zero, so `\(\hat{\beta}_{IV} \to \gamma\)` . 
 
 ---
 ## Distribution of the IV Estimator
@@ -365,7 +365,7 @@ Y_i  = \beta_{Y0} + \gamma A_i + \epsilon_{Y,i}$$`
 
 - The most common approach is to use
 
-`$$w_k^{-1} = \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} \approx Var(\hat{\beta}_{IV,k})$$`  
+`$$w_k = \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} \approx Var(\hat{\beta}_{IV,k})$$`  
 
 - This is the estimate of `\(Var(\hat{\beta}_{IV,k})\)` we would get using our previous formula but assuming that `\(\gamma = 0\)`.
 
