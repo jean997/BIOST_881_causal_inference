@@ -13,7 +13,7 @@ output:
       countIncrementalSlides: false
 ---
 $\newcommand{\ci}{\perp\!\!\!\perp}$
-```{r xaringanthemer, include=FALSE, warning=FALSE, echo = FALSE}
+```{r xaringanthemer, include=FALSE, warning=FALSE, echo = FALSE }
 library(xaringanthemer)
 style_mono_accent(
   link_color = "#ea8a1a",
@@ -309,7 +309,7 @@ $$
 ## Distribution of the IV Estimator
 
 <center>
-```{r, echo = FALSE, fig.align='center', out.width="95%", warning=FALSE, message = FALSE, fig.height=10, fig.width=20}
+```{r chunk2, echo = FALSE, fig.align='center', out.width="95%", warning=FALSE, message = FALSE, fig.height=10, fig.width=20}
 set.seed(1)
 
 df1 <- purrr::map_dfr(c(1, 2,5, 10), function(m){
@@ -410,21 +410,21 @@ $$\hat{\beta}_{IV,1}  = \frac{\hat{\beta}_{YZ_1}}{\hat\beta_{AZ_1}}, \dots, \hat
 
 - The most common approach is to use
 
-$$w_k = \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} \approx Var(\hat{\beta}_{IV,k})$$  
+$$w_k^{-1} = \frac{\sigma_{Y,Z_k}^2}{\hat{\beta}_{A,Z_k}^2} \approx Var(\hat{\beta}_{IV,k})$$  
 
 - This is the estimate of $Var(\hat{\beta}_{IV,k})$ we would get using our previous formula but assuming that $\gamma = 0$.
 
 
 - Plugging in these weights gives us
 
-$$\hat{\beta}_{IVW} =   \frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{AZ_k}\sigma^{-2}_{YZk}}{\sum_{k=1}^K \hat{\beta}_{AZ_k}\sigma^{-2}_{YZ_k}}$$
+$$\hat{\beta}_{IVW} =   \frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{AZ_k}\sigma^{-2}_{YZk}}{\sum_{k=1}^K \hat{\beta}^2_{AZ_k}\sigma^{-2}_{YZ_k}}$$
 
 
 ---
 
 ## IVW as Regression of Summary Statistics
 
-- The estimator $$\hat{\beta}_{IVW} = \sum_{k=1}^K   \frac{\hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}{\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}$$
+- The estimator $$\hat{\beta}_{IVW} = \sum_{k=1}^K   \frac{\hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}{\hat{\beta}^2_{A,Z_k}\sigma^{-2}_{Y,Zk}}$$
 is exactly the estimate we would get from regressing  $(\hat{\beta}_{Y,Z_1}, \dots, \hat{\beta}_{Y, Z_K})$ on $(\hat{\beta}_{A,Z_1}, \dots, \hat{\beta}_{A, Z_K})$ with no intercept.
 
 - This makes sense: our linear model implies that 
@@ -439,7 +439,7 @@ E[\hat{\beta}_{Y, Z_k}] = \gamma\beta_{A,Z_k}$$
 ## IVW as Regression of Summary Statistics
 
 <center> 
-```{r, echo=FALSE, out.width="70%"}
+```{r chunk3, echo=FALSE, out.width="70%"}
 knitr::include_graphics("img/10_ldl_cad.jpg")
 ```
 </center>
@@ -465,8 +465,8 @@ Ference et al, Journal of American College of Cardiology (2012)
 
 $$
 \begin{split}
-E[\hat{\beta}_{IVW}] =& E\left[\frac{\sum_{k=1}^K \hat{\beta}_{Y,Z_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Z_k}}{\sum_{k=1}^K \hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Zk}}\right]\\
-=& E\left[\frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}}{\sum_{k=1}^K \hat{\beta}_{A,Z_k}}\right] \approx \frac{E\left[\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\right]}{E\left[\sum_{k=1}^K \hat{\beta}_{A,Z_k}\right]}\\
+E[\hat{\beta}_{IVW}] =& E\left[\frac{\sum_{k=1}^K \hat{\beta}_{Y,Z_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Z_k}}{\sum_{k=1}^K \hat{\beta}^2_{A,Z_k}\sigma^{-2}_{Y,Zk}}\right]\\
+=& E\left[\frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}}{\sum_{k=1}^K \hat{\beta}^2_{A,Z_k}}\right] \approx \frac{E\left[\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\right]}{E\left[\sum_{k=1}^K \hat{\beta}^2_{A,Z_k}\right]}\\
 \approx &\frac{\gamma \sum_{k = 1}^K \mu_k^2}{\sum_{k = 1}^K \mu_k^2 + \sum_{k = 1}^K E[\epsilon_{A,k}^2]} = \frac{\gamma}{1 + (p\sigma^2_{A})/\sum_{k = 1}^K \mu_k^2}\\
 =& \frac{\gamma}{1 + 1/\kappa}&
 \end{split}
@@ -635,7 +635,7 @@ knitr::include_graphics("img/10_bound_tab1.png")
 - Uncertainty in $\hat{\beta}_{AZ}$ leads to regression dilution, causal estimate biased towards the null. 
 
 <center> 
-```{r, echo=FALSE, out.width="70%", fig.show='animate', ffmpeg.format='gif'}
+```{r, eval = FALSE, echo=FALSE, out.width="70%", fig.show='animate', ffmpeg.format='gif'}
 knitr::include_graphics("img/10_regression_dilution.gif")
 ```
 </center>
@@ -718,60 +718,162 @@ Cons:
 
 
 ---
+## Genetic Variation
+
+- DNA is a long molecule that encodes instructions for building and regulating the proteins that make up an organism. 
+
+- DNA is arranged in chromosomes. Each cell nucleus in the human body contains two non-identical copies of each of 22 chromosomes plus two sex chromosomes. 
+
+- For our purposes, think of each chromosome as a very long series of letters ("bases" or "base-pairs"). At each position there can be an A, C, T, or G. 
+
+<center> 
+```{r, echo=FALSE, out.width="50%"}
+knitr::include_graphics("img/12_chromosomes.jpg")
+```
+</center>
+
+
+---
+## Genetic Variation
+
+- Any two people have nearly identical DNA, with differences at a small fraction of locations. 
+
+- However, there are many places in the genome that are variable in the population. 
+  - Different variants of a DNA sequence are called alleles. 
+  - The identity of the alleles a person has at a variable position is that persons genotype at that variant.
+
+---
+## Genetic Variation
+
+- Today, we will only think about genetic variants that are one base long and where there are two possible values in the population. 
+  - These are diallelic single nucleotide polymorphisms (SNPs).
+
+- Suppose we have a SNP that could be A or G. Because each person has two copies of their genome, they could have A/A, A/G, or G/G genotypes. 
+
+- All of our genetic variants can be represented as three level variables that can be coded as 0, 1, or 2.
+
+
+---
+## Mendelian Inheritance
+
+- The rationale for MR comes from the principle of Mendelian inheritance. 
+
+- An offspring will receive one copy of each chromosome from each parent.
+
+- Which of their mothers/fathers two chromosomes they inherit is random with equal probability. 
+
+- Example: If an offspring has one parent with A/A genotype and another with A/G genotype, they have a 50% chance of being A/A and a 50% chance of being A/G.
+
+- Example: If an offspring has two parents with A/G genotypes they have a 50% chance of being A/G, a 25% chance of being A/A, and a 25% chance of being G/G.
+
+---
+## Mendelian Inheritance
+
+
+<center> 
+```{r, echo=FALSE, out.width="90%"}
+knitr::include_graphics("img/12_inheritance.png")
+```
+</center>
+
+
+---
 ## Mendelian Randomization
 
 
 - In Mendelian randomization, genetic variants are used as instruments. 
---
 
+- Suppose we have a genetic variant that we know know affects the value of our exposure, $A$, such as blood pressure. 
 
-+ Genetic variants are fixed at conception. They can't be altered by any confounders that occur after that point. 
+- Each person is randomized to have slightly lower or slightly higher value of $A$, with randomization probability conditional on their parent's genotypes. 
 
-  + No arrows int $Z$ from environment. 
-  
---
-
-+ Genetic variants can alter traits like height or disease risk by changing proteins, changing protein levels, or regulating expression of other genes. 
-
-  + Relevance can be satisfied
-
---
-
-+ If we are willing to assume random mating with respect to the instruments at hand, then an individual's genetic variants are perfect randomizations.
-
-  + No associations with confounders
 
 ---
 ## Mendelian Randomization
 
-- MR is incredibly powerful because it can be applied to any pair of traits that has been studied in genetic association studies. 
+- MR is appealing because two of the MR assumptions are easy to justify.
 
-- Using summary statistic methods, MR can be applied even when individual level data are not available. 
-
-- However, there are major caveats to results obtained using MR.
----
-## Estimation Problems in MR
-
-
-- Weak instruments: Most variants explain only a tiny amount of trait variation. 
-
-  + Additionally, we are often trying to identify instruments in the same data we will use to estimate $\hat{\beta}_{AZ}$. 
-  + This can create selection bias. 
-
---
-
-- Violations of the exclusion restriction. Some variants causally effect multiple traits. 
-
-  - Also, genetic variants are correlated with each other, so one variant may be correlated with separate causal variants for two different traits. 
-
---
-
-- Confounding from population structure and assortative mating.
-
-  + We generally try to adjust for this in the regression of $A$ on $Z$. 
++ The principle of Mendelian inheritance rules out arrows going into $Z$, so we can justify the exchangeability assumption
   
++ Many decades of genetic association studies have established that almost all traits have some heritable component, meaning that there are variants that affect them.
+  + This means it is possible to satisfy relevance. 
+
+--
+
++ The exclusion restriction is harder to guarantee in MR. This has lead to a lot of MR methods development.
+
 ---
-## Interpretation Problems in MR
+## Population vs Family-Based MR
+
+
+- The Mendelian inheritance argument suggests that we should condition on parental genotypes when we use variants as instrumental varialbes.
+
+- However, this approach is quite uncommon becuase it is hard to obtain large samples of genetic trio data. 
+
+- Instead, we usually use unconditional (marginal) genetic associations.
+
+- The justification for this practice relies on an assumption of random partner choice (called random mating). 
+  + This assumption says that the probability that two people have a child together does not depend on their genotype at our instrumental variable. 
+
+
+---
+## Population vs Family-Based MR
+
+- Non-random mating leads to violations exchangeability. 
+  
+- Two ways this can fail: 
+  - Population structure: people with similar ancestry tend to have children together and have shared environmental exposures. 
+  - Assortative mating: people tend to prefer partners with similar physical or behavioral traits. 
+
+- We can account for population structure in our analyses, but assortative mating is usually ignored.
+
+<center> 
+```{r, echo=FALSE, out.width="45%"}
+knitr::include_graphics("img/12_pop_structure.png")
+```
+</center>
+
+
+---
+## Genome-Wide Association Studies
+
+- GWAS are studies of genetic associations with diseases.
+
+
+<center> 
+```{r, echo=FALSE, out.width="90%"}
+knitr::include_graphics("img/12_gwas2.png")
+```
+</center>
+
+
+---
+## Genome-Wide Association Studies
+
+- We have been conducting large-scale GWAS for about 20 years. 
+
+- We have learned from these studies that nearly every trait has some hertiable component, including behavioral traits like coffee drinking preference, and physical traits like height. 
+
+- Usually, each causal variant has a very very small effect on the measured trait, but with large sample sizes we can easure these accurately. 
+
+- Importantly for MR, summary variant-trait associations are publicly available for free for a huge number of traits. 
+  + The NIH has required that GWAS funded by the NIH make summary statistics available. 
+
+---
+## Basic MR Pipeline
+
+- MR using GWAS summary statistics is incredibly simple to perform and requires almost no subject-matter knowledge. 
+  + This is a strong contrast with the G-formula methos we learned earlier in this class. 
+
+- Formula:
+  + Identify a GWAS for the exposure.
+  + Identify a set of independent variants associated with the exposure in that study. 
+  + Identify a GWAS for the outcome. 
+  + Extraxt summary statistics for your chosen instruments for the outcome. Harmonize the data.
+  + Compute the MR estimate using a method like IVW regression. 
+
+---
+## Interpretation Limitations in MR
 
 - Complier groups are unknown and hard to define. We generally don't know the mechanism of most variants. 
 
@@ -783,29 +885,144 @@ Cons:
 
 - Variants may be affecting different components of an overly broad exposure, e.g. very large LDLs vs large LDLs. 
   
-  
+
 ---
-## MR Solutions
+## Mendelian Randomization Popularity Boom
 
-- Despite its problems, MR has one big resource -- lots and lots of genetic variants. 
+- Because MR is so easy to perform, there has been a boom in MR and MR-related papers. 
 
-- The exposure trait may have thousands of causal variants, so thousands of potential instruments. 
+- Some of these have been quite useful. 
 
-- One strategy is to assume that most but not all of the instruments are valid. 
+- For example, early in the Covid-19 pandemic, vitamin D was suggested as a protective factor based on country level and patient level observational data. 
 
-- We can then examine the distribution of ratio estimates and reject variants that look very different from the rest. 
+- Multiple MR studies have subsequently found no relationship between genetically predicted vitamin D levels and Covid-19 infection or hospitalization. 
 
-- Another option is to use a robust regression rather than OLS for the regression of $\boldsymbol{\hat{\beta}}_Y$ on $\boldsymbol{\hat{\beta}}_A$. 
-  + E.g median or mode regression
+- This does not rule out the possibility that acute changes in vitamin D levels near the time of exposure affect infection risk. 
 
-- There are many many interesting methods trying different variations of this or related strategies.  
+- But it does suggest that resources may be better spent looking at other interventions. 
+
+---
+## Common Problems in MR Studies
+
+- In the recent boom, there have also been papers that range from useless to negligent. 
+
+- In my view, there are three categories of ways that an MR paper can be bad.
+
+- Lack of scientific reasoning: Some studies examine exposures such as air pollution, for which any genetic associations are highly likely to be a result of failures of exchangeability.  
+
+- Lack of attention potential violations of the exclusion restriction. Studies that ignore that the ER is likely violated by at least some instruments are unreliable. 
+
+- Lack of a so-what: MR is so trivial to perform that MR papers need to provide some additional insight or corroboration to be worth either reading or writing. 
+
+---
+## Drug Target Discovery for Stroke, a Positive Story
+
+- A large number of MR studies have been done examining potentially modifiable risk factors for stroke. 
+
+- A benefit of MR is that it can be applied with large numbers of outcomes ("phenome-wide"), which provide an opportunity to identify potential side-effects before conducting clinical trials. 
+
+
+
+---
+## Stroke and Iron
+
+- MR studies show protective effects of higher serum iron levels for coronary artery disease but risk increasing effects for ischemic stroke. 
+  + This may appear surprising because ischemic stroke and CAD share many risk factors. 
+  
+- Researchers were able to provide deeper explanations by looking at stroke sub-types and secondary features of carotid artery plaque and venous thromboembolism (blood clot). 
+
+- MR results show that higher lifelong levels of iron reduce carotid plaque but increase bloodclot risk. 
+
+- Recent MR studies have also shown negative effects of iron levels on overall life expectancy. 
+
+
+---
+## Stroke and MCP-1
+
+- MCP-1 is a factor related to inflamation that was identified as potentially risk increasing for cardiometabolic stroke in an agnostic analysis looking at several inflammation related metabolites. 
+
+- These results were then supported by analyses in observational data, in animal models, and by looking at MR with related traits for evidence to support they hypothesized mechanism. 
+
+
+<center> 
+```{r, echo=FALSE, out.width="50%"}
+knitr::include_graphics("img/12_mcp.png")
+```
+</center>
+
+
+---
+## Statistical Fronteirs in MR
+
+- There are several interesting areas of statistical methods development in MR:
+
+- Better estimators: Estimators that resolve the problem of finite sample (weak instrument) bias in IVW regression, estimators that account for winner's curse, estimators that are more efficient. 
+
+- Accounting for failures of the exclusion restriction (horizontal pleiotropy):
+  + It is generally unreasonable to assume that the ER holds for all of your chosen instruments. 
+  
+- Multivariable and Network MR:
+  + Multivariable and Network MR are used to measure effects of multiple exposures simultaneously. 
+  + These can have applications in mediation analysis, can be used for accounting for ER violations, and can be used for causal structure discovery. 
+
+---
+## De-Biased IVW
+
+- We saw previously that when IVW regression is performed with data from two different samples, the estimate is shrunk towards zero. 
+
+- The debiased IVW (dIVW) method introduced by Ye et al. (2021) addresses this by multiplying the IVW estimator by a correction factor.
+
+$$
+\hat{\beta}_{dIVW} = \hat{\beta}_IVW \frac{\sum_k \hat{w}_k}{\sum_k (\hat{w}_k - \hat{v}_k)}
+$$
+$$
+\hat{w}_k = \frac{\hat{\beta}^2_{A,k}}{\hat{\sigma}^2_{A,k}} \qquad \hat{v}_k = \frac{\hat{\sigma}^2_{A,k}}{\hat{\sigma}^2_{Z_k}}
+$$
+
+---
+## De-Biased IVW
+
+- Ye at al. prove that the dIVW estimator is consistent and asymptotically normal under weaker conditions than regular IVW.
+
+- The original IVW estimator requires that $\kappa/p \to \infty$, where $\kappa = \frac{1}{p}\sum_{k} \frac{\beta_{A,k}^2}{\sigma^2_{A,k}}$ is the average instrument strength. 
+
+- dIVW is consistent and AN under the condition $\kappa/\sqrt{p} \to \infty$ and $max(\beta_{A,k}^2/\sigma^2_{A,k})/(\kappa p. + p) \to 0$. 
+
+---
+## Likelihood-Based Estimation
+
+- IVW regression has finite sample bias because it ignores measurement error in $\hat{\beta}_{A,k}$. 
+
+- My group and several other groups have proposed likelihood-based methods that involve modeling $\hat{\beta}_{A,k}$ and $\hat{\beta}_{Y,k}$ as jointly normally distributed. 
+
+
+$$\begin{split}
+\begin{pmatrix}
+\hat{\beta}_{A,k} \\
+\hat{\beta}_{Y,k} \end{pmatrix} \sim N\left(\begin{pmatrix} \mu_k \\
+\gamma \mu_k + \alpha_k \end{pmatrix}, \Sigma_k\right)
+\end{split}$$
+
+- The $\alpha_k$ term allows for some violation of the exclusion restriction.
+
+- The challenge in this approach is that $\mu_k$ and $\alpha_k$ are nuisance parameters.
+
+---
+## Likelihood-Based Estimation
+
+- Different approaches using this strategy take different approaches to modeling the nuisance parameters. 
+
+- MR-RAPS usess a profile approach. They first maximize the likelihood in $\mu_k$ assuming $\alpha_k$ are zero. Then they maximize the profile likelihood in $\gamma$.
+
+- We (ESMR) and others (MR-APSS) have taken empirical Bayes approaches. We assume $\mu_k$ and $\alpha_k$ follow an unknown distribution from a known distributional family. 
+
+- We then maximize the likelihood in $\gamma$ and parameters of the nuisance distribution. 
+
 
 ---
 ## Accounting for Violations of the Exclusion Restriction
 
-- In MR, violations of the exclusion restriction (also called pleiotropy) are the biggest concern. 
-
-- A simple extension of the SEM we have been working with allows for some violations. 
+- A simple extension of the SEM we have been working with allows for some violations of the ER. 
 
 $$A_i  = \beta_{A0} + \boldsymbol{\beta}_{AZ}^\top \mathbf{Z}_i + \epsilon_{A,i}$$
 $$Y_i  = \beta_{Y0} + \gamma A_i + \boldsymbol{\alpha}^\top Z_i + \epsilon_{Y,i}$$ 
@@ -824,12 +1041,25 @@ $$E[\hat{\beta}_{YZ,k}] = \alpha_k + \gamma \beta_{AZ,k}$$
 
 - Egger regression extends this strategy to add an intercept, fitting
 $$E[\hat{\beta}_Y] = \alpha_0 + \gamma \hat{\beta}_A$$
+---
+## Egger Regression
 
-- This strategy is valid if, either $\boldsymbol{\alpha} = \alpha_0 \mathbf{1}_{K}$ or $\sum_{k = 1}^K \alpha_k \beta_{AZ,k}  = 0$
-  + If we have a large number of instruments and think of $\beta_{AZ,k}$ and $\alpha_k$ as random, we require that $Cov(\beta_{AZ}, \alpha) = 0$. 
+- Egger regression is valid if, either $\boldsymbol{\alpha} = \alpha_0 \mathbf{1}_{K}$ or $\sum_{k = 1}^K \alpha_k \beta_{AZ,k}  = 0$
+  
+- The second condition occurs if there are a large number of instruments and we think of $\beta_{AZ,k}$ and $\alpha_k$ as random with $Cov(\beta_{AZ}, \alpha) = 0$. 
   
 - This assumption says that effects of instruments not mediated by $A$ are independent of the effects of instruments on $A$. 
   + This is called the Instrument Strength Independent of the Direct Effect (InSIDE) assumption
+
+---
+## Egger Regression
+
+- Egger regression performs consistently poorly in both real applications and simulation experiments. 
+
+- It has high variance due to estimation of the intercept term. 
+
+- It is not much more robust to violations of the ER than IVW regression. 
+  + Egger is only better than IVW violations of the ER occur consistently in one direction, which is not a biologically plausible scenario. 
 
 
 ---
@@ -844,9 +1074,17 @@ knitr::include_graphics("img/10_scatter2.png")
 </center>
 
 ---
+## Majority Valid
+
+- Without any additional information, about the source of violations of the ER, we can make a "majority valid" assumption. 
+
+- This assumption says that the majority of IVs are valid, or for some methods, satisfy the InSIDE assumption. 
+
+
+---
 ## Median Regression 
 
-- An alternative strategy proposed by Bowden et al (2016) is to assume that most instruments are valid. 
+- Median regression, proposed by Bowden et al (2016) is one of many methods making the majority valid assumption. 
 
 - Rather than use the IVW estimator which averages the $K$ ratio estimates, we take the median of the ratio estimates.
 
@@ -876,100 +1114,154 @@ knitr::include_graphics("img/10_mrpresso.png")
 ---
 ## Mixture Models
 
-- Finally, another alternative is to assume that there are two or more groups of instruments. 
+- Another strategy is to assume that there are two or more groups of instruments. 
+
 - Instruments are grouped by their latent mechanistic relationship to $A$. 
-- Instruments with the same mechanistic relationship should have similar ratio estimates. 
+
 - We assume that the largest group of instruments are valid. 
 
+- I developed a Bayesian version of this strategy as a postdoc called CAUSE in 2020.
+
 <center> 
-```{r, echo=FALSE, out.width="50%"}
+```{r, echo=FALSE, out.width="45%"}
 knitr::include_graphics("img/10_mrpath.png")
 ```
 </center>
 
-
 ---
-## MR Next Directions
+## Simulation Results with No HP
 
-- MR is a very exciting field with many new developments happening every year. Major fields of development in MR include:
+- Simulation results from Ye et al. dIVW paper with no violations of the exclusion restriction.
 
-- De-biasing strategies: How to reduce weak instrument bias and selection bias.
-
-- Improving robustness to violations of the no horizontal pleiotropy assumption. 
-
-- Multivariable MR: Estimating effects of many exposures simultaneously. 
-
-- Network MR: Using MR to infer causal networks for many traits. 
-
-- MR for estimating non-linear relationships. 
-
----
-## MR in Action: Alcohol and Stroke
-
-- Observational studies show a J-shaped relationship between alcohol consumption and heart disease.
-
-- This relationship could be confounded by socioeconomic factors. 
-
-- Millwood et al. perform MR using data from the China Kadoorie Biobank to estimate the effect of increased alcohol consumption on stroke, intracerebral haemorrhage, and myocardial infarction. 
-
-- Two genetic variants explain a large proportion of the variation in alcohol consumption among men in the study.
-
-- Authors create a 6 lelel instrument based on genotypes and geographical region and use a two stage regression approach.
-
-- Only 2% of women in the study report drinking in most weeks. This group can be used as a negative control. 
-
-
----
-## MR in Action: Alcohol and Stroke
+- Columns show mean estimate, SD across simulations, mean estimated SE, and coverage. 
 
 <center> 
-```{r, echo=FALSE, out.width="70%"}
-knitr::include_graphics("img/13_alc_stroke.jpg")
+```{r, echo=FALSE, out.width="85%"}
+knitr::include_graphics("img/12_dIVW_sims.png")
+```
+</center>
+
+
+---
+## Benchmarking Results with HP
+
+- Hu et al. (authors of MR-APSS method) evaluated many MR methods with real trait pairs they thought were negative controls but where violations of the ER are expected. 
+
+- They use trait pairs where the exposure trait happens in adulthood or during aging and the outcome happens in childhood. 
+
+- However, some of the pairs of traits have genetic correlation. This means that they share some causal variants, so we expect violations of the exclusion restriction.
+
+---
+## Benchmarking Results with HP
+<center> 
+```{r, echo=FALSE, out.width="85%"}
+knitr::include_graphics("img/12_hu_benchmarking.png")
+```
+</center>
+
+
+---
+## Multivariable and Network MR
+
+- Multivariable MR (MVMR) and network MR are extensions of MR for estimating multiple effects in a system of linear structural equation models.
+
+- The simplest approach is an extension of IVW with multiple exposures rather than just one.
+
+- MVMR is another strategy for accounting for violations of the exclusion restriction. 
+
+- If variables mediating the violations ("heritable confounders") are included, the bias is removed.
+
+
+<center> 
+```{r, echo=FALSE, out.width="35%"}
+knitr::include_graphics("img/12_mv1.png")
+
+```
+```{r, echo=FALSE, out.width="35%"}
+knitr::include_graphics("img/12_network1.png")
 ```
 </center>
 
 ---
-## MR in Action: Alcohol and Stroke
+## Multviariable MR in Action: Lifecourse MR
 
-<center> 
-```{r, echo=FALSE, out.width="50%"}
-knitr::include_graphics("img/13_alc_mi.jpg")
-```
-</center>
+- Richardson et al. use MVMR to distinguish effects of childhood and adult BMI on risk of CHD, T2D, and breast cancer. 
 
----
-## MR in Action: Alcohol and Stroke
+- They choose variants associated with childhood BMI, adult BMI, or both as instruments and use multivariable IVW regression.
 
-- Millwood et al. conclude that the J-shaped relationship seen observationally is a result of socioeconomic confounding and reverse causation. 
-
-- They find a monotonic dose-response relationship between increased alcohol consumption and increased risk of stroke and intracerebral haemorrhage. 
-
-- They find no relationship between alcohol consumption and myocardial infarction.
-
-
-- In this study, they are able to test the exclusion restriction by verifying that there is no relationship between the genetic/geographic risk categories and stroke/haemorrhage/MI risk.
-
-
----
-## MR in Action: Covid-19 and Vitamin D
-
-- Early in the Covid-19 pandemic, vitamin D was suggested as a protective factor based on country level and patient level observational data. 
-
-- Multiple MR studies have subsequently found no relationship between genetically predicted vitamin D levels and Covid-19 infection or hospitalization. 
-
-- This does not rule out the possibility that acute changes in vitamin D levels near the time of exposure affect infection risk. 
-
-
----
-## MR in Action: Lifecourse MR
-
-- Richardson et al. use MR to distinguish effects of childhood and adult BMI on risk of CHD, T2D, and breask cancer. 
-
-- They use multivariable MR and variants associated with childhood BMI, adult BMI, or both as instruments. 
-
-- Results suggest no direct effect effect of childhood BMI (i.e. not mediate by adult BMI) on risks of CHD and T2D.
+- Results suggest no direct effect effect of childhood BMI (i.e. not mediated by adult BMI) on risks of CHD and T2D.
 
 - They do find a direct protective effect of higher childhood BMI on risk of breast cancer. 
 
+---
+## MVMR Estimation Challenges
+
+- MVMR and network MR are both research topics in my group. 
+
+- The MV-IVW estimation procedure has increasing finite sample bias for larger numbers of exposures, while GRAPPLE, the multivariable extension of MR-RAPS can be extremely slow. 
+
+- Empirical Bayes methods are hard to adapt to the multivariable setting due to estimation challenges. 
+  + We use variational approximation which provides speed at a cost of some accuracy.
+
+<center> 
+```{r, echo=FALSE, out.width="70%"}
+knitr::include_graphics("img/12_esmr1.png")
+```
+<center> 
+
+---
+## Network Estimation Challenges
+
+- There are very few existing methods that estimate effects in a network simultaneously. 
+
+- The GenomicSEM method can estimate effects in known networks but is based on genetic correlation so cannot identify effect direction. 
+
+- A few other methods try to approximate an unknown DAG by first estimating all pairwise total effects. 
+  + This approach is unsatisfying because it doesn't provide a measure of confidence about the network structure, or a measure of model fit. 
+  
+
+---
+## Empirical Bayes Network Estimation
+
+- Our empricial Bayes estimation procedure adapts straight forwardly to network estimation, for networks corresponding to linear SEMs.
+
+- The idea is that the previous likelihood can be extended for network structures. 
+
+$$\begin{split}
+\begin{pmatrix}
+\hat{\beta}_{X_1,k} \\
+\vdots \\
+\hat{\beta}_{X_p,k}\end{pmatrix} \sim N\left((B^{tot})^T \begin{pmatrix} \mu_1 \\ \vdots \\
+\mu_p \end{pmatrix}, \Sigma_k\right)
+\end{split}$$
+
+- $B^{tot}$ is the matrix of total effects.
+
+- The idea is to use the same strategy we used for univariable and multivariable effects to estimate the elements of $B^{tot}$ and then convert total to direct effects, which is possible for linear SEMs with no interactions.
+
+---
+## Network Estimation Simulation Results
+
+<center> 
+```{r, echo=FALSE, out.width="85%"}
+knitr::include_graphics("img/12_nesmr1.png")
+```
+<center> 
+
+
+---
+## Network Structure Learning
+
+- Learning the structure of a network is harder than estimating the effects in a known network structure. 
+
+- The problem is that the number of networks grows super exponentially, so we can't simply compare all of them.
+
+- We are currently focused on developing an efficient algorithm to approximate posterior probabilities of candidate network structures.
+
+<center> 
+```{r, echo=FALSE, out.width="85%"}
+knitr::include_graphics("img/12_nesmr2.png")
+```
+<center> 
 
 
