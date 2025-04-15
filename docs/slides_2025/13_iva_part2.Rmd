@@ -282,13 +282,11 @@ $$f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ}) = f(\boldsymbol{\theta}) + \nabla f(\bol
 
 - If we plug in $\boldsymbol{\theta} = (E[\hat{\beta}_{YZ}], E[\hat{\beta}_{AZ}]) = (\gamma \mu , \mu)$ we obtain 
 
-$$
-\begin{split}
+$$\begin{split}
 E[f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})] \approx & \gamma\\
 Var(f(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})) \approx &  \gamma^2 \left(\frac{\sigma^2_{AZ}}{ \mu^2} + \frac{\sigma^2_{YZ}}{\gamma^2 \mu^2} - 2 \frac{Cov(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})}{\gamma \mu ^2} \right) \\ 
 \approx & \hat{\gamma}^2 \left(\frac{\hat{\sigma}^2_{AZ}}{ \hat{\beta}_{AZ}^2} + \frac{\hat{\sigma}^2_{YZ}}{\hat{\beta}_{YZ}^2} - 2 \frac{Cov(\hat{\beta}_{YZ}, \hat{\beta}_{AZ})}{\hat{\beta}_{AZ}\hat{\beta}_{YZ}} \right)
-\end{split}
-$$
+\end{split}$$
 
 - In the last step we replace all unknowns with estimates. 
 
@@ -463,14 +461,12 @@ Ference et al, Journal of American College of Cardiology (2012)
 ---
 ## Expectation of IVW Estimator
 
-$$
-\begin{split}
+$$\begin{split}
 E[\hat{\beta}_{IVW}] =& E\left[\frac{\sum_{k=1}^K \hat{\beta}_{Y,Z_k}\hat{\beta}_{A,Z_k}\sigma^{-2}_{Y,Z_k}}{\sum_{k=1}^K \hat{\beta}^2_{A,Z_k}\sigma^{-2}_{Y,Zk}}\right]\\
 =& E\left[\frac{\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}}{\sum_{k=1}^K \hat{\beta}^2_{A,Z_k}}\right] \approx \frac{E\left[\sum_{k=1}^K \hat{\beta}_{YZ_k}\hat{\beta}_{A,Z_k}\right]}{E\left[\sum_{k=1}^K \hat{\beta}^2_{A,Z_k}\right]}\\
 \approx &\frac{\gamma \sum_{k = 1}^K \mu_k^2}{\sum_{k = 1}^K \mu_k^2 + \sum_{k = 1}^K E[\epsilon_{A,k}^2]} = \frac{\gamma}{1 + (p\sigma^2_{A})/\sum_{k = 1}^K \mu_k^2}\\
 =& \frac{\gamma}{1 + 1/\kappa}&
-\end{split}
-$$
+\end{split}$$
 
 where $\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k^2}{\sigma^2_{AZ_k}}$ represents the average instrument strength. 
 ---
@@ -635,7 +631,7 @@ knitr::include_graphics("img/10_bound_tab1.png")
 - Uncertainty in $\hat{\beta}_{AZ}$ leads to regression dilution, causal estimate biased towards the null. 
 
 <center> 
-```{r, eval = FALSE, echo=FALSE, out.width="70%", fig.show='animate', ffmpeg.format='gif'}
+```{r,  echo=FALSE, out.width="70%", fig.show='animate', ffmpeg.format='gif'}
 knitr::include_graphics("img/10_regression_dilution.gif")
 ```
 </center>
@@ -691,7 +687,7 @@ Pros:
 - We have seen that our estimators do not have finite moments for single instruments. 
   - This makes it appealing to use multiple instruments whenever possible. 
 
-- Adding instruments will increase the total F statistic, which we have seen will decrease bias. 
+- Combining multiple instruments into a single instrument can increase the total F statistic, decreasing bias. 
 
 Cons:
 - The more instruments we include, the more chances we have to vioalte one of the IV assumptions. 
@@ -972,12 +968,9 @@ knitr::include_graphics("img/12_mcp.png")
 
 - The debiased IVW (dIVW) method introduced by Ye et al. (2021) addresses this by multiplying the IVW estimator by a correction factor.
 
-$$
-\hat{\beta}_{dIVW} = \hat{\beta}_IVW \frac{\sum_k \hat{w}_k}{\sum_k (\hat{w}_k - \hat{v}_k)}
-$$
-$$
-\hat{w}_k = \frac{\hat{\beta}^2_{A,k}}{\hat{\sigma}^2_{A,k}} \qquad \hat{v}_k = \frac{\hat{\sigma}^2_{A,k}}{\hat{\sigma}^2_{Z_k}}
-$$
+$$\hat{\beta}_{dIVW} = \hat{\beta}_{IVW} \frac{\sum_k \hat{w}_k}{\sum_k (\hat{w}_k - \hat{v}_k)}$$
+
+$$\hat{w}_k = \frac{\hat{\beta}^2_{A,k}}{\hat{\sigma}^2_{A,k}} \qquad \hat{v}_k = \frac{\hat{\sigma}^2_{A,k}}{\hat{\sigma}^2_{Z_k}}$$
 
 ---
 ## De-Biased IVW
