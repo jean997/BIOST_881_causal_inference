@@ -31,7 +31,19 @@ editor_options:
 
 [10. Machine Learning and TMLE](slides_2025/14_ml.html)
 
-[11. Time-Varying Treatment Part 1](slides_2025/10_time_varying_treatment_pt1.html)
+[11. Survival](slides_2025/9_survival.html)
+
+[12. Time-Varying Treatment Part 1](slides_2025/10_time_varying_treatment_pt1.html)
+
+[13. Time-Varying Treatment Part 2](slides_2025/11_time_varying_treatment_pt2.html)
+
+[14. Instrumental Variable Analysis Part 1](slides_2025/12_iva_part1.html)
+
+[15. Instrumental Variable Analysis Part 2](slides_2025/13_iva_part2.html)
+
+
+
+
 
 
 ## Lecture Slides from Past Years
