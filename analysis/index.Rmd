@@ -7,46 +7,24 @@ output:
 editor_options:
   chunk_output_type: console
 ---
+
+[Text book: What If by Migel A. Hernán and James M. Robins](https://miguelhernan.org/whatifbook) (HR)
+
 ## Lecture Slides
 
 [0. Course Overview](slides_2025/0_course_introduction.html) 
 
 [1. Introduction and Potential Outcomes](slides_2025/1_introduction.html)
 
-[2. DAGs, Confounding, Backdoor Criterion](slides_2025/2_dags_confounding.html)
-
-[3. Selection Bias, Non-Compliance, and Measurement Error](slides_2025/4_selection_bias.html)
-
-[4. Effect Modification, Interaction, and Collapsibility](slides_2025/3_effect_modification_interaction.html)
-
-[5. The Target Trial](slides_2025/5_target_trial.html)
-
-[6. IP Weighting and G-Computation](slides_2025/5_modeling1.html)
-
-[7. More PS Estimators and Double Robustness](slides_2025/6_propensity_scores.html)
-
-[8. Matching](slides_2025/7_matching.html)
-
-[9. G-Estimation](slides_2025/8_g_estimation.html)
-
-[10. Machine Learning and TMLE](slides_2025/14_ml.html)
-
-[11. Survival](slides_2025/9_survival.html)
-
-[12. Time-Varying Treatment Part 1](slides_2025/10_time_varying_treatment_pt1.html)
-
-[13. Time-Varying Treatment Part 2](slides_2025/11_time_varying_treatment_pt2.html)
-
-[14. Instrumental Variable Analysis Part 1](slides_2025/12_iva_part1.html)
-
-[15. Instrumental Variable Analysis Part 2](slides_2025/13_iva_part2.html)
-
-
-
-
+<div style="margin-left: 2em;">
+Reading:  HR Chapters 1-3 
+</div>
+  
 
 
 ## Lecture Slides from Past Years
+
+[2025 Slides](slide_index_2025.html)
 
 [2024 Slides](slide_index_2024.html)
 
