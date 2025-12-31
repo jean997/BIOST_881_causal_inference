@@ -8,7 +8,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-[Text book: What If by Migel A. Hernán and James M. Robins](https://miguelhernan.org/whatifbook) (HR)
+## Book: 
+
+[What If by Migel A. Hernán and James M. Robins](https://miguelhernan.org/whatifbook) (HR)
 
 ## Lecture Slides
 
