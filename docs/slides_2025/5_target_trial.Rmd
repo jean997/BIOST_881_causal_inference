@@ -96,7 +96,7 @@ knitr::include_graphics("img/5_target_trial_hr16.png")
 - Our target trial has eligibility criteria of 
   + Women within 5 years post-menopause between 2005 and 2010, no history of cancer, no hormone therapy in past two years
   
-- In order to be included in our analysis, we must known a woman's date of menopause onset. 
+- In order to be included in our analysis, we must know a woman's date of menopause onset. 
 
 - She must have been followed in the healthcare system for at least two years prior to baseline,
 
