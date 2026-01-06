@@ -360,7 +360,7 @@ knitr::kable(dat, col.names = c("", "\\(Y(A=0)\\)", "\\(Y(A=1)\\)"), format = 'h
 
 ## Measures of Treatment Effects
 
-+ Average treatment effect (ATE): $E[Y(1)] - E[Y(0)] = E[Y_i(A1) - Y_i(0)]$
++ Average treatment effect (ATE): $E[Y(1)] - E[Y(0)] = E[Y_i(1) - Y_i(0)]$
 
 + Risk ratio (RR): $E[Y(1)]/E[Y(0)]$
 
@@ -514,21 +514,23 @@ a data set.
 - Knowing that $\theta$ is theoretically identifiable doesn't mean we can estimate 
 it well in our data. 
 
-- It also doesn't provide us with an estimation procedure. 
 
 ---
 ## Identification Example: Co-linearity. 
 
-Suppose we model observations of $(Y, X_1, X_2)$ as
+ - Suppose we model observations of $(Y, X_1, X_2)$ as
 $$Y_i =  \beta_0 + \beta_1 X_{1,i} + \beta_2 X_{2,i}  + \epsilon_i$$
-and $X_{1,i} = X_{2,i}$ for all $i$. Then $(\beta_0, \beta_1, \beta_2)$ is not identifiable 
-because multiple values of $\beta_1$ and $\beta_2$ correspond to the same distribution of $Y$. 
+and $X_{1,i} = X_{2,i}$ for all $i$. 
+
+- Then $(\beta_0, \beta_1, \beta_2)$ is not identifiable 
+because multiple values of $\beta_1$ and $\beta_2$ correspond to the same distribution of $Y$ and therefore the 
+same joint distribution of $(Y, X_1, X_2)$. 
 
 ---
 ## Identifiability in Causal Inference
 
 - Usually in causal inference, we are interested in ideintifying a function of 
-counterfactuals like $E[Y(a)]$ or the ATE. 
+counterfactuals such as $E[Y(a)]$ or the ATE. 
 
 
 ---
@@ -538,10 +540,10 @@ counterfactuals like $E[Y(a)]$ or the ATE.
 
 --
 
-+ We must be able to estimate $E[Y(a)]$ for all values of $a$, so we must have
++ If only $A$ and $Y$ are observable, $E[Y(a)]$ is identifiable if
 
  
-$$ E[Y(a)] = E[Y \vert A = a]$$
+$$ E[Y(a)] = E[Y \vert A = a].$$
 
 --
 
@@ -697,7 +699,7 @@ $$P[Y(a) \leq y] = P[Y(a) \leq y \vert A = a] \ \ \ \text{(exchangeability)}$$
 $$= P[Y \leq y \vert A = a] \ \ \  \text{(consistency)}$$
 --
 
-Corrolary: If consistency, SUTVA, and exchangeability hold then $E[Y(a)] = E[Y \vert A = a]$
+Corollary: If consistency, SUTVA, and exchangeability hold then $E[Y(a)] = E[Y \vert A = a]$
 
 ---
 
@@ -720,7 +722,7 @@ Corrolary: If consistency, SUTVA, and exchangeability hold then $E[Y(a)] = E[Y \
 
 + So, we can estimate the ATE as long as consistency and SUTVA hold.
 
-+ One estimator is just the difference in average outcomes:
++ One estimator is the difference in average outcomes:
 $$\frac{1}{n_{1}}\sum_{i: A_i = 1}Y_i - \frac{1}{n_2}\sum_{i:A_i = 0}Y_i = \bar{Y}_1 - \bar{Y}_0$$
 
 ---
@@ -813,7 +815,9 @@ E[Y(1)] = \sum_{l = 0, 1}E[Y \vert A = 1, L = l]P[L = l] = 0 \cdot (6/10) + (2/3
 
 ## Positivity
 
-+ The standardization trick doesn't work if, within one level of $L$, patients never (or always) receive treatment.
++ Standardization trick doesn't work unless we observe all possible treatments within every level of $L$. 
+
++ In our surgery example, we would not be able to estimate $E[Y(0)]$ if everyone with $L = 1$ received treatment $A = 1$. 
 
 --
 
@@ -830,7 +834,7 @@ Theorem: If consistency, SUTVA, conditional exchangeability, *and positivity* ho
 
 --
 
-We can use exactly the same proof as the non-conditional theorem, conditioning on $L$ in each step.
+We can repeat the proof for the non-conditional theorem, conditioning on $L$ in each step.
 
 Proof: 
 
@@ -841,16 +845,18 @@ $$= P[Y \leq y \vert L=l, A = a] \ \ \  \text{(consistency)}$$
 
 ## Inverse Probability Weighting 
 
-+ Rather than using the standardization method, we can think of our trial as a weighted sampling from a larger, fully randomized trial with $2N$ participants.
++ Rather than using standardization, we can think of our trial as a weighted sample from a larger, fully randomized trial with $2N$ participants.
 
 
-+ To create this large *pseudo-population*, we imagine duplicating each member of our trial.
-One member of each pair receives treatment $A = 1$ and the other receives treatment $A = 0$. 
++ To create this large *pseudo-population*, we imagine duplicating every unit in the trial.
+Each duplicate has the same value of $L$ as their partner, but receives the opposite treatment. 
+
++ The original trial members plus unobserved, imaginary duplicates form the pseudo-population.
 
 + In the pseudo-population, $P[A = a \vert L = l] = 0.5$ for every level of $l$, so $Y(a) \ci A$. 
 
 
-+ This means that, in the pseudo-population,  $E[Y \vert A = a]$ estimates the counterfactual mean $E[Y(a)]$.
++ This means that, in the pseudo-population,  $E[Y \vert A = a] = E[Y(a)]$.
 
 ---
 # Inverse Probability Weighting
@@ -861,16 +867,27 @@ knitr::include_graphics("img/1_trial2.png")
 
 
 ---
-
-
 ## Inverse Probability Weighting 
 
-+ We can imagine that each individual in our trial was sampled from the larger pseudo-population with probability conditional on $L$ and $A$.
- 
- - In our study we selected half of participants with $A_i = 0$ and $L_i = 0$
- - Half of participants with $A_i = 1$ and $L = 0$
- - One quarter of participants with $A_i = 0$ and $L = 1$ 
- - Three quarters of participants with $A_i = 1$ and $L = 1$
++ We don't get to observe $Y$ for the imaginary duplicate units, so we assume that observed units are representative of unobserved units with the same values of $L$ and $A$. 
+
+
++ First, we group together units in the pseudo-population by value of $L$ and $A$. 
+
++ Then we assign weights to the observed members of each group. 
+
+
+---
+## Inverse Probability Weighting 
+
++ In our example study, there are 6 units with $L = 0$ and $A = 0$ and we observe $Y$ for 3 of these. 
+
++ Each of the observed units represents 2 units in the pseudo-population, so receives weight equal 2. 
+
++ We observe 1 of the 4 units with $L = 1$ and $A = 0$, so this unit receives weight equal to 4. 
+
++ We observe 3 of the 4 units with $L = 1$ and $A = 1$, so each of these receives weight equal to $4/3$. 
+
 
 ---
 # Inverse Probability Weighting
@@ -881,42 +898,59 @@ knitr::include_graphics("img/1_trial3.png")
 
 
 ---
-# Inverse Probability Weighting
+## Inverse Probability Weighting
 
-+ We can recover the estimate from the pseudo-population by weighting each participant by the number of units in the larger study that they represent:
-  
-  - $A_i=0$, $L_i=0$: $1/0.5 = 2$
-  - $A_i = 1$, $L_i = 0$: $1/0.5 = 2$
-  - $A_i = 0$, $L_i = 1$: $1/0.25 = 4$
-  - $A_i = 1$, $L_i = 0$: $1/0.75 = 1.33$
++ Once we have assigned each unit a weight, $w_i$, we can estimate $E[Y(a)]$ as
+
+$$E_{ps}[Y \vert A = a] = \frac{1}{2N}\sum_{i} w_i Y_i 1_{A_i = a} = \frac{\sum_{i} w_i Y_i 1_{A_i = a}}{\sum_i w_i}$$
++ $E_{ps}$ is the expectation in the pseudo-population.
+
++ We divide by $2N$ because there are $2N$ units in the pseudo-population.
+
 
 
 ---
-
 ## Inverse Probability Weighting 
 
-+ Formally, let $f_{A \vert L}(a\vert l)$ be the conditional pdf of $A$ given $L$. 
++ Due to our construction of the pseudo-population, the number of units with $L = l$ and $A =a$ in the pseudo-population is equal to the total number of observed (real) units with  $L = l$. 
 
-+ We assume that $f_{A \vert L}(a\vert l) > 0$ for all $a$ and $l$ s.t $P[L = l] > 0$. 
 
-+ The IP weighting for individual $i$ is $W^A_i = 1/f_{A\vert L}(a_i \vert l_i)$.
++ This means that each unit gets a weight equal to $N_{L = L_i}/N_{L = L_i, A = A_i}$.  
+   - $N_{L = L_i}$ is the number of units with $L = L_i$.
+   - $N_{L = L_i, A = A_i}$ is the number of units with $L = L_i$ and $A = A_i$.
 
-+ The IP weighted mean for treatment level $a$ is $$E[Y(a)] = E\left[\frac{I(A=a)Y}{f(A\vert L)}\right]$$
++ $N_{L = L_i, A = A_i}/N_{L = L_i}$ is an estimate of $P[A = A_i \vert L = L_i]$. 
+
+---
+## Inverse Probability Weighting
+
++ For discrete $A$, the IPW identification formula is 
+$$E[Y(a)] = E\left[\frac{Y1_{A=a}}{P(A = a\vert L)}\right].$$
++ Notice that this is only defined if $P(A = a \vert L = l) > 0$ for all $l$, the same as the standardization
+identification formula. 
+
++ If $A$ is continuous, we can replace $P(A = a \vert L)$ with $f_{A \vert L}(a\vert L)$, the conditional pdf of $A$ given $L$. 
+
+$$E[Y(a)] = E\left[\frac{Y1_{A=a}}{f_{A \vert L}(a\vert L)}\right].$$
 
 ---
 
 ## Equivalence of IP Weighting and Standardization
 
-+ We will assume that $A$ and $L$ are discrete and $f(a \vert l) = P[A = a \vert L = l] > 0$ for all $l$ with $P[L = l] > 0$.
++ Assume that $A$ and $L$ are discrete and $P[A = a \vert L = l] > 0$ for all $l$ with $P[L = l] > 0$.
 
 + Use the iterated expectation formula:
 
+$$
+\begin{split}
+E\left[\frac{I(A=a)Y}{P(A = a\vert L)}\right] =&  E_L \left\lbrace E_{Y}\left[\frac{I(A=a)Y}{P(A = a\vert L)} \Bigg\vert L \right]\right\rbrace\\
+=&  E_L \left\lbrace \frac{P(A = a \vert L = l)E[Y \vert A = a, L = l]}{P(A = a\vert L = l)}\right\rbrace\\
+= & E_L \left\lbrace E[Y \vert A = a, L = l]\right\rbrace\\
+=& \sum_l E[Y\vert A = a, L = l] P[L = l]
+\end{split}
+$$
 
-$$E\left[\frac{I(A=a)Y}{f(A\vert L)}\right] = E_L \left \lbrace E_{A} \left\lbrace E_{Y}\left[\frac{I(A=a)Y}{f(A\vert L)} \Bigg\vert A, L \right]\right\rbrace \right\rbrace$$
-$$=E_L \left \lbrace E_{A} \left\lbrace \frac{I(A = a)E[Y \vert A, L]}{f(A \vert L)} \right\rbrace \right\rbrace$$
-$$=E_L \left \lbrace   \frac{P(A = a \vert L) E[Y \vert A = a,  L]}{f(a \vert L)} \right\rbrace$$
-<!-- $$=\sum_l \frac{E[Y\vert A = a, L = l]}{f(a\vert l)} f(a \vert l) P[L = l]$$ -->
-$$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$
+
 
 
 
@@ -925,12 +959,9 @@ $$= \sum_l E[Y\vert A = a, L = l] P[L = l]$$
 ## Equivalence of IP Weighting and Standardization
 
 
--  This proof extends to continuous $L$ by replacing the sum with an integral. 
+-  This proof extends to continuous $L$ by replacing the sum in the last step with an integral. 
 
-- It doesn't extend to continuous $A$. We will talk more about continuous treatments in Part II. For now, we will always assume that 
-the treatment has discrete levels. 
-
-
+- It doesn't extend to continuous $A$. We will talk more about continuous treatments in Part II. For now, we will always assume that $A$ has discrete levels. 
 
 ---
 
@@ -941,20 +972,23 @@ the treatment has discrete levels.
 + However, these are much stronger assumptions in observational data. 
 ---
 
-## Consistencey
+## Consistency
   
 - Consistency says: The outcome we observed for unit $i$ ( $Y_i$ ), who received treatment $a$ is the same as the outcome we *would have observed* if we had intervened and set $A_i$ to $a$.
 
 $$A_i = a \Rightarrow Y_i = Y_i(a)$$
 
-- In a trial with an intervention, consistency is almost tautological. 
-    
-    + We *did* intervene and set $A_i$ to $a$. 
+- In a trial with an intervention, consistency is tautological. We *did* intervene and set $A_i$ to $a$. 
 
+---
+## Consistency
+- In an observational study we need to think about if consistency is justified and exactly what kind of causal conclusion we want to draw. 
 
-- In an observational study we should think about if consistency is justified. 
+- For example, we may be able to provide an estimate of the effect of a hypothetical intervention that increases serum vitamin D levels without impacting anything else. 
+  + But this could be different than the causal effect of increasing serum vitmamin D levels via supplementation, which may differ from the effect of increasing vitamin D level through sun exposure.
 
-  + People may change their behavior if they receive an intervention vs. choosing a behavior independently.
+- The causal effect of choosing to meditate every day may be different than the effect of being required to meditate every day. 
+  
   
 ---
 ## Conditional Exchangeability
@@ -963,7 +997,7 @@ $$A_i = a \Rightarrow Y_i = Y_i(a)$$
   - The researchers control the assignment mechanism and therefore know all of the features which contribute to treatment probabilities.
   
 + In observational studies, treatment assignment occurs "naturally".
-  - Identifying a set of variables to give conditional exchangeability requires assumptions and external information.
+  - Identifying a set of variables to achieve conditional exchangeability requires assumptions and external information.
   - It may not be possible to measure all necessary variables.
 
 ---
@@ -972,13 +1006,13 @@ $$A_i = a \Rightarrow Y_i = Y_i(a)$$
 
 + In a trial, positivity is guaranteed by design. 
 
-+ In observational data, even if we know a set $L$ of variables such that $Y(a) \ci A\ \vert \ L$, there may be levels $L$ for which $P(A = a \vert L = l)$ is close to or exactly zero. 
++ In observational data, even if we know $L$ such that $Y(a) \ci A\ \vert \ L$, there may be levels $L$ for which $P(A = a \vert L = l)$ is close to or exactly zero. 
 
 ---
 
 ## The Target Trial
 
-- Hernán and Robins argue that in order to identify a causal effect in observational data, we must have in mind a target trial that would identify the same parameter if it were feasible. 
+- Hernán and Robins argue that, in order to identify a causal effect in observational data, we must have in mind a target trial that would identify the same parameter if it were feasible. 
 
 - This includes clearly and specifically defining a hypothetical intervention. 
 
@@ -987,12 +1021,27 @@ $$A_i = a \Rightarrow Y_i = Y_i(a)$$
 
 ---
 
+## The Target Trial
+
+- To create a target trial, we start with the data that we actually observe, or could observe if we haven't done the study yet. 
+
+- We try to imagine a trial that could have produced the data we have on hand. 
+
+- Finally, we analyze our observational data as though it were produced by the trial we imagined. 
+   + We will see more about this in Lecture 5.
+
+
+---
+
 ## Group Discussion Question
 
 
-- Design a "target trial" to test the question "Does getting a college degree increase earnings?"
+- Imagine a hypothetical trial that tests the question "Does getting a college degree increase earnings?"
 
-- Are there parts of the question you would modify? How/Why?
+- Can you imagine a trial that might produce data similar to data that are actually observable?
+
+- Are there ways you might modify the question to make it answerable with plausibly measurable observational data?
+
 
 ---
 
