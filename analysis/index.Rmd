@@ -14,9 +14,9 @@ editor_options:
 
 ## Lecture Slides
 
-[0. Course Overview](slides_2025/0_course_introduction.html) 
+[0. Course Overview](slides_2026/0_course_introduction.html) 
 
-[1. Introduction and Potential Outcomes](slides_2025/1_introduction.html)
+[1. Introduction and Potential Outcomes](slides_2026/1_introduction.html)
 
 <div style="margin-left: 2em;">
 Reading:  HR Chapters 1-3 
