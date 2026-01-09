@@ -815,7 +815,7 @@ E[Y(1)] = \sum_{l = 0, 1}E[Y \vert A = 1, L = l]P[L = l] = 0 \cdot (6/10) + (2/3
 
 ## Positivity
 
-+ Standardization trick doesn't work unless we observe all possible treatments within every level of $L$. 
++ Standardization doesn't work unless we observe all possible treatments within every level of $L$. 
 
 + In our surgery example, we would not be able to estimate $E[Y(0)]$ if everyone with $L = 1$ received treatment $A = 1$. 
 

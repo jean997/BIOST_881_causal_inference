@@ -37,7 +37,7 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### Lecture on 2026-01-08
-(updated: 2026-01-06)
+(updated: 2026-01-09)
 ]
 
 ---
@@ -152,8 +152,8 @@ Causal inference consists of three elements:
 ## Fisher's Argument 
 
 
-<div class="grViz html-widget html-fill-item" id="htmlwidget-3cdb53e7e9e7b3b846c9" style="width:90%;height:180px;"></div>
-<script type="application/json" data-for="htmlwidget-3cdb53e7e9e7b3b846c9">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Smoking\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = \"Genertic Variant\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,1!\"] \n  \"3\" [label = \"Lung Cancer\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"3,0!\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-645fda79ea5a2544f8d0" style="width:90%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-645fda79ea5a2544f8d0">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Smoking\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = \"Genertic Variant\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,1!\"] \n  \"3\" [label = \"Lung Cancer\", fontname = \"Helvetica\", shape = \"oval\", fontsize = \"10\", width = \"1\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"3,0!\"] \n\"2\"->\"1\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 
 ---
 ## What is Wrong with Fisher's Argument?
@@ -1436,7 +1436,7 @@ E[Y(1)] = \sum_{l = 0, 1}E[Y \vert A = 1, L = l]P[L = l] = 0 \cdot (6/10) + (2/3
 
 ## Positivity
 
-+ Standardization trick doesn't work unless we observe all possible treatments within every level of `\(L\)`. 
++ Standardization doesn't work unless we observe all possible treatments within every level of `\(L\)`. 
 
 + In our surgery example, we would not be able to estimate `\(E[Y(0)]\)` if everyone with `\(L = 1\)` received treatment `\(A = 1\)`. 
 
