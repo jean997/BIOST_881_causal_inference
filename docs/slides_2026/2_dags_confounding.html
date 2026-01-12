@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L2: DAGs and Confounding</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
+    <link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+    <script src="libs/viz-1.8.2/viz.js"></script>
+    <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding-1.0.11/grViz.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# L2: DAGs and Confounding
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### Lecture on 2025-01-15
+(updated: 2026-01-12)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+`\(\newcommand{\nci}{\not\!\perp\!\!\!\perp}\)`
+
+
+
+
+## Lecture Outline 
+
+1. Representing Causal Relationships in Directed, Acyclic Graphs (DAGs)
+   + The causal Markov property connects DAGs to properties of the joint distribution of nodes.
+
+1. Connecting DAGs to Counterfactuals through Structural Equation Models. 
+
+1. Using Properties of DAGs to Identify Conditional Exchangeability.
+  + d-separation allows us to determine conditional independence statements from DAGs.
+  + The backdoor criterion allows us to determine conditional exchangeability from DAGs.
+  + SWIGs provide an alternative approach for identifying conditional exchangeability. 
+
+
+
+---
+# 1. Representing Causal Relationships in Directed, Acyclic Graphs (DAGs)
+
+---
+
+## Graphical Representations of Casual Effects
+
++ We can represent causal relationships with graphs. 
+
++ Nodes in the graph are random variables. 
+
++ Directed edges represent direct causal effects (not mediated by any other variables in the graph).
+
++ The absence of an edge indicates the absence of a direct causal effect. 
+--
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-a3971413a7400be2bb73" style="width:90%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-a3971413a7400be2bb73">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"3\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"2.2,0!\"] \n  \"4\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"3.2,0!\"] \n  \"5\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"2.7,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+## Why Use Graphs
+
+- Graphs are a natural way of encoding scientific understanding of the world. 
+
+- For many people, the graph encoding is fairly intuitive. 
+  - Graphs can be a useful tool for communicating structural assumptions across domains. 
+
+- Under some assumptions, graphical properties can be used to easily solve problems that are hard to solve otherwise. 
+  - In particular, graphs are very useful for answering the question "what variables should I condition on?".
+  
+  
+
+
+---
+
+
+## Graph Definitions 
+
+- A graph, `\(\mathcal{G} = \lbrace V, E\rbrace\)` consists of
+  - A set of nodes (vertices) `\(V = \lbrace V_1, \dots, V_J\rbrace\)`
+  - A set of edges `\(E = \lbrace (V_{1_1}, V_{1_2}), \dots, (V_{K_1}, V_{K_2}) \rbrace\)`, which can be represented as pairs of nodes.
+  
+- A graph can be either *directed*, in which case elements of `\(E\)` are ordered pairs or *undirected*, in which case
+elements of `\(E\)` are un-ordered. 
+  - Our graphs will always be directed. 
+
+- Two nodes are *adjacent* if they are connected by an edge. 
+  + If the edge is directed, the node at the beginning of the edge is the *parent* and the node at the end is the *child*.
+
+---
+
+## Graph Definitions
+
+- A *path* is a sequence of nodes connected by edges that does not intersect itself (a node cannot appear in a path twice).
+
+- In a directed path, all of the edges are oriented in the same direction: i.e. each edge starts at last node of the previous edge. 
+
+- In this graph:
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-173fbacefe955e1bb64c" style="width:40%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-173fbacefe955e1bb64c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+there are two paths from `\(A\)` to `\(Y\)` but only one directed path. 
+
+---
+
+## Graph Definitions
+
+- Two nodes are *connected* if there is at least one path between them. Otherwise, they are *disconnected*.
+
+- Node `\(k\)` is a descendant of node `\(j\)` if there is a directed path from `\(V_j\)` to `\(V_k\)`. 
+
+- If a graph contains no directed cycles, it is *acyclic*
+  + We will require all of our graphs to be acyclic.
+
+- DAG = Directed Acyclic Graph
+---
+
+## Example: 
+
++ Consider this story:
+
+  - There are two possible treatments for a disease. Treatment `\(A = 1\)` is more effective than `\(A = 0\)`, but has more side effects.
+  - Doctors prefer treatment `\(A = 0\)` for patients who are older or who have more mild disease.
+  - Patient outcome (remission or not) is affected by initial severity, treatment, and treatment adherence.
+  - Conditional on everything else, age has no effect on patient outcome or disease severity.
+
+--
+
++ Work with your neighbor to arrange the following variables in a DAG (there is more than one right answer):
+
+  - Patient outcome
+  - Initial disease severity
+  - Treatment
+  - Treatment Adherence
+  - Age
+
+
+---
+## Disease Treatment Example 
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-29f6bcd3b69ade8b2c57" style="width:90%;height:504px;"></div>
+<script type="application/json" data-for="htmlwidget-29f6bcd3b69ade8b2c57">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Age\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,1.2!\"] \n  \"2\" [label = \"Severity\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,-1.2!\"] \n  \"3\" [label = \"Treatment\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"2,0!\"] \n  \"4\" [label = \"Outcome\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"4,0!\"] \n  \"5\" [label = \"Adherence\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"3,1.2!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+---
+## Temporality
+
+- Our definition of causality requires that the exposure occur before the outcome in time. 
+
+- Under this restriction, a causal DAG must be consistent with at least one strict ordering of nodes.
+  
+--
+
+- How do we represent a feedback loop?
+
+--
+  + We can create multiple nodes representing unique time points (e.g. `\(A_1, A_2, \dots\)`), with each node only permitted to have causal effects on future nodes.
+  + More on this later. 
+
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-251dfda0dcb21fae968a" style="width:90%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-251dfda0dcb21fae968a">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"2,0.3!\"] \n  \"4\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"2.5,-0.3!\"] \n  \"5\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"3,0.3!\"] \n  \"6\" [label = <Y<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"3.5,-0.3!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"4\"->\"6\" [color = \"black\"] \n\"5\"->\"6\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+&lt;!-- - What if measurements are taken at the same time? --&gt;
+
+&lt;!-- -- --&gt;
+&lt;!--   + We are generally forced to assume a temporal ordering even if our observations are taken at the same time.  --&gt;
+&lt;!--   + For example, if we measure height and blood pressure, we can assume that height is stable over a long period of time while blood pressure is more variable. --&gt;
+
+---
+## Causal Markov Property
+
+- The causal Markov property translates graph structure into probability statements.
+
++ It states that, conditional on it's parents, each node is independent of all nodes that are not not it's descendants. 
+
++ This implies that the joint probability distribution of all nodes can be factored as
+
+$$
+P(V) = \prod_{j = 1}^{J} P(V_j \vert pa_j).
+$$
+
+
+---
+
+## Example
+
+Conditional independence statements in the disease treatment graph:
+
+`$$S\ci A \qquad S\ci Ad \qquad A \ci Ad$$`
+`$$T \ci Ad\ \mid A, S$$`
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-821123878c30f0981136" style="width:432px;height:360px;"></div>
+<script type="application/json" data-for="htmlwidget-821123878c30f0981136">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Age\nA\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,1.2!\"] \n  \"2\" [label = \"Severity\nS\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,-1.2!\"] \n  \"3\" [label = \"Treatment\nT\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"2,0!\"] \n  \"4\" [label = \"Outcome\nO\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"4,0!\"] \n  \"5\" [label = \"Adherence\nAd\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"3,1.2!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+---
+
+## Example
+
+In our example, we can factor the joint probability as 
+
+`$$P(A, S, T, Ad, O) = P(A)P(S)P(Ad)P(T \vert A, S)P(O \vert S, T, Ad)$$`
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-0f3e7c385992a13ffa11" style="width:432px;height:360px;"></div>
+<script type="application/json" data-for="htmlwidget-0f3e7c385992a13ffa11">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Age\nA\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,1.2!\"] \n  \"2\" [label = \"Severity\nS\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,-1.2!\"] \n  \"3\" [label = \"Treatment\nT\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"2,0!\"] \n  \"4\" [label = \"Outcome\nO\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"4,0!\"] \n  \"5\" [label = \"Adherence\nAd\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"3,1.2!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+ 
+---
+
+# 2. Connecting DAGs to Counterfactuals through Structural Equation Models
+
+
+---
+
+## Example
+
+- Suppose we have a machine for measuring blood pressure. 
+
+- `\(X\)` represents the true systolic blood pressure and `\(Y\)` represents the measured systolic blood pressure. 
+
+- Suppose that the machine has some small amount of error. 
+
+- We can represent this system with a graph:
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-d4d0bd34d92ab011c4b0" style="width:50%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-d4d0bd34d92ab011c4b0">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"X\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+---
+
+## Example
+
+- We could also represent the system with an equation 
+
+`$$Y = X + \epsilon_Y$$`
+where `\(\epsilon_Y\)` is a random variable that is the error of the machine. 
+
+
+- This equation is structural because the quantity on the left can be interpreted as a counterfactual. 
+
+
+- We could equivalently write
+
+`$$Y(X = x) = x + \epsilon_Y$$`
+- Traditionally, in SEM literature, the counterfactual is not written explicitly. 
+
+---
+
+## Example
+
+- Mathematically, `\(Y = X + \epsilon_Y\)` is equivalent to 
+
+`$$X = Y - \epsilon_Y$$`
+
+- But this equation is not structural because the lefthand term cannot be interpreted as a counterfactual. 
+
+- Intervening on the readout on the machine does not change the patients blood pressure.
+
+---
+
+## Structural Equation Models
+
+- A **structural equation model** is a system of structural equations describing a set of variables.
+
+- An equation is structural if the lefthand term can be interpreted as the counterfactual value when the terms on the right are intervened on.
+
+---
+
+## SEMs Link to Graphs
+
+- DAGs can be given causal interpretation by linking them with structural equation models.
+
+- Let `\(\mathcal{G} = \lbrace V, E \rbrace\)` be a directed graph with nodes `\(V_1, \dots, V_n\)`.
+
+- Let `\(\epsilon_1, \dots, \epsilon_n\)` be a set of random "noise" variables corresponding to each node. 
+
+- We assume that, for a given `\(V_i\)` with parents `\(\mathbf{pa}_i \subset V\)`, there is a counterfactual `\(V_i(\mathbf{pa}_i)\)` given by the non-parametric
+structural equation 
+`$$V_i(\mathbf{pa}_i) = f_{V_i}(\mathbf{pa}_i, \epsilon_{i})$$`
+
+---
+
+## Example 
+
+This graph
+
+&lt;center&gt; 
+
+&lt;img src="img/2_swig6_fig9.png" width="40%" /&gt;
+
+&lt;/center&gt;
+
+corresponds to the nonparametric SEM (NPSEM):
+
+`$$Z = f_Z(\epsilon_Z)$$`
+`$$M(z) = f_M(z, \epsilon_M)$$`
+`$$Y(z, m) = f_Y(z, m, \epsilon_Y)$$`
+---
+
+## Special Case: Linear Structural Equation Models
+
+- A linear SEM is the special case that `\(f_{V_1}, \dots, f_{V_n}\)` are linear and `\(\epsilon_{1}, \dots, \epsilon_n\)` are mutually independent. 
+
+- In the previous example, a linear SEM would be 
+
+$$
+`\begin{split}
+&amp;Z = \epsilon_Z\\
+&amp;M = \beta_{ZM} Z + \epsilon_M\\
+&amp;Y = \beta_{ZY} Z + \beta_{MY} M + \epsilon_Y
+\end{split}`
+$$
+- In the linear case, the SEM can be written in matrix notation 
+
+$$
+\mathbf{V}(\mathbf{v}) = \mathbf{B}^{\top}\mathbf{v} + \boldsymbol{\epsilon}
+$$
+
+---
+
+## Linear SEMs
+
+- Lots of early work on causal inference deals specifically with linear SEMs. 
+
+- Linear SEMs are easy to work with, so it is sometimes convenient to demonstrate a property using linear SEMs.
+
+- However, this is a very restrictive model. 
+
+- For now, we will try to make as few assumptions as possible. 
+
+- When we start the modeling section, we will add some assumptions so that we can estimate parameters but it is nice to be clear about which assumptions are necessary and which are just a convenience. 
+
+---
+
+## Completing the Causal Model Definiton
+
+- Our definition of NPSEMs is not quite sufficient to provide a causal model because it doesn't guarantee the causal Markov property. 
+
+- For this we need an assumption about `\(\epsilon_1, \dots, \epsilon_n\)`.
+
+- One sufficient assumption is that `\(\epsilon_1, \dots, \epsilon_n\)` are mutually independent of each other and
+the other variables in the model. 
+
+- Richardson and Robins call this the NPSEM-IE (IE = Independent Errors) model. They also propose a weaker set of assumptions that is also sufficient. 
+
+- We will come back to this later.
+
+---
+
+# 3. Using Properties of DAGs to Identify Conditional Exchangeability.
+
+3.1 Confounding, Colliding, and d-separation
+
+3.2 Backdoor criterion 
+
+3.3 Single world intervention graphs (SWIGs)
+
+---
+# 3.1 Confounding, Colliding, and d-seperation
+
+---
+
+## Exchangeability
+
+- We want to know if the outcome, `\(O\)`, is exchangeable with respect to the treatment, `\(T\)`. That is, we want to know if `\(O(t) \ci T\)`.
+
+- If not, what set of variables, `\(L\)` can we condition on such that `\(O(t) \ci T \mid L\)`?
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-bd0bab1a245b2eabb11f" style="width:432px;height:360px;"></div>
+<script type="application/json" data-for="htmlwidget-bd0bab1a245b2eabb11f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Age\nA\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,1.2!\"] \n  \"2\" [label = \"Severity\nS\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,-1.2!\"] \n  \"3\" [label = \"Treatment\nT\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"2,0!\"] \n  \"4\" [label = \"Outcome\nO\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"4,0!\"] \n  \"5\" [label = \"Adherence\nAd\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"3,1.2!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+---
+
+## Recognizing Lack of Exchangeability in a DAG
+
+- Informally, there are two sources of lack of exchangeability:
+
+  + The presence of common causes (confounders) that have not been conditioned on.
+  + Common effects (colliders) that have been conditioned on. 
+  
+- We will see how to formalize these statements and how to use a DAG to identify a sufficient conditioning set to remove confounding.
+
+---
+
+## Common Causes (Confounders)
+
+- The presence of a common cause introduces association between two variables that is not due to a causal effect. 
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-05e8e71382b6baf4c463" style="width:432px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-05e8e71382b6baf4c463">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+--
+
+- In the disease treatment example, disease severity is a confounder:
+  - Sicker patients are more likely to receive `\(A = 0\)` and sicker patients are also more likely to have a poor outcome.
+  - So there would be an association between treatment and outcome, even if the two drugs worked equally well. 
+  
+---
+
+## Confounding
+
+- Confounding as a concept is quite old and therefore has been given many definitions. 
+
+- We will define confounding as the lack of exchangeability that results from common causes. 
+  
+- *Confounders* are variables which can be used to adjust for confounding. 
+  + In the graph below, `\(L_1\)` and `\(L_2\)` are both confounders, even though only `\(L_1\)` is a common cause of `\(A\)` and `\(Y\)`.
+  
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-7ca0b48c36d0c94254e7" style="width:432px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-7ca0b48c36d0c94254e7">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,0.8!\"] \n  \"4\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+---
+
+## Common Effects (Colliders)
+
++ A variable `\(L\)` is a collider relative to `\(A\)` and `\(Y\)` if `\(L\)` is a descendant of both `\(A\)` and `\(Y.\)` 
+
++ The presence of a collider that is not conditioned on does not induce association between `\(A\)` and `\(Y\)`. 
+
++ But **conditioning on a collider** introduces an association between `\(A\)` and `\(Y\)`. 
+  - This may not be as intuitive as the bias introduced by a common cause. 
+  
+  
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-b37617a2d1f1725ed90f" style="width:40%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-b37617a2d1f1725ed90f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,-0.5!\"] \n\"2\"->\"3\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+
+&lt;/center&gt;
+
+---
+
+## Collider Example: Routes to Stardom
+
++ Suppose that in order to become a movie star, one must either be talented or beautiful. 
+
++ Suppose that in the population, talent and beauty are uncorrelated. 
+
++ But both talent and beauty increase a person's chance of becoming a star.
+
++ Then, among those who are stars, beauty and talent will be negatively correlated.
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-3f0d03dd741de9f10abf" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-3f0d03dd741de9f10abf">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Talent\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.5\", fillcolor = \"#FFFFFF\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Beauty\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.5\", fillcolor = \"#FFFFFF\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fontcolor = \"#000000\", pos = \"1,0!\"] \n  \"3\" [label = \"Stardom\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.5\", fillcolor = \"#FFFFFF\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", fontcolor = \"#000000\", pos = \"0.5,-0.75!\"] \n\"2\"->\"3\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+---
+
+## Collider Example: Routes to Stardom
+
+&lt;img src="2_dags_confounding_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Collider Example: Routes to Stardom
+
+&lt;img src="2_dags_confounding_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Colliders Can "Block" Confounding
+
+- In the graph below, there is no confounding because there is no common cause of `\(A\)` and `\(Y\)`.
+
+- The collider `\(L_2\)` is "blocking" the path from `\(A\)` to `\(Y\)`. 
+
+- Causal Markov properties show us that `\(A\)` and `\(Y\)` are independent in this graph. 
+
+- d-Separation formalizes the rules for identifying pairs of independent variables based on graphical rules.
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-888142a7d0ab9c9b2f3f" style="width:432px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-888142a7d0ab9c9b2f3f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,0.8!\"] \n  \"4\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+---
+
+## No Statistical Definition of Confounding
+
+- One commonly given characterization of a confounder is a variable which 
+
+  + Is associated with the exposure.
+  + Is associated with the outcome.
+  + Is not on the pathway of interest between exposure and outcome. 
+  
+--
+
+- In the graph below, `\(L_2\)` satisfies all of these criteria but is not a confounder.
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-5402d1e13b724808bb3d" style="width:432px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-5402d1e13b724808bb3d">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,0.8!\"] \n  \"4\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+- Determining confounding requires a causal model. 
+  + The data cannot tell you if confounding is present.
+  
+---
+
+## d-Separation
+
++ A path is *blocked* if:
+  1. Two arrowheads on the path collide ( `\(\rightarrow W \leftarrow\)` ) at a variable that is not being conditioned on *and* which has no descendants in the conditioning set. OR
+  1. It contains a non-collider that is being conditioned on. 
+  
++ A path is *open* if it is not blocked:
+  - It does not contain a collider and no variables on the path are being conditioned on. OR
+  - All colliders are conditioned on and no non-colliders are conditioned on.
+  
++ Two variables are *d-separated* if all paths between them are blocked. 
+
+---
+
+## Examples:
+
+Are `\(A\)` and `\(Y\)` d-separated?
+
+&lt;center&gt;
+.pull-left[
+<div class="grViz html-widget html-fill-item" id="htmlwidget-e24446ef7c945f02136e" style="width:80%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-e24446ef7c945f02136e">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,0.8!\"] \n  \"4\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+]
+.pull-right[
+<div class="grViz html-widget html-fill-item" id="htmlwidget-1c265079d03782725b48" style="width:80%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-1c265079d03782725b48">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,0.8!\"] \n  \"4\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+]
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-5100d91ac06e84cdb10e" style="width:40%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-5100d91ac06e84cdb10e">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", shape = \"circle\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", shape = \"circle\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", shape = \"circle\", fontcolor = \"#000000\", pos = \"0.5,0.8!\"] \n  \"4\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", shape = \"square\", fontcolor = \"#000000\", pos = \"1,0.4!\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+square = is conditioned on 
+---
+
+## d-Separation Implies Conditional Independence
+
+- Let `\(A\)`, `\(B\)`, and `\(C\)` be sets of variables. Verma and Pearl (1988) proved that
+$$ A \text{ is } d\text{-separated from }B\text{ given }C \Rightarrow A \ci B \mid C$$ 
+
+- We will not prove this in class, but you may enjoy the proof in the 1988 paper if you like graph theory (see Related Reading). 
+
+- Notice that `\(d\)`-separation is a result about conditional independence of the variables **in** the graph. 
+
+- It does not tell us about conditional exchangeability, which is conditional independence of a counterfactual value and a variable in the graph, e.g. `\(Y(A=a) \ci A \mid L\)`. 
+  - So far there are no counterfactuals in our graphs. 
+  
+---
+## Faithfulness
+
+- Faithfulness is the reverse direction.  A graph is faithful if, for any three sets of variables `\(A\)`, `\(B\)`, and `\(C\)`, 
+`$$A \ci B \mid C \Rightarrow\ A \text{ is } d\text{-separated from }B\text{ given }C$$` 
+
+- Violations of faithfulness occur when confounding effects perfectly cancel each other. 
+
+---
+## Faithfulness Example
+
+- If the graph below corresponds to the linear SEM
+$$
+`\begin{split}
+&amp;A = 0.4 U_1 - 0.2 U_2 + \epsilon_A \qquad &amp;U_1 = \epsilon_{U_1}\\
+&amp;B = 0.5 U_1 + U_2 + \epsilon_B\qquad &amp;U_2 = \epsilon_{U_2}\\
+&amp;\epsilon_A \ci \epsilon_B \ci \epsilon_{U_1} \ci \epsilon_{U_2} \qquad &amp;\epsilon_{*} \sim N(0, 1),
+\end{split}`
+$$
+then `\(A \ci B\)`. 
+
+- But `\(A\)` and `\(B\)` are not `\(d\)`-separated unconditionally in this graph. 
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-140ef77588da530a5c43" style="width:432px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-140ef77588da530a5c43">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"B\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"2,0!\"] \n  \"3\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0.5!\"] \n  \"4\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,-0.5!\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"4\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+
+---
+
+## Faithfulness
+
+- Pearl calls violations of faithfulness "incidental cancellations" because conditional independence only occurs when there are specific numerical relationships between the variables.
+
+- There are many alternative SEMs corresponding to the same graph below in which `\(A\)` is not independent of `\(B\)` unconditionally.
+
+- Pearl defines "stable" vs "unstable" unbiasedness. Unstable unbiasedness occurs when faithfulness is violated. 
+  
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-91768fcbbfb2f5d460cb" style="width:432px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-91768fcbbfb2f5d460cb">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"B\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"2,0!\"] \n  \"3\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0.5!\"] \n  \"4\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,-0.5!\"] \n\"3\"->\"1\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"4\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;  
+  
+  
+  
+  
+---
+## Faithfulness
+
+- Practically, we can assume that faithfulness is never violated except when it is violated by design.
+
+- Matching studies intentionally violate faithfulness. 
+  + More on this in our matching lecture.
+
+---
+
+## Example
+
+Which pairs of variables are d-Separated unconditionally? 
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-c6394fb143f2034b965f" style="width:432px;height:360px;"></div>
+<script type="application/json" data-for="htmlwidget-c6394fb143f2034b965f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"Age\nA\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,1.2!\"] \n  \"2\" [label = \"Severity\nS\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"0.2,-1.2!\"] \n  \"3\" [label = \"Treatment\nT\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"2,0!\"] \n  \"4\" [label = \"Outcome\nO\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"4,0!\"] \n  \"5\" [label = \"Adherence\nAd\", fontname = \"Helvetica\", fontsize = \"12\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"black\", fixedsize = \"TRUE\", width = \"1\", pos = \"3,1.2!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"2\"->\"4\" [color = \"black\"] \n\"3\"->\"4\" [color = \"black\"] \n\"5\"->\"4\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+--
+
+- The causal Markov property allowed us to conclude that `\(T \ci Ad \mid S, A\)`.
+- Because `\(T\)` and `\(Ad\)` are d-separated, we can also conclude that `\(T \ci Ad\)` unconditionally.
+
+
+---
+# 3.2 The Backdoor Criterion
+
+---
+
+## Backdoor Path
+
+- A backdoor path from `\(A\)` to `\(Y\)` is a path from `\(A\)` to `\(Y\)` that begins with an edge going *into* `\(A\)`. 
+
+- Find the backdoor paths from `\(A\)` to `\(Y\)`. 
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-b2fc9348c9a6dc49c925" style="width:60%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-b2fc9348c9a6dc49c925">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.5,0.5!\"] \n  \"4\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.5,0!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"2.5,0!\"] \n  \"6\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"2,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"6\"->\"5\" [color = \"black\"] \n\"4\"->\"6\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-6d3c789e225229063e79" style="width:60%;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-6d3c789e225229063e79">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.9,0.4!\"] \n  \"4\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.45,0.9!\"] \n  \"5\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.35,0.9!\"] \n\"4\"->\"1\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+
+---
+
+## Backdoor Criterion and Exchangeability
+
+Theorem: If a set of variables, `\(L\)`, 
+  + blocks every backdoor path between `\(A\)` and `\(Y\)` 
+  + contains no descendants of `\(A\)`,
+  
+then `\(Y(a) \ci A \mid L\)`. 
+
+--
+- The two conditions in the theorem are referred to as the *backdoor criterion*. 
+
+--
+- Reminder: We care about conditional exchangeability because we learned in L1 that if `\(Y(a) \ci A \mid L\)`, and consistency, SUTVA, and positivity hold, then 
+`$$E[Y(a)] = \sum_{l}E[Y \vert A = a, L = l]P[L = l]$$`
+- If we can find a measured set of variables, `\(L\)`, such that `\(Y(a) \ci A \mid L\)` and the other assumptions hold, then we know that `\(E[Y(a)]\)` is identifiable.
+
+---
+
+## Examples
+
+Find a set of variables `\(H \subseteq \left \lbrace U_1, L, U_2 \right \rbrace\)` such that  `\(Y(a) \ci A \mid H\)`:
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-60110be17db75ff53a42" style="width:60%;height:216px;"></div>
+<script type="application/json" data-for="htmlwidget-60110be17db75ff53a42">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.9,0.4!\"] \n  \"4\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.45,0.9!\"] \n  \"5\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.35,0.9!\"] \n\"4\"->\"1\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+--
+
+- `\(A\)` and `\(Y\)` are exchangeable unconditionally, `\(Y(a) \ci A\)`, ( `\(H\)` is the emptyset). 
+
+- Conditioning on `\(L\)` induces bias. (M-Bias), `\(Y(a) \nci A \mid L\)`.
+
+- If we condition on `\(L\)`, we need to also condition on `\(U_1\)` or `\(U_2\)` to block the now open path.
+
+---
+
+## Examples
+
+Is there a set of variables, `\(H\)`, such that  `\(Y(a) \ci A \mid H\)`? What if `\(U_1\)` and `\(U_2\)` are unobserved?
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-4f52a57e4a675d806a59" style="width:60%;height:216px;"></div>
+<script type="application/json" data-for="htmlwidget-4f52a57e4a675d806a59">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.9,0.4!\"] \n  \"4\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.45,0.9!\"] \n  \"5\" [label = <U<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.35,0.9!\"] \n\"4\"->\"1\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n\"5\"->\"3\" [color = \"black\"] \n\"5\"->\"2\" [color = \"black\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+--
+
+-  `\(\lbrace U_1, L\rbrace\)` and `\(\lbrace U_2, L \rbrace\)` are both sufficient adjustment sets. 
+
+- If `\(U_1\)` and `\(U_2\)` are unobserved, there is no available set of variables we can condition on to remove bias. 
+
+
+
+
+---
+
+## Examples
+
+Is there a set of variables, `\(H\)` such that  `\(Y(a) \ci A \mid H\)`? What if `\(U\)` is unobserved?
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-b15630f93783cd6a06e3" style="width:60%;height:216px;"></div>
+<script type="application/json" data-for="htmlwidget-b15630f93783cd6a06e3">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1.8,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.9,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.45,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n\"4\"->\"1\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+&lt;/center&gt;
+
+--
+
+-  Conditioning on `\(U\)` blocks all backdoor paths.
+
+- Could we condition on `\(L\)` instead?
+
+--
+
+- `\(L\)` is a descendant of `\(A\)`, so it does not satisfy the backdoor criterion. It is not true that `\(Y(a) \ci A \vert L\)`. 
+
+
+---
+# 3.3. Single World Intervention Graphs
+
+---
+
+## Single World Intervention Graphs (SWIGs)
+
+- SWIGs are a method of including counterfactuals in DAGs proposed by Richardson and Robins.
+
+- This is an alternative to a strategy called graph surgery proposed by Judea Pearl.
+
+- SWIGs make the intervention more explicit than graph surgery does. 
+
+- Using SWIGs, we can evaluate conditional exchangeability using only `\(d\)`-separation without having to 
+manage the other aspects of the backdoor criterion. 
+
+---
+
+## SWIGs
+
+- To create a SWIG, the node representing the intervened on variable is split into two nodes. 
+  - One node represents the natural (observable) value of of the variable.
+  - The other represents the fixed value due to the intervention.
+
+&lt;center&gt; 
+
+&lt;img src="img/2_dag1.png" width="30%" /&gt;
+
+&lt;img src="img/2_swig1.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+&lt;!-- --- --&gt;
+
+&lt;!-- # SWIG Procedure --&gt;
+
+&lt;!-- - To represent the counterfactual `\(Y(a)\)`, we split the node `\(A\)` in the original graph into two nodes: --&gt;
+
+&lt;!-- - `\(A\)` (in the SWIG) represents the naturally occurring treatment -- what would have occurred with no intervention.  --&gt;
+&lt;!--   + All of the arrows which entered into `\(A\)` in the original DAG will enter into `\(A\)` in the SWIG. --&gt;
+
+&lt;!-- - `\(a\)` represents the intervened on value of the treatment.  --&gt;
+&lt;!--   + This variable is fixed at the value `\(a\)` (i.e. it is deterministic rather than random). --&gt;
+&lt;!--   + All arrows which exited `\(A\)` in the original DAG now exit the `\(a\)` intervention node. --&gt;
+&lt;!--   + All variables which were downstream of `\(A\)` in the original DAG are replaced by their counterfactual values.  --&gt;
+
+---
+
+
+## Templates (SWITs)
+
+- Each SWIG can represent only a single intervention, i.e. the world in which everyone receives treatment `\(A = a\)`. 
+
+- A template is a graph valued function `\(x \rightarrow \mathcal{G}(x)\)`.  The input is the value the intervened-on variable is set to, the output is a SWIG.
+  
+&lt;center&gt; 
+
+
+&lt;img src="img/2_swig1.png" width="80%" /&gt;
+
+
+&lt;img src="img/2_swig4.png" width="40%" /&gt;
+
+&lt;/center&gt;
+  
+---
+
+## Single World
+
++ `\(Y(0)\)` and `\(Y(1)\)` never appear on the same graph.
+
++ SWIGs cannot represent relationships between counterfactuals "across worlds" (i.e. `\(Y(0)\)` and `\(Y(1)\)` ).
+
++ From the SWIGs below, we can conclude `\(Y(0) \ci X\)` and `\(Y(1) \ci X\)` but not `\(Y(1), Y(0) \ci X\)` or `\(Y(1) \ci Y(0)\)`.
+
+&lt;center&gt; 
+
+
+&lt;img src="img/2_swig1.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+---
+
+## SWIG Procedure
+
+- Step 1: Split nodes
+
+&lt;center&gt; 
+
+
+&lt;img src="img/2_split_nodes.png" width="40%" /&gt;
+
+&lt;/center&gt;
+
+- Split every intervention node into
+  - `\(A\)` the random component; what `\(A\)` would have been without intervention.
+  - `\(a\)` a fixed component representing the intervention.
+
+- Incoming arrows go into `\(A\)` and outgoing arrows go out of `\(a\)`. 
+
+---
+
+## SWIG Procedure
+
+- Step 2: Re-label downstream nodes as counterfactuals.
+
+&lt;center&gt; 
+
+
+&lt;img src="img/2_label_nodes.png" width="80%" /&gt;
+
+&lt;/center&gt;
+---
+
+## d-Separation in SWIGs
+
+- In a SWIG, any path containing an intervention node is blocked. 
+
+- This sounds like a new rule but really usn't. 
+
+- Intervention nodes are fixed at a value, so no information can propagate through them. 
+
+- Fixed nodes in any graph block a path. 
+
+- However, it is atypical to include fixed nodes in non-SWIG graphs, so this is an important rule to remember for SWIGs.
+
+---
+
+## d-Separation in SWIGs
+
+- Under the NPSEM-IE assumptions, `\(d\)`-separation in the SWIG implies exchangeability. 
+
+- That is, if `\(\mathcal{G}(a)\)` is the SWIG of the intervention `\(A = a\)` and `\(Y(a)\)` and `\(A\)` are `\(d\)`-separated in `\(\mathcal{G}(a)\)`, then 
+`$$Y(a) \ci A$$`
+
+- We have a similar result for conditional exchangeability. 
+
+- If `\(Y(a)\)` and `\(A\)` are `\(d\)`-separated in `\(\mathcal{G}(a)\)` conditional on a set of nodes `\(L\)`, then 
+`$$Y(a) \ci A \mid \ L$$`
+- NPSEM-IE is stronger than necessary to achieve this result. 
+
+&lt;!-- - Alternatively, `\(A\)` and `\(Y\)` are d-separated in `\(\mathcal{G}(a)\)` if they are d-separated in the subgraph of `\(\mathcal{G}(a)\)` achieved by removing all of the fixed nodes.  --&gt;
+
+&lt;!-- - Remember, intervention nodes are fixed at a single value, so no information can propogate through them. --&gt;
+
+&lt;!-- - We are heading toward the result that (conditional) d-separation of `\(Y(a)\)` and `\(A\)` in a SWIG `\(\mathcal{G}(a)\)` implies (conditional) exchangeability of `\(Y(a)\)` and `\(A\)`.  --&gt;
+
+---
+## Applying d-separation in SWIGs
+
+&lt;center&gt; 
+
+
+&lt;img src="img/2_fig16.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+- This is the M-Bias example. 
+
+- We can see that `\(Y(a)\)` is d-separated from `\(A\)` unconditionally.
+
+- Conditional on `\(Z\)`, `\(Y(a)\)` is not d-separated from `\(A\)`. 
+
+---
+
+
+## Independence Assumptions
+
+- As we said before, the NPSEM model is not sufficient to conclude the causal Markov property. We need an additional assumption.
+
+- FFRCISTG Assumption: Let `\(\mathbf{v}^\dagger\)` be an intervention on every variable in `\(V\)`. The FFRCISTG independence assumption says that all of the counterfactual variables `\(\lbrace V(\mathbf{v}^\dagger) \rbrace\)` are mutually independent after this intervention. 
+
+- NPSEM-IE assumption: The NPSEM-IE assumption says that all of the errors `\(\epsilon_V\)` are independent. 
+
+- NPSEM-IE is strictly stronger than FFRCISTG.
+
+- NPSEM-IE implies cross-world independences while FFRCISTG does not. 
+
+- We will generally always assume FFRCISTG.
+
+---
+
+## FFRCISTG vs NPSEM-IE
+&lt;center&gt; 
+
+&lt;img src="img/2_swig6_fig9.png" width="40%" /&gt;
+
+&lt;/center&gt;
+
+- FFRCISTG says $$ Z\ci M(z) \ci Y(z, m)$$ for any `\(z\)` and `\(m\)`.
+
+- NPSEM-IE says `$$Z \ci \lbrace M(z) \text{ for all } z \rbrace \ci \lbrace Y(z, m)\ \text{for all } z, m \rbrace$$`
+
+  - For example, `\(M(Z = 0) \ci Y(Z = 1, M = 0)\)`.
+
+---
+
+## Factorization Result
+
+- An important result is that the FFRCISTG assumption is sufficient to conclude that, if  `\(P(\mathbf{V})\)` factorizes according to `\(\mathcal{G}\)` then  `\(P(\mathbf{V}(\mathbf{a}))\)` factorizes according to the SWIG `\(\mathcal{G}(\mathbf{a})\)`. 
+
+
+- This result is saying that the SWIG is an accurate representation of the world of intervention `\(\mathbf{a}\)`.
+
+- The proof of this result works by reverse induction. 
+
+- We won't prove this in class but there is a nice illustration in Appendix B1 of Richardson and Robins (2013).
+  
+---
+
+## SWIGs, Exchangeability, and d-Separation
+
+- The factorization result allows us to conclude that d-separation in the SWIG implies conditional exchangeability. 
+  - Recall: Conditional exchangeability says that `\(Y(a) \ci A \mid L\)`.
+  - Since `\(Y(a)\)` is a node in the SWIG, we can now read conditional exchangeability off of the graph using d-separation.
+
+- Achieving `\(d\)`-separation in the SWIG is equivalent to satisfying the backdoor criterion. 
+
+- So the factorization result also implies the FFRCISTG assumptions are sufficient for the backdoor backdoor criterion theorem to hold.
+
+- Since NPSEM-IE is strictly stronger than FFRCISTG, NPSEM-IE assumptions also imply that the backdoor criterion theorem holds. 
+
+---
+
+## Descendents of `\(A\)` 
+
++ Using SWIGs helps show why the backdoor criterion excludes descendants of `\(A\)`. 
+
+&lt;center&gt;
+&lt;img src="img/2_swig3.png" width="50%" /&gt;
+
+&lt;/center&gt;
+
++ From the SWIG on the right we can conclude that `\(Y(x) \ci X \mid L_1, L_2(x)\)`.
+
++ However, we cannot conclude that `\(Y(x) \ci X \mid L_1, L_2\)` because `\(L_2\)` is not on the graph. 
+
++ In fact, the second statement is false. Conditioning on `\(L_2\)` introduces a type of selection bias (more on this in L4).
+
+---
+
+## More Examples: Confounder
+
+&lt;center&gt; 
+
+&lt;img src="img/2_fig9iii.png" width="40%" /&gt;
+
+&lt;/center&gt;
+
+- `\(Y(m)\)` is not unconditionally independent of `\(M\)` but, `\(Y(m) \ci M \mid Z\)`
+
+- The factorization result gives us
+`$$P(Z, M, Y(m)) = P(Z)P(M \vert Z)P(Y(m) \vert Z)$$`
+
+- Note that we left the fixed node out of the probability calculation.
+
+---
+
+## Mediator
+
+&lt;center&gt; 
+
+&lt;img src="img/2_fig9ii.png" width="40%" /&gt;
+
+&lt;/center&gt;
+
+- Here, we do have unconditional exchangeability, `\(Y(z) \ci Z\)`. 
+
+- From factorization, `\(P(Z, M(z), Y(z)) = P(Z)P(M(z))P(Y(z) \vert M(z))\)`
+
+---
+
+## Mediator with Two Interventions
+
+&lt;center&gt; 
+
+&lt;img src="img/2_fig9iv.png" width="40%" /&gt;
+
+&lt;/center&gt;
+
+- From this graph we can get `\(Y(z, m) \ci M(z)\)`. 
+
+- We have to use the new rule that fixed nodes block paths.
+
+- This is saying that intervening on `\(M\)` blocks the effect of `\(Z\)` that is propogated through `\(M(z)\)`. 
+
+- From factorization, `\(P(Z, M(z), Y(z)) = P(Z)P(M(z))P(Y(z))\)`
+
+
+
+---
+
+## Mediation Effects
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-360ae7ac2249083be37f" style="width:40%;height:144px;"></div>
+<script type="application/json" data-for="htmlwidget-360ae7ac2249083be37f">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"-0.1,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.2,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+- In the graph above, `\(L\)` is *mediating* part of the effect of `\(A\)` on `\(Y\)`. 
+
+- Using our machinery so far, we can define the total effect (TE) of `\(A\)` on `\(Y\)` as
+`$$E[Y(A = 1)] - E[Y(A = 0)]$$`
+- We might be interested in the effect of `\(A\)` that is not mediated through `\(L\)`. 
+
+- This would be the effect of `\(A\)` on `\(Y\)` if we intervened on `\(L\)` and prevented `\(L\)` from changing. 
+  - For example, we intervene on `\(A\)` and set it to 1. 
+  - But we intervene on `\(L\)` and set it to `\(L(0)\)`. 
+---
+
+
+## Natural Direct and Indirect Effect
+
+&lt;center&gt;
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-1ce6f41c554544adcff1" style="width:40%;height:144px;"></div>
+<script type="application/json" data-for="htmlwidget-1ce6f41c554544adcff1">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"-0.1,0.5!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"1,0!\"] \n  \"3\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", color = \"black\", fontcolor = \"#000000\", pos = \"0.2,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"1\"->\"3\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+  
+- The *natural direct effect*(NDE) is
+`$$E[Y(A = 1, L = L(0))] - E[Y(A = 0, L = L(0)]$$`
+- The *natural indirect effect*(NIE) is 
+
+$$
+E[Y(A = 1, L= L(1))] - E[Y(A = 1, L = L(0))]
+$$
+- So TE = NDE + NIE 
+
+- Note that both of these involve "cross-world" counterfactuals.
+
+
+
+
+
+---
+
+## Identifying NIE and NDE
+
+- The FFRCISTG independence assumption does not allow identification of the NIE and NDE. 
+
+- See Robins and Greenland (1992) for a good example. 
+
+- If we further assume the NPSEM-IE model, NIE and NDE are identifiable.
+
+- We will come back to this in the future to talk more about mediation. 
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
