@@ -22,7 +22,21 @@ editor_options:
 Reading:  HR Chapters 1-3 
 </div>
   
+[2. DAGs, Confounding, Backdoor Criterion](slides_2026/2_dags_confounding.html)
 
+<div style="margin-left: 2em;">
+Reading:  HR Chapters 6,7
+
+[Richardson and Robins (2013). Single World Intervention Graphs (SWIGs): A Unification of the Counterfactual and Graphical Approaches to Causality](https://csss.uw.edu/files/working-papers/2013/wp128.pdf)
+
+[Verma and Pearl (1988). Causal Networks: Semantics and Expressiveness](https://ftp.cs.ucla.edu/pub/stat_ser/R65.pdf)
+
+[Geiger, Verma, and Pearl (1990). Identifying independence in bayesian networks.](https://geiger.net.technion.ac.il/files/2016/08/geiger1990identifying.pdf)
+
+[VanderWeele (2019). Principles of confounder selection.](https://pubmed.ncbi.nlm.nih.gov/30840181/)
+
+[Cineli, Forney, and Pearl (2020) A crash course in good and bad controls.](https://carloscinelli.com/files/Cinelli%20et%20al%20(2020)%20-%20A%20Crash%20Course%20in%20Good%20and%20Bad%20Controls.pdf)
+</div>
 
 ## Lecture Slides from Past Years
 
