@@ -2,7 +2,7 @@
 title: "L2: DAGs and Confounding"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "Lecture on 2025-01-15\n (updated: `r Sys.Date()`)"
+date: "Lecture on 2026-01-15\n (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
