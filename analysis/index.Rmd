@@ -38,6 +38,33 @@ Reading:  HR Chapters 6,7
 [Cineli, Forney, and Pearl (2020) A crash course in good and bad controls.](https://carloscinelli.com/files/Cinelli%20et%20al%20(2020)%20-%20A%20Crash%20Course%20in%20Good%20and%20Bad%20Controls.pdf)
 </div>
 
+
+
+[3. Selection Bias, Non-Compliance, and Measurement Error](slides_2026/3_selection_bias.html)
+
+<div style="margin-left: 2em;">
+Reading:  HR Chapters 8,9
+
+[Hernán, Hernández-Díaz, Robins (2004). A Structural Approach to Selection Bias](https://www.jstor.org/stable/20485961?seq=1)
+
+[Bareinboim, Tian, and Pearl (2014). Recovering from Selection Bias in Causal and Statistical Inference ](https://ftp.cs.ucla.edu/pub/stat_ser/r425.pdf)
+
+[Hernán and Hernández-Díaz (2012) Beyond the intention-to-treat in comparative effectiveness research](https://pubmed.ncbi.nlm.nih.gov/21948059/)
+
+</div>
+
+
+
+[4. Effect Modification, Interaction, and Collapsibility](slides_2026/4_effect_modification_interaction.html)
+
+<div style="margin-left: 2em;">
+Reading:  HR Chapters 4,5
+
+[Greenland, Robins, and Pearl (1999). Confounding and Collapsibility in Causal Inference](https://projecteuclid.org/journals/statistical-science/volume-14/issue-1/Confounding-and-Collapsibility-in-Causal-Inference/10.1214/ss/1009211805.full)
+
+</div>
+
+
 ## Lecture Slides from Past Years
 
 [2025 Slides](slide_index_2025.html)
