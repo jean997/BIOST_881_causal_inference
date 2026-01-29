@@ -1,0 +1,228 @@
+---
+title: "L5: The Target Trial Framework"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "2025-01-29 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+$\newcommand{\nci}{\not\!\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+
+## Causal Inference with Randomized Trials
+
+- We saw in L1 that randomized trials are the "gold standard" for causal inference for several reasons:
+
+- In a trial, treatment arms and the outcome of interest are explicitly defined before the trial starts. 
+  + This ensures that the causal contrast is clear and well defined. 
+
+- Randomization ensures that $Y(a) \ci A$ or $Y(A) \ci A \mid L$ for known covariates $L$. 
+
+- Clear eligibility requirements make it easy to understand the population and help prevent selection bias.
+
+
+
+---
+## Target Trial Framework
+
+- The target trial framework is a method for formalizing causal inference with observational data.
+
+- The goal is to identify a target randomized trial that can be emulated using observational data. 
+
+- This framework can help guide analysis of observational data and can force researchers make explicit definitions of causal effects. 
+
+---
+## Example from Hernan and Robins (2016)
+
+- Suppose we have a large database of electronic health records. 
+
+- We want to estimate the effect of post-menopausal hormone replacement therapy use on breast cancer risk. 
+
+- Discuss with your partner how you might design a randomized trial to evaluate this question. Consider the following factors:
+  + Eligibility criteria
+  + How is treatment defined?
+  + How is outcome defined?
+  + What is the causal contrast of interest?
+  
+---
+## Example from Hernan and Robins (2016)
+
+<center>
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/5_target_trial_hr16.png")
+```
+</center>
+
+---
+## Emulating the Target Trial
+
+- Our goal is to make analysis choices with the observational data that mimic the target trial. 
+
+
+- Note that not all trial designs can be emulated with the available observational data. 
+
+- For example, we couldn't emulate a trial that required blinding of participants and doctors. 
+
+- This means that we have to develop the target trial plan in consideration of the observational data. 
+- Doing this exercise also helps us identify if the data we have is suitable for causal inference:
+  + If we cannot come up with a target trial to emulate, we can conclude that our observational data has fatal limitations that prevent us from estimating causal effects or our causal question is poorly specified.
+
+---
+## Eligiability
+
+- Our target trial has eligibility criteria of 
+  + Women within 5 years post-menopause between 2005 and 2010, no history of cancer, no hormone therapy in past two years
+  
+- In order to be included in our analysis, we must know a woman's date of menopause onset. 
+
+- She must have been followed in the healthcare system for at least two years prior to baseline,
+
+- And followed for a long enough time that we are reasonably confident we know her cancer history.
+  
+- By trying to mimic the trial, we can see that we should not use post-baseline features such as post-baseline contact with the healthcare system to define eligibility.
+ 
+---
+## Treatment Assignment
+
+- In the randomized trial, treatment is assigned randomly by investigators. 
+
+- In order to ensure conditional exchangeability in the observational data, we need to identify possible confounders of treatment and outcome. 
+
+- If all confounders are measured and modeled correctly, we can mimic a conditionally randomized trial. 
+
+- Observational data could fall short here.
+  + For example, doctors may give different treatment recommendations to women with or without a family history of breast cancer. 
+  + Family history may be linked to later cancer risk through genetic factors. 
+  + If family history of breast cancer isn't measured, we can't account for this. 
+  
+- If important confounders are unemasured, we cannot do causal inference!
+
+
+---
+## Treatment Specificity
+
+- Notice that in the target trial, the treatment is defined very specifically. 
+
+- For example, we specified the type of HRT rather than just specifying "any kind of HRT". 
+
+- If we had specified the treatment as "Some kind of HRT of the patient's choosing", we would have potential violation of the no different versions of treatment component of SUTVA. 
+
+- However, this means that some people in the data will have received neither of the two treatments we are considering. 
+  + These people are censored from baseline onwards. 
+  + If we think there may be effect modification, this will mean that the effect we measure may not generalize to the entire population. 
+
+
+---
+## Treatment Specificity
+
+- There are some kinds of exposures that don't lend themselves to such specific definitions.
+  + For example, BMI, race, gender, and birth year
+  
+- We could define a hypothetical intervention for BMI, such as instantaneous reduction of BMI to 25. 
+  + But nobody in our data will have experienced this intervention, so we can't measure it's affect. 
+
+- There is some philosophical debate about whether it makes sense to measure effects of this type of exposure. 
+  + We will revisit this at the end of the course. 
+  + I recommend not using one of these exposures in your project. 
+  
+---
+## Treatment Specificity
+
+- By forcing ourselves to use a specifically defined intervention, we can help ensure the SUTVA assumption. 
+
+- It also ensures that our causal contrast is well defined. 
+
+---
+## Timing
+
+- By considering the target trial, we can see that it is important to know when different events happen relative to each other. 
+
+- In the trial, post-menopausal women are enrolled, assigned a treatment, and then followed for five years. 
+
+- This helps us have a clear definition of the causal contrast and helps us establish that the outcome happens after the treatment. 
+
+---
+## Timing
+
+- Data that don't capture timing may not be suitable for causal inference. 
+
+- If our data told us only if a woman had ever used HRT and if she had ever had breast cancer, we wouldn't be able to emulate any randomized trial. 
+
+- This doesn't mean that cross-sectional data is useless:
+  + Sometimes survey's ask participants questions that allow us to establish time ordering.
+  + Or sometimes treatments are clearly anchored to other events such as pregnancy, disease treatment, age, completion of school, or incarceration. 
+
+
+
+---
+## When is Baseline?
+
+- In the trial, there is an event, enrollment, that defines the start of the five year period. 
+
+- But in our data, one woman might be eligible over a range of time points. 
+
+- Two solutions: 
+  1. Define a single baseline for each person, either the first time they are eligible or a random time. 
+  2. Emulate a series of trials that begin at different times. Allow the same person to appear in multiple trials.
+  
+- The second option gives us more statistical power but is conceptually trickier. 
+  + We will talk about this at greater length in the second half of the semester. 
+  + Check the related reading, Hernan et al (2008) for more details. 
+
+
+---
+## Adherence 
+
+- Both the target trial and the observational data could have issues of non-adherence.
+  - Some individuals may begin one treatment at baseline and then switch treatment later 
+  - Or they may be prescribed a medication that they don't take. 
+
+- In the target trial, we could estimate the intent-to-treat effect (ITT) by ignoring non-adherence and keeping individuals in their initial treatment group. 
+  + In the observational data this corresponds to comparing initiators and non-initiators.
+
+- We could estimate the per-protocol effect for example, by censoring individuals at the time they become non-adherent and estimating censoring weights. 
+  - In the observational data, we may or may not be able to observe adherence. 
+  
+---
+## Censoring
+
+- Post-baseline loss to followup affects trials and observational data analyses similarly. 
+
+- If there is a substantial amount of censoring, we need to account for it using either weighting or standardization accounting for necessary variables (recall L3).
+
+---
+## Application to Project
+
+- As you are developing your project, try to conceive of a target trial that you can emulate with the data that you have. 
+
+- If you cannot find a reasonable target trial that you can emulate, you may need to modify your question, find different data, or augment your data with another data source. 
+
+- Possible pitfalls: 
+  + Lack of time information
+  + Lack of important confounders
+  + Vaguely defined exposures
+
+
