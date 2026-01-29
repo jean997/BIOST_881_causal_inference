@@ -585,27 +585,28 @@ $$ Y(a) \ci A \vert L$$ for all $a$.
 
 ## Standardization to Estimate the ATT
 
-- From our previous expression for the conditional standardized mean
+- To estimate, $E[Y(1) \vert A = 1]$, we only need consistency and don't need any exchangeability conditions.
+
+- $E[Y(1) \vert A = 1] = E[Y \vert A = 1]$ from consistency. 
+
+---
+
+## Standardization to Estimate the ATT
+
+- For $E[Y(a) \vert A = 1]$, $a \neq 1$, we first use the iterated expectation formula
 
 $$
 E[Y(a) \vert A = 1] = \sum_l E[Y(a) \vert L=l, A = 1 ]P[L = l \vert A = 1]
 $$
-
---
-
-- From consistency we know
-$$E[Y(1) \vert L = l, A = 1] = E[Y \vert L = l, A = 1]$$
---
-
 - From partial exchangeability, we know that
 $$
-E[Y(0) \vert L = l, A = 1] = E[Y(0) \vert L = l]
+E[Y(a) \vert L = l, A = 1] = E[Y(0) \vert L = l] = E[Y(a) \vert L = l, A = a]
 $$
 --
 
 - Consistency again:
 
-$$ E[Y(0) \vert L = l] = E[Y \vert L = l, A = 0]$$
+$$ E[Y(a) \vert L = l, A = a] = E[Y \vert L = l, A = a]$$
 --
 
 - So
