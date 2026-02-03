@@ -2,7 +2,7 @@
 title: "L5: The Target Trial Framework"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2025-01-29 (updated: `r Sys.Date()`)"
+date: "2026-02-03 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -82,7 +82,7 @@ knitr::include_graphics("img/5_target_trial_hr16.png")
 - Our goal is to make analysis choices with the observational data that mimic the target trial. 
 
 
-- Note that not all trial designs can be emulated with the available observational data. 
+- Not all trial designs can be emulated with the available observational data. 
 
 - For example, we couldn't emulate a trial that required blinding of participants and doctors. 
 
@@ -118,21 +118,21 @@ knitr::include_graphics("img/5_target_trial_hr16.png")
   + Family history may be linked to later cancer risk through genetic factors. 
   + If family history of breast cancer isn't measured, we can't account for this. 
   
-- If important confounders are unemasured, we cannot do causal inference!
+- If important confounders are unmeasured, we cannot do causal inference using the tools we have learned so far.
 
 
 ---
 ## Treatment Specificity
 
-- Notice that in the target trial, the treatment is defined very specifically. 
+- In the target trial, the treatment is defined very specifically. 
 
 - For example, we specified the type of HRT rather than just specifying "any kind of HRT". 
 
 - If we had specified the treatment as "Some kind of HRT of the patient's choosing", we would have potential violation of the no different versions of treatment component of SUTVA. 
 
-- However, this means that some people in the data will have received neither of the two treatments we are considering. 
+- However, this means that some people in the data did not receive either of the treatments we are considering. 
   + These people are censored from baseline onwards. 
-  + If we think there may be effect modification, this will mean that the effect we measure may not generalize to the entire population. 
+  + If we think there may be effect modification by treatment choice, that the effect we measure may not generalize to the entire population. 
 
 
 ---
@@ -173,25 +173,62 @@ knitr::include_graphics("img/5_target_trial_hr16.png")
 
 - This doesn't mean that cross-sectional data is useless:
   + Sometimes survey's ask participants questions that allow us to establish time ordering.
-  + Or sometimes treatments are clearly anchored to other events such as pregnancy, disease treatment, age, completion of school, or incarceration. 
-
+  + Some treatments are clearly anchored to other events such as pregnancy, disease treatment, age, completion of school, or incarceration. 
 
 
 ---
 ## When is Baseline?
 
-- In the trial, there is an event, enrollment, that defines the start of the five year period. 
+- In the trial, enrollment defines the start of the five year period. 
 
 - But in our data, one woman might be eligible over a range of time points. 
 
-- Two solutions: 
-  1. Define a single baseline for each person, either the first time they are eligible or a random time. 
-  2. Emulate a series of trials that begin at different times. Allow the same person to appear in multiple trials.
-  
-- The second option gives us more statistical power but is conceptually trickier. 
-  + We will talk about this at greater length in the second half of the semester. 
-  + Check the related reading, Hernan et al (2008) for more details. 
+- How would you define baseline for a woman who became eligible in 2006, did not initiate treatment and then became ineligible in 2008 due to a cancer diagnosis?
 
+- How about for a woman who became eligible in 2005 and initiated hormone therapy in 2007?
+
+---
+## Option 1: Single Baseline per person
+
+- For each person, define a single baseline. 
+
+- Could be the time they first become eligible or a random time in which they are eligible. 
+
+- This could result in lots of censoring due to non-adherence. If second woman were given baseline of 2005, she would be assigned to the no treatment group and then censored for non-adherence in 2007. 
+
+---
+## Option 2: Nested Trials
+
+- Define a series of nested trials with different baseline times. 
+  + Could be each month, or each visit period if it is a study with regular visit periods.
+  
+- Participants can be in multiple trials. 
+
+- Use robust standard errors to account for overlapping participants between trials. 
+  
+---
+## Grace Period for Starting Treatment
+
+- Sometimes we want to allow a grace period to start treatment (e.g. within 3 months of baseline). 
+
+- This results in a period of time where one person is consistent with multiple treatment arms. 
+
+- If we allow a grace period of 3 months and we observe a woman who does not start treatment and then dies at month 2, does that death count for the treatment or non-treatment group?
+
+---
+## Clone Censored Weighting
+
+- A solution to this problem is to clone (duplicate) each individual who is consistent with multiple treatment arms and assign one clone to each treatment arm. 
+
+- A clone is censored when it becomes inconsistent with that treatment arm. 
+
+- The woman who dies at month 2 would have one clone in each treatment arm, so her death would count for both arms. 
+
+- A woman who initiates treatment at month 2 would initially be cloned into both groups and then censored from the non-treatment group at month 2. 
+
+- A woman who never initiates treatment would be censored from the non-treatment group at the end of the grace period. 
+
+- We need to account for the potentially informative censoring, usually by estimating censoring weights to use in inverse probability weighting.
 
 ---
 ## Adherence 
