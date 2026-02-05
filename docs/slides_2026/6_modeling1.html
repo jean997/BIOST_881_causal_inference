@@ -80,20 +80,16 @@ $$
 
 - This allows us to estimate the components of these formulas non-parametrically as
 
-$$
-\begin{split}
+`$$\begin{split}
 &amp;\hat{E}[Y \vert A = a, L = l] = \frac{\sum_{i} 1_{A = a, L = l} Y_i}{\sum_i 1_{A = a, L = l}}\\
 &amp;\hat{P}[L = l] = \frac{\sum_i 1_{L = l}}{n}
-\end{split}
-$$
+\end{split}$$`
 
 and
 
-$$
-\begin{split}
+`$$\begin{split}
 \hat{P}[A = a \vert L = l] = \frac{\sum_{i} 1_{A = a, L = l}}{\sum_i 1_{L = l}}
-\end{split}
-$$
+\end{split}$$`
 
 - We showed in HW1 that if we plug these estimates into their respective formulas, the standardization and IP weighting formulas give exactly the same estimate.
 
@@ -422,13 +418,11 @@ weighted by our estimated IP weights.
 `$$\frac{ E\left[\frac{I(A = a)Y}{P(A =a\vert L)} \right]}{ E\left[\frac{I(A = a)}{P(A = a\vert L)} \right]}$$`
 - If positivity holds, then  
 
-$$
-\begin{split}
+`$$\begin{split}
 E\left[\frac{I(A = a)}{P(A = a\vert L)} \right] = &amp; E_l \left[ E\left[\frac{I(A = a)}{P(A = a\vert L = l )}  \Big\vert L = l  \right] \right]\\
  = &amp; E_l \left[ \frac{E[I(A = a) \vert L = l]}{P(A = a\vert L = l)} \right]\\
  = &amp; E_l \left[ \frac{P(A = a \vert L = l)}{P(A = a\vert L = l)}\right] = 1
-\end{split}
-$$
+\end{split}$$`
 
 - The Hajek estimator is guaranteed to be between 0 and 1 for dichotomous outcomes. The Horvitz-Thompson estimator is not. 
 
