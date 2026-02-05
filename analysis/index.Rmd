@@ -64,6 +64,11 @@ Reading:  HR Chapters 4,5
 
 </div>
 
+[5. The Target Trial](slides_2026/5_target_trial.html)
+
+
+[6. IP Weighting and G-Computation](slides_2026/6_modeling1.html)
+
 
 ## Lecture Slides from Past Years
 

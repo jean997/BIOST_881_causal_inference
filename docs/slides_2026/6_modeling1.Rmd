@@ -996,7 +996,7 @@ kable(tab, col.names = c( "Estimate", "95% CI"),
 
 
 - If you have survey data that come with survey weights, be sure to read about how these are calculated. 
-  + Most likely, if you want to estimate a parameter for the larger population, you will need to use the survey weights. 
+  + If you want to estimate a parameter for the larger population, you will need to use the survey weights. 
 
 
 ---
@@ -1041,10 +1041,17 @@ summary(f_y)$coefficients %>% head()
 
 - We saw in our IP weighting discussion that, if we believe the model, the coefficient for treatment gives a *conditional* causal effect estimate within strata of $L$. 
 
-- If there were no interactions between $A$ and $L$ in the model, the coefficient on $A$ would also give the marginal treatment effect. 
 
-  + This is only true for a linear model. It would not be true in a model with a non-linear link.
+- In other words, the coefficients for terms including $A$ are structural, and it is ok to interpret them this way. 
 
+---
+## Outcome Modeling
+
+- Our model includes an interaction between $A$ and smoking intensity. 
+
+- If the model had included only a main effect for $A$, the coefficient on $A$ would be the marginal causal effect.
+  + This is **only** true for linear (identity link) models.
+  
 
 - An outcome model with no interactions assumes **homogeneity**, i.e. the average treatment effect is the same in every level of $L$. 
 
@@ -1055,9 +1062,7 @@ summary(f_y)$coefficients %>% head()
 ## Outcome Modeling
 
 
-- Our outcome model included an interaction between $A$ and smoking intensity.
-
-- In this model, the coefficient on $A$ is the average treatment effect within strata of smoking intensity. 
+- In the model we fit, the coefficient on $A$ is the average treatment effect within strata of smoking intensity. 
 
 - To estimate the average (marginal) treatment effect, we need to average over the distribution of smoking intensity, or more generally the distribution of $L$. 
 
@@ -1103,9 +1108,12 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 ---
 ## Censoring
 
-- If the set of variables in our model for $E[Y \vert A, L]$ are sufficient to adjust for censoring (meaning that they block all paths between $Y$ and $C$), then we don't need to do anything extra to adjust for censoring.
+- If the set of variables in our model for $E[Y \vert A, L]$ satisfy the s-backdoor criterion, then we don't need to do anything extra to adjust for censoring.
 
-- However, we do need to predict $Y(a)$ for *all individuals* with covariate data, not just those with non-missing outcomes. 
+
+- Recall that the s-Backdoor method requires us to average over the uncensored distribution of covariates.
+
+- This means we need to predict $Y(a)$ for *all individuals*, not just those with non-missing outcomes. 
 
 - If $L$ is not sufficient to adjust for censoring, we may need to add additional variables specifically to deal with censoring. 
 
@@ -1114,7 +1122,7 @@ cat(round(Y1, digits = 2), "-", round(Y0, digits = 2), "=", round(Y1-Y0, digits 
 
 ## Estimating the Variance 
 
-- To compute the variance of the estimate, we need to bootstrap. 
+- To compute the variance of the effect estimate, we need to bootstrap. 
 
 - We will repeatedly re-sample our data with replacement. 
 
@@ -1194,7 +1202,7 @@ dat.u %>% group_by(sex) %>%
 
 - In the standardized analysis, we need to trust our model for $E[Y \vert A, L]$. 
 
-- In either case, if  our parametric models are wrong, our predictions will be biased and so our estimators will be biased. 
+- In either case, if the parametric models are wrong, the causal estimators will be biased. 
 
 - It can be a good idea to compute both and compare.
   + If results are very different, at least one of the two models is wrong. 
@@ -1272,7 +1280,7 @@ grid.arrange(p1, p2, ncol = 2)
 
 - However, G-Computation can be more precise than IP weighting in some circumstances. 
 
-  + IP weighting can be inefficient when weights are very large. 
+  + IP weighting is inefficient when weights are very large. 
   
   
 - Vansteelandt and Keiding find that IPW performs better when the covariate distribution is very different in cases and controls. 
