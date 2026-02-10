@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>L7: More PS Estimators and Double Robustness</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jean Morrison" />
+    <script src="libs/header-attrs-2.29/header-attrs.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <script src="libs/mark.js-8.11.1/mark.min.js"></script>
+    <link href="libs/xaringanExtra-search-0.0.1/search.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-search-0.0.1/search.js"></script>
+    <script>window.addEventListener('load', function() { window.xeSearch = new RemarkSearch({"position":"bottom-left","caseSensitive":false,"showIcon":true,"autoSearch":true}) })</script>
+    <link href="libs/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset-0.3.0/panelset.js"></script>
+    <link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+    <script src="libs/viz-1.8.2/viz.js"></script>
+    <link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding-1.0.11/grViz.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# L7: More PS Estimators and Double Robustness
+]
+.author[
+### Jean Morrison
+]
+.institute[
+### University of Michigan
+]
+.date[
+### 2026-02-12
+(updated: 2026-02-10)
+]
+
+---
+
+`\(\newcommand{\ci}{\perp\!\!\!\perp}\)`
+
+
+
+
+
+
+
+## Lecture Plan 
+
+1. Outcome Regression with Propensity Scores and Subclassification
+
+1. What to Adjust For
+
+1. Double Robust Estimators
+
+---
+# 1. Regression with Propensity Scores
+
+---
+## Propensity Scores as Balancing Scores
+
+- `\(\pi(L) = P[A = 1 \vert L]\)`, the probability of receiving treatment conditional on confounders `\(L\)` is the **propensity score**. 
+
+- Within strata of `\(\pi(L)\)`, the distribution of `\(L\)` is the same in cases and controls. 
+  - `\(\pi(L)\)` is a **balancing score**. 
+  
+$$
+A \ci L \vert\ \pi(L)
+$$
+
+- The propensity score is the coarsest possible balancing score: 
+  + If `\(b(L)\)` is a balancing score then `\(b(L) = f(\pi(L))\)` for some function `\(f\)`. 
+  + The finest possible balancing score is `\(A\)`. 
+
+---
+## Propensity Scores are Sufficient for Confounder Adjustment
+
+- If `\(Y(a) \ci A \vert L\)`, positivity holds, and `\(b(L)\)` is a balancing score,
+
+- Then `\(Y\)` and `\(A\)` are exchangeable conditional on `\(b(L)\)`, `\(Y(a) \ci A \vert\ b(L)\)`.
+  
+- The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
+
+&lt;center&gt;
+<div class="grViz html-widget html-fill-item" id="htmlwidget-2f984ceab1aa59b803db" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-2f984ceab1aa59b803db">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", pos = \"0,0!\"] \n  \"2\" [label = \"P[A | L]\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", pos = \"-1,0!\"] \n  \"3\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", pos = \"1,0!\"] \n  \"4\" [label = \"L\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", height = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"ellipse\", fixedsize = \"FALSE\", pos = \"0.5,0.5!\"] \n\"1\"->\"3\" [color = \"black\"] \n\"2\"->\"1\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"3\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+
+---
+
+## Outcome Regression with Propensity Scores
+
+- Because `\(\pi(L)\)` is sufficient to control confounding, we know that `\(E[Y \vert A, L ] = g(\pi(L), A)\)` for some function `\(g\)`.
+
+- We could try to estimate `\(g()\)` rather than specifying `\(E[ Y \vert A, L]\)` as a function directly of `\(L\)`. 
+
+
+- Valid inference will depend on 
+  + Correctly estimating `\(\pi(L)\)`
+  + Correctly specifying the functional form of `\(g()\)`
+  
+  
+- A simple model like `$$E[Y \vert A,L] = \beta_0 + \beta_1 A + \beta_2 \pi(L)$$` could be insufficient to control for confounding.
+
+---
+
+## Outcome Regression with Propensity Scores
+
+- Because `\(\pi(L)\)` is one-dimensional, it is easy (ish) to propose a flexible model. 
+
+- For example, we could fit a cubic spline for `\(\pi(L)\)` with or without effect modification.
+  
+`$$E[Y_i \vert A_i, L_i] = \beta_0 + \beta_1 A_i + \sum_{k = 1}^K \beta_{\pi,k} \phi_k(\hat{\pi}_i) + \sum_{k = 1}^K \beta_{A\pi,k} \phi_k(\hat{\pi}_i) A_i$$`
+
+- In this formula `\(\phi_1, \dots, \phi_K\)` are spline basis functions. There are lots of R functions to fit models like this.
+
+- If the model includes effect modification by `\(\pi(L)\)`, we will need to standardize to get a marginal effect estimate. 
+  + This is just G-computation with a derived covariate. 
+
+
+---
+
+## Subclassification
+
+- Subclassification is a specific version of outcome regression with propensity scores. 
+
+- Idea: Break the data into quantiles based on the propensity score and compute the difference of means within each quantile. 
+
+- Compute the overall effect by averaging the effects in each quantile. 
+
+---
+
+## Subclassification
+
+- This corresponds to the model
+
+`$$E[Y_i \vert A, L_i] = \sum_{k = 1}^K \beta_{\pi,k} 1_{\hat{\pi}_i \in C_k} + \sum_{k = 1}^K \beta_{A\pi,k} A 1_{\hat{\pi}_i \in C_k}$$`
+
+- `\(\beta_{A\pi,k}\)` is the causal effect for individuals in quantile `\(k\)` of the empirical propensity score distribution. 
+
+- The marginal causal effect is 
+`$$\hat{\Delta}_S = E[Y(1)] - E[Y(0)] = \sum_{i = 1}^n\sum_{k = 1}^K \beta_{A\pi, k}1_{\hat{\pi}_i \in C_k} = \frac{1}{k} \sum_{i = 1}^K \beta_{A \pi, k}$$`
+---
+## Propensity Score Regression in NHEFS
+
+- We first calculate propensity scores in the same way as in L6 (not shown here).
+
+- Next we fit a model for `\(E[Y \vert A, \pi(L)]\)`.
+
+
+
+
+
+``` r
+library(splines)
+# Simple linear model
+f1 &lt;- lm(wt82_71 ~ qsmk + ps, data = dat)
+f1$coefficients
+```
+
+```
+## (Intercept)        qsmk          ps 
+##    5.101542    3.454263  -13.026068
+```
+
+``` r
+# No interaction, spline for propensity score
+f2 &lt;- lm(wt82_71 ~ qsmk + bs(ps), data = dat)
+f2$coefficients
+```
+
+```
+## (Intercept)        qsmk     bs(ps)1     bs(ps)2     bs(ps)3 
+##    4.304088    3.435780   -1.747237   -9.937138   -4.069566
+```
+
+---
+## Propensity Score Regression in NHEFS
+
+- If we include an effect modification, we need to standardize to compute the marginal causal effect. 
+
+
+``` r
+# Linear model with effect modification
+f3 &lt;- lm(wt82_71 ~ qsmk*ps, data = dat)
+f3$coefficients
+```
+
+```
+## (Intercept)        qsmk          ps     qsmk:ps 
+##    4.935432    4.036457  -12.331896   -2.038829
+```
+
+
+``` r
+dat0 &lt;- dat1 &lt;- dat
+dat0$qsmk &lt;- 0
+dat1$qsmk &lt;- 1
+Y0 &lt;- mean(predict(f3, dat0, type = "response"))
+Y1 &lt;- mean(predict(f3, dat1, type = "response"))
+Y1 - Y0
+```
+
+```
+## [1] 3.511778
+```
+
+
+---
+## Subclassification Estimate in NHEFS
+
+- The subclassification estimator is just another propensity score regression estimator. 
+
+
+``` r
+# Deciles of PS
+dat$ps_dec &lt;- cut(dat$ps, 
+                  breaks=c(quantile(dat$ps, probs=seq(0,1,0.1))),
+                  labels=seq(1:10),
+                  include.lowest=TRUE)
+
+f5 &lt;- glm(wt82_71 ~ qsmk*as.factor(ps_dec), data = dat)
+dat0$ps_dec &lt;- dat1$ps_dec &lt;- dat$ps_dec
+mean(predict(f5, dat1, type = "response")) - mean(predict(f5, dat0, type = "response"))
+```
+
+```
+## [1] 3.287702
+```
+
+
+---
+## Bootstrap Variance
+
+- Step 1: Write a function to compute the estimator
+
+
+``` r
+delta_s &lt;- function(df){
+  # Estimate propensity scores
+  fit &lt;- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps &lt;-predict(fit, type = "response")
+  # Deciles of PS
+  df$ps_dec &lt;- cut(df$ps, breaks=c(quantile(df$ps, probs=seq(0,1,0.1))),
+                    labels=seq(1:10),
+                    include.lowest=TRUE)
+  # Fit the model for E[Y | A, pi]
+  fit_psdec &lt;- glm(wt82_71 ~ qsmk*as.factor(ps_dec), data = df)
+  # Standardized Estimate
+  df0 &lt;- df1 &lt;- df; df0$qsmk &lt;- 0; df1$qsmk &lt;- 1
+  Y0 &lt;- predict(fit_psdec, newdata = df0, type = "response")
+  Y1 &lt;- predict(fit_psdec, newdata = df1, type = "response")
+  return(mean(Y1) -mean(Y0))
+}
+```
+
+
+---
+## Bootstrap Variance
+
+- Step 2: Re-sample data and compute the estimate for each re-sampled data set. 
+
+
+``` r
+set.seed(1)
+samples &lt;- replicate(n = 1000, 
+                     expr = sample(seq(nrow(dat)), 
+                                   size = nrow(dat), replace = TRUE))
+res &lt;- apply(samples, 2, FUN = function(ix){
+  boot_dat &lt;- dat[ix,]
+  return(delta_s(boot_dat))
+})
+se &lt;- sd(res)
+bhat &lt;- delta_s(dat) %&gt;% round(digits = 2)
+ci &lt;- round(bhat + c(-1, 1)*qnorm(0.975)*se, digits=2)
+cat(bhat, "(", ci, ")")
+```
+
+```
+## 3.29 ( 2.29 4.29 )
+```
+---
+## Bootstrap Alternative
+
+- An alternative strategy to calculate the variance of `\(\Delta_S\)` is to use an approximation,
+
+`$$\frac{1}{K^2}\sum_{k = 1}^K \hat{\sigma}^2_k$$`
+where `\(\hat{\sigma}^2_k\)` is the variance of the within stratum difference in means estimator:
+
+`$$\hat{\sigma}^2_k = \frac{s^2_{1,k}}{n_1} + \frac{s^2_{0,k}}{n_k -n_1}$$`
+with `\(n_k\)` number of samples in `\(\hat{C}_k\)`, `\(n_1\)`, number of cases in `\(\hat{C}_k\)`, `\(s^2_{1,k}\)` sample variance of cases in `\(\hat{C}_k\)`, `\(s^2_{01,k}\)` sample variance of controls in `\(\hat{C}_k\)`.
+
+---
+## Number and Size of Subclasses
+
+- Rosenbaum and Rubin (1983) suggest using sample quintiles ( `\(K=5\)` ). 
+  + This generally leads to residual bias. 
+
+- More intervals leads to less bias but increased variance. 
+
+- The optimal choice of `\(K\)` and interval endpoints is an open problem.
+
+- Intervals must be large enough that individuals with both treatments are in every interval. 
+
+---
+## Subclassification is a Coarsened Horvitz-Thompson Estimator
+
+- Recall the IP weighted Horvitz-Thompson estimator:
+
+`$$\hat{\Delta}_{HT} = \frac{1}{N}\sum_{i=1}^N \frac{A_i Y_i}{\hat{\pi}_i} - \frac{(1-A_i)Y_i}{1-\hat{\pi}_i}$$`
+- Within each interval, estimate a "subclass-specific" propensity score, `\(\hat{p}_k = P[A_i = 1 \vert \hat{\pi}_i \in \hat{C}_k] = \frac{n_{1,k}}{n_k}\)`.
+
+- For each individual, set `\(\hat{\pi}^{C}_i = \sum_k 1_{\hat{\pi}_i \in \hat{C}_k}\hat{p}_{k}.\)`
+
+- Plug these propensity scores into the formula for `\(\hat{\Delta}_{HT}\)` and get `\(\hat{\Delta}_S.\)`
+
+---
+
+## Subclassification Asymptotic Results
+
+- For a fixed value of `\(K\)`, some bias will always remain. 
+
+  + As `\(N\)` increases, `\(\hat{\Delta}_S\)` is not consistent for the ATE. 
+
+--
+
+- Suppose that we have a rule for picking the number divisions that is a function of the data.
+
+- Is there a rule such that `\(\hat{\Delta}_S\)` is root-N consistent for the ATE?
+
+---
+
+## Subclassification Asymptotic Results
+
+- Wang et al (2016) show that
+
+- In order for `\(\hat{\Delta}_S\)` to be well defined, `\(K(N)\)` must grow slowly enough that there are always units with both values of `\(A\)` in every division.
+  + `\([ K(N)log(K(N))]/N \rightarrow 0\)` as `\(N \rightarrow \infty\)`
+
+- But consistency requires that the binwidth get smaller as `\(N\)` increases:
+  + `\(K(N)/\sqrt{N} \rightarrow \infty\)` as `\(N \rightarrow \infty\)`
+
+---
+## Full Subclassification 
+
+- Wang et al (2016) propose a strategy for allowing `\(K\)` to grow with `\(N\)` called full subclassification. 
+
+- Choose the largest number `\(K\)` such that every `\(1/K\)` quantile of `\(\hat{\pi}\)` has at least one case and at least one control. 
+
+- In simulations, the full subclassification estimator has smaller bias than `\(\hat{\Delta}_{S}\)`.
+
+---
+
+## Comparison with IP Weighting
+
+- Both IP weighting and outcome regression with PS require a correct model for `\(E[A = 1 \vert L ]\)`. 
+
+- Both require a correct marginal model for the relationship between `\(Y(a)\)` and `\(a\)` (easy if `\(A\)` is dichotomous). 
+
+- Outcome regression with propensity scores additionally requires correctly specifying the relationship between `\(Y(a)\)` and `\(\pi(L)\)`. 
+
+- Subclassification allows us to use a very flexible model for this relationship. 
+  - Bias will remain if intervals are too wide. 
+  
+  
+---
+
+## Comparison with IP Weighting
+
+- Subclassification is less sensitive to mis-specification of the propensity model than IP weighting. 
+
+- In subclassification, we only rely on `\(\hat{\pi}(L)\)` to group units with similar propensities. 
+
+- Any monotonic transformation of the propensity score would give the same subclassification results. 
+
+- So the propensity score model doesn't have to be well calibrated. It only has to provide  a
+good ranking. 
+
+  
+  
+  
+---
+
+## Comparison with IP Weighting
+
+- IP Weighting:
+  + Asymptotically unbiased
+  + High variance if some weights are large
+  + Very sensitive to misspecification of model for `\(\pi(L)\)`
+  
+  
+  
+- Subclassification
+  + Asymptotically biased for fixed `\(K\)`
+  + Lower variance in some cases 
+  + Less sensitive to misspecification of model for `\(\pi(L)\)`
+
+
+---
+# 2. What Covariates to Control For
+
+---
+
+## What to Include in a Propensity Score Model
+
+- We have seen that all variables needed to block backdoor paths should be included in the propensity score model. 
+
+- We should not include colliders (or children of colliders), even if they improve our predictions of `\(A\)`. 
+
+- What about other variables? 
+
+  
+---
+
+## Predictors of Treatment
+
+- Should we include `\(L_1\)` in in the predictive model of `\(A\)`? 
+<div class="grViz html-widget html-fill-item" id="htmlwidget-59a579560f084db2b7d4" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-59a579560f084db2b7d4">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"-0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"1\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+--
+
+- Suppose that `\(P[A = 1 \vert L = 0] = 0.01\)` and `\(P[A = 1 \vert L_1 = 1]= 0.99\)` and we condition on `\(L_1\)` to compute `\(\hat{\pi}(L)\)`.
+
+- 1% of our sample will have a weight of 100, while the remaining 99% will have a weight close to 1. 
+- The weighted estimator will have a much higher variance than the (also valid) un-weighted estimator. 
+
+
+---
+
+
+## Predictors of Outcome
+
+- Should we include `\(L_2\)` in in the predictive model of `\(A\)`? 
+
+<div class="grViz html-widget html-fill-item" id="htmlwidget-abf13adb20d9c1a0b845" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-abf13adb20d9c1a0b845">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0.5,0.5!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+
+
+
+---
+
+## Simulations 
+
+- Data are generated from the graph: 
+<div class="grViz html-widget html-fill-item" id="htmlwidget-4a7ef03b73285bbec412" style="width:504px;height:180px;"></div>
+<script type="application/json" data-for="htmlwidget-4a7ef03b73285bbec412">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = \"A\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0,0!\"] \n  \"2\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"1,0!\"] \n  \"3\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>2<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", shape = \"circle\", pos = \"0.5,0.5!\"] \n\"3\"->\"2\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+- A randomized trial with `\(N/2\)` units each in treatment and control groups. 
+
+- `\(A\)`, `\(Y\)`, and `\(L_2\)` are all binary. 
+
+- `\(P[Y = 1 \vert L_2 ] = 0.05 + 0.5 L_2\)`; `\(P[L_2 = 1] = 0.5\)`. 
+
+- In each simulation, we sample 250 units from this model and compute 
+  + `\(\hat{\beta}\)`, the sample difference in means and 
+  + `\(\hat{\beta}_S\)`, the stratified difference in means estimate. 
+
+&lt;!-- - Recall that `\(\hat{\beta}_S\)` is the same as the IP weighted estimate because all of our variables are binary.  --&gt;
+
+
+---
+
+## Simulation Results 
+
+- Over 1000 simulations, 
+
+- Average bias: `\(\hat{\beta}\)`: 0.0024, `\(\hat{\beta}_S\)`: 0.0021
+
+- Mean squared error:  `\(\hat{\beta}\)`: 0.0037, `\(\hat{\beta}_S\)`: 0.0026
+
+- Monte Carlo standard deviation (e.g. SD of estimates over 1k simulations): `\(\hat{\beta}\)`: 0.0605, `\(\hat{\beta}_S\)`: 0.0505
+
+- In 60% of simulations, the stratified estimator is closer to the truth (0) than the non-stratified estimator. 
+
+- The adjusted estimator has lower bias and is more precise.
+
+
+
+---
+
+## Conditionality Prinicipal
+
+- In a fully randomized experiment, `\(Y(a) \ci A\)` unconditionally *on average*.
+
+- So the true value of `\(P_i[A = a]\)` is constant for all participants. 
+
+- However, in any given realization of the experiment, there may be imbalances in some predictors of `\(Y\)`. 
+  + These imbalances can lead to bias even though they are "accidental". 
+
+---
+
+## Conditionality Prinicipal
+
+
+- If we know that `\(L\)` is highly predictive of `\(Y,\)` we should adjust for `\(L\)` even if we know the 
+mechanism for assigning treatment. 
+
+- If we incorporate `\(L\)` into a propensity score model, we will obtain values of `\(\hat{\pi}_i\)` that are not constant
+across participants. 
+
+- So in some sense these are "bad" estimates of `\(\pi_i\)` 
+
+- However, using `\(\hat{\pi}_i\)` will result in lower bias and lower MSE than using `\(\pi_L\)`
+
+
+- Even if we know the true value of `\(\pi(L),\)` it is better to use the estimates!
+
+---
+## More Simulation Results
+
+- Back to Chatton et al (2020) comparing G-computation and IPW. 
+
+- For each method, they consider four sets of adjustment variables:
+  + Common: Only variables necessary to control confounding. In their setup, commmon causes of `\(A\)` and `\(Y\)`. 
+  + Outcome: All variables that cause `\(Y\)` ("Common" + variables that cause `\(Y\)` but not `\(A\)`). 
+  + Treatment: All variables that cause `\(A\)` ("Common" + variables that cause `\(A\)` but not `\(Y\)`). 
+  + All: All variables
+  
+- What are your predictions? Which set does best? Will the results be different for G-computation and IPW?
+
+---
+## More Simulation Results
+
+
+&lt;img src="7_modeling2_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+
+
+
+
+
+---
+
+# 3. Double Robust Estimators
+
+
+---
+
+## Double Robustness
+
+- So far, our estimation methods include:
+
+- IP Weighting: Need to get the treatment model right.
+
+- G-computation: Need to get the outcome model right.
+
+- Propensity score regression: Need to get the treatment model right and the 
+  form of the outcome-PS model right but...
+  + More robust to treatment model mis-specification
+  + Can use a flexible model for the outcome-PS regression. 
+
+---
+
+## Double Robustness
+
+
+- Double robust methods give asymptotically unbiased and consistent effect estimates if 
+
+- The treatment model is correct **OR**
+
+- The outcome model is correct.
+
+
+
+---
+## Augmented Inverse Probability Weighting (AIPW)
+
+- Suppose we have an outcome regression model.
+
+- For each unit, we can estimate `\(\hat{Y}_{a, i} = E[Y \vert A = a, L = L_i]\)`. 
+
+- We can construct estimators for `\(E[Y(1)]\)` and `\(E[Y(0)]\)` as 
+
+`$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace$$`
+
+
+`$$\hat{\Delta}_{DR,0} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{(1-A_i) Y_i}{1-\hat{\pi}(L_i)} - \left(\frac{1-A_i}{1-\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{0,i} \right \rbrace$$`
+ - Cassel, Särndal, and Wretman (1976); Robins, Rotnitzky, and Zhao (1994)
+---
+
+## Augmented Inverse Probability Weighting (AIPW)
+
+
+`$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace \\\
+= \frac{1}{N} \sum_{i = 1}^N \left \lbrace \hat{Y}_{1,i} + \frac{A_i}{\hat{\pi}(L_i)}\left(Y_i - \hat{Y}_{1,i} \right) \right \rbrace$$`
+
+- If the model for `\(\hat{\pi}\)` is correct then `\(E\left [\frac{A_i}{\hat{\pi}(L_i)}\right] = 1\)`. 
+
+- If the model for `\(\hat{Y}\)` is correct then `\(E[A_i(Y_i - \hat{Y}_{1,i})] = 0\)`. 
+
+- Also called bias corrected OLS (Cassel et al 1976)
+
+- Can obtain variance from bootstrapping or sandwich standard errors. I have not found an R implementation of sandwich SEs so in practice, use bootstrapping. 
+
+---
+## Augmented Inverse Probability Weighting (AIPW)
+
+
+- `\(\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}\)` is a **locally semiparametrically** efficient estimator. 
+
+- If both models are correctly specified, then, 
+
+- Asymptotically, `\(\hat{\Delta}_{DR}\)` has the smallest variance among estimators in the class defined by Robins and Ronitzky (1995).
+
+- **locally**: The efficiency result is limited to a class of estimators. 
+
+- **semiparametrically**: The class is a semiparametric class. 
+
+- The class of estimators defined by Robins and Ronitzky is the class of all consistent, semiparametric estimators of `\(E[Y(0)]\)` and `\(E[Y(1)]\)`. 
+  - Semiparametric means that they do not require a parametric distribution for `\((L, Y(0), Y(1))\)`.  
+
+
+---
+## Regression with Propensity Score
+
+- Another method to form a DR estimator is to fit an outcome regression model adding some function(s) of `\(\hat{\pi}\)` as covariates. 
+
+- Suppose that our outcome regression model is `\(E[Y \vert A, L] = s(A, L, \beta)\)`, where `\(\beta\)` are parameters to be estimated. 
+
+- We then fit the augmented mode `\(E[Y \vert A, L] = s(A, L, \beta) + \phi f(A, L)\)`. 
+- We then define `\(\tilde{Y}_{a,i} = s(a, L_i, \hat{\beta}) + \hat{\phi}f(a, L_i)\)`
+
+- And estimate
+`$$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$`
+
+---
+## Scharfstein Estimator
+
+- Scharfstein et al (1999) show that including `\(\frac{A_i}{\hat{\pi}_i}\)` as a covariate is sufficient to achieve double robustness for estimation of `\(Y(A = 1)\)`. 
+
+- If we want to estimate both `\(Y(A = 1)\)` and `\(Y(A = 0)\)`, we can add two covariates, `\(\frac{A_{i}}{\hat{\pi}_i}\)` and `\(\frac{1-A_i}{1- \hat{\pi}_i}\)`. 
+
+---
+## Bang and Robins Estimator
+
+- Bang and Robins (2005) show that we don't actually need two separate coavariates. 
+
+- The single covariate `\(f(A, L) = \frac{A_1}{\hat{\pi_i}} - \frac{1-A_i}{1-\hat{\pi}_i}\)` also gives a DR estimator.
+
+- This estimator is more efficient than the Scharfstein et al estimator when only the outcome model is correct. 
+
+- The Scharfstein and Bang and Robins estimators are both asymptotically equivalent to `\(\hat{\Delta}_{DR}\)` when both models are correct. 
+  + This means that they are all asymptotically unbiased and have the same asymptotic variance. 
+  + They don't give the numerically same estimates in finite data. 
+  + They also perform differently when one of the two models is misspecified.
+
+&lt;!-- ## Double Robust Estimation in NHEFS  --&gt;
+
+
+
+
+
+
+---
+
+## Doubly Robust Standardization
+
+- Yet another variation, Vansteelandt and Keiding (2010) suggest simply combining G-computation and IP weighting. 
+
+- Propose and fit a treatment model, compute `\(\hat{\pi}\)`. 
+
+- Propose an outcome model. 
+
+- Fit the model, weighting by the IP weights. 
+
+- Standardize as usual. 
+
+
+
+---
+
+## Subclassification Plus Regression
+
+- There is also a double robust flavored variation of subclassification, `\(\hat{\Delta}_{SR}\)`. 
+
+- Divide data into strata based on PS as before. 
+
+- Fit a full outcome regression model in each stratum and standardize to get a stratum-specific estimate, then average the standardized estimates over strata. 
+
+- This strategy is not technically doubly robust because subclassification is not consistent with fixed `\(K\)`. 
+
+- So within stratum regression modeling is only consistent if the outcome model is consistent. 
+
+- In practice, there can be issues with missing covariate levels within strata. 
+
+
+---
+## Bias 
+
+- The bias of all doubly robust methods is a function of the product of the bias of `\(1/\hat{\pi}(L)\)` and the bias of `\(\hat{b}(L) = \hat{E}[Y \vert A = a, L]\)`.
+
+- The large sample bias of `\(\hat{\Delta}_{DR}\)` is 
+
+`$$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - b^*(L) \right) \right]$$`
+
+- `\(b^*\)` and `\(\pi^*\)` are the limiting expectations of `\(\hat{b}\)` (i.e. `\(\hat{Y}\)`) and `\(\hat{\pi}\)`. 
+
+- Doubly robust methods are often (but not always) less biased than IP weighting or outcome regression, even if both models are wrong. 
+
+
+---
+
+## Variance, Results from Lunceford and Davidian (2004)
+- Lunceford and Davidian (2004) investigate large-sample variances for the IPW estimators we have seen as well as for `\(\hat{\Delta}_{DR}\)`. Some results follow:
+
+- `\(\hat{\Delta}_{DR}\)` has smaller variance than the IPW estimators when the PS model is correct. We expect this to be true because of the efficiency result from Robins and Rotnitzky. 
+
+- The variance of the IPW estimators is smaller if we estimate `\(\hat{\pi}\)` than if we use the true `\(\hat{\pi}\)`. 
+
+- Estimating `\(\hat{\pi}\)` does not impact the variance of `\(\hat{\Delta}_{DR}\)` asymptotically. 
+
+- The sandwich variance estimates for IPW estimators are more stable in practice than plug-in estimates of the large sample variance. 
+
+
+---
+
+## More from Lunceford and Davidian (2004)
+
+
+- As we said before,  `\(\hat{\Delta}_{S}\)` is inconsistent for fixed `\(K\)`. `\(\hat{\Delta}_{SR}\)` is only consistent if within-stratum regression models are correctly specified. 
+
+
+- `\(\hat{\Delta}_{S}\)`, and `\(\hat{\Delta}_{SR}\)` both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
+
+- Neither `\(\hat{\Delta}_{S}\)` or `\(\hat{\Delta}_{SR}\)` is in the semiparametric class defined by Robins et al.
+
+
+- In support of our arguments about the conditionality principle, Lunceford and Davidian show that including covariates that are not related to treatment but are associated with response reduces (or does not change) the variance of IP weighting estimators and `\(\hat{\Delta}_{DR}\)`. 
+  + Not clearly the case for `\(\hat{\Delta}_{S}\)` or `\(\hat{\Delta}_{SR}\)`.
+
+---
+## Censoring 
+
+- If covariates `\(L\)` are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
+
+- Many of them were developed originally in the context of accounting for missing data rather than accounting for confounding. 
+
+
+---
+## Causal Inference Methods as Missing Data Methods
+
+- The primary problem in estimating `\(E[Y(a)]\)` is not that `\(Y(a)\)` is a counterfactual. 
+  + Consistency guarantees that we *can* observe `\(Y(a)\)` for those in our sample who actually received treatment `\(a\)`.
+  
+- The problem is that we are missing `\(Y(a)\)` for everyone else. 
+
+- We have looked at all of our methods so far as methods for estimating contrasts like `\(E[Y(1)] - E[Y(0)]\)`.
+
+- However, the could also be used to estimate a mean in a sample with some censored values, `\(E[Y(C = 0)]\)`. 
+
+- Kang and Schaffer (2007) perform a simulations study comparing many of the estimators we have seen in this context. 
+
+
+---
+## Kang and Schaffer (2007)
+
+- A missing data setting where our goal is to estimate `\(E[Y(C = 0)]\)`. 
+
+- Data are generated as 
+`$$Y_i = \alpha_0 + \sum_{j = 1}^4 \alpha_i Z_{j,i}\qquad \pi_i = P[C_i = 0 ] = expit(\sum_{j = 1}^{4} \beta_j Z_{j,i})$$`
+- Rather than observing `\(Z_1, \dots, Z_4\)`, we observe non-linear transformations
+
+`$$X_{1,i} = e^{Z_{1,i}/2} \qquad X_{2,i} = \frac{Z_{2,i}}{1 + e^{Z_{1,i}}} + 10 \\\
+X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$`
+
+- On average, half the data are missing. 
+
+- `\(E[Y(C = 0)] = 210\)`, `\(E[Y \vert C = 0] = 220\)` and `\(E[Y \vert C = 1] = 200\)`
+
+---
+## Kang and Schaffer (2007)
+
+- Plan: Use several models to estimate `\(E[Y(C = 0)]\)`, the mean if nobody had been censored. 
+
+
+- "Correct model": For either censoring or outcome, fit a linear model using the `\(Z_1, \dots, Z_4\)`.
+
+- "Incorrect model": for either censoring or outcome, fit a linear modeling using `\(X_1, \dots, X_4\)`. 
+
+---
+## Kang and Schaffer (2007)
+
+- Relationships between outcome and observed covariates look about linear.
+&lt;center&gt; 
+
+&lt;img src="img/6_ksfig2.png" width="80%" /&gt;
+
+&lt;/center&gt;
+
+
+
+---
+## IP Weighting and Subclassification
+
+- The subclassification estimator has higher bias but lower RMSE than IPW for correctly specified models. 
+
+- It has lower RMSE for the incorrect model at the larger sample size. 
+
+
+&lt;center&gt; 
+
+&lt;img src="img/6_ks_results2.png" width="100%" /&gt;
+
+
+
+&lt;/center&gt;
+
+
+---
+## G-computation
+
+- In this simulation, G-computation is quite robust to model misspecification.
+  - G-Computation under the incorrect outcome model has lower RMSE than IPW with the correct model.
+  
+- Kang and Schaffer refer to this method as "OLS".
+
+&lt;center&gt; 
+
+&lt;img src="img/6_ks_results3.png" width="100%" /&gt;
+
+---
+## Bias Corrected OLS (AIPW)
+
+- Using AIPW, we have low bias if either model is correct as promised. 
+
+- When both models are wrong, the bias is quite bad. 
+
+- "This estimate is indeed highly efficient when the `\(\pi\)` -model is true and the `\(y\)` -model is highly predictive. In our experience, however, if the π -model is misspecified, it is not difficult to find DR estimators that outperform this one by venturing outside the AIPW class."
+
+&lt;center&gt;
+&lt;img src="img/6_ks_results4.png" width="100%" /&gt;
+
+&lt;/center&gt;
+
+---
+
+## Doubly Robust Standardization 
+
+- "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate when one of the models is true, but much better when both models are misspecified"
+
+&lt;center&gt;
+&lt;img src="img/6_ks_results5.png" width="100%" /&gt;
+
+&lt;/center&gt;
+
+---
+##  Propensity Covariate
+
+
+- Fit the outcome model and add a smoothing spline for propensity score, compute standardized estimate as usual. 
+
+- "We found that these polynomial splines occasionally produced erratic predicted values of `\(y_i\)` for nonrespondents with low propensities, driving up the variance of the regression estimate. The best performance was achieved by simply coarsening the `\(\hat{\pi}_i\)` ’s into five categories and creating four dummy indicators".
+
+---
+##  Propensity Covariate
+
+- Best of the DR methods when both models are wrong. Worse than OLS with incorrect `\(y\)` model. 
+
+&lt;center&gt; 
+&lt;img src="img/6_ks_results6.png" width="100%" /&gt;
+&lt;/center&gt;
+
+---
+## Scharfstein Estimator 
+
+- "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified `\(\pi\)`-model. The performance of this method is disastrous when some of the estimated propensities are small."
+
+- RMSE with incorrect PS model &gt; 1e5.
+
+&lt;center&gt;
+
+&lt;img src="img/6_ks_results7.png" width="100%" /&gt;
+&lt;/center&gt;
+
+---
+
+## Conclusions
+
+- Double robustness is an appealing property. 
+
+- Multiple alternative DR estimators, no best "all-purpose" DR estimator. 
+
+- Very large weights lead to erratic behavior. 
+
+- Non-overlapping covariate distributions lead to erratic behavior. 
+
+- Subclassification and the flexible propensity covariate method are not consistent in all settings but can be quite robust to model mis-specification in practice. 
+
+- It is often a good idea to fit multiple estimators and compare. 
+  
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

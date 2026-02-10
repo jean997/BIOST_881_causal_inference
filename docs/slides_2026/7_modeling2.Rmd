@@ -1,0 +1,1262 @@
+---
+title: "L7: More PS Estimators and Double Robustness"
+author: "Jean Morrison"
+institute: "University of Michigan"
+date: "2026-02-12 \n(updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+dat.u <- read_csv("../../data/nhefs.csv") 
+dat <- dat.u %>%
+       filter(!is.na(wt82))
+```
+
+
+## Lecture Plan 
+
+1. Outcome Regression with Propensity Scores and Subclassification
+
+1. What to Adjust For
+
+1. Double Robust Estimators
+
+---
+# 1. Regression with Propensity Scores
+
+---
+## Propensity Scores as Balancing Scores
+
+- $\pi(L) = P[A = 1 \vert L]$, the probability of receiving treatment conditional on confounders $L$ is the **propensity score**. 
+
+- Within strata of $\pi(L)$, the distribution of $L$ is the same in cases and controls. 
+  - $\pi(L)$ is a **balancing score**. 
+  
+$$
+A \ci L \vert\ \pi(L)
+$$
+
+- The propensity score is the coarsest possible balancing score: 
+  + If $b(L)$ is a balancing score then $b(L) = f(\pi(L))$ for some function $f$. 
+  + The finest possible balancing score is $A$. 
+
+---
+## Propensity Scores are Sufficient for Confounder Adjustment
+
+- If $Y(a) \ci A \vert L$, positivity holds, and $b(L)$ is a balancing score,
+
+- Then $Y$ and $A$ are exchangeable conditional on $b(L)$, $Y(a) \ci A \vert\ b(L)$.
+  
+- The propensity score is like an intermediate node in the DAG mediating all backdoor paths.
+
+<center>
+```{r, echo = FALSE, fig.height= 2.5, fig.align='center', message = FALSE, warn = FALSE}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(DiagrammeR)
+ndf0 <- create_node_df(n = 4, label = c("A", "P[A | L]", "Y", "L"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     height = 0.3,
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "ellipse",
+                     fixedsize = FALSE,
+                     x = c(0, -1, 1, 0.5)*1, 
+                     y = c(0, 0, 0, 1)*0.5)
+edf0 <- create_edge_df(from = c(1, 2, 4, 4), to = c(3, 1, 2, 3),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr0 <- create_graph(nodes_df = ndf0, edges_df = edf0)
+
+render_graph(gr0)
+```
+</center>
+
+
+---
+
+## Outcome Regression with Propensity Scores
+
+- Because $\pi(L)$ is sufficient to control confounding, we know that $E[Y \vert A, L ] = g(\pi(L), A)$ for some function $g$.
+
+- We could try to estimate $g()$ rather than specifying $E[ Y \vert A, L]$ as a function directly of $L$. 
+
+
+- Valid inference will depend on 
+  + Correctly estimating $\pi(L)$
+  + Correctly specifying the functional form of $g()$
+  
+  
+- A simple model like $$E[Y \vert A,L] = \beta_0 + \beta_1 A + \beta_2 \pi(L)$$ could be insufficient to control for confounding.
+
+---
+
+## Outcome Regression with Propensity Scores
+
+- Because $\pi(L)$ is one-dimensional, it is easy (ish) to propose a flexible model. 
+
+- For example, we could fit a cubic spline for $\pi(L)$ with or without effect modification.
+  
+$$E[Y_i \vert A_i, L_i] = \beta_0 + \beta_1 A_i + \sum_{k = 1}^K \beta_{\pi,k} \phi_k(\hat{\pi}_i) + \sum_{k = 1}^K \beta_{A\pi,k} \phi_k(\hat{\pi}_i) A_i$$
+
+- In this formula $\phi_1, \dots, \phi_K$ are spline basis functions. There are lots of R functions to fit models like this.
+
+- If the model includes effect modification by $\pi(L)$, we will need to standardize to get a marginal effect estimate. 
+  + This is just G-computation with a derived covariate. 
+
+
+---
+
+## Subclassification
+
+- Subclassification is a specific version of outcome regression with propensity scores. 
+
+- Idea: Break the data into quantiles based on the propensity score and compute the difference of means within each quantile. 
+
+- Compute the overall effect by averaging the effects in each quantile. 
+
+---
+
+## Subclassification
+
+- This corresponds to the model
+
+$$E[Y_i \vert A, L_i] = \sum_{k = 1}^K \beta_{\pi,k} 1_{\hat{\pi}_i \in C_k} + \sum_{k = 1}^K \beta_{A\pi,k} A 1_{\hat{\pi}_i \in C_k}$$
+
+- $\beta_{A\pi,k}$ is the causal effect for individuals in quantile $k$ of the empirical propensity score distribution. 
+
+- The marginal causal effect is 
+$$\hat{\Delta}_S = E[Y(1)] - E[Y(0)] = \sum_{i = 1}^n\sum_{k = 1}^K \beta_{A\pi, k}1_{\hat{\pi}_i \in C_k} = \frac{1}{k} \sum_{i = 1}^K \beta_{A \pi, k}$$
+---
+## Propensity Score Regression in NHEFS
+
+- We first calculate propensity scores in the same way as in L6 (not shown here).
+
+- Next we fit a model for $E[Y \vert A, \pi(L)]$.
+
+
+```{r, echo = FALSE}
+fit <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = dat)
+
+dat$w <- ifelse(dat$qsmk == 0, 
+                1/(1 - predict(fit, type = "response")), 
+                1/(predict(fit, type = "response")))
+
+dat$ps <-predict(fit, type = "response")
+
+```
+
+```{r}
+library(splines)
+# Simple linear model
+f1 <- lm(wt82_71 ~ qsmk + ps, data = dat)
+f1$coefficients
+
+# No interaction, spline for propensity score
+f2 <- lm(wt82_71 ~ qsmk + bs(ps), data = dat)
+f2$coefficients
+```
+
+---
+## Propensity Score Regression in NHEFS
+
+- If we include effect modification or use a nonlinear link, we need to standardize to compute the marginal causal effect. 
+
+```{r}
+# Linear model with effect modification
+f3 <- lm(wt82_71 ~ qsmk*ps, data = dat)
+f3$coefficients
+```
+
+```{r}
+dat0 <- dat1 <- dat
+dat0$qsmk <- 0
+dat1$qsmk <- 1
+Y0 <- mean(predict(f3, dat0, type = "response"))
+Y1 <- mean(predict(f3, dat1, type = "response"))
+Y1 - Y0
+```
+
+
+---
+## Subclassification Estimate in NHEFS
+
+- The subclassification estimator is just another propensity score regression estimator. 
+
+```{r}
+# Deciles of PS
+dat$ps_dec <- cut(dat$ps, 
+                  breaks=c(quantile(dat$ps, probs=seq(0,1,0.1))),
+                  labels=seq(1:10),
+                  include.lowest=TRUE)
+
+f5 <- glm(wt82_71 ~ qsmk*as.factor(ps_dec), data = dat)
+dat0$ps_dec <- dat1$ps_dec <- dat$ps_dec
+mean(predict(f5, dat1, type = "response")) - mean(predict(f5, dat0, type = "response"))
+```
+
+
+---
+## Bootstrap Variance
+
+- Step 1: Write a function to compute the estimator
+
+```{r}
+delta_s <- function(df){
+  # Estimate propensity scores
+  fit <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps <-predict(fit, type = "response")
+  # Deciles of PS
+  df$ps_dec <- cut(df$ps, breaks=c(quantile(df$ps, probs=seq(0,1,0.1))),
+                    labels=seq(1:10),
+                    include.lowest=TRUE)
+  # Fit the model for E[Y | A, pi]
+  fit_psdec <- glm(wt82_71 ~ qsmk*as.factor(ps_dec), data = df)
+  # Standardized Estimate
+  df0 <- df1 <- df; df0$qsmk <- 0; df1$qsmk <- 1
+  Y0 <- predict(fit_psdec, newdata = df0, type = "response")
+  Y1 <- predict(fit_psdec, newdata = df1, type = "response")
+  return(mean(Y1) -mean(Y0))
+}
+```
+
+
+---
+## Bootstrap Variance
+
+- Step 2: Re-sample data and compute the estimate for each re-sampled data set. 
+
+```{r}
+set.seed(1)
+samples <- replicate(n = 1000, 
+                     expr = sample(seq(nrow(dat)), 
+                                   size = nrow(dat), replace = TRUE))
+res <- apply(samples, 2, FUN = function(ix){
+  boot_dat <- dat[ix,]
+  return(delta_s(boot_dat))
+})
+se <- sd(res)
+bhat <- delta_s(dat) %>% round(digits = 2)
+ci <- round(bhat + c(-1, 1)*qnorm(0.975)*se, digits=2)
+cat(bhat, "(", ci, ")")
+```
+---
+## Bootstrap Alternative
+
+- An alternative strategy to calculate the variance of $\Delta_S$ is to use an approximation,
+
+$$\frac{1}{K^2}\sum_{k = 1}^K \hat{\sigma}^2_k$$
+where $\hat{\sigma}^2_k$ is the variance of the within stratum difference in means estimator:
+
+$$\hat{\sigma}^2_k = \frac{s^2_{1,k}}{n_1} + \frac{s^2_{0,k}}{n_k -n_1}$$
+with $n_k$ number of samples in $\hat{C}_k$, $n_1$, number of cases in $\hat{C}_k$, $s^2_{1,k}$ sample variance of cases in $\hat{C}_k$, $s^2_{01,k}$ sample variance of controls in $\hat{C}_k$.
+
+---
+## Number and Size of Subclasses
+
+- Rosenbaum and Rubin (1983) suggest using sample quintiles ( $K=5$ ). 
+  + This generally leads to residual bias. 
+
+- More intervals leads to less bias but increased variance. 
+
+- The optimal choice of $K$ and interval endpoints is an open problem.
+
+- Intervals must be large enough that individuals with both treatments are in every interval. 
+
+---
+## Subclassification is a Coarsened Horvitz-Thompson Estimator
+
+- Recall the IP weighted Horvitz-Thompson estimator:
+
+$$\hat{\Delta}_{HT} = \frac{1}{N}\sum_{i=1}^N \frac{A_i Y_i}{\hat{\pi}_i} - \frac{(1-A_i)Y_i}{1-\hat{\pi}_i}$$
+- Within each interval, estimate a "subclass-specific" propensity score, $\hat{p}_k = P[A_i = 1 \vert \hat{\pi}_i \in \hat{C}_k] = \frac{n_{1,k}}{n_k}$.
+
+- For each individual, set $\hat{\pi}^{C}_i = \sum_k 1_{\hat{\pi}_i \in \hat{C}_k}\hat{p}_{k}.$
+
+- Plug these propensity scores into the formula for $\hat{\Delta}_{HT}$ and get $\hat{\Delta}_S.$
+
+---
+
+## Subclassification Asymptotic Results
+
+- For a fixed value of $K$, some bias will always remain. 
+
+  + As $N$ increases, $\hat{\Delta}_S$ is not consistent for the ATE. 
+
+--
+
+- Suppose that we have a rule for picking the number divisions that is a function of the data.
+
+- Is there a rule such that $\hat{\Delta}_S$ is root-N consistent for the ATE?
+
+---
+
+## Subclassification Asymptotic Results
+
+- Wang et al (2016) show that
+
+- In order for $\hat{\Delta}_S$ to be well defined, $K(N)$ must grow slowly enough that there are always units with both values of $A$ in every division.
+  + $[ K(N)log(K(N))]/N \rightarrow 0$ as $N \rightarrow \infty$
+
+- But consistency requires that the binwidth get smaller as $N$ increases:
+  + $K(N)/\sqrt{N} \rightarrow \infty$ as $N \rightarrow \infty$
+
+---
+## Full Subclassification 
+
+- Wang et al (2016) propose a strategy for allowing $K$ to grow with $N$ called full subclassification. 
+
+- Choose the largest number $K$ such that every $1/K$ quantile of $\hat{\pi}$ has at least one case and at least one control. 
+
+- In simulations, the full subclassification estimator has smaller bias than $\hat{\Delta}_{S}$.
+
+---
+
+## Comparison with IP Weighting
+
+- Both IP weighting and outcome regression with PS require a correct model for $E[A = 1 \vert L ]$. 
+
+- Both require a correct marginal model for the relationship between $Y(a)$ and $a$ (easy if $A$ is dichotomous). 
+
+- Outcome regression with propensity scores additionally requires correctly specifying the relationship between $Y(a)$ and $\pi(L)$. 
+
+- Subclassification allows us to use a very flexible model for this relationship. 
+  - Bias will remain if intervals are too wide. 
+  
+  
+---
+
+## Comparison with IP Weighting
+
+- Subclassification is less sensitive to mis-specification of the propensity model than IP weighting. 
+
+- In subclassification, we only rely on $\hat{\pi}(L)$ to group units with similar propensities. 
+
+- Any monotonic transformation of the propensity score would give the same subclassification results. 
+
+- So the propensity score model doesn't have to be well calibrated. It only has to provide  a
+good ranking. 
+
+  
+  
+  
+---
+
+## Comparison with IP Weighting
+
+- IP Weighting:
+  + Asymptotically unbiased
+  + High variance if some weights are large
+  + Very sensitive to misspecification of model for $\pi(L)$
+  
+  
+  
+- Subclassification
+  + Asymptotically biased for fixed $K$
+  + Lower variance in some cases 
+  + Less sensitive to misspecification of model for $\pi(L)$
+
+
+---
+# 2. What Covariates to Control For
+
+---
+
+## What to Include in a Propensity Score Model
+
+- We have seen that all variables needed to block backdoor paths should be included in the propensity score model. 
+
+- We should not include colliders (or children of colliders), even if they improve our predictions of $A$. 
+
+- What about other variables? 
+
+  
+---
+
+## Predictors of Treatment
+
+- Should we include $L_1$ in in the predictive model of $A$? 
+```{r, echo = FALSE, fig.height= 2.5, fig.align='center'}
+ndf1 <- create_node_df(n = 3, label = c("A", "Y", "L@_{1}"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "circle",
+                     x = c(0, 1, -0.5)*1, 
+                     y = c(0, 0, 1)*0.5)
+edf1 <- create_edge_df(from = c(1, 3), to = c(2, 1),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr1 <- create_graph(nodes_df = ndf1, edges_df = edf1)
+
+render_graph(gr1)
+```
+--
+
+- Suppose that $P[A = 1 \vert L = 0] = 0.01$ and $P[A = 1 \vert L_1 = 1]= 0.99$ and we condition on $L_1$ to compute $\hat{\pi}(L)$.
+
+- 1% of our sample will have a weight of 100, while the remaining 99% will have a weight close to 1. 
+- The weighted estimator will have a much higher variance than the (also valid) un-weighted estimator. 
+
+
+---
+
+
+## Predictors of Outcome
+
+- Should we include $L_2$ in in the predictive model of $A$? 
+
+```{r, echo = FALSE, fig.align='center', fig.height = 2.5}
+ndf2 <- create_node_df(n = 3, label = c("A", "Y", "L@_{2}"), 
+                     fontname = "Helvetica", 
+                     fontsize = 10, 
+                     width = 0.3, 
+                     fillcolor = "white", 
+                     fontcolor = "black",
+                     color = "black", 
+                     shape = "circle",
+                     x = c(0, 1,  0.5)*1, 
+                     y = c(0, 0, 1)*0.5)
+edf2 <- create_edge_df(from = c(1, 3), to = c(2, 2),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr2 <- create_graph(nodes_df = ndf2, edges_df = edf2)
+
+render_graph(gr2)
+```
+
+
+
+
+---
+
+## Simulations 
+
+- Data are generated from the graph: 
+```{r, echo = FALSE, fig.align='center', fig.height = 2.5}
+ndf2$lable[3] <- "Y"
+edf2 <- create_edge_df(from = c( 3), to = c( 2),
+                          minlen = 1, 
+                          color = "black", 
+                          )
+gr2 <- create_graph(nodes_df = ndf2, edges_df = edf2)
+
+render_graph(gr2)
+```
+
+- A randomized trial with $N/2$ units each in treatment and control groups. 
+
+- $A$, $Y$, and $L_2$ are all binary. 
+
+- $P[Y = 1 \vert L_2 ] = 0.05 + 0.5 L_2$; $P[L_2 = 1] = 0.5$. 
+
+- In each simulation, we sample 250 units from this model and compute 
+  + $\hat{\beta}$, the sample difference in means and 
+  + $\hat{\beta}_S$, the stratified difference in means estimate. 
+
+<!-- - Recall that $\hat{\beta}_S$ is the same as the IP weighted estimate because all of our variables are binary.  -->
+
+```{r, echo=FALSE}
+run1 <- function(n, pL = 0.5){
+  stopifnot(n %% 2 == 0)
+  A <- rep(c(0, 1), each = n/2)
+  L <- rbinom(n = n, size = 1, prob = pL)
+  piAL <- 0.05 + 0.5*L
+  Y <- rbinom(n=n, size = 1, prob=piAL)
+  df <- data.frame(A = A, L = L, Y = Y)
+  return(df)
+}
+
+bhat <- function(df){
+  f <- lm(Y ~ A, data = df)
+  bhat <- f$coefficients[2]
+  sebhat <- summary(f)$coefficients[2, 2]
+  return(bhat)
+  #return(c(bhat, sebhat))
+}
+
+bhat_strat <- function(df){
+  f <- lm(Y ~ A*L, data = df)
+  df0 <- df1 <- df
+  df0$A <- 0
+  df1$A <- 1
+  y1 <- mean(predict(f, df1, type = "response"))
+  y0 <- mean(predict(f, df0, type = "response"))
+  return(y1 - y0)
+}
+
+xx <- purrr::map_dfr(1:1000,function(x){
+                          set.seed(x) 
+                          df <- run1(250)
+                          b1 <- bhat(df)
+                          b2 <- bhat_strat(df)
+                          c(bhat = b1, bhat_strat = b2)})
+
+#colMeans(xx)*sqrt(250)
+#    bhat.A bhat_strat 
+#0.03731488 0.03257410 
+
+#with(xx, sum(abs(bhat.A) < abs(bhat_strat)))
+#[1] 400
+
+#colMeans(xx^2)*250
+#   bhat.A bhat_strat 
+# 0.9166240  0.6392205
+
+
+#apply(xx, 2, sd)*sqrt(250)
+#    bhat.A bhat_strat 
+# 0.9571561  0.7992485 
+```
+---
+
+## Simulation Results 
+
+- Over 1000 simulations, 
+
+- Average bias: $\hat{\beta}$: `r round(with(xx, mean(bhat.A)), digits = 4)`, $\hat{\beta}_S$: `r round(with(xx, mean(bhat_strat)), digits = 4)`
+
+- Mean squared error:  $\hat{\beta}$: `r round(with(xx, mean(bhat.A^2)), digits = 4)`, $\hat{\beta}_S$: `r round(with(xx, mean(bhat_strat^2)), digits = 4)`
+
+- Monte Carlo standard deviation (e.g. SD of estimates over 1k simulations): $\hat{\beta}$: `r round(with(xx, sd(bhat.A)), digits =4)`, $\hat{\beta}_S$: `r round(with(xx, sd(bhat_strat)), digits =4)`
+
+- In `r round(with(xx, mean(abs(bhat_strat) <= abs(bhat.A))*100))`% of simulations, the stratified estimator is closer to the truth (0) than the non-stratified estimator. 
+
+- The adjusted estimator has lower bias and is more precise.
+
+```{r, eval=FALSE, echo=FALSE}
+res <- data.frame(n = c(50, 100, 250, 500, 1000), bhat_avg_bias = NA, bhat_strat_avg_bias = NA, count_better = NA)
+for(j in 1:nrow(res)){
+  xx <- purrr::map_dfr(1:500,function(x){
+                          set.seed(x) 
+                          df <- run1(res$n[j])
+                          b1 <- bhat(df)
+                          b2 <- bhat_strat(df)
+                          c(bhat = b1[1], sebhat = b1[2], bhat_strat = b2[1], sebhat_strat = b2[2])}) %>%
+      mutate(diff = bhat_strat.A - bhat.A)
+  res$bhat_avg_bias[j] <- mean(abs(xx$bhat.A))
+  res$bhat_strat_avg_bias[j] <- mean(abs(xx$bhat_strat.A))
+  res$count_better[j] <- with(xx, sum(abs(bhat_strat.A) < abs(bhat.A)))
+}
+
+res %>% ggplot() + geom_point(aes(x = n, y = bhat_avg_bias*sqrt(n))) + geom_line(aes(x = n, y = bhat_avg_bias*sqrt(n))) +
+geom_point(aes(x = n, y = bhat_strat_avg_bias*sqrt(n)), color = "red") +
+geom_line(aes(x = n, y = bhat_strat_avg_bias*sqrt(n)), color = "red")
+
+```
+
+---
+
+## Conditionality Prinicipal
+
+- In a fully randomized experiment, $Y(a) \ci A$ unconditionally *on average*.
+
+- So the true value of $P_i[A = a]$ is constant for all participants. 
+
+- However, in any given realization of the experiment, there may be imbalances in some predictors of $Y$. 
+  + These imbalances can lead to bias even though they are "accidental". 
+
+---
+
+## Conditionality Prinicipal
+
+
+- If we know that $L$ is highly predictive of $Y,$ we should adjust for $L$ even if we know the 
+mechanism for assigning treatment. 
+
+- If we incorporate $L$ into a propensity score model, we will obtain values of $\hat{\pi}_i$ that are not constant
+across participants. 
+
+- So in some sense these are "bad" estimates of $\pi_i$ 
+
+- However, using $\hat{\pi}_i$ will result in lower bias and lower MSE than using $\pi_L$
+
+
+- Even if we know the true value of $\pi(L),$ it is better to use the estimates!
+
+---
+## More Simulation Results
+
+- Back to Chatton et al (2020) comparing G-computation and IPW. 
+
+- For each method, they consider four sets of adjustment variables:
+  + Common: Only variables necessary to control confounding. In their setup, commmon causes of $A$ and $Y$. 
+  + Outcome: All variables that cause $Y$ ("Common" + variables that cause $Y$ but not $A$). 
+  + Treatment: All variables that cause $A$ ("Common" + variables that cause $A$ but not $Y$). 
+  + All: All variables
+  
+- What are your predictions? Which set does best? Will the results be different for G-computation and IPW?
+
+---
+## More Simulation Results
+
+
+```{r, echo = FALSE, message = FALSE, warning=FALSE, fig.width=10, fig.height=4.5, fig.align='center', dpi=300}
+library(gridExtra)
+chatton_data <- data.frame(N = rep(c(100, 300, 500, 2000 ), each = 8), method = rep(rep(c("GC", "IPW"), each = 4), 4), 
+                           covars = rep(c("outcome", "treatment", "common", "all"), 8), 
+                           mse = c(0.526, 0.580, 0.552, 0.558, 
+                                   0.578, 0.716, 0.587, 0.741, 
+                                   0.283, 0.319, 0.304, 0.297, 
+                                   0.301, 0.372, 0.318, 0.361,
+                                   0.217, 0.245, 0.233, 0.228,
+                                   0.230, 0.285, 0.244, 0.274, 
+                                   0.108, 0.122, 0.116, 0.113, 
+                                   0.113, 0.138, 0.120, 0.131), 
+                           power = c(17.7, 14.0, 15.1, 16.9, 
+                                     7.8, 9.8, 8.8, 9.6, 
+                                     43.6, 35.2, 38.5, 39.9, 
+                                     24, 21.4, 26.1, 20.0, 
+                                     64.5, 53.6,57.6,  60.5,
+                                     43.3, 35.4, 43.7, 33.9, 
+                                     99.6, 98.6, 99.1, 99.4, 
+                                     98.1, 93.0, 97.7, 93.6))
+chatton_data %>% 
+ggplot() + geom_point(aes(x = N, y = mse, shape = covars, color = covars), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = covars)) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) + 
+  facet_wrap(~ method)
+
+```
+
+```{r, echo=FALSE, eval = FALSE}
+chatton_data <- data.frame(N = rep(c(100, 300, 500, 2000 ), each = 8), Method = rep(rep(c("GC", "IPW"), each = 4), 4), 
+                           Covariates = rep(c("Outcome", "Treatment", "Common", "All"), 8), 
+                           mse = c(0.526, 0.580, 0.552, 0.558, 
+                                   0.578, 0.716, 0.587, 0.741, 
+                                   0.283, 0.319, 0.304, 0.297, 
+                                   0.301, 0.372, 0.318, 0.361,
+                                   0.217, 0.245, 0.233, 0.228,
+                                   0.230, 0.285, 0.244, 0.274, 
+                                   0.108, 0.122, 0.116, 0.113, 
+                                   0.113, 0.138, 0.120, 0.131), 
+                           power = c(17.7, 14.0, 15.1, 16.9, 
+                                     7.8, 9.8, 8.8, 9.6, 
+                                     43.6, 35.2, 38.5, 39.9, 
+                                     24, 21.4, 26.1, 20.0, 
+                                     64.5, 53.6,57.6,  60.5,
+                                     43.3, 35.4, 43.7, 33.9, 
+                                     99.6, 98.6, 99.1, 99.4, 
+                                     98.1, 93.0, 97.7, 93.6))
+
+p1 <- chatton_data %>% ggplot() + geom_point(aes(x = N, y = mse, shape = Method, color = Covariates), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = Covariates, linetype = Method, group = paste0(Covariates, Method))) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) 
+
+p2 <- chatton_data %>% ggplot() + geom_point(aes(x = N, y = mse, shape = Method, color = Covariates), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = Covariates, linetype = Method, group = paste0(Covariates, Method))) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) + 
+  facet_wrap(~Covariates)
+
+p3 <- chatton_data %>% ggplot() + geom_point(aes(x = N, y = mse, shape = Method, color = Covariates), size = 3) + 
+  geom_line(aes(x = N, y = mse, color = Covariates, group = paste0(Covariates, Method))) + 
+  ylab("MSE") + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) + 
+  facet_wrap(~Method)
+
+
+p4 <- chatton_data %>% 
+  mutate(Covariates = factor(Covariates, levels = c("Treatment", "All", "Common", "Outcome")), 
+         N = as.factor(N)) %>%
+  ggplot() + geom_point(aes(x = Covariates, y = mse, shape = N, color = Method), size = 3) + 
+  geom_line(aes(x = Covariates, y = mse, color = Method, linetype = N, group = paste0(N, Method))) + 
+  ylab("MSE") + 
+  scale_shape_manual(values = c(16, 2, 15, 4 )) + 
+  theme_bw() + 
+  theme() + 
+   theme(axis.title = element_text(size = 18), 
+         legend.text = element_text(size  = 18), 
+         legend.title = element_text(size = 18), 
+         axis.text = element_text(size = 14), 
+         strip.text = element_text(size = 18)) 
+
+```
+
+
+
+---
+
+# 3. Double Robust Estimators
+
+
+---
+
+## Double Robustness
+
+- So far, our estimation methods include:
+
+- IP Weighting: Need to get the treatment model right.
+
+- G-computation: Need to get the outcome model right.
+
+- Propensity score regression: Need to get the treatment model right and the 
+  form of the outcome-PS model right but...
+  + More robust to treatment model mis-specification
+  + Can use a flexible model for the outcome-PS regression. 
+
+---
+
+## Double Robustness
+
+
+- Double robust methods give asymptotically unbiased and consistent effect estimates if 
+
+- The treatment model is correct **OR**
+
+- The outcome model is correct.
+
+
+
+---
+## Augmented Inverse Probability Weighting (AIPW)
+
+- Suppose we have an outcome regression model.
+
+- For each unit, we can estimate $\hat{Y}_{a, i} = E[Y \vert A = a, L = L_i]$. 
+
+- We can construct estimators for $E[Y(1)]$ and $E[Y(0)]$ as 
+
+$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace$$
+
+
+$$\hat{\Delta}_{DR,0} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{(1-A_i) Y_i}{1-\hat{\pi}(L_i)} - \left(\frac{1-A_i}{1-\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{0,i} \right \rbrace$$
+ - Cassel, Särndal, and Wretman (1976); Robins, Rotnitzky, and Zhao (1994)
+---
+
+## Augmented Inverse Probability Weighting (AIPW)
+
+
+$$\hat{\Delta}_{DR,1} = \frac{1}{N}\sum_{i = 1}^N \left \lbrace  \frac{A_i Y_i}{\hat{\pi}(L_i)} - \left(\frac{A_i}{\hat{\pi}(L_i)} - 1 \right)\hat{Y}_{1,i} \right \rbrace \\\
+= \frac{1}{N} \sum_{i = 1}^N \left \lbrace \hat{Y}_{1,i} + \frac{A_i}{\hat{\pi}(L_i)}\left(Y_i - \hat{Y}_{1,i} \right) \right \rbrace$$
+
+- If the model for $\hat{\pi}$ is correct then $E\left [\frac{A_i}{\hat{\pi}(L_i)}\right] = 1$. 
+
+- If the model for $\hat{Y}$ is correct then $E[A_i(Y_i - \hat{Y}_{1,i})] = 0$. 
+
+- Also called bias corrected OLS (Cassel et al 1976)
+
+- Can obtain variance from bootstrapping or sandwich standard errors. I have not found an R implementation of sandwich SEs so in practice, use bootstrapping. 
+
+---
+## Augmented Inverse Probability Weighting (AIPW)
+
+
+- $\hat{\Delta}_{DR} = \hat{\Delta}_{DR,1} - \hat{\Delta}_{DR,0}$ is a **locally semiparametrically** efficient estimator. 
+
+- If both models are correctly specified, then, 
+
+- Asymptotically, $\hat{\Delta}_{DR}$ has the smallest variance among estimators in the class defined by Robins and Ronitzky (1995).
+
+- **locally**: The efficiency result is limited to a class of estimators. 
+
+- **semiparametrically**: The class is a semiparametric class. 
+
+- The class of estimators defined by Robins and Ronitzky is the class of all consistent, semiparametric estimators of $E[Y(0)]$ and $E[Y(1)]$. 
+  - Semiparametric means that they do not require a parametric distribution for $(L, Y(0), Y(1))$.  
+
+
+---
+## Regression with Propensity Score
+
+- Another method to form a DR estimator is to fit an outcome regression model adding some function(s) of $\hat{\pi}$ as covariates. 
+
+- Suppose that our outcome regression model is $E[Y \vert A, L] = s(A, L, \beta)$, where $\beta$ are parameters to be estimated. 
+
+- We then fit the augmented mode $E[Y \vert A, L] = s(A, L, \beta) + \phi f(A, L)$. 
+- We then define $\tilde{Y}_{a,i} = s(a, L_i, \hat{\beta}) + \hat{\phi}f(a, L_i)$
+
+- And estimate
+$$\hat{\Delta}_{DR2} = \frac{1}{N}\sum_i \tilde{Y}_{1,i} - \tilde{Y}_{0,i}$$
+
+---
+## Scharfstein Estimator
+
+- Scharfstein et al (1999) show that including $\frac{A_i}{\hat{\pi}_i}$ as a covariate is sufficient to achieve double robustness for estimation of $Y(A = 1)$. 
+
+- If we want to estimate both $Y(A = 1)$ and $Y(A = 0)$, we can add two covariates, $\frac{A_{i}}{\hat{\pi}_i}$ and $\frac{1-A_i}{1- \hat{\pi}_i}$. 
+
+---
+## Bang and Robins Estimator
+
+- Bang and Robins (2005) show that we don't actually need two separate coavariates. 
+
+- The single covariate $f(A, L) = \frac{A_1}{\hat{\pi_i}} - \frac{1-A_i}{1-\hat{\pi}_i}$ also gives a DR estimator.
+
+- This estimator is more efficient than the Scharfstein et al estimator when only the outcome model is correct. 
+
+- The Scharfstein and Bang and Robins estimators are both asymptotically equivalent to $\hat{\Delta}_{DR}$ when both models are correct. 
+  + This means that they are all asymptotically unbiased and have the same asymptotic variance. 
+  + They don't give the numerically same estimates in finite data. 
+  + They also perform differently when one of the two models is misspecified.
+
+<!-- ## Double Robust Estimation in NHEFS  -->
+
+
+```{r, echo = FALSE}
+delta_s <- function(df){
+  # Estimate propensity scores
+  fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps <-predict(fit_ps, type = "response")
+  df <- mutate(df, w1 = (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps))
+  
+  fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
+                  I(age^2) + as.factor(education) + 
+                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
+                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
+                  qsmk * smokeintensity + w1-w0, 
+                  data = df)
+  
+  df0 <- df1 <- df; 
+  df0 <- mutate(df0, qsmk = 0, 
+                w1 == (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps) )
+  df1 <- mutate(df1, qsmk = 1, 
+                w1 == (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps) )
+  Y0 <- predict(fit_or, newdata = df0, type = "response")
+  Y1 <- predict(fit_or, newdata = df1, type = "response")
+  return(mean(Y1) -mean(Y0))}
+
+delta_br <- function(df){
+  # Estimate propensity scores
+  fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps <-predict(fit_ps, type = "response")
+  df <- mutate(df, w1 = (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps), 
+               w = w1 - w0)
+  
+  fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
+                  I(age^2) + as.factor(education) + 
+                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
+                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
+                  qsmk * smokeintensity + w, 
+                  data = df)
+  
+  df0 <- df1 <- df; 
+  df0 <- mutate(df0, qsmk = 0, 
+                w1 == (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps),
+               w = w1 - w0)
+  df1 <- mutate(df1, qsmk = 1, 
+                w1 == (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps),
+               w = w1 - w0)
+  Y0 <- predict(fit_or, newdata = df0, type = "response")
+  Y1 <- predict(fit_or, newdata = df1, type = "response")
+  return(mean(Y1) -mean(Y0))}
+```
+
+```{r, echo=FALSE}
+delta_dr2 <- function(df){
+  # Estimate propensity scores
+  fit_ps <- glm(qsmk ~ sex + race + age + I(age ^ 2) +
+    as.factor(education) + smokeintensity +
+    I(smokeintensity ^ 2) + smokeyrs + I(smokeyrs ^ 2) +
+    as.factor(exercise) + as.factor(active) + wt71 + I(wt71 ^ 2),
+    family = binomial(), data = df)
+  df$ps <-predict(fit_ps, type = "response")
+  df <- mutate(df, w1 = (qsmk ==1)*1/ps, 
+               w0 = (qsmk==0)*1/(1-ps))
+  fit_or <-glm( wt82_71 ~ qsmk + sex + race + age + 
+                  I(age^2) + as.factor(education) + 
+                  smokeintensity + I(smokeintensity^2) + smokeyrs + I(smokeyrs^2) + 
+                  as.factor(exercise) + as.factor(active) + wt71 + I(wt71 * wt71) +
+                  qsmk * smokeintensity, 
+                  data = df)
+  # Standardized Estimate
+  df0 <- df1 <- df; df0$qsmk <- 0; df1$qsmk <- 1
+  Y0 <-  predict(fit_or, newdata = df0, type = "response")
+  Y0c <- with(df, Y0 + w0*(wt82_71-Y0))
+  Y1 <-  predict(fit_or, newdata = df1, type = "response")
+  Y1c <- with(df, Y1 + w1*(wt82_71-Y1))
+  return(mean(Y1c, na.rm=T) -mean(Y0c, na.rm=T))}
+```
+
+---
+
+## Doubly Robust Standardization
+
+- Yet another variation, Vansteelandt and Keiding (2010) suggest simply combining G-computation and IP weighting. 
+
+- Propose and fit a treatment model, compute $\hat{\pi}$. 
+
+- Propose an outcome model. 
+
+- Fit the model, weighting by the IP weights. 
+
+- Standardize as usual. 
+
+
+
+---
+
+## Subclassification Plus Regression
+
+- There is also a double robust flavored variation of subclassification, $\hat{\Delta}_{SR}$. 
+
+- Divide data into strata based on PS as before. 
+
+- Fit a full outcome regression model in each stratum and standardize to get a stratum-specific estimate, then average the standardized estimates over strata. 
+
+- This strategy is not technically doubly robust because subclassification is not consistent with fixed $K$. 
+
+- So within stratum regression modeling is only consistent if the outcome model is consistent. 
+
+- In practice, there can be issues with missing covariate levels within strata. 
+
+
+---
+## Bias 
+
+- The bias of all doubly robust methods is a function of the product of the bias of $1/\hat{\pi}(L)$ and the bias of $\hat{b}(L) = \hat{E}[Y \vert A = a, L]$.
+
+- The large sample bias of $\hat{\Delta}_{DR}$ is 
+
+$$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - b^*(L) \right) \right]$$
+
+- $b^*$ and $\pi^*$ are the limiting expectations of $\hat{b}$ (i.e. $\hat{Y}$) and $\hat{\pi}$. 
+
+- Doubly robust methods are often (but not always) less biased than IP weighting or outcome regression, even if both models are wrong. 
+
+
+---
+
+## Variance, Results from Lunceford and Davidian (2004)
+- Lunceford and Davidian (2004) investigate large-sample variances for the IPW estimators we have seen as well as for $\hat{\Delta}_{DR}$. Some results follow:
+
+- $\hat{\Delta}_{DR}$ has smaller variance than the IPW estimators when the PS model is correct. We expect this to be true because of the efficiency result from Robins and Rotnitzky. 
+
+- The variance of the IPW estimators is smaller if we estimate $\hat{\pi}$ than if we use the true $\hat{\pi}$. 
+
+- Estimating $\hat{\pi}$ does not impact the variance of $\hat{\Delta}_{DR}$ asymptotically. 
+
+- The sandwich variance estimates for IPW estimators are more stable in practice than plug-in estimates of the large sample variance. 
+
+
+---
+
+## More from Lunceford and Davidian (2004)
+
+
+- As we said before,  $\hat{\Delta}_{S}$ is inconsistent for fixed $K$. $\hat{\Delta}_{SR}$ is only consistent if within-stratum regression models are correctly specified. 
+
+
+- $\hat{\Delta}_{S}$, and $\hat{\Delta}_{SR}$ both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
+
+- Neither $\hat{\Delta}_{S}$ or $\hat{\Delta}_{SR}$ is in the semiparametric class defined by Robins et al.
+
+
+- In support of our arguments about the conditionality principle, Lunceford and Davidian show that including covariates that are not related to treatment but are associated with response reduces (or does not change) the variance of IP weighting estimators and $\hat{\Delta}_{DR}$. 
+  + Not clearly the case for $\hat{\Delta}_{S}$ or $\hat{\Delta}_{SR}$.
+
+---
+## Censoring 
+
+- If covariates $L$ are sufficient to adjust for both censoring and confounding, then any of the methods we have discussed so far are sufficient to adjust for selection bias. 
+
+- Many of them were developed originally in the context of accounting for missing data rather than accounting for confounding. 
+
+
+---
+## Causal Inference Methods as Missing Data Methods
+
+- The primary problem in estimating $E[Y(a)]$ is not that $Y(a)$ is a counterfactual. 
+  + Consistency guarantees that we *can* observe $Y(a)$ for those in our sample who actually received treatment $a$.
+  
+- The problem is that we are missing $Y(a)$ for everyone else. 
+
+- We have looked at all of our methods so far as methods for estimating contrasts like $E[Y(1)] - E[Y(0)]$.
+
+- However, the could also be used to estimate a mean in a sample with some censored values, $E[Y(C = 0)]$. 
+
+- Kang and Schaffer (2007) perform a simulations study comparing many of the estimators we have seen in this context. 
+
+
+---
+## Kang and Schaffer (2007)
+
+- A missing data setting where our goal is to estimate $E[Y(C = 0)]$. 
+
+- Data are generated as 
+$$Y_i = \alpha_0 + \sum_{j = 1}^4 \alpha_i Z_{j,i}\qquad \pi_i = P[C_i = 0 ] = expit(\sum_{j = 1}^{4} \beta_j Z_{j,i})$$
+- Rather than observing $Z_1, \dots, Z_4$, we observe non-linear transformations
+
+$$X_{1,i} = e^{Z_{1,i}/2} \qquad X_{2,i} = \frac{Z_{2,i}}{1 + e^{Z_{1,i}}} + 10 \\\
+X_{3,i} = (Z_{1,i} Z_{3,i}/25 + 0.6)^3 \qquad X_{4,i} = (Z_2 + Z_4 + 20)^2$$
+
+- On average, half the data are missing. 
+
+- $E[Y(C = 0)] = 210$, $E[Y \vert C = 0] = 220$ and $E[Y \vert C = 1] = 200$
+
+---
+## Kang and Schaffer (2007)
+
+- Plan: Use several models to estimate $E[Y(C = 0)]$, the mean if nobody had been censored. 
+
+
+- "Correct model": For either censoring or outcome, fit a linear model using the $Z_1, \dots, Z_4$.
+
+- "Incorrect model": for either censoring or outcome, fit a linear modeling using $X_1, \dots, X_4$. 
+
+---
+## Kang and Schaffer (2007)
+
+- Relationships between outcome and observed covariates look about linear.
+<center> 
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("img/6_ksfig2.png")
+```
+
+</center>
+
+
+
+---
+## IP Weighting and Subclassification
+
+- The subclassification estimator has higher bias but lower RMSE than IPW for correctly specified models. 
+
+- It has lower RMSE for the incorrect model at the larger sample size. 
+
+
+<center> 
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results2.png")
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, eval = FALSE}
+ks_res <- readr::read_csv("6_ks_results.csv")
+ks_res <- ks_res %>%
+  mutate(pos = method_num,
+         pos = case_when(pi_model == "incorrect" ~pos + 0.4, 
+                          TRUE ~ pos), 
+         pos = case_when(y_model == "incorrect" ~ pos + 0.2, 
+                            TRUE ~ pos), 
+         labels = case_when(pi_model == "correct" & y_model == "correct" ~ "C/C", 
+                            pi_model == "incorrect" & y_model == "correct" ~ "I/C", 
+                            pi_model == "correct" & y_model == "incorrect" ~ "C/I", 
+                            pi_model == "incorrect" & y_model == "incorrect" ~ "I/I", 
+                            pi_model == "correct" | y_model == "correct" ~ "C", 
+                            pi_model == "incorrect" | y_model == "incorrect" ~ "I")) 
+for(i in 2:7){
+  methods <- unique(ks_res$Method)[1:i]
+p1 <- ks_res %>% 
+  #filter(sample_size == 200) %>% 
+  mutate(bias_percent = case_when(Method %in% methods ~ bias_percent, 
+                               TRUE ~ NA_real_)) %>%
+  ggplot() + 
+  geom_point(aes(x = pos, y = bias_percent, color = Method, shape = as.factor(sample_size)), size = 3) +
+  geom_label(data = filter(ks_res, pos %in% 1:7), 
+             aes(x = pos, y = 120, label = Method)) +
+  scale_x_continuous(breaks = ks_res$pos, labels = ks_res$labels) + 
+  geom_hline(yintercept = 0, linetype = 2) +
+  scale_color_discrete(guide = FALSE) +
+  scale_shape(name = "Sample Size") +
+  xlab("Method") + 
+  ylab("Bias Percent") +
+  ylim(c(min(ks_res$bias_percent-0.3), max(ks_res$bias_percent) + 0.3)) + 
+  theme_bw() + 
+  theme(panel.grid.minor = element_blank())
+
+p2 <- ks_res %>% 
+  #filter(sample_size == 200 ) %>% 
+  mutate(rmse = case_when(rmse > 100 ~ NA, 
+                          TRUE ~ rmse),
+         rmse = case_when(Method %in% methods ~ rmse, 
+                                  TRUE ~ NA_real_)) %>%
+  ggplot() + 
+  geom_point(aes(x = pos, y = rmse, color = Method, shape = as.factor(sample_size)), size = 3) +
+  geom_label(data = filter(ks_res, pos %in% 1:7), 
+             aes(x = pos, y = 9, label = Method)) +
+  scale_x_continuous(breaks = ks_res$pos, labels = ks_res$labels) + 
+  scale_color_discrete(guide = FALSE) +
+  scale_shape(name = "Sample Size") +
+  xlab("Method") + 
+  ylab("RMSE") + 
+  ylim(c(0, max(ks_res$rmse[ks_res$rmse < 100]) + 0.3)) + 
+  theme_bw() + 
+  theme(panel.grid.minor = element_blank())
+p <- grid.arrange(p1, p2, ncol = 1)
+ggsave(p, file = paste0("~/Dropbox/teaching/BIOST881_causal_inference/docs/slides_2024/img/6_ks_results", i, ".png"), width = 13, 
+       height = 5, units = "in", dpi = 300)
+}
+```
+
+</center>
+
+
+---
+## G-computation
+
+- In this simulation, G-computation is quite robust to model misspecification.
+  - G-Computation under the incorrect outcome model has lower RMSE than IPW with the correct model.
+  
+- Kang and Schaffer refer to this method as "OLS".
+
+<center> 
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results3.png")
+```
+
+---
+## Bias Corrected OLS (AIPW)
+
+- Using AIPW, we have low bias if either model is correct as promised. 
+
+- When both models are wrong, the bias is quite bad. 
+
+- "This estimate is indeed highly efficient when the $\pi$ -model is true and the $y$ -model is highly predictive. In our experience, however, if the π -model is misspecified, it is not difficult to find DR estimators that outperform this one by venturing outside the AIPW class."
+
+<center>
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results4.png")
+```
+
+</center>
+
+---
+
+## Doubly Robust Standardization 
+
+- "In our simulated example, the WLS regression estimate is sometimes inferior to the bias-corrected OLS estimate when one of the models is true, but much better when both models are misspecified"
+
+<center>
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results5.png")
+```
+
+</center>
+
+---
+##  Propensity Covariate
+
+
+- Fit the outcome model and add a smoothing spline for propensity score, compute standardized estimate as usual. 
+
+- "We found that these polynomial splines occasionally produced erratic predicted values of $y_i$ for nonrespondents with low propensities, driving up the variance of the regression estimate. The best performance was achieved by simply coarsening the $\hat{\pi}_i$ ’s into five categories and creating four dummy indicators".
+
+---
+##  Propensity Covariate
+
+- Best of the DR methods when both models are wrong. Worse than OLS with incorrect $y$ model. 
+
+<center> 
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results6.png")
+```
+</center>
+
+---
+## Scharfstein Estimator 
+
+- "In contrast, the regression estimate of Scharfstein, Rotnitzky and Robins (1999) that uses the inverse propensity as a covariate behaves poorly under a misspecified $\pi$-model. The performance of this method is disastrous when some of the estimated propensities are small."
+
+- RMSE with incorrect PS model > 1e5.
+
+<center>
+
+```{r, echo=FALSE, out.width="100%"}
+knitr::include_graphics("img/6_ks_results7.png")
+```
+</center>
+
+---
+
+## Conclusions
+
+- Double robustness is an appealing property. 
+
+- Multiple alternative DR estimators, no best "all-purpose" DR estimator. 
+
+- Very large weights lead to erratic behavior. 
+
+- Non-overlapping covariate distributions lead to erratic behavior. 
+
+- Subclassification and the flexible propensity covariate method are not consistent in all settings but can be quite robust to model mis-specification in practice. 
+
+- It is often a good idea to fit multiple estimators and compare. 
+  
