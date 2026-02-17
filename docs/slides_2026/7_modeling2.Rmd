@@ -1022,7 +1022,7 @@ $$E \left[\pi(L)\left(\frac{1}{\pi(L)} - \frac{1}{\pi^*(L)} \right)\left(b(L) - 
 - As we said before,  $\hat{\Delta}_{S}$ is inconsistent for fixed $K$. $\hat{\Delta}_{SR}$ is only consistent if within-stratum regression models are correctly specified. 
 
 
-- $\hat{\Delta}_{S}$, and $\hat{\Delta}_{SR}$ both converge to normal distributions but the variance is hard to express and depends on the density of the propensity score. 
+- $\hat{\Delta}_{S}$, and $\hat{\Delta}_{SR}$ are both asymptotically normal, but the variance is hard to express and depends on the density of the propensity score. 
 
 - Neither $\hat{\Delta}_{S}$ or $\hat{\Delta}_{SR}$ is in the semiparametric class defined by Robins et al.
 
