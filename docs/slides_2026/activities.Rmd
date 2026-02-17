@@ -1,0 +1,116 @@
+---
+title: "In Class Acitivites"
+date: "Last updated: `r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+
+---
+
+$\newcommand{\ci}{\perp\!\!\!\perp}$
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_tile_view()
+xaringanExtra::use_search(show_icon = TRUE)
+xaringanExtra::use_panelset()
+```
+
+```{r xaringanthemer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  link_color = "#ea8a1a",
+  base_color = "#110566",
+ # header_font_google = google_font("Josefin Sans"),
+ # text_font_google   = google_font("Montserrat", "300", "300i"),
+ # code_font_google   = google_font("Fira Mono")
+)
+```
+
+
+
+## Tuesday, February 17
+
+Match the estimator with statements that are true about it. 
+.pull-left[
+**Estimator**
+
+- Hajek Estimator
+
+- G-Computation
+
+- AIPW estimator from Robins, Rotnitzky and Zhao (1994)
+
+- Subclassification estimator with fixed $K$
+
+- Bang and Robins estimator
+
+- Adjusting for propensity score as a linear covariate. 
+]
+
+.pull-right[
+
+** Statements**
+
+- Consistent if PS model is correct
+
+- Consistent if outcome model is correct
+
+- Not consistent 
+
+- These two are asymptotically equivalent
+
+- More accurate using estimated PS than using true PS.
+]
+
+---
+## Wednesday, February 26, 2026
+
+- Multiple choice questions to do together.
+
+- When you first begin thinking about a causal question you should:
+
+  A. Draw a DAG containing all confounders of the exposure and outcome that you can think of, along with any sources of censoring that might affect your study. 
+  
+  B. Draw a DAG that only contains variables that are already measured and in your data.
+  
+  C. Draw a DAG containing both variables that are measured and variables that you think that you could measure.
+
+---
+## Wednesday, February 26, 2025
+
+
+- When looking at your DAG, you find that there are confounders that you cannot measure. You should:
+
+  A. Remove these variables from the DAG, go ahead with your analysis as though they did not exist and report your estimated causal effect. 
+  
+  B. Go ahead with your analysis but do a sensitivity analysis to understand how much bias your unmeasured confounders could be causing.
+  
+  C. Look for an alternative way to measure the causal effect like instrumental variable analysis. 
+  
+  D. Give up on measuring a causal effect and do a descriptive analysis describing associations.
+
+
+---
+## Wednesday, (Date)
+
+
+Review of IVA concepts:
+
+In pairs, write down a definition for one of these terms and how it relates to IVA:
+
+- Relevance
+
+- Exclusion Restriction
+
+- Local average treatment effect
+
+- Weak instrument bias
+
+- Two Stage Least Squares
+
+- IVW Regression
+
