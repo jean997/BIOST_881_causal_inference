@@ -2,7 +2,7 @@
 title: "L8: Matching"
 author: "Jean Morrison"
 institute: "University of Michigan"
-date: "2025-02-19 (updated: `r Sys.Date()`)"
+date: "2026-02-17 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     lib_dir: libs
