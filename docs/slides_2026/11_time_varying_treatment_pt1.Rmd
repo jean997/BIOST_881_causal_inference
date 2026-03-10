@@ -1,5 +1,5 @@
 ---
-title: "L12: Time Varying Treatment\n Part 1"
+title: "L11: Time Varying Treatment\n Part 1"
 author: "Jean Morrison"
 institute: "University of Michigan"
 date: "Lecture on 2026-03-10\n(updated: `r Sys.Date()`)"
@@ -978,6 +978,216 @@ $$E_{ps}[Y \vert \bar{A}, V] = \beta_0 + \beta_1 cum(\bar{A}) + \beta_2 V + \bet
 
 - Correct marginal structural model
 
+
+---
+## Simulated Data
+
+- I simulated data for three time-points
+
+- Treatment is binary, there is one continuous time-varying covariate, $L$, and one time-fixed covariate $Z$.
+
+- One end of study continuous outcome, $Y$
+
+- $A_k$ depends only on $L_k$ and $A_{k-1}$
+
+- $L_k$ depends on $A_{k-1}$, $L_{k-1}$, and $Z$
+
+- $Y$ is normal, mean is linear in $A_k$, $L_k$, and $A_k L_k$
+
+- We will estimate $E[Y(0, 0, 0)]$, $E[Y(0, 1, 1)]$ and $E[Y(1, 1, 1)]$
+
+---
+## Data Summary
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(dplyr)
+library(tidyr)
+library(kableExtra)
+set.seed(881)
+
+generate_data <- function(n){
+  dat <- data.frame(id = 1:n,
+                     Z = rbinom(n = n, size = 1, prob = 0.5))
+  dat$L.0 <- 0.4*dat$Z + rnorm(n = n)
+  for(i in 0:2){
+    pastL <- dat[,paste0("L.", i)]
+    if(i == 0){
+      pastA <- rep(0, n)
+    }else{
+      pastA <- dat[, paste0("A.", i-1)]
+    }
+    pA <- plogis(0.5*pastL + 0.3*pastA)
+    curA <- rbinom(n = n, size = 1, prob = pA)
+    w <- rnorm(n = n, mean = 0, sd = 0.2)
+    curLfunc <- function(pastL, curA, w){
+      0.5*pastL + 0.3*dat$Z + 0.2*curA - 0.2*(1-curA) + w
+    }
+    curL <- curLfunc(pastL, curA, w)
+    
+    dat[,paste0("A.", i)] <- curA
+    if(i < 2){
+      dat[, paste0("L.", i + 1)] <- curL
+    }
+    
+    if(i == 0){
+      dat$L.1_0 <- curLfunc(dat$L.0, 0, w) #L1(A0 = 0)
+      dat$L.1_1 <- curLfunc(dat$L.0, 1, w) #L1(A0 = 1)
+    }else if(i == 1){
+      dat$L.2_00 <- curLfunc(dat$L.1_0, 0, w) #L2(A0 = 0, A1 = 0)
+      dat$L.2_01 <- curLfunc(dat$L.1_0, 1, w) #L2(A0 = 0, A1 = 1)
+      dat$L.2_11 <- curLfunc(dat$L.1_1, 1, w) #L2(A0 = 1, A1 = 1)
+      dat$L.2_10 <- curLfunc(dat$L.1_1, 0, w) #L2(A0 = 1, A1 = 0)
+    }
+  }
+  getEY <- function(a0, a1, a2, z, l0, l1, l2){
+    0.1*a0 + 0.2*a1 + 0.3*a2 - 0.4*z -
+      0.5*( (l0 + l1 + l2)/3) -
+      0.2*a0*l0 - 0.2*a1*l1 - 0.3*a2*l2
+  }
+  dat$Y <- with(dat, getEY(A.0, A.1, A.2, Z, L.0, L.1, L.2)) + rnorm(n = n, mean = 0, sd = 0.3)
+  dat$EY000 <- with(dat, getEY(0, 0, 0, Z, L.0, L.1_0, L.2_00))
+  dat$EY011 <- with(dat, getEY(0, 1, 1, Z, L.0, L.1_0, L.2_01))
+  dat$EY111 <- with(dat, getEY(1, 1, 1, Z, L.0, L.1_1, L.2_11))
+  dat$id <- 1:n
+  return(dat)
+}
+sim_dat <- generate_data(5000)
+sim_dat_long <- sim_dat %>%
+            select(id, Z, A.0, A.1, A.2, L.0, L.1, L.2, Y) %>% 
+            pivot_longer(cols = c("A.0", "A.1", "A.2", "L.0", "L.1", "L.2"), 
+                         names_to = c(".value", "time"), 
+                         names_sep = "\\.")
+sim_dat_long$time <- as.numeric(sim_dat_long$time)
+
+sim_dat.summ <- sim_dat %>% group_by(A.0, A.1, A.2) %>% summarize(meanY = mean(Y), N= n())
+sim_dat.summ <- sim_dat.summ[c(1, 4, 8),]
+sim_dat.summ$Counterfactual <- c(mean(sim_dat$EY000), mean(sim_dat$EY011), mean(sim_dat$EY111))
+t <- kable(sim_dat.summ, col.names = c("A0", "A1",  "A2", "E[Y | A]", "N", "E[Y(A)]"), 
+           format = 'html', digits = 2)
+t
+           
+```
+
+---
+## Fit the Propensity Model
+
+- We need a propensity model for each time point.
+- Below we fit a model for each time point separately.
+  
+```{r}
+## Fitting separate models
+f0 <- glm(A.0 ~ L.0, family = "binomial", data = sim_dat)
+f1 <- glm(A.1 ~ A.0 + L.1, family = "binomial", data = sim_dat)
+f2 <- glm(A.2 ~ A.1 + L.2, family = "binomial", data = sim_dat)
+
+## For numerator of stabilized weights
+s0 <- glm(A.0 ~ 1, family = "binomial", data = sim_dat)
+s1 <-  glm(A.1 ~ A.0 , family = "binomial", data = sim_dat)
+s2 <- glm(A.2 ~ A.1, family = "binomial", data = sim_dat)
+```
+
+- We could also have estimated these in a combined model in long format data. 
+  + We would need a column for $A_{k-1}$ and we might want an interaction with time.
+  
+
+---
+## Fit the Propensity Model
+
+- If we wanted to share coefficients across time points, we could fit a single model combining time points. 
+
+```{r}
+sim_dat_long <- select(sim_dat, id, Z, L.0, A.0, L.1, A.1, L.2, A.2) %>% 
+    pivot_longer(
+        cols = matches("^[LA]\\.\\d$"),
+        names_to = c(".value", "time"),
+        names_pattern = "([LA])\\.(\\d)"
+    ) %>%
+    mutate(time = as.integer(time)) %>%
+    arrange(id, time) %>%
+    group_by(id) %>%
+    mutate(Aminus1 = lag(A, default = 0)) %>%
+    ungroup() %>%
+    select(id, Z, time, L, A, Aminus1)
+
+library(geepack)
+f_all <- geeglm(A ~ L + I(Aminus1*as.numeric(time > 0)), family = "binomial", 
+                id = id, corstr = "independence", data = sim_dat_long)
+f_all2 <- geeglm(A ~ L*time + I(Aminus1*as.numeric(time > 0)), family = "binomial", 
+                id = id, corstr = "independence", data = sim_dat_long)
+```
+
+---
+## Compute Weights
+
+- Next we compute the weights:
+
+```{r}
+sim_dat$pA.0 <- predict(f0, type = "response")
+sim_dat$pA.1 <- predict(f1, type = "response")
+sim_dat$pA.2 <- predict(f2, type = "response")
+sim_dat$sA.0 <- predict(s0, type = "response")
+sim_dat$sA.1 <- predict(s1, type = "response")
+sim_dat$sA.2 <- predict(s2, type = "response")
+
+sim_dat <- sim_dat %>% mutate(W.0 = case_when(A.0 == 1 ~ sA.0/pA.0, 
+                               TRUE ~ (1-sA.0)/(1-pA.0)),
+                       W.1 = case_when(A.1 == 1 ~ sA.1/pA.1, 
+                                       TRUE ~ (1-sA.1)/(1-pA.1)), 
+                       W.2 = case_when(A.2 == 1 ~ sA.2/pA.2, 
+                                       TRUE ~ (1-sA.2)/(1-pA.2)), 
+                       W = W.0*W.1*W.2, 
+                       A = paste0(A.0, "-", A.1, "-", A.2))
+
+```
+
+---
+## Fit the Marginal Structural Model
+
+- Finally, we fit a marginal structural model and retrieve the fitted values for the treatment courses of interest.
+
+```{r}
+library(sandwich)
+## data for extracting fitted values
+newdat <- data.frame(A.0 = c(0, 0, 1), 
+                     A.1 = c(0,1,  1), A.2 = c(0,1, 1))
+get_est <- function(msm){
+  car::Predict(msm, newdata = newdat, 
+      se.fit = TRUE, vcov. = vcovHC(msm, type = "HC0"))
+}
+## fit saturated marginal structural model
+f_msm1 <- lm(Y ~ A.0*A.1*A.2, weights = W,  data = sim_dat)
+ipw_est1 <- get_est(f_msm1)
+
+## fit parametric but correct marginal structural model
+f_msm2 <- lm(Y ~ A.0*A.1 + A.1*A.2 + A.0*A.2,  weights = W, data = sim_dat)
+ipw_est2 <- get_est(f_msm2)
+
+## fit parametric and incorrect marginal structural model
+f_msm3 <- lm(Y ~ I(A.0 + A.1 + A.2),  weights = W, data = sim_dat)
+ipw_est3 <- get_est(f_msm3)
+```
+
+---
+## IP Weighting Results
+
+```{r, echo = FALSE}
+print_ci <- function(ipw_est){
+  paste0(round(ipw_est$fit, digits = 2), " (", 
+         round(ipw_est$fit - qnorm(0.975)*ipw_est$se.fit, digits = 2), 
+        ", ", round(ipw_est$fit + qnorm(0.975)*ipw_est$se.fit, digits = 2), ")")
+}
+ipw_ests <- data.frame(A = c("0-0-0", "0-1-1", "1-1-1"), 
+                       Truth = round(sim_dat.summ$Counterfactual, digits = 2), 
+                       IPWEst1 = print_ci(ipw_est1), 
+                       IPWEst2 = print_ci(ipw_est2),
+                       IPWEst3 = print_ci(ipw_est3))
+kable(ipw_ests, 
+           format = 'html', digits = 3)
+```
+
+- For all estimates the propensity score models are correct. 
+- For estimate 3, the MSM is incorrect. 
+o
 ---
 # 4. G-Computation and the G-Null Paradox
 

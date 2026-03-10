@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>L12: Time Varying Treatment Part 1</title>
+    <title>L11: Time Varying Treatment Part 1</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
     <script src="libs/header-attrs-2.29/header-attrs.js"></script>
@@ -27,7 +27,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# L12: Time Varying Treatment
+# L11: Time Varying Treatment
 Part 1
 ]
 .author[
@@ -1406,6 +1406,209 @@ or
 
 - Correct marginal structural model
 
+
+---
+## Simulated Data
+
+- I simulated data for three time-points
+
+- Treatment is binary, there is one continuous time-varying covariate, `\(L\)`, and one time-fixed covariate `\(Z\)`.
+
+- One end of study continuous outcome, `\(Y\)`
+
+- `\(A_k\)` depends only on `\(L_k\)` and `\(A_{k-1}\)`
+
+- `\(L_k\)` depends on `\(A_{k-1}\)`, `\(L_{k-1}\)`, and `\(Z\)`
+
+- `\(Y\)` is normal, mean is linear in `\(A_k\)`, `\(L_k\)`, and `\(A_k L_k\)`
+
+- We will estimate `\(E[Y(0, 0, 0)]\)`, `\(E[Y(0, 1, 1)]\)` and `\(E[Y(1, 1, 1)]\)`
+
+---
+## Data Summary
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;"&gt; A0 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; A1 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; A2 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; E[Y | A] &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; N &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; E[Y(A)] &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.06 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 617 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.24 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.05 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 712 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.07 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.42 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1056 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.12 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+## Fit the Propensity Model
+
+- We need a propensity model for each time point.
+- Below we fit a model for each time point separately.
+  
+
+``` r
+## Fitting separate models
+f0 &lt;- glm(A.0 ~ L.0, family = "binomial", data = sim_dat)
+f1 &lt;- glm(A.1 ~ A.0 + L.1, family = "binomial", data = sim_dat)
+f2 &lt;- glm(A.2 ~ A.1 + L.2, family = "binomial", data = sim_dat)
+
+## For numerator of stabilized weights
+s0 &lt;- glm(A.0 ~ 1, family = "binomial", data = sim_dat)
+s1 &lt;-  glm(A.1 ~ A.0 , family = "binomial", data = sim_dat)
+s2 &lt;- glm(A.2 ~ A.1, family = "binomial", data = sim_dat)
+```
+
+- We could also have estimated these in a combined model in long format data. 
+  + We would need a column for `\(A_{k-1}\)` and we might want an interaction with time.
+  
+
+---
+## Fit the Propensity Model
+
+- If we wanted to share coefficients across time points, we could fit a single model combining time points. 
+
+
+``` r
+sim_dat_long &lt;- select(sim_dat, id, Z, L.0, A.0, L.1, A.1, L.2, A.2) %&gt;% 
+    pivot_longer(
+        cols = matches("^[LA]\\.\\d$"),
+        names_to = c(".value", "time"),
+        names_pattern = "([LA])\\.(\\d)"
+    ) %&gt;%
+    mutate(time = as.integer(time)) %&gt;%
+    arrange(id, time) %&gt;%
+    group_by(id) %&gt;%
+    mutate(Aminus1 = lag(A, default = 0)) %&gt;%
+    ungroup() %&gt;%
+    select(id, Z, time, L, A, Aminus1)
+
+library(geepack)
+f_all &lt;- geeglm(A ~ L + I(Aminus1*as.numeric(time &gt; 0)), family = "binomial", 
+                id = id, corstr = "independence", data = sim_dat_long)
+f_all2 &lt;- geeglm(A ~ L*time + I(Aminus1*as.numeric(time &gt; 0)), family = "binomial", 
+                id = id, corstr = "independence", data = sim_dat_long)
+```
+
+---
+## Compute Weights
+
+- Next we compute the weights:
+
+
+``` r
+sim_dat$pA.0 &lt;- predict(f0, type = "response")
+sim_dat$pA.1 &lt;- predict(f1, type = "response")
+sim_dat$pA.2 &lt;- predict(f2, type = "response")
+sim_dat$sA.0 &lt;- predict(s0, type = "response")
+sim_dat$sA.1 &lt;- predict(s1, type = "response")
+sim_dat$sA.2 &lt;- predict(s2, type = "response")
+
+sim_dat &lt;- sim_dat %&gt;% mutate(W.0 = case_when(A.0 == 1 ~ sA.0/pA.0, 
+                               TRUE ~ (1-sA.0)/(1-pA.0)),
+                       W.1 = case_when(A.1 == 1 ~ sA.1/pA.1, 
+                                       TRUE ~ (1-sA.1)/(1-pA.1)), 
+                       W.2 = case_when(A.2 == 1 ~ sA.2/pA.2, 
+                                       TRUE ~ (1-sA.2)/(1-pA.2)), 
+                       W = W.0*W.1*W.2, 
+                       A = paste0(A.0, "-", A.1, "-", A.2))
+```
+
+---
+## Fit the Marginal Structural Model
+
+- Finally, we fit a marginal structural model and retrieve the fitted values for the treatment courses of interest.
+
+
+``` r
+library(sandwich)
+## data for extracting fitted values
+newdat &lt;- data.frame(A.0 = c(0, 0, 1), 
+                     A.1 = c(0,1,  1), A.2 = c(0,1, 1))
+get_est &lt;- function(msm){
+  car::Predict(msm, newdata = newdat, 
+      se.fit = TRUE, vcov. = vcovHC(msm, type = "HC0"))
+}
+## fit saturated marginal structural model
+f_msm1 &lt;- lm(Y ~ A.0*A.1*A.2, weights = W,  data = sim_dat)
+ipw_est1 &lt;- get_est(f_msm1)
+
+## fit parametric but correct marginal structural model
+f_msm2 &lt;- lm(Y ~ A.0*A.1 + A.1*A.2 + A.0*A.2,  weights = W, data = sim_dat)
+ipw_est2 &lt;- get_est(f_msm2)
+
+## fit parametric and incorrect marginal structural model
+f_msm3 &lt;- lm(Y ~ I(A.0 + A.1 + A.2),  weights = W, data = sim_dat)
+ipw_est3 &lt;- get_est(f_msm3)
+```
+
+---
+## IP Weighting Results
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; A &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Truth &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; IPWEst1 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; IPWEst2 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; IPWEst3 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 0-0-0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.24 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.24 (-0.28, -0.19) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.23 (-0.28, -0.19) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.15 (-0.19, -0.11) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 0-1-1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.07 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.05 (0, 0.11) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.06 (0.01, 0.11) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.09 (-0.12, -0.07) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1-1-1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.12 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.12 (-0.18, -0.06) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.12 (-0.18, -0.06) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.07 (-0.11, -0.02) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- For all estimates the propensity score models are correct. 
+- For estimate 3, the MSM is incorrect. 
+o
 ---
 # 4. G-Computation and the G-Null Paradox
 
@@ -1815,8 +2018,8 @@ from the original data.
 - Our estimate of `\(f(L_1 \vert A_0)\)` will also not be a constant function of `\(A_0\)`.
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item" id="htmlwidget-1113c6f454fe8958680d" style="width:504px;height:252px;"></div>
-<script type="application/json" data-for="htmlwidget-1113c6f454fe8958680d">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-ac180ee2a4770bf2b72c" style="width:504px;height:252px;"></div>
+<script type="application/json" data-for="htmlwidget-ac180ee2a4770bf2b72c">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
@@ -1865,8 +2068,8 @@ from the original data.
 
 
 &lt;center&gt;
-<div class="grViz html-widget html-fill-item" id="htmlwidget-94819a713112506b2cdc" style="width:504px;height:234px;"></div>
-<script type="application/json" data-for="htmlwidget-94819a713112506b2cdc">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-89987dec9e9dae01ee88" style="width:504px;height:234px;"></div>
+<script type="application/json" data-for="htmlwidget-89987dec9e9dae01ee88">{"x":{"diagram":"digraph {\n\ngraph [layout = \"neato\",\n       outputorder = \"edgesfirst\",\n       bgcolor = \"white\"]\n\nnode [fontname = \"Helvetica\",\n      fontsize = \"10\",\n      shape = \"circle\",\n      fixedsize = \"true\",\n      width = \"0.5\",\n      style = \"filled\",\n      fillcolor = \"aliceblue\",\n      color = \"gray70\",\n      fontcolor = \"gray50\"]\n\nedge [fontname = \"Helvetica\",\n     fontsize = \"8\",\n     len = \"1.5\",\n     color = \"gray80\",\n     arrowsize = \"0.5\"]\n\n  \"1\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>0<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0,0!\"] \n  \"2\" [label = <L<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-0.6!\"] \n  \"3\" [label = <A<FONT POINT-SIZE=\"8\"><SUB>1<\/SUB><\/FONT>>, fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1,0!\"] \n  \"4\" [label = \"U\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"0.5,-1.2!\"] \n  \"5\" [label = \"Y\", fontname = \"Helvetica\", fontsize = \"10\", width = \"0.3\", fillcolor = \"#FFFFFF\", fontcolor = \"black\", color = \"black\", pos = \"1.5,0!\"] \n\"1\"->\"2\" [color = \"black\"] \n\"2\"->\"3\" [color = \"black\"] \n\"4\"->\"2\" [color = \"black\"] \n\"4\"->\"5\" [color = \"black\"] \n\"3\"->\"5\" [color = \"black\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 
