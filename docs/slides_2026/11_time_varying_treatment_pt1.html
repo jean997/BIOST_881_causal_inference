@@ -38,7 +38,7 @@ Part 1
 ]
 .date[
 ### Lecture on 2026-03-10
-(updated: 2026-03-10)
+(updated: 2026-03-12)
 ]
 
 ---
@@ -1251,17 +1251,17 @@ or
 
 - Suppose we want to compare "always treat" and "never treat" strategies.
 
-- We first censor anyone who did not adhere to one of these strategies and think of our study as now a study of the effect of the point treatment at time 1 and full adherence. 
+- We can think of `\(E[Y(0, 0)]\)` as `\(E[Y(A_0 = 0, \text{adherent})]\)` and `\(E[Y(1, 1)]\)` as `\(E[Y(A_0 = 1, \text{adherent})]\)`. where adherence means staying on the same treatment at time 1. 
 
 - We first compute the censoring weights
 
 `$$W^{C}_i = \frac{1}{P[A_1 = A_{0,i} \vert A_0 = A_{0,i}, L_1, L_0]}$$`
 
-- And then compute the confounding weights
+- Then we compute the confounding weights for treatment at time 0:
 
 `$$W_i^{L} = \frac{1}{P[A_0 = A_i \vert L_0]}$$`
 
-- So the total weights are the product of `\(W^{L}\)` and `\(W^{C}\)`.
+- The total weights are the product of `\(W^{L}\)` and `\(W^{C}\)`.
 
 ---
 ## Weights for Dynamic Treatments
@@ -1272,7 +1272,7 @@ or
 
 - Suppose we want to compare dynamic regimes `\(g = (0, L_1)\)` and `\(g^{\prime} = (0, 1-L_1)\)`.
 
-- We can see that, conditional on `\(A_0\)` and `\(L_1\)`, treatment choice at `\(A_1\)` doesn't matter so we should find that `\(E[Y(g)] - E[Y(g^{\prime})] = 0\)`.
+- We can see that, conditional on `\(A_0\)` and `\(L_1\)`, treatment choice at `\(A_1\)` doesn't affect the expected outcome, so we should find that `\(E[Y(g)] - E[Y(g^{\prime})] = 0\)`.
 
 ---
 ## Weights for Dynamic Treatments
@@ -1281,7 +1281,7 @@ or
 &lt;img src="img/9_fig213cropped.png" width="80%" /&gt;
 &lt;/center&gt;
 
-- Using the `\(W^{\bar{A}}\)` we can compute `\(E[Y(g)]\)` and `\(E[Y(g^\prime)]\)` using the non-parametric approach. 
+- Using the `\(W^{\bar{A}}\)` weights, we can compute `\(E[Y(g)]\)` and `\(E[Y(g^\prime)]\)` using the non-parametric approach. 
 
 - The first and fourth row follow the `\((0, L_1)\)` treatment plan while the second and third row follow `\((0, 1-L_1)\)`.
 
@@ -1608,7 +1608,7 @@ ipw_est3 &lt;- get_est(f_msm3)
 
 - For all estimates the propensity score models are correct. 
 - For estimate 3, the MSM is incorrect. 
-o
+
 ---
 # 4. G-Computation and the G-Null Paradox
 
@@ -1993,19 +1993,143 @@ from the original data.
 
 - Allows a variety of specifications for outcome model and covariate models including lagged effects and cumulative effects. 
 
+---
+## Parametric G-Formula in Simulations
 
-&lt;!-- --- --&gt;
-&lt;!-- # Example --&gt;
-&lt;!-- - Built in data `binary_eofdata` contains data for 2,500 individuals measured at 7 time points.  --&gt;
-&lt;!-- - There are 3 time-varying covariates.  --&gt;
-&lt;!--   + `cov1` is binary  --&gt;
-&lt;!--   + `cov2` is continuous --&gt;
-&lt;!--   + `cov3` is categorical with 6 values.  --&gt;
-&lt;!--   + Treatment is continuous. --&gt;
+- First we specify arguments for `gfoRmula`.
 
 
+``` r
+library(gfoRmula)
+
+id &lt;- 'id'
+time_points &lt;- 3
+time_name &lt;- 'time'
+covnames &lt;- c('L', 'A') #time-varying
+covtypes &lt;- c('normal', 'binary')
+outcome_name &lt;- 'Y'
+outcome_type &lt;- "continuous_eof"
+histories &lt;- c(lagged) #can also do lagged average
+histvars &lt;- list(c('L', 'A')) 
+covparams &lt;- list(covmodels = c(L ~ lag1_A + lag1_L,
+                                A ~ lag1_A + L))
+ymodel &lt;- Y ~ A + lag1_A + lag2_A + L + lag1_L + 
+    lag2_L + A*L + lag1_A*lag1_L + lag2_A*lag2_L + Z
+intvars &lt;- list('A', 'A', 'A')
+```
+
+---
+## Parametric G-Formula in Simulations
+
+- The `gfoRmula` package will perform boostrapping for us. This can take a bit of time.
 
 
+``` r
+interventions &lt;- list(list(c(static, c(0, 0, 0))),
+                      list(c(static, c(0, 1, 1))), 
+                      list(c(static, c(1, 1, 1))))
+int_descript &lt;- c('Never treat', 'Treat last 2', 'Always treat')
+nsimul &lt;- 10000 # number of data points to simulate
+gform_result &lt;- gformula(obs_data = sim_dat_long, id = id,
+                        time_points = time_points,
+                        time_name = time_name, covnames = covnames,
+                        outcome_name = outcome_name,
+                        outcome_type = outcome_type, covtypes = covtypes,
+                        covparams = covparams, ymodel = ymodel,
+                        intvars = intvars,
+                        interventions = interventions,
+                        int_descript = int_descript,
+                        histories = histories, histvars = histvars,
+                        basecovs = c('Z'), nsimul = nsimul,
+                        seed = 1234, #, 
+                        nsamples= 500, #bootstrap samples
+                        ci_method = "normal")
+```
+
+
+
+
+---
+## Parametric G-Formula in Simulations
+
+
+``` r
+gform_result
+```
+
+```
+## PREDICTED RISK UNDER MULTIPLE INTERVENTIONS
+## 
+## Intervention 	 Description
+## 0 		 Natural course
+## 1		 Never treat
+## 2		 Treat last 2
+## 3		 Always treat
+## 
+## Sample size = 5000, Monte Carlo sample size = 10000
+## Number of bootstrap samples = 500
+## Reference intervention = natural course (0)
+##  
+## 
+##      k Interv.    NP mean g-form mean    Mean SE Mean lower 95% CI
+##  &lt;num&gt;   &lt;num&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;             &lt;num&gt;
+##      2       0 -0.1395253 -0.14256824 0.01265358       -0.16736880
+##      2       1         NA -0.23747779 0.01190050       -0.26080235
+##      2       2         NA  0.08631253 0.01425984        0.05836376
+##      2       3         NA -0.11377756 0.01673769       -0.14658282
+##  Mean upper 95% CI Mean ratio      MR SE MR lower 95% CI MR upper 95% CI
+##              &lt;num&gt;      &lt;num&gt;      &lt;num&gt;           &lt;num&gt;           &lt;num&gt;
+##        -0.11776769  1.0000000 0.00000000      -0.1425682     -0.14256824
+##        -0.21415324  1.6657131 0.11596470      -0.4647644     -0.01019116
+##         0.11426129 -0.6054120 0.15205057      -0.2117011      0.38432618
+##        -0.08097229  0.7980568 0.06517407      -0.2415164      0.01396128
+##  Mean difference       MD SE MD lower 95% CI MD upper 95% CI % Intervened On
+##            &lt;num&gt;       &lt;num&gt;           &lt;num&gt;           &lt;num&gt;           &lt;num&gt;
+##       0.00000000 0.000000000     -0.14256824     -0.14256824            0.00
+##      -0.09490955 0.009954584     -0.25698842     -0.21796717           87.44
+##       0.22888077 0.008794431      0.06907576      0.10354929           85.49
+##       0.02879069 0.008262831     -0.12997241     -0.09758271           78.54
+##  Aver % Intervened On
+##                 &lt;num&gt;
+##               0.00000
+##              50.95333
+##              46.52667
+##              40.52333
+```
+
+---
+## Parametric G-Formula in Simulations
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; A &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Truth &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; IPWEst1 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; GForm &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 0-0-0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.24 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.24 (-0.28, -0.19) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.24 (-0.26, -0.21) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 0-1-1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.07 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.05 (0, 0.11) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.09 (0.06, 0.11) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1-1-1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.12 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.12 (-0.18, -0.06) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.11 (-0.15, -0.08) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 ---
 ## G-Null Paradox 
 
@@ -2058,13 +2182,11 @@ from the original data.
 ---
 ## Beyond the Strict Null
 
-- It may be impossible to correctly specify the parametric G-formula even when the strict null does not hold.
+- It may be impossible to correctly specify the parametric G-formula even when the strict null does not hold, for example in the graph below under our previous data generating model.
 
-- In the DAG below where there is an effect only of `\(A_1\)` on `\(Y\)` using the same model we've been using. 
+- Previous results showed that, in some settings, bias from the g-null paradox is negligible. 
 
 - McGrath, Young, and Hernán (2022) show that non-negligible bias can occur in some non-null models *even* using flexible model specifications. 
-
-- Previous results showed that in some settings, bias from the g-null paradox is negligible. 
 
 
 &lt;center&gt;
@@ -2093,7 +2215,7 @@ Using marginal structural models with IP weighting:
 
 - Under the strict null, `\(E[Y(\bar{a})]\)` does not depend on `\(\bar{a}\)`.
 
-- So, under the strict null, the marginal structural mean model will never be mis-specified (as long as it contains an intercept parameter). 
+- So, under the strict null, the marginal structural mean model will never be mis-specified, as long as it contains an intercept parameter. 
 
 - This means that IP weighting method does not suffer from the g-null paradox. 
 

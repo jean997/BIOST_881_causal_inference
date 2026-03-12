@@ -815,17 +815,17 @@ $$E[Y(0, 0)] =84 \frac{8000}{32000} + 52 \frac{24000}{32000} = 60$$
 
 - Suppose we want to compare "always treat" and "never treat" strategies.
 
-- We first censor anyone who did not adhere to one of these strategies and think of our study as now a study of the effect of the point treatment at time 1 and full adherence. 
+- We can think of $E[Y(0, 0)]$ as $E[Y(A_0 = 0, \text{adherent})]$ and $E[Y(1, 1)]$ as $E[Y(A_0 = 1, \text{adherent})]$. where adherence means staying on the same treatment at time 1. 
 
 - We first compute the censoring weights
 
 $$W^{C}_i = \frac{1}{P[A_1 = A_{0,i} \vert A_0 = A_{0,i}, L_1, L_0]}$$
 
-- And then compute the confounding weights
+- Then we compute the confounding weights for treatment at time 0:
 
 $$W_i^{L} = \frac{1}{P[A_0 = A_i \vert L_0]}$$
 
-- So the total weights are the product of $W^{L}$ and $W^{C}$.
+- The total weights are the product of $W^{L}$ and $W^{C}$.
 
 ---
 ## Weights for Dynamic Treatments
@@ -838,7 +838,7 @@ knitr::include_graphics("img/9_fig213cropped.png")
 
 - Suppose we want to compare dynamic regimes $g = (0, L_1)$ and $g^{\prime} = (0, 1-L_1)$.
 
-- We can see that, conditional on $A_0$ and $L_1$, treatment choice at $A_1$ doesn't matter so we should find that $E[Y(g)] - E[Y(g^{\prime})] = 0$.
+- We can see that, conditional on $A_0$ and $L_1$, treatment choice at $A_1$ doesn't affect the expected outcome, so we should find that $E[Y(g)] - E[Y(g^{\prime})] = 0$.
 
 ---
 ## Weights for Dynamic Treatments
@@ -849,7 +849,7 @@ knitr::include_graphics("img/9_fig213cropped.png")
 ```
 </center>
 
-- Using the $W^{\bar{A}}$ we can compute $E[Y(g)]$ and $E[Y(g^\prime)]$ using the non-parametric approach. 
+- Using the $W^{\bar{A}}$ weights, we can compute $E[Y(g)]$ and $E[Y(g^\prime)]$ using the non-parametric approach. 
 
 - The first and fourth row follow the $(0, L_1)$ treatment plan while the second and third row follow $(0, 1-L_1)$.
 
@@ -1187,7 +1187,7 @@ kable(ipw_ests,
 
 - For all estimates the propensity score models are correct. 
 - For estimate 3, the MSM is incorrect. 
-o
+
 ---
 # 4. G-Computation and the G-Null Paradox
 
@@ -1401,98 +1401,85 @@ from the original data.
 
 - Allows a variety of specifications for outcome model and covariate models including lagged effects and cumulative effects. 
 
+---
+## Parametric G-Formula in Simulations
 
-<!-- --- -->
-<!-- # Example -->
-<!-- - Built in data `binary_eofdata` contains data for 2,500 individuals measured at 7 time points.  -->
-<!-- - There are 3 time-varying covariates.  -->
-<!--   + `cov1` is binary  -->
-<!--   + `cov2` is continuous -->
-<!--   + `cov3` is categorical with 6 values.  -->
-<!--   + Treatment is continuous. -->
+- First we specify arguments for `gfoRmula`.
 
-```{r, echo = FALSE, eval = FALSE}
+```{r}
 library(gfoRmula)
-outcome_type <- "binary_eof" 
-id <-"id_num" 
-time_name <- "time" 
-covnames <- c("cov1", "cov2", "treat") 
-outcome_name <- "outcome" 
-histories <- c(lagged, cumavg) 
-histvars <- list(c("treat", "cov1", "cov2"), c("cov1", "cov2")) 
-covtypes <- c("binary", "zero-inflated normal", "normal") 
-covparams <- list(covmodels = c(cov1 ~ lag1_treat + lag1_cov1 + lag1_cov2 + 
-                                cov3 + time, 
-                                cov2 ~ lag1_treat + cov1 + lag1_cov1 +
-                                  lag1_cov2 + cov3 + time, 
-                                treat ~ lag1_treat + cumavg_cov1 + 
-                                  cumavg_cov2 + cov3 + time))
-ymodel <- outcome ~ treat + cov1 + cov2 + lag1_cov1 + lag1_cov2 + cov3 
-intvars <- list("treat", "treat") 
-interventions <- list(list(c(static, rep(0, 7))), list(c(threshold, 1, Inf))) 
-int_descript <- c("Never treat", "Threshold - lower bound 1") 
-nsimul <- 10000 
-ncores <- parallel::detectCores() - 1 
 
-gform_bin_eof <- gformula(obs_data = binary_eofdata,
-                          outcome_type = outcome_type, 
-                          id = id, time_name = time_name, covnames = covnames,  
-                          outcome_name = outcome_name, 
-                          covtypes = covtypes, covparams = covparams, ymodel = ymodel,
-                          intvars = intvars, interventions = interventions, int_descript = int_descript, 
-                          histories = histories, histvars = histvars, basecovs = c("cov3"),
-                          seed = 1234, parallel = TRUE, nsamples = 20, 
-                          nsimul =1000, ncores = ncores)
+id <- 'id'
+time_points <- 3
+time_name <- 'time'
+covnames <- c('L', 'A') #time-varying
+covtypes <- c('normal', 'binary')
+outcome_name <- 'Y'
+outcome_type <- "continuous_eof"
+histories <- c(lagged) #can also do lagged average
+histvars <- list(c('L', 'A')) 
+covparams <- list(covmodels = c(L ~ lag1_A + lag1_L,
+                                A ~ lag1_A + L))
+ymodel <- Y ~ A + lag1_A + lag2_A + L + lag1_L + 
+    lag2_L + A*L + lag1_A*lag1_L + lag2_A*lag2_L + Z
+intvars <- list('A', 'A', 'A')
 ```
 
-```{r,echo=FALSE, eval=FALSE}
-library(tidyr)
-set.seed(1)
-n <- 1000
-A0 <- rnorm(n = n)
-b0 <- -0.2
-b1 <- 0.3
-pL1 <- exp(b0 + b1*A0)/(1 + exp(b0 + b1*A0))
-L1 <- rbinom(n = n, size = 1, prob = pL1)
-A1 <- rnorm(n=n, mean = -0.3 + 0.4*L1)
-Y <- rnorm(n =n, size = 1, prob = 0.6-0.25*L1)
-dat <- data.frame(A0 = A0, L1 = L1, A1 = A1, Y = Y, ID = 1:n) %>%
-        gather("t", "treat", -L1, -Y, -ID) %>%
-        rename("L"= L1) %>%
-        mutate(time = case_when(t == "A0" ~ 0, TRUE ~ 1), 
-               L = case_when(time == 1 ~ L, TRUE ~ NA_integer_), 
-               Y = case_when(time ==1~ Y, TRUE ~ NA_integer_))
-dat$L[dat$time == 0] <- rbinom(n = n, size = 1, prob = 0.5)
+---
+## Parametric G-Formula in Simulations
 
-fy <- glm(Y ~ A0 + A1 + L1, family= "binomial")
-fl <- glm(L1 ~ A0, family = "binomial")
+- The `gfoRmula` package will perform boostrapping for us. This can take a bit of time.
 
-outcome_type = "continuous_eof"
-id <-"ID" 
-time_name <- "time" 
-covnames <- c("L",  "treat") 
-outcome_name <- "Y" 
-histories <- c(lagged) 
-histvars <- list(c("treat", "L")) 
-covtypes <- c("normal", "normal") 
-covparams <- list(covmodels = c(L ~ lag1_treat + time, 
-                                treat ~ lag1_treat + L + time))
-ymodel <- Y ~ treat + L + lag1_treat
-intvars <- list("treat", "treat") 
-interventions <- list(list(c(static, rep(0, 2))), list(c(static, rep(2, 2)))) 
-int_descript <- c("Never treat", "Always treat") 
-nsimul <- 10000 
-ncores <- parallel::detectCores() - 1 
+```{r, cache=TRUE, warning = FALSE, message = FALSE, eval = FALSE}
+interventions <- list(list(c(static, c(0, 0, 0))),
+                      list(c(static, c(0, 1, 1))), 
+                      list(c(static, c(1, 1, 1))))
+int_descript <- c('Never treat', 'Treat last 2', 'Always treat')
+nsimul <- 10000 # number of data points to simulate
+gform_result <- gformula(obs_data = sim_dat_long, id = id,
+                        time_points = time_points,
+                        time_name = time_name, covnames = covnames,
+                        outcome_name = outcome_name,
+                        outcome_type = outcome_type, covtypes = covtypes,
+                        covparams = covparams, ymodel = ymodel,
+                        intvars = intvars,
+                        interventions = interventions,
+                        int_descript = int_descript,
+                        histories = histories, histvars = histvars,
+                        basecovs = c('Z'), nsimul = nsimul,
+                        seed = 1234, #, 
+                        nsamples= 500, #bootstrap samples
+                        ci_method = "normal")
+```
 
-gform_bin_eof <- gformula(obs_data = dat,
-                          outcome_type = outcome_type, 
-                          id = id, time_name = "time", covnames = covnames,  
-                          outcome_name = outcome_name, 
-                          covtypes = covtypes, covparams = covparams, ymodel = ymodel,
-                          intvars = intvars, interventions = interventions, int_descript = int_descript, 
-                          histories = histories, histvars = histvars,
-                          seed = 1234, parallel = TRUE, nsamples = 20, 
-                          nsimul =1000, ncores = ncores)
+```{r,echo = FALSE, eval = FALSE}
+saveRDS(gform_result, file = "img/11_gform_result.Rmd")
+```
+
+```{r, echo = FALSE}
+gform_result <- readRDS("img/11_gform_result.Rmd")
+```
+---
+## Parametric G-Formula in Simulations
+
+```{r}
+gform_result
+```
+
+---
+## Parametric G-Formula in Simulations
+
+```{r, echo = FALSE}
+all_ests <- data.frame(A = c("0-0-0", "0-1-1", "1-1-1"), 
+                       Truth = round(sim_dat.summ$Counterfactual, digits = 2), 
+                       IPWEst1 = ipw_ests$IPWEst1, 
+                       GForm = paste0(round(gform_result$result$`g-form mean`[-1], digits = 2), 
+                                      " (", 
+                                      round(gform_result$result$`Mean lower 95% CI`[-1], digits = 2),
+                                      ", ", round(gform_result$result$`Mean upper 95% CI`[-1], digits = 2), 
+                                      ")"))
+kable(all_ests, 
+           format = 'html', digits = 3)
 ```
 ---
 ## G-Null Paradox 
@@ -1563,13 +1550,11 @@ $$E[Y(a_0, a_1)] = \sum_{l = 0}^1 m(l, a_1, a_0; \theta)e(l, a_0; \beta)  =\\\
 ---
 ## Beyond the Strict Null
 
-- It may be impossible to correctly specify the parametric G-formula even when the strict null does not hold.
+- It may be impossible to correctly specify the parametric G-formula even when the strict null does not hold, for example in the graph below under our previous data generating model.
 
-- In the DAG below where there is an effect only of $A_1$ on $Y$ using the same model we've been using. 
+- Previous results showed that, in some settings, bias from the g-null paradox is negligible. 
 
 - McGrath, Young, and Hernán (2022) show that non-negligible bias can occur in some non-null models *even* using flexible model specifications. 
-
-- Previous results showed that in some settings, bias from the g-null paradox is negligible. 
 
 
 <center>
@@ -1607,7 +1592,7 @@ Using marginal structural models with IP weighting:
 
 - Under the strict null, $E[Y(\bar{a})]$ does not depend on $\bar{a}$.
 
-- So, under the strict null, the marginal structural mean model will never be mis-specified (as long as it contains an intercept parameter). 
+- So, under the strict null, the marginal structural mean model will never be mis-specified, as long as it contains an intercept parameter. 
 
 - This means that IP weighting method does not suffer from the g-null paradox. 
 
