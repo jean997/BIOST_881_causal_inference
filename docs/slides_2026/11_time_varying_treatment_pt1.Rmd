@@ -1199,7 +1199,7 @@ kable(ipw_ests,
 
 - We needed to estimate $E[Y \vert A, L]$ but not $f_L(l)$, the density of covariates.
 
-- To estimate $E[Y(a)]$ we replaced each persons treatment value with $a$ and then estimated $\hat{Y}_i(a) = \hat{E}[Y \vert A = a_0, L = L_i]$. 
+- To estimate $E[Y(a)]$ we replaced each person's treatment value with $a$ and then estimated $\hat{Y}_i(a) = \hat{E}[Y \vert A = a_0, L = L_i]$. 
 
 + We then approximated the integral 
     
