@@ -4,7 +4,7 @@
     <title>L6: IP Weighting and G-Computation</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jean Morrison" />
-    <script src="libs/header-attrs-2.29/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <script src="libs/mark.js-8.11.1/mark.min.js"></script>
@@ -15,6 +15,7 @@
     <script src="libs/panelset-0.3.0/panelset.js"></script>
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -32,7 +33,7 @@ class: center, middle, inverse, title-slide
 ]
 .date[
 ### Lecture on 2026-02-05
-(updated: 2026-02-05)
+(updated: 2026-03-22)
 ]
 
 ---
@@ -390,11 +391,8 @@ estimated weights.
 $$
 \hat{E}[Y(a)] = \hat{E}\left[\frac{I(A = a)Y}{P(A= a\vert L)} \right] = \frac{1}{n}\sum_{i = 1}^n I(A_i = a)Y_i W_i
 $$
-$$
-W_i = \begin{cases} 1/\pi_i \qquad A_i = 1\\
-1/(1-\pi_i) \qquad A_i = 0
-\end{cases}
-$$
+
+`$$W_i = \begin{cases} 1/\pi_i \qquad &amp; A_i = 1\\ 1/(1-\pi_i) \qquad &amp; A_i = 0\end{cases}$$`
 ---
 
 ## Hajek Estimator
@@ -761,8 +759,8 @@ summary(dat.s$w_cont)
 ```
 
 ```
-##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-##     25.4     26.4     30.0   1078.1     47.5 428611.4
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##     25.39     26.41     30.03   1078.05     47.53 428611.42
 ```
 
 - The non-stabilized weights are much more variable!

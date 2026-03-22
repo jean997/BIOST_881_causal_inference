@@ -7,6 +7,8 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     css: xaringan-themer.css
+    includes:
+      in_header: mathjax_header.html
     nature:
       highlightStyle: github
       highlightLines: true
@@ -362,11 +364,8 @@ estimated weights.
 $$
 \hat{E}[Y(a)] = \hat{E}\left[\frac{I(A = a)Y}{P(A= a\vert L)} \right] = \frac{1}{n}\sum_{i = 1}^n I(A_i = a)Y_i W_i
 $$
-$$
-W_i = \begin{cases} 1/\pi_i \qquad A_i = 1\\
-1/(1-\pi_i) \qquad A_i = 0
-\end{cases}
-$$
+
+$$W_i = \begin{cases} 1/\pi_i \qquad & A_i = 1\\ 1/(1-\pi_i) \qquad & A_i = 0\end{cases}$$
 ---
 
 ## Hajek Estimator
