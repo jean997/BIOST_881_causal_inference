@@ -285,9 +285,9 @@ propensitymodel &lt;- c("A~L+Lag1A")
 
 
 ``` r
-outcomemodels &lt;- list("Y~A + L + A*L", 
-                      "Y~A + L + A*L", 
-                      "Y~A + L + A*L")
+outcomemodels &lt;- list("Y~A + A*L", 
+                      "Y~A + A*L", 
+                      "Y~A + A*L")
 gest_result &lt;- gestSingle(sim_dat_gest, idvar, timevar, Yn, An, 
                           Cn, outcomemodels, propensitymodel,
                           censoringmodel = NULL, 
@@ -387,7 +387,7 @@ gest_mean(0, 1,1, nrep = 10)
 ```
 
 ```
-## [1] 0.08774956
+## [1] 0.08767097
 ```
 
 ``` r
@@ -395,7 +395,7 @@ gest_mean(1, 1,1, nrep = 10)
 ```
 
 ```
-## [1] -0.1208266
+## [1] -0.1224137
 ```
 
 ---
@@ -915,7 +915,7 @@ c(fit_ice_nonstratified(0, 0, 0, sim_dat),
 
 
 ---
-## Combining Information Across Time-Points
+## Combining Information Across Time
 
 - In some cases, it makes sense to combine information across time-points.
 
@@ -926,13 +926,13 @@ c(fit_ice_nonstratified(0, 0, 0, sim_dat),
 - We can then fit a **common** marginal structural model across all time points using time-varying weights. 
 
 ---
-## Combining Information Across Time-Points
+## Combining Information Across Time
 
 - For example, suppose that only treatment at the two most recent time-points affects `\(Y_k\)`. 
 
 - We could propose the MSM
 
-`$$E[Y_{k}(\bar{A}_k)] = \beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1}$$`
+`$$E[Y_{k}(\bar{A}_k)] = o\beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1}$$`
 - In this MSM, we have a time-specific intercept but the causal differences are shared across times. 
 
 - We are assuming that the effect of changing from a treatment course with the last two time points untreated to a treatment course with the final time point treated is the same at every time point. 
@@ -941,10 +941,10 @@ c(fit_ice_nonstratified(0, 0, 0, sim_dat),
 
 
 ---
-## Combining Information Across Time-Points
+## Combining Information Across Time
 
 
-- If we had a study that only included two time-points and one measured outcome at time 1, `\(Y_1\)`, we would estimate the parameters of the MSM using IP weighting for time-varying treatments (L10). 
+- If we had a study that only included two time-points and one measured outcome at time 1,we would estimate the parameters of the MSM using IP weighting for time-varying treatments (L10). 
 
 `$$E[Y_{1}(\bar{a}_1)] = \beta_{0,1} +  \beta_1 a_1 + \beta_2 a_0$$`
 - We would first propose and fit models for `\(f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k-1})\)` and `\(f(A_k \vert \bar{A_k})\)` for `\(k = 0\)` and `\(k=1\)` . 
@@ -954,11 +954,11 @@ c(fit_ice_nonstratified(0, 0, 0, sim_dat),
 - Finally we would fit the MSM by fitting a linear regression weighted by the IP weights. 
 
 ---
-## Combining Information Across Time-Points
+## Combining Information Across Time
 
-- If we would like to combine all time-points together to estimate `\(\beta_1\)` and `\(\beta_2\)`, we use the same procedure. 
+- To estimate a common `\(\beta_1\)` and `\(\beta_2\)` shared across time-points, we use the same procedure. 
 
-- The idea is to think of our data as `\(K\)` shorter studies that all include the same people. 
+- Think of our data as `\(K\)` shorter studies that all include the same people. 
 
 - For each person-time combination, we compute the time-varying stabilized weight 
 `$$W_{i,j} = \prod_{k = 0}^{k = j} \frac{f(A_k = A_{k, i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i})}{f(A_k = A_{k,i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i}, \bar{L}_{k-1})}$$`

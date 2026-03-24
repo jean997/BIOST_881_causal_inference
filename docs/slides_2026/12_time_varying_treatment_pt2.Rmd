@@ -285,9 +285,9 @@ propensitymodel <- c("A~L+Lag1A")
 - `type = 4` allows a time-varying causal effect and effect modification.
 
 ```{r}
-outcomemodels <- list("Y~A + L + A*L", 
-                      "Y~A + L + A*L", 
-                      "Y~A + L + A*L")
+outcomemodels <- list("Y~A + A*L", 
+                      "Y~A + A*L", 
+                      "Y~A + A*L")
 gest_result <- gestSingle(sim_dat_gest, idvar, timevar, Yn, An, 
                           Cn, outcomemodels, propensitymodel,
                           censoringmodel = NULL, 
@@ -902,7 +902,7 @@ knitr::include_graphics("img/9_timevarying3.png")
 
 
 ---
-## Combining Information Across Time-Points
+## Combining Information Across Time
 
 - In some cases, it makes sense to combine information across time-points.
 
@@ -913,13 +913,13 @@ knitr::include_graphics("img/9_timevarying3.png")
 - We can then fit a **common** marginal structural model across all time points using time-varying weights. 
 
 ---
-## Combining Information Across Time-Points
+## Combining Information Across Time
 
 - For example, suppose that only treatment at the two most recent time-points affects $Y_k$. 
 
 - We could propose the MSM
 
-$$E[Y_{k}(\bar{A}_k)] = \beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1}$$
+$$E[Y_{k}(\bar{A}_k)] = o\beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1}$$
 - In this MSM, we have a time-specific intercept but the causal differences are shared across times. 
 
 - We are assuming that the effect of changing from a treatment course with the last two time points untreated to a treatment course with the final time point treated is the same at every time point. 
@@ -928,10 +928,10 @@ $$E[Y_{k}(\bar{A}_k)] = \beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1}$$
 
 
 ---
-## Combining Information Across Time-Points
+## Combining Information Across Time
 
 
-- If we had a study that only included two time-points and one measured outcome at time 1, $Y_1$, we would estimate the parameters of the MSM using IP weighting for time-varying treatments (L10). 
+- If we had a study that only included two time-points and one measured outcome at time 1,we would estimate the parameters of the MSM using IP weighting for time-varying treatments (L10). 
 
 $$E[Y_{1}(\bar{a}_1)] = \beta_{0,1} +  \beta_1 a_1 + \beta_2 a_0$$
 - We would first propose and fit models for $f(A_k \vert \bar{A}_{k-1}, \bar{L}_{k-1})$ and $f(A_k \vert \bar{A_k})$ for $k = 0$ and $k=1$ . 
@@ -941,11 +941,11 @@ $$E[Y_{1}(\bar{a}_1)] = \beta_{0,1} +  \beta_1 a_1 + \beta_2 a_0$$
 - Finally we would fit the MSM by fitting a linear regression weighted by the IP weights. 
 
 ---
-## Combining Information Across Time-Points
+## Combining Information Across Time
 
-- If we would like to combine all time-points together to estimate $\beta_1$ and $\beta_2$, we use the same procedure. 
+- To estimate a common $\beta_1$ and $\beta_2$ shared across time-points, we use the same procedure. 
 
-- The idea is to think of our data as $K$ shorter studies that all include the same people. 
+- Think of our data as $K$ shorter studies that all include the same people. 
 
 - For each person-time combination, we compute the time-varying stabilized weight 
 $$W_{i,j} = \prod_{k = 0}^{k = j} \frac{f(A_k = A_{k, i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i})}{f(A_k = A_{k,i} \vert \bar{A}_{k-1} = \bar{A}_{k-1, i}, \bar{L}_{k-1})}$$
@@ -971,7 +971,7 @@ $$W_{i,j} = \prod_{k = 0}^{k = j} \frac{f(A_k = A_{k, i} \vert \bar{A}_{k-1} = \
 $$E[Y_{ij}(\bar{a}) \vert V_{i,0}] = \beta_{0, j} + \beta_1^{\top} V_{i,0} + \beta_2^\top g(Cum_{i,j})$$
 - $V_{i,0}$ are baseline CD4 count and viral load categories. 
 
-- They include these variables in the MSM because they want to use them in the numerator of the stabilized weights. Since the MSM is conditional on $V_{i,0}$, the are assuming no effect modification by $V_{i,0}$.
+- They include these variables in the MSM because they want to use them in the numerator of the stabilized weights. Since the MSM is conditional on $V_{i,0}$, they are assuming no effect modification by $V_{i,0}$.
 
 - $g(Cum_{i,j})$ is a four level categorical variable categorizing the total time since beginning HAART treatment as $0$, $>0-1$, $>1-3$ and $>3-9$ years. 
 
@@ -986,7 +986,7 @@ $$W_{ij}^{C} = \prod_{k = 1}^{j + 1}\frac{P(C_{ik} = 0 \vert \bar{C}_{ik} = 0, \
 
 - The total weights are the product of the confounding weights and the censoring weights. 
 
-- The analysis now also relies on the assumption of non-informative censoring. That is, people with high viral loads were not more (or less) likely to be censored than other people with the same covariate and treatment history. 
+- The analysis now also relies on the assumption of non-informative censoring, meaning people with high viral loads were not more (or less) likely to be censored than other people with the same covariate and treatment history. 
 
 
 ---
