@@ -31,7 +31,7 @@ Part 2
 ]
 .date[
 ### 2026-03-17
-(updated: 2026-03-17)
+(updated: 2026-03-24)
 ]
 
 ---
@@ -387,7 +387,7 @@ gest_mean(0, 1,1, nrep = 10)
 ```
 
 ```
-## [1] 0.08756324
+## [1] 0.08774956
 ```
 
 ``` r
@@ -395,7 +395,7 @@ gest_mean(1, 1,1, nrep = 10)
 ```
 
 ```
-## [1] -0.1210866
+## [1] -0.1208266
 ```
 
 ---
@@ -493,21 +493,22 @@ $$E[Y(\bar{a})] = \color{purple}{E_{L_0}\bigg[ } E[Y(a_1) \vert A_0 = a_0, L_0] 
 
 - Next, define a model for `\(\hat{Q}_2(L_1, L_0) = \hat{E}[\hat{Q}_3 \vert \bar{A}_1 = \bar{a}, \bar{L}_1]\)`. For example,
 
-`$$E[\hat{Q}_3 \vert \bar{L}_{1}, \bar{A}_{1} = \bar{a}] = \theta_{0, 1} +  \theta_{1,1} L_{1} + \theta_{2,1}L_0$$`
-- We can fit this as a regular regression fit only among those with `\(\bar{A}_1 = \bar{a}\)`.
+`$$\hat{Q}_2(L_1, L_0) =  E[\hat{Q}_3 \vert \bar{L}_{1}, \bar{A}_{1} = \bar{a}] = \theta_{0, 1} +  \theta_{1,1} L_{1} + \theta_{2,1}L_0$$`
+- We can fit this using linear regression limited to those with `\(\bar{A}_1 = \bar{a}\)`.
+
 
 - Think of `\(\hat{Q}_2\)` as an estimate of `\(E[Y(a_1) \vert A_0 = a_0, L_0, L_1]\)`. 
 
 ---
 ## ICE Estimation
 
-- Now we plug `\(\hat{Q}_2(L_1, L_0)\)` into the expression 
+- Now plug `\(\hat{Q}_2(L_1, L_0)\)` into the expression 
 
 `$$E[Y(a_0, a_1)] = \color{purple}{E_{L_0}\bigg[ }\color{blue}{E_{L_1 \vert A_0 = a_0, L_0}\Big[} \color{green}{\hat{Q}_2(L_0, L_1)} \color{blue}{\Big \vert A_0 = a_0, L_0\Big]} \color{purple}{\bigg]}$$`
 
-- Now we estimate the blue part. This will be a regression model with `\(\hat{Q}_2\)` as the outcome and `\(L_0\)` as predictors fit amongst those with `\(A_0 = a_0\)`.
+- Next, estimate the blue part. We can use a regression model with `\(\hat{Q}_2\)` as the outcome and `\(L_0\)` as predictors, fit using only those with `\(A_0 = a_0\)`.
 
-- To find the outcome, at this stage, we compute `\(\hat{Q}_{2,i}\)` for each person with `\(A_{0,i} = a_0\)` by plugging `\(L_{1,i}\)`, `\(L_{0,i}\)` into the fitted model from the previous stage.
+- To find the outcome, we compute `\(\hat{Q}_{2,i}\)` for each person with `\(A_{0,i} = a_0\)` by plugging `\(L_{1,i}\)`, `\(L_{0,i}\)` into the fitted model from the previous stage.
 
 
 ---
@@ -547,23 +548,35 @@ Q_0 = E[Q_1 \vert A_0 = a_0, L_0]$$`
 - When we get all the way down to 0, `\(Q_0 = E[Q_1 \vert A_0 = a_0, L_0]\)` is an estimator of `\(Y(\bar{a})\)`. 
 
 ---
+## Non-Stratified ICE Estimation
+
+- At step `\(k\)`, we fit the model only among individuals with treatment history matching our target treatment history up to time `\(k\)`. 
+
+- This strategy is non-parametric with respect to the `\(Y-A\)` relationship. 
+
+- In other words, we are not borrowing information from people who have similar treatment histories. 
+
+- Alternatively, we could include the treatment variables in the models and fit a fully parametric model using everyone in the data at every step. 
+  + This may be more powerful but requires stronger assumptions.
+
+---
 ## ICE Estimation
 
-- The ICE estimator will be valid if the outcome regression was correct at each time point. 
+- The ICE estimator is valid if the outcome regression is correct at each time point. 
 
-- An advantage over the parametric G-formula approach is that we didn't have to estimate the joint distribution of `\(L\)`. 
+- Unlike parametric G-formula and G-estimation, we don't have to estimate the joint distribution of `\(\bar{L}\)`. 
 
 
 
 ---
-## Doubly Robust Estimator
+## Doubly Robust ICE Estimation
 
 
-- We can turn the ICE estimator into a doubly robust estimator by adding a special covariate based on the propensity score to each regression. 
+- We can turn the ICE estimator into a doubly robust estimator by adding the Scharfstein et al "special covariate" to each regression. 
 
-- Below is a variation of the Scharfstein et al "special covariate" regression strategy for estimating `\(Y(a)\)` that we saw previously:
+- For a point treatment, the Scharfstein et al method for estimating `\(E[Y(a)]\)` is
 
-1. Estimate `\(P[A = a \vert L]\)` and compute `\(W^{A}_i  = \frac{1}{\hat{P}[A = A_i \vert L]}\)` 
+1. Estimate `\(P[A = a \vert L]\)` and compute `\(W^{A}_i  = \frac{1}{\hat{P}[A = A_i \vert L_i]}\)` 
 
 2. Propose an outcome model `\(E[Y \vert A = a, L] = m(A = a, L; \theta)\)`
 
@@ -573,7 +586,7 @@ Q_0 = E[Q_1 \vert A_0 = a_0, L_0]$$`
 
 `$$E[Y(a)] = \frac{1}{N}\sum_{i=1}^N \left(m(a, L_i; \hat{\theta}) + \hat{\phi}\frac{1}{\hat{P}[A = a \vert L_i]} \right)$$`
 ---
-## Doubly Robust Estimator for Time Varying Treatment
+## Doubly Robust ICE Estimation
 
 - We will use the same strategy in combination with the ICE estimation strategy. 
 
@@ -664,17 +677,12 @@ OR
 
 - I implemented this estimator by hand, but it was straight-forward.
 
-- There are two ways to do this. 
+- I used both the stratified and non-stratified methods.
 
-- The **stratified** method is the method described in the book. 
-  + At stage `\(k\)`, fit the model only amongst those with the desired tretment history up to time `\(k\)`.
-  + This means we only need to get the Y-covariate relationship right. 
-  + This will be non-parametric with respect to the Y-A relationship.
-  
-- The **non-stratified** method fully specifies the outcome model.
-  + At each stage, we fit the model in the full data.
-  + We have to get the outcome model correct.
-  
+- Recall, in the stratified method, the regression at stage `\(k\)` is fit only amongst those with the desired treatment history up to time `\(k\)`.
+
+- In the non-stratified method, the outcome model is fully specified including the `\(Y-A\)` relationship and fit using the full data. 
+
 ---
 ## ICE Estimation
 
@@ -897,23 +905,23 @@ c(fit_ice_nonstratified(0, 0, 0, sim_dat),
 ---
 ## Analyzing the Repeated Outcomes Data
 
-- If our goal is to estimate `\(E[Y_k(\bar{A}_k)]\)`, one thing we could do is treat each outcome separately. 
+- If our goal is to estimate `\(E[Y_k(\bar{A}_k)]\)`, one option is treat each outcome separately. 
 
-- For each `\(k\)`, consider a study that ends at time `\(k\)` in which we are only interested in the outcome `\(Y_k\)`. 
+- For each `\(k\)`, consider a study that ends at time `\(k\)` with a single outcome `\(Y_k\)`. 
 
-- All previous outcomes are treated simply as confounders. 
+- All previous previous values of `\(Y\)` can be treated as confounders. 
 
-- We can use our previous machinery (e.g. IP weighting, parametric G-formula, or structural nested models) to estiamte `\(E[Y_k(\bar{A}_k)]\)`
+- We can use our existing machinery (e.g. IP weighting, G-estimation, ICE, etc.) to estimate `\(E[Y_k(\bar{A}_k)]\)`
 
 
 ---
 ## Combining Information Across Time-Points
 
-- In some cases, we can combine information across time-points.
+- In some cases, it makes sense to combine information across time-points.
 
-- This is possible when we can use the same marginal structural model for every time point.
+- This is possible when the marginal structural model at every time point is the same.
 
-- We might potentially allow effect modification. 
+- We could potentially include some effect modification by time to allow some parameters to vary with time. 
 
 - We can then fit a **common** marginal structural model across all time points using time-varying weights. 
 
@@ -924,15 +932,12 @@ c(fit_ice_nonstratified(0, 0, 0, sim_dat),
 
 - We could propose the MSM
 
-$$
-`\begin{split}
-E[Y_{k}(\bar{A}_k)] = &amp;\beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1} \\
- = &amp; \sum_{j = 1}^K \beta_{0,j}1_{t_j = j} +  \beta_1 A_k + \beta_2 A_{k-1} 
-\end{split}`
-$$
-- In this MSM, we have a time-specific intercept but the causal differences are shared. This means we are assuming that the effect of changing from a treatment course with the last two time points untreated to a treatment course with the final time point treated is the same at every time point. 
+`$$E[Y_{k}(\bar{A}_k)] = \beta_{0,j} +  \beta_1 A_k + \beta_2 A_{k-1}$$`
+- In this MSM, we have a time-specific intercept but the causal differences are shared across times. 
 
-- Because our MSM includes the last two treatments, we can only fit this model for `\(k \geq 1\)`. We could either fit a separate model for `\(Y_0\)` or ignore this outcome. 
+- We are assuming that the effect of changing from a treatment course with the last two time points untreated to a treatment course with the final time point treated is the same at every time point. 
+
+- Because our MSM includes the last two treatments, we can only fit this model for `\(k \geq 1\)`. We could either fit a separate model for `\(Y_0\)`, ignore this outcome, or assume that `\(A_{-1} = 0\)`. 
 
 
 ---
