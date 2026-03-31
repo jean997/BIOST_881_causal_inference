@@ -113,7 +113,7 @@ render_graph(gr1)
 
 - In Lecture 4, we saw that we could recover from selection bias if we knew the distribution of the outcome in the general population and if we knew the probability of censoring/study inclusion given the outcome. 
 
-- In the time to event setting, it is unlikely that we know the distribution of $T$ in the population or are able to estimate $P[C = 0 \vert T]$. 
+- In the time to event setting, it is unlikely that we know the distribution of $T$ in the population. 
 
 - There may also be values of $T$ for which $P[C = 0 \vert T] = 0$ leading to a violation of positivity. 
 
@@ -309,7 +309,7 @@ $$P[D_2 = 0 \vert C_2 = 0] = \frac{ 0.95 \cdot 0.45}{0.1 + 0.45} \approx 0.777$$
 ---
 ## Example Continued
 
-- We estimated $P[D_2(\bar{C}_2 = 0)]$ as 
+- We computed $P[D_2(\bar{C}_2 = 0)]$ as 
 $$
 \begin{split}
 P[D_2(\bar{C}_2 = 0)]  =& 1 - (P[D_1 = 1] + P[D_2 = 1 \vert D_1 = 0]P[D_1 = 0]) \\
@@ -320,7 +320,7 @@ $$
 
 - Because death and censoring are independent $P[D_2 = 1 \vert D_1 = 0] = P[D_2 = 1 \vert D_1 = 0, C_2 = 0]$, so both of these quantities are observable in our data. 
 
-- We are just using the product identity 
+- We are using the product identity 
 $$S_{k} = \prod_{j = 1}^{k}\left(1 - h_j\right)$$
 ---
 
