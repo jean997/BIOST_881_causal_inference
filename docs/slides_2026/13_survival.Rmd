@@ -1200,11 +1200,11 @@ knitr::include_graphics("img/8_ysthfig2.png")
 ---
 ## Option 3: Condition on competing events
 
-+ Estimate $E[D_{k}(a, \bar{C}_k =0) \vert D_{k-1}(a, \bar{C}_{k-1} =0) = 0, Y_{k-1}(a, \bar{C}_{k-1} =0) = 0]$
++ Estimate $E[Y_{k}(a, \bar{C}_k =0) \vert D_{k-1}(a, \bar{C}_{k-1} =0) = 0, Y_{k-1}(a, \bar{C}_{k-1} =0) = 0]$
 
 + This is the **cause-specific hazard**.
 
-+ If there are common causes of treatment and $Y_k$ or of $Y_k$ and $Y_{k + 1}$, conditioning on $Y_k$ will introduce selection bias. 
++ If there are common causes of treatment and $Y_{k-1}$ or of $Y_k$ and $Y_{k - 1}$, conditioning on $Y_{k-1}$ will introduce selection bias. 
 
 <center> 
 
