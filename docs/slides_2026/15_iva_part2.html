@@ -454,12 +454,11 @@ where `\(\kappa = \frac{1}{p}\sum_{k = 1}^K \frac{\mu_k^2}{\sigma^2_{AZ_k}}\)` r
 
 - The expectation of the OLS estimate regressing `\(A\)` on `\(Y\)` is 
 
-$$
-\begin{split}
-&amp;E\left[ \hat{\beta}_{OLS} \right] =  \frac{Cov(A, Y)}{Var(A)} = \rho_{pop}\sqrt{\frac{Var(Y)}{Var(A)}} \equiv \rho_{pop} c_{pop}\\
-&amp;E\left[ \hat{\beta}_{OLS} -\gamma \right] = \rho_{pop}c_{pop} - \gamma
-\end{split}
-$$ where `\(Var(Y)\)` is the residual variance of `\(Y\)`. 
+`$$E\left[ \hat{\beta}_{OLS} \right] =  \frac{Cov(A, Y)}{Var(A)} = \rho_{pop}\sqrt{\frac{Var(Y)}{Var(A)}} \equiv \rho_{pop} c_{pop}$$`
+
+`$$E\left[ \hat{\beta}_{OLS} -\gamma \right] = \rho_{pop}c_{pop} - \gamma$$` 
+
+where `\(Var(Y)\)` is the residual variance of `\(Y\)`. 
 
 ---
 ## Bias of the IVW Estimator

@@ -501,12 +501,11 @@ $$E[\hat{\beta}_{IVW} - \gamma] \approx \frac{-\gamma + \rho c}{\kappa}$$
 
 - The expectation of the OLS estimate regressing $A$ on $Y$ is 
 
-$$
-\begin{split}
-&E\left[ \hat{\beta}_{OLS} \right] =  \frac{Cov(A, Y)}{Var(A)} = \rho_{pop}\sqrt{\frac{Var(Y)}{Var(A)}} \equiv \rho_{pop} c_{pop}\\
-&E\left[ \hat{\beta}_{OLS} -\gamma \right] = \rho_{pop}c_{pop} - \gamma
-\end{split}
-$$ where $Var(Y)$ is the residual variance of $Y$. 
+$$E\left[ \hat{\beta}_{OLS} \right] =  \frac{Cov(A, Y)}{Var(A)} = \rho_{pop}\sqrt{\frac{Var(Y)}{Var(A)}} \equiv \rho_{pop} c_{pop}$$
+
+$$E\left[ \hat{\beta}_{OLS} -\gamma \right] = \rho_{pop}c_{pop} - \gamma$$ 
+
+where $Var(Y)$ is the residual variance of $Y$. 
 
 ---
 ## Bias of the IVW Estimator
