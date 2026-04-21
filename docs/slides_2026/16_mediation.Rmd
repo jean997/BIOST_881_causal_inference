@@ -659,13 +659,13 @@ $$
 - If both treatment and mediator are binary, we can make these same divisions, though the names we used before don't really make sense. 
 
 
-Stratum 1 (formerly Compliers): Units with $W_i(1) = 1$ and $W_i(0) = 0$
+Stratum 1 (formerly Compliers): Units with $M_i(1) = 1$ and $M_i(0) = 0$
 
-Stratum 2 (formerly Defiers): Units with $W_i(1) = 0$ and $W_i(1) = 1$
+Stratum 2 (formerly Defiers): Units with $M_i(1) = 0$ and $M_i(1) = 1$
 
-Stratum 3 (formerly Always Takers): Units with $W_i(1) = W_i(0) = 1$
+Stratum 3 (formerly Always Takers): Units with $M_i(1) = M_i(0) = 1$
 
-Stratum 4 (formerly Never Takers): Units with $W_i(1) = W_i( 0) = 0$
+Stratum 4 (formerly Never Takers): Units with $M_i(1) = M_i( 0) = 0$
 
 ---
 ## Principal Stratification
@@ -702,9 +702,9 @@ $$\beta = \frac{\sum_{c = 3}^4 \pi_c E[Y(1)-Y(0) \vert C = c, X = x]}{\pi_3 + \p
 ---
 ## Principal Stratification Estimation
 
-- For any unit, we get to observe $A$ and $W$ but not their principal stratum. However, seeing $A$ and $W$ narrows the possibilities to two. 
+- For any unit, we get to observe $A$ and $M$ but not their principal stratum. However, seeing $A$ and $M$ narrows the possibilities to two. 
 
-- For example, if $A_i = 0$ and $W_i = 1$, we know the unit is in Stratum 2 (defiers) or Stratum 3 (always takers).
+- For example, if $A_i = 0$ and $M_i = 1$, we know the unit is in Stratum 2 (defiers) or Stratum 3 (always takers).
 
 - So the likelihood of $Y_i$ given covariates is a weighted combination of the likelihood given $C_i = 2$ and the likelihood given $C_i = 3$. This completes the hierarchical model. 
 
