@@ -340,6 +340,63 @@ $$
 - Before you start, make a prediction. Do you think the NDE and the CDE are the same?
 
 ---
+## Controlled Direct Effect
+
+$$
+\begin{split}
+&M =  \beta_{M,A}A + \epsilon_M\\
+&Y = \beta_{Y,M}M + \beta_{Y,A}A + \beta_{Y,MA}MA + \epsilon_{Y}\\
+&\epsilon_Y \ci \epsilon_M \qquad E[\epsilon_M] = E[\epsilon_Y] = 0
+\end{split}
+$$
+
+$$
+\begin{split}
+&E[Y(A = 1, M = m)] = \beta_{Y,M} m + \beta_{Y,A} + \beta_{Y, MA} m\\
+&E[Y(A = 0, M = m)] = \beta_{Y,M} m\\
+&\theta_{CD, m} = \beta_{Y,A} + \beta_{Y, MA} m
+\end{split}
+$$
+
+---
+## Natural Direct Effect
+
+$$
+\begin{split}
+&M =  \beta_{M,A}A + \epsilon_M\\
+&Y = \beta_{Y,M}M + \beta_{Y,A}A + \beta_{Y,MA}MA + \epsilon_{Y}\\
+&\epsilon_Y \ci \epsilon_M \qquad E[\epsilon_M] = E[\epsilon_Y] = 0
+\end{split}
+$$
+$$
+\begin{split}
+&E[Y(A = 1, M = M(a))] = \beta_{Y,M} \beta_{M,A} a + \beta_{Y,A} + \beta_{Y, MA} \beta_{M,A} a\\
+&E[Y(A = 0, M = M(a))] = \beta_{Y,M} \beta_{M,A} a\\
+&\theta_{ND, a} =  \beta_{Y,A} + \beta_{Y, MA} \beta_{M,A} a
+\end{split}
+$$
+---
+## Natural Indirect Effect
+
+$$
+\begin{split}
+&M =  \beta_{M,A}A + \epsilon_M\\
+&Y = \beta_{Y,M}M + \beta_{Y,A}A + \beta_{Y,MA}MA + \epsilon_{Y}\\
+&\epsilon_Y \ci \epsilon_M \qquad E[\epsilon_M] = E[\epsilon_Y] = 0
+\end{split}
+$$
+
+
+$$
+\begin{split}
+&E[Y(A = a, M = M(1))] = \beta_{Y,M} \beta_{M,A}  + \beta_{Y,A} a + \beta_{Y, MA} \beta_{M,A} a\\
+&E[Y(A = a, M = M(0))] =  \beta_{Y,A} a \\
+&\theta_{NI, a} =  \beta_{M,A}(\beta_{Y,M}   + \beta_{Y, MA} a)
+\end{split}
+$$
+
+
+---
 ## Direct and Indirect Effects in the SEMs
 
 - In the interaction model, we have
@@ -351,29 +408,13 @@ $$
 &\theta_{CD,m} = \beta_{Y,A} + \beta_{Y,MA}m
 \end{split}
 $$
+
 - Here the NDE and the CDE are not the same and both values are dependent on $a$ or $m$. 
   + However, if $\beta_{Y,A} = \beta_{Y,MA} = 0$, both the CDE and the NDE will be 0. 
 
 - If the NDE is non-zero for at least one value of $a$, $\theta_{CD,m}$ will be non-zero for at least one value of $m$. 
 
 - We could estimate these parameters by using the same regression approach followed by plugging coefficient estimates into the expression above. (VanderWeele and Vansteelandt (2009))
-
----
-## Confounding in the Linear SEM
-
-- So far our regression models haven't included confounders. We have been assuming that there are no confounders of $A$ and $Y$ or of $M$ and $Y$. 
-
-
-- The SEM approach extends straight forwardly to the setting where there are confounders of the $A$ to $Y$ relationship. We can simply include these in the regression model for $Y$. 
-
-- It is not so straight forward to include confounders of the $M$ to $Y$ relationship. Why do you think this is?
-
----
-## Confounding in the Linear SEM
-
-- If there are confounders of the $M-Y$ relationship, we need to include them in the regression model for $Y$ in order to get an unbiased estimate of $\beta_{Y,M}$, the effect of $M$ on $Y$. 
-
-- However, if confounders occur after $A$, it is possible that conditioning on these induces bias in the estimate of $\beta_{Y,A}$. They could be considers or children of $A$. We will come back to this point.
 
 ---
 ## Natural vs Controlled Effects
@@ -449,7 +490,7 @@ knitr::include_graphics("img/16_RandG.png")
 ---
 ## Identification of the NDE
 
-- There are a few alternative conditions under which we *can* identify the NDE and NIE. 
+- There are some assumptions under which we *can* identify the NDE and NIE. 
 
 - The NDE, NIE, and CDE all involve joint counterfactuals, $E[Y(a,m)]$. 
 
@@ -521,7 +562,7 @@ does not depend on $m$.
 
 ## Identification Formula for NDE
 
-- If the NDE and NIE are identifiable, we can use an analog of the g-formula. 
+- If the NDE and NIE are identifiable, we can use a variation of the g-formula. 
 
 - Start with the law of total probability:
 
@@ -587,9 +628,9 @@ $$
 
 --
 
-- Since $E[Y(a,m)]$ is a joint counterfactual, all of the strategies we learned in Lectures 10 and 11 apply.
+- Since $E[Y(a,m)]$ is a joint counterfactual, so all of the strategies we learned for time-varying treatments apply.
 
-- G-computation, IP weighting, and G-estimation with structural nested mean models are all valid approaches. 
+- G-computation, IP weighting, G-estimation with structural nested mean models, and ICE estimation are all valid approaches. 
 
 ---
 ## Estimating the CDE
@@ -602,19 +643,9 @@ $$
   + This means we need to rely on a parametric density model.
   + We could also run into issues of very large weights.
   
-- These factors may push us to using G-estimation with structural nested mean models. 
+- These factors may push us to using G-estimation with structural nested mean models or ICE estimation. 
 
 - Vansteelandt (2009) discusses using G-estimation to estimate the CDE as well as interaction terms between exposure and mediator. 
-
-
----
-## Estimationg the CDE
-
-<center>
-```{r, echo=FALSE, out.width="90%"}
-knitr::include_graphics("img/16_vanst1.png")
-```
-</center>
 
 
 ---
@@ -654,7 +685,7 @@ Stratum 4 (formerly Never Takers): Units with $W_i(1) = W_i( 0) = 0$
 ---
 ## Principal Stratification Estimation
 
-- There are many PS estimation methods. 
+- There are many principal stratification estimation methods. 
 
 - Gallop et al (2009) propose a hierarchical model. Within each stratum, assume that
 
